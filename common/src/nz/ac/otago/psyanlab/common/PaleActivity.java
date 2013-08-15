@@ -169,7 +169,9 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
     private void updateExperimentDelegate(UserExperimentDelegateI experimentDelegate) {
         mCurrentExperimentDelegate = experimentDelegate;
-        mDetailContainerFragment.setExperimentDelegate(mCurrentExperimentDelegate);
+        if (mDetailContainerFragment != null) {
+            mDetailContainerFragment.setExperimentDelegate(mCurrentExperimentDelegate);
+        }
     }
 
     private void doImportExperiment() {

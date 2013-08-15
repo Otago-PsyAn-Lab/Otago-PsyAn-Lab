@@ -159,5 +159,6 @@
     <string name="title_select_actions">Select Actions</string>
     <string name="title_select_generators">Select Generators</string>
     <string name="title_edit_iterations">Set Number of Cycles</string>
+    <string name="action_confirm">Confirm</string>
 
 </resources>

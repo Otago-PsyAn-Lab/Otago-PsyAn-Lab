@@ -72,7 +72,7 @@ public class EditIterationDialogFragment extends DialogFragment {
         // Build dialogue.
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.title_edit_iterations).setView(view)
-                .setPositiveButton(R.string.action_create, new OnClickListener() {
+                .setPositiveButton(R.string.action_confirm, new OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int id) {
                         mLoop.iterations = mViews.iterations.getValue();

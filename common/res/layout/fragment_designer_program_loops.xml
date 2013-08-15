@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent" >
+
+    <View
+        android:id="@+id/colour_bar_spacer"
+        android:layout_width="0dip"
+        android:layout_height="16dip" />
+
+    <LinearLayout
+        android:id="@+id/loops_column"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="240dip"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:orientation="vertical"
+        android:showDividers="middle" >
+
+        <Button
+            android:id="@+id/new_loop"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/action_new_loop" />
+
+        <com.mobeta.android.dslv.DragSortListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:listSelector="@drawable/loop_list_selector_holo_light"
+            app:drag_enabled="true"
+            app:drag_handle_id="@+id/handle"
+            app:drag_start_mode="onDown"
+            app:float_background_color="@android:color/transparent"
+            app:remove_enabled="false" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dip"
+        android:layout_height="16dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/loops_column"
+        android:background="#ff0cb7b9" />
+
+</RelativeLayout>

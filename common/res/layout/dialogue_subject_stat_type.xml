@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:orientation="horizontal" >
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <GridLayout
+                    android:id="@+id/container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alignmentMode="alignBounds"
+                    android:columnCount="4"
+                    android:columnOrderPreserved="false"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="8dip"
+                    android:useDefaultMargins="true" >
+
+                    <TextView
+                        android:layout_gravity="end"
+                        android:text="Short name:" />
+
+                    <EditText
+                        android:id="@+id/name"
+                        android:ems="8"
+                        android:imeOptions="actionNext"
+                        android:inputType="textNoSuggestions"
+                        android:singleLine="true" />
+
+                    <Space />
+
+                    <CheckBox
+                        android:id="@+id/required"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_column="3"
+                        android:layout_gravity="center_vertical"
+                        android:text="is required" />
+
+                    <TextView
+                        android:layout_column="0"
+                        android:layout_gravity="center_vertical|end"
+                        android:text="Input type:" />
+
+                    <Spinner
+                        android:id="@+id/type"
+                        android:layout_width="0dp"
+                        android:layout_columnSpan="3"
+                        android:layout_gravity="fill_horizontal"
+                        android:entries="@array/subject_stat_types"
+                        android:minHeight="48dip" />
+                </GridLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <FrameLayout
+            android:id="@+id/options_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:minHeight="40dip"
+            android:paddingLeft="8dip"
+            android:paddingRight="8dip" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="?android:dividerHorizontal"
+        android:orientation="vertical"
+        android:showDividers="beginning|end" >
+
+        <LinearLayout
+            style="?android:buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="?android:dividerVertical"
+            android:orientation="horizontal"
+            android:showDividers="middle" >
+
+            <Button
+                android:id="@+id/discard"
+                style="?android:buttonBarButtonStyle"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Discard" />
+
+            <Button
+                android:id="@+id/confirm"
+                style="?android:buttonBarButtonStyle"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Confirm" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

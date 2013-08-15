@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true" >
+
+    <View
+        android:id="@+id/colour_bar_spacer"
+        android:layout_width="0dip"
+        android:layout_height="16dip" />
+
+    <View
+        android:id="@+id/colour_left_margin"
+        android:layout_width="4dip"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:background="#cdffbb33" />
+
+    <LinearLayout
+        android:id="@+id/rule_column"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_toRightOf="@+id/colour_left_margin"
+        android:orientation="vertical"
+        android:paddingLeft="16dip"
+        android:paddingTop="8dip" >
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_rule_name"
+            android:inputType="text|textNoSuggestions"
+            android:maxEms="24"
+            android:minEms="16"
+            android:textSize="24sp" />
+
+        <TextView
+            style="@style/sectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_trigger" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Spinner
+                android:id="@+id/trigger_object"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Spinner
+                android:id="@+id/trigger_event"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/sectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_condition" />
+
+        <Button
+            android:id="@+id/condition"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Edit Condition" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/actions_column"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="240dip"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_toRightOf="@+id/rule_column"
+        android:orientation="vertical"
+        android:showDividers="middle" >
+
+        <Button
+            android:id="@+id/new_action"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Action" />
+
+        <com.mobeta.android.dslv.DragSortListView
+            android:id="@+id/actions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:listSelector="@drawable/action_list_selector_holo_light"
+            app:drag_enabled="true"
+            app:drag_handle_id="@+id/handle"
+            app:drag_start_mode="onDown"
+            app:float_background_color="@android:color/transparent"
+            app:remove_enabled="false" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dip"
+        android:layout_height="16dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/actions_column"
+        android:background="#cdffbb33" />
+
+</RelativeLayout>

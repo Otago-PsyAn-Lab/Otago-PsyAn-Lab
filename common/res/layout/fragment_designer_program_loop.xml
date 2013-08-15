@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true" >
+
+    <View
+        android:id="@+id/colour_bar_spacer"
+        android:layout_width="0dip"
+        android:layout_height="16dip" />
+
+    <View
+        android:id="@+id/colour_left_margin"
+        android:layout_width="4dip"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:background="#cd0fdddf" />
+
+    <GridLayout
+        android:id="@+id/loop_column"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_toRightOf="@+id/colour_left_margin"
+        android:columnCount="2"
+        android:paddingLeft="16dip"
+        android:paddingTop="8dip" >
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_columnSpan="2"
+            android:hint="@string/hint_loop_name"
+            android:inputType="text|textNoSuggestions"
+            android:maxEms="24"
+            android:minEms="12"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_gravity="left"
+            android:paddingRight="8dip"
+            android:text="Cycles:"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/iterations"
+            style="?android:attr/spinnerStyle"
+            android:layout_gravity="fill_horizontal"
+            android:text="12 Iterations" />
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_columnSpan="2"
+            android:orientation="vertical"
+            android:showDividers="middle" >
+
+            <Button
+                android:id="@+id/new_generator"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New Generator" />
+
+            <com.mobeta.android.dslv.DragSortListView
+                android:id="@+id/generators"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:listSelector="@drawable/loop_list_selector_holo_light"
+                app:drag_enabled="true"
+                app:drag_handle_id="@+id/handle"
+                app:drag_start_mode="onDown"
+                app:float_background_color="@android:color/transparent"
+                app:remove_enabled="false" />
+        </LinearLayout>
+    </GridLayout>
+
+    <LinearLayout
+        android:id="@+id/scenes_column"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="240dip"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_toRightOf="@+id/loop_column"
+        android:orientation="vertical"
+        android:showDividers="middle" >
+
+        <Button
+            android:id="@+id/new_scene"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Scene" />
+
+        <com.mobeta.android.dslv.DragSortListView
+            android:id="@+id/scenes"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:listSelector="@drawable/scene_list_selector_holo_light"
+            app:drag_enabled="true"
+            app:drag_handle_id="@+id/handle"
+            app:drag_start_mode="onDown"
+            app:float_background_color="@android:color/transparent"
+            app:remove_enabled="false" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dip"
+        android:layout_height="16dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/scenes_column"
+        android:background="#cd0fdddf" />
+
+    <!-- <View -->
+    <!-- android:layout_width="0dip" -->
+    <!-- android:layout_height="24dip" -->
+    <!-- android:layout_alignRight="@+id/loop_column" -->
+    <!-- android:layout_alignLeft="@+id/scenes_column" -->
+    <!-- android:background="#ffff8800" /> -->
+
+</RelativeLayout>

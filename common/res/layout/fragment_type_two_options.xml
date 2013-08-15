@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:alignmentMode="alignBounds"
+    android:columnCount="2"
+    android:columnOrderPreserved="false"
+    android:useDefaultMargins="true" >
+
+    <TextView
+        android:text="Option one:"
+        android:layout_gravity="end"
+        android:textIsSelectable="false" />
+
+    <EditText
+        android:id="@+id/first_option"
+        android:layout_gravity="fill_horizontal"
+        android:hint="Yes"
+        android:inputType="textCapSentences"
+        android:singleLine="true" />
+
+    <TextView
+        android:layout_gravity="end"
+        android:text="Option two:"
+        android:textIsSelectable="false" />
+
+    <EditText
+        android:id="@+id/second_option"
+        android:layout_gravity="fill_horizontal"
+        android:hint="No"
+        android:inputType="textCapSentences"
+        android:singleLine="true" />
+
+</GridLayout>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:mode="twoLine"
+    android:orientation="vertical"
+    android:padding="10dip"
+    android:paddingBottom="15dip"
+    android:paddingTop="15dip" >
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:alignmentMode="alignBounds"
+        android:columnOrderPreserved="true"
+        android:useDefaultMargins="true" >
+
+        <TextView
+            android:id="@+id/record_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dip"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Record Date"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/record_note"
+            android:layout_marginBottom="2dip"
+            android:layout_marginTop="2dip"
+            android:layout_columnSpan="2"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:text="An optional note the experimenter can leave on a record. Three lines are shown here."
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="12dp" />
+        <Space/>
+        <TextView
+            android:id="@+id/record_file_size"
+            android:layout_marginTop="0dip"
+            android:layout_gravity="right"
+            android:text="5 MiB"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="11dp"
+            android:textStyle="italic" />
+
+    </GridLayout>
+
+</TwoLineListItem>

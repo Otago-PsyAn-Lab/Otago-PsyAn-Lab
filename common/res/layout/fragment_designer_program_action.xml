@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent" >
+
+    <View
+        android:id="@+id/colour_bar_spacer"
+        android:layout_width="0dip"
+        android:layout_height="16dip" />
+
+    <View
+        android:id="@+id/colour_left_margin"
+        android:layout_width="4dip"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:background="#cdff5a00" />
+
+    <LinearLayout
+        android:id="@+id/action_column"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_toRightOf="@+id/colour_left_margin"
+        android:orientation="vertical"
+        android:paddingLeft="16dip"
+        android:paddingTop="8dip" >
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_action_name"
+            android:inputType="text|textNoSuggestions"
+            android:maxEms="24"
+            android:minEms="16"
+            android:textSize="24sp" />
+
+        <TextView
+            style="@style/sectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_action" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Spinner
+                android:id="@+id/action_object"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Spinner
+                android:id="@+id/action_method"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/sectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_parameters" />
+
+        <ListView
+            android:id="@+id/parameters"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dip"
+        android:layout_height="16dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/action_column"
+        android:background="#cdff5a00" />
+
+</RelativeLayout>

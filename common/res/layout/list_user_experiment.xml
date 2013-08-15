@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/activatedBackgroundIndicator"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:mode="twoLine"
+    android:orientation="vertical"
+    android:padding="10dip"
+    android:paddingBottom="15dip"
+    android:paddingTop="15dip" >
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="3"
+        android:columnOrderPreserved="true"
+        android:useDefaultMargins="true" >
+
+        <TextView
+            android:id="@+id/experiment_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dip"
+            android:layout_columnSpan="3"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:text="name"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/experiment_description"
+            android:layout_marginBottom="2dip"
+            android:layout_marginTop="2dip"
+            android:layout_columnSpan="3"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:layout_width="match_parent"
+            android:text="description"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="12dp" />
+
+        <TextView
+            android:id="@+id/experiment_version"
+            android:layout_marginTop="0dip"
+            android:layout_gravity="left"
+            android:text="version"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="11dp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/experiment_last_run"
+            android:layout_marginTop="0dip"
+            android:layout_gravity="center_horizontal"
+            android:text="1 January 1970"
+            android:textSize="11dp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/experiment_file_size"
+            android:layout_marginTop="0dip"
+            android:text="470 KiB"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="11dp"
+            android:textStyle="italic" />
+    </GridLayout>
+
+</TwoLineListItem>

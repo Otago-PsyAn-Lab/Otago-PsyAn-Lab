@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alignmentMode="alignBounds"
+        android:columnCount="4"
+        android:columnOrderPreserved="false"
+        android:useDefaultMargins="true" >
+
+        <TextView
+            android:layout_gravity="right"
+            android:text="Name:" />
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_columnSpan="3"
+            android:layout_gravity="fill_horizontal"
+            android:inputType="text"
+            android:selectAllOnFocus="true" />
+
+        <TextView
+            style="@style/sectionHeader"
+            android:layout_columnSpan="4"
+            android:layout_gravity="fill_horizontal"
+            android:text="COLUMNS" />
+
+        <TextView
+            android:layout_gravity="center_horizontal"
+            android:text="Start" />
+
+        <EditText
+            android:id="@+id/column_names"
+            android:layout_width="0dp"
+            android:layout_columnSpan="3"
+            android:layout_gravity="fill_horizontal|center_vertical"
+            android:layout_rowSpan="2"
+            android:hint="Column names, comma separated."
+            android:inputType="textMultiLine" />
+
+        <NumberPicker
+            android:id="@+id/col_start"
+            android:layout_gravity="center_horizontal"
+            android:saveEnabled="true" />
+
+        <TextView
+            style="@style/sectionHeader"
+            android:layout_columnSpan="4"
+            android:layout_gravity="fill_horizontal"
+            android:text="ROWS" />
+
+        <TextView
+            android:layout_column="0"
+            android:layout_gravity="center_horizontal"
+            android:text="Start" />
+
+        <TextView
+            android:layout_gravity="center_horizontal"
+            android:text="Number" />
+
+        <NumberPicker
+            android:id="@+id/row_start"
+            android:layout_column="0"
+            android:layout_gravity="center_horizontal"
+            android:saveEnabled="true" />
+
+        <NumberPicker
+            android:id="@+id/num_rows"
+            android:layout_gravity="center_horizontal"
+            android:saveEnabled="true" />
+    </GridLayout>
+
+</ScrollView>

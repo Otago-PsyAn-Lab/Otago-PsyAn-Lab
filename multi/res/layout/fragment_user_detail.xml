@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/details"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="160dip"
+                android:layout_height="160dip"
+                android:adjustViewBounds="true"
+                android:contentDescription="User Icon"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher" />
+
+            <TextView
+                android:id="@+id/full_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dip"
+                android:text="Hunter Hatfield"
+                android:textIsSelectable="false" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dip"
+            android:layout_marginRight="8dip"
+            android:visibility="visible"
+            android:alignmentMode="alignBounds"
+            android:columnCount="6"
+            android:columnOrderPreserved="false" >
+
+            <TextView
+                android:layout_marginBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="16dip"
+                android:text="Password"
+                android:textIsSelectable="false" />
+
+            <Button
+                android:id="@+id/password_mask"
+                android:layout_marginBottom="4dip"
+                android:layout_columnSpan="1"
+                android:layout_gravity="fill_horizontal"
+                android:gravity="left|center_vertical"
+                android:paddingRight="8dip"
+                android:singleLine="true"
+                android:text="•••••"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/contact_section_title"
+                android:layout_column="0"
+                android:layout_columnSpan="5"
+                android:layout_gravity="bottom"
+                android:paddingTop="0dip"
+                android:text="CONTACT"
+                android:textIsSelectable="false" />
+
+            <View
+                android:id="@+id/contact_section_underline"
+                android:layout_height="2dip"
+                android:layout_columnSpan="6" />
+
+            <TextView
+                android:id="@+id/email"
+                android:layout_marginTop="12dip"
+                android:layout_column="0"
+                android:layout_columnSpan="4"
+                android:layout_gravity="fill_horizontal"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:text="hunter.hatfield@otago.ac.nz"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/phone"
+                android:layout_marginTop="4dip"
+                android:layout_columnSpan="4"
+                android:layout_gravity="fill_horizontal"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:text="+64 3 479 9087"
+                android:textIsSelectable="false" />
+            
+            <TextView
+                android:layout_columnSpan="4"
+                android:paddingTop="8dip"
+                android:text="DEVICE USAGE"
+                android:textIsSelectable="false"/>
+
+            <View
+                android:layout_height="1.5dip"
+                android:layout_columnSpan="4" />
+
+            <TextView
+                android:layout_marginTop="12dip"
+                android:layout_column="0"
+                android:paddingLeft="8dip"
+                android:paddingRight="24dip"
+                android:text="Last Active"
+                android:textColor="@android:color/secondary_text_light_nodisable"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/last_active"
+                android:layout_column="1"
+                android:layout_columnSpan="2"
+                android:layout_gravity="right"
+                android:text="December 24, 2012"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:layout_marginTop="4dip"
+                android:layout_column="0"
+                android:paddingLeft="8dip"
+                android:paddingRight="24dip"
+                android:text="Created"
+                android:textColor="@android:color/secondary_text_light_nodisable"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/created"
+                android:layout_columnSpan="2"
+                android:layout_gravity="right"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:layout_marginTop="4dip"
+                android:layout_column="0"
+                android:paddingLeft="8dip"
+                android:paddingRight="24dip"
+                android:text="Experiments"
+                android:textColor="@android:color/secondary_text_light_nodisable"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/total_experiments"
+                android:paddingRight="16dip"
+                android:text="5"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/total_experiments_size"
+                android:layout_gravity="right"
+                android:text="367 KiB"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:layout_marginTop="4dip"
+                android:layout_column="0"
+                android:paddingLeft="8dip"
+                android:paddingRight="24dip"
+                android:text="Records"
+                android:textColor="@android:color/secondary_text_light_nodisable"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/total_records"
+                android:paddingRight="16dip"
+                android:text="185"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/total_records_size"
+                android:layout_gravity="right"
+                android:text="80 MiB"
+                android:textIsSelectable="false" />
+        </GridLayout>
+    </LinearLayout>
+
+</ScrollView>

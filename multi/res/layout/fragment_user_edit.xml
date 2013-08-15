@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/details"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible" >
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="8dip"
+        android:layout_marginRight="8dip"
+        android:visibility="visible"
+        android:alignmentMode="alignBounds"
+        android:columnCount="2"
+        android:columnOrderPreserved="false" >
+
+        <!-- <com.eevoskos.robotoviews.widget.RobotoTextView -->
+        <!-- android:id="@+id/full_name" -->
+        <!-- style="@style/large_title" -->
+        <!-- android:layout_width="match_parent" -->
+        <!-- android:layout_height="wrap_content" -->
+        <!-- app:layout_columnSpan="2" -->
+        <!-- android:text="Hunter Hatfield" -->
+        <!-- android:textIsSelectable="false" /> -->
+
+        <TextView
+            android:layout_marginBottom="4dip"
+            android:paddingRight="16dip"
+            android:text="Password"
+            android:textIsSelectable="false" />
+
+        <EditText
+            android:id="@+id/password_mask"
+            android:layout_marginBottom="4dip"
+            android:layout_columnSpan="1"
+            android:layout_gravity="fill_horizontal"
+            android:gravity="left|center_vertical"
+            android:hint="••••••••••"
+            android:singleLine="true"
+            android:textIsSelectable="false" />
+
+        <Button
+            android:id="@+id/linked_contact"
+            android:layout_column="0"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:text="Linked Contact" />
+
+        <TextView
+            android:id="@+id/crouton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginTop="5dp"
+            android:layout_columnSpan="2"
+            android:textColor="#ffff0000"
+            android:textIsSelectable="false"
+            android:visibility="gone" />
+    </GridLayout>
+
+</ScrollView>

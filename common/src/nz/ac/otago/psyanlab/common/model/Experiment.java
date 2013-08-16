@@ -14,9 +14,6 @@ public class Experiment {
     public HashMap<Long, Asset> assets;
 
     @Expose
-    public TargetScreen screen;
-
-    @Expose
     public String authors;
 
     @Expose
@@ -24,6 +21,9 @@ public class Experiment {
 
     @Expose
     public String description;
+
+    @Expose
+    public HashMap<Long, Generator> generators;
 
     @Expose
     public LandingPage landingPage;
@@ -35,6 +35,9 @@ public class Experiment {
     public String name;
 
     @Expose
+    public Program program;
+
+    @Expose
     public HashMap<Long, Rule> rules;
 
     @Expose
@@ -43,13 +46,10 @@ public class Experiment {
     @Expose
     public int version;
 
-    @Expose
-    public HashMap<Long, Generator> generators;
-
-    @Expose
-    public Program program;
-
     private File workingDirectory;
+
+    @Expose
+    HashMap<Long, Prop> props;
 
     public Experiment() {
         actions = new HashMap<Long, Action>();

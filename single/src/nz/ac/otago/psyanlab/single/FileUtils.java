@@ -33,8 +33,10 @@ import java.security.NoSuchAlgorithmException;
 
 public class FileUtils extends nz.ac.otago.psyanlab.common.util.FileUtils {
     public static final String PATH_TEMP = "tmp";
+
     public static final String PATH_EXTERNAL_EXPERIMENTS_DIR = "PsyAn Lab" + File.separator
             + "Experiment Files";
+
     public static final String PATH_INTERNAL_EXPERIMENTS_DIR = "pales";
 
     /**
@@ -76,6 +78,8 @@ public class FileUtils extends nz.ac.otago.psyanlab.common.util.FileUtils {
         while ((byteCount = in.read(bytes)) > 0) {
             digester.update(bytes, 0, byteCount);
         }
+        in.close();
+
         byte[] digest = digester.digest();
         return URLEncoder.encode(new String(digest), "UTF-8") + ".pale";
     }

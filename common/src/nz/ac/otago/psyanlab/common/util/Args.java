@@ -21,15 +21,17 @@
 package nz.ac.otago.psyanlab.common.util;
 
 public class Args {
-    public static final String USER_DELEGATE = "user_delegate";
-
-    public static final String LIST_ITEMS_ACTIVATIBLE = "list_items_activatible";
-
-    public static final long ID_INVALID = -1;
-
     public static final String ASSET_PATHS = "asset_file";
 
     public static final String EXPERIMENT_ID = "experiment_id";
+
+    public static final String EXPERIMENT_PROPS = "experiment_props";
+
+    public static final long ID_INVALID = -1;
+
+    public static final String LIST_ITEMS_ACTIVATIBLE = "list_items_activatible";
+
+    public static final String USER_DELEGATE = "user_delegate";
 
     public static final String USER_EXPERIMENT_DELEGATE = "user_experiment_delegate";
 }

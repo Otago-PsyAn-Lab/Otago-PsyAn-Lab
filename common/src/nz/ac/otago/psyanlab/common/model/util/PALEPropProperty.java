@@ -18,24 +18,20 @@
  * all legal notices and author attributions must be preserved.
  */
 
-package nz.ac.otago.psyanlab.common.util;
+package nz.ac.otago.psyanlab.common.model.util;
 
-public class Args {
-    public static final String ASSET_PATHS = "asset_file";
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    public static final String EXPERIMENT_ID = "experiment_id";
-
-    public static final String EXPERIMENT_PROPS = "experiment_props";
-
-    public static final long ID_INVALID = -1;
-
-    public static final String LIST_ITEMS_ACTIVATIBLE = "list_items_activatible";
-
-    public static final String USER_DELEGATE = "user_delegate";
-
-    public static final String USER_EXPERIMENT_DELEGATE = "user_experiment_delegate";
-
-    public static final String PROP_ID = "prop_id";
-
-    public static final String SCENE_ID = "scene_id";
+/**
+ * Some property that is exposed in the prop editing UI.
+ */
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PALEPropProperty {
+    String value();
+    boolean isSigned() default false;
+    String group() default "";
 }

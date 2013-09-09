@@ -84,19 +84,6 @@
     <string name="label_experiment">Experiment</string>
     <string name="label_records">Records</string>
     <string name="title_set_type">Configure</string>
-
-    <string-array name="subject_stat_types">
-        <item>Date</item>
-        <item>Date and Time</item>
-        <item>Dropdown</item>
-        <item>Multiple Choice</item>
-        <item>Number</item>
-        <item>Single Choice</item>
-        <item>Text</item>
-        <item>Time</item>
-        <item>Toggle</item>
-    </string-array>
-
     <string name="label_type_image_asset">Image Asset</string>
     <string name="label_type_audio_asset">Audio Asset</string>
     <string name="label_type_video_asset">Video Asset</string>

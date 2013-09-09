@@ -2,7 +2,7 @@
 package nz.ac.otago.psyanlab.common.designer.program.stage;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.program.stage.Stage.PropAdapter;
+import nz.ac.otago.psyanlab.common.designer.program.stage.StageView.PropAdapter;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -10,6 +10,7 @@ import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
@@ -23,7 +24,7 @@ import android.widget.AdapterView;
 
 import java.util.HashMap;
 
-public class Stage extends AdapterView<PropAdapter> {
+public class StageView extends AdapterView<PropAdapter> {
     public static final int INVALID_POSITION = -1;
 
     private static final int NO_MATCHED_CHILD = INVALID_POSITION;
@@ -48,10 +49,10 @@ public class Stage extends AdapterView<PropAdapter> {
 
     private DataSetObserver mDataSetObserver;
 
-    private SparseArray<OnStageClickListener> mOnStageClickListeners = new SparseArray<Stage.OnStageClickListener>(
+    private SparseArray<OnStageClickListener> mOnStageClickListeners = new SparseArray<StageView.OnStageClickListener>(
             1);
 
-    private SparseArray<OnStageLongClickListener> mOnStageLongClickListeners = new SparseArray<Stage.OnStageLongClickListener>(
+    private SparseArray<OnStageLongClickListener> mOnStageLongClickListeners = new SparseArray<StageView.OnStageLongClickListener>(
             1);
 
     private CheckForLongPress mPendingCheckForLongPress;
@@ -76,15 +77,15 @@ public class Stage extends AdapterView<PropAdapter> {
 
     protected int mTouchSlop;
 
-    public Stage(Context context) {
+    public StageView(Context context) {
         super(context);
     }
 
-    public Stage(Context context, AttributeSet attrs) {
+    public StageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public Stage(Context context, AttributeSet attrs, int defStyle) {
+    public StageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
@@ -112,24 +113,28 @@ public class Stage extends AdapterView<PropAdapter> {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Log.d("asdf", event.toString());
         final int action = event.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_POINTER_DOWN: {
+                mFingersDown = event.getPointerCount();
+                mTouchMode = TOUCH_MODE_DOWN;
+                break;
+            }
             case MotionEvent.ACTION_DOWN: {
+                mFingersDown = event.getPointerCount();
+
                 if (mPendingCheckForTap == null) {
                     mPendingCheckForTap = new CheckForTap();
-                    postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
                 }
+                postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
 
                 final int y = (int)event.getY();
                 final int x = (int)event.getX();
                 mMotionY = y;
                 mMotionX = x;
                 mMotionPosition = findMotionChildPosition(x, y);
-                if (mMotionPosition == NO_MATCHED_CHILD) {
-                    // Don't consume the event and pass it to super because we
-                    // can't handle it yet.
-                    break;
-                }
+
                 mTouchMode = TOUCH_MODE_DOWN;
                 return true;
             }
@@ -154,7 +159,60 @@ public class Stage extends AdapterView<PropAdapter> {
                 if (mTouchMode == TOUCH_MODE_FINISHED_LONG_PRESS) {
                     return true;
                 }
-                if (mTouchMode == TOUCH_MODE_AT_REST || mMotionPosition == NO_MATCHED_CHILD) {
+
+                if (mTouchMode == TOUCH_MODE_AT_REST) {
+                    break;
+                }
+
+                // Handle stage multi-touch.
+
+                if (mFingersDown > 1) {
+                    if (mPerformPropClick == null) {
+                        mPerformPropClick = new PerformClick();
+                    }
+
+                    final PerformClick performPropClick = mPerformPropClick;
+                    performPropClick.mClickMotionPosition = mMotionPosition;
+                    performPropClick.rememberWindowAttachCount();
+
+                    if (mTouchMode != TOUCH_MODE_DOWN || mTouchMode != TOUCH_MODE_TAP) {
+                        final Handler handler = getHandler();
+                        if (handler != null) {
+                            handler.removeCallbacks(mTouchMode == TOUCH_MODE_DOWN ? mPendingCheckForTap
+                                    : mPendingCheckForLongPress);
+                        }
+
+                        if (!mDataChanged) {
+                            // Got here so must be a tap. The long press would
+                            // have triggered inside the delayed runnable.
+                            mTouchMode = TOUCH_MODE_TAP;
+                            setPressed(true);
+                            if (mTouchModeReset != null) {
+                                removeCallbacks(mTouchModeReset);
+                            }
+                            mTouchModeReset = new Runnable() {
+                                @Override
+                                public void run() {
+                                    mTouchMode = TOUCH_MODE_AT_REST;
+                                    setPressed(false);
+                                    if (!mDataChanged) {
+                                        performPropClick.run();
+                                    }
+                                }
+                            };
+                            postDelayed(mTouchModeReset,
+                                    ViewConfiguration.getPressedStateDuration());
+                        } else {
+                            mTouchMode = TOUCH_MODE_AT_REST;
+                        }
+                    } else if (!mDataChanged) {
+                        performPropClick.run();
+                    }
+                }
+
+                // Handle touch on child.
+
+                if (mMotionPosition == NO_MATCHED_CHILD) {
                     break;
                 }
 
@@ -212,15 +270,7 @@ public class Stage extends AdapterView<PropAdapter> {
                 return true;
             }
         }
-        return super.onTouchEvent(event);
-    }
-
-    public boolean performLongPress(int fingersDown) {
-        OnStageLongClickListener listener = mOnStageLongClickListeners.get(fingersDown);
-        if (listener != null) {
-            return doLongPressFeedback(listener.onStageLongClick(this), this);
-        }
-        return false;
+        return true;
     }
 
     public boolean performLongPress(View view, int position, long id) {
@@ -240,6 +290,14 @@ public class Stage extends AdapterView<PropAdapter> {
             return true;
         }
 
+        return false;
+    }
+
+    public boolean performStageMultipleFingerLongPress(int fingersDown) {
+        OnStageLongClickListener listener = mOnStageLongClickListeners.get(fingersDown);
+        if (listener != null) {
+            return doLongPressFeedback(listener.onStageLongClick(this), this);
+        }
         return false;
     }
 
@@ -263,8 +321,24 @@ public class Stage extends AdapterView<PropAdapter> {
         requestLayout();
     }
 
+    /**
+     * Set a listener for a multi-touch click event.
+     * 
+     * @param numFingers Number of fingers listening for.
+     * @param listener Click listener.
+     */
+    public void setOnStageClickListener(int numFingers, OnStageClickListener listener) {
+        mOnStageClickListeners.put(numFingers, listener);
+    }
+
+    /**
+     * Set a listener for a multi-touch long click event.
+     * 
+     * @param numFingers Number of fingers listening for.
+     * @param listener Click listener.
+     */
     public void setOnStageLongClickListener(int numFingers, OnStageLongClickListener listener) {
-        mOnStageLongClickListeners.setValueAt(numFingers, listener);
+        mOnStageLongClickListeners.put(numFingers, listener);
     }
 
     @Override
@@ -439,11 +513,11 @@ public class Stage extends AdapterView<PropAdapter> {
     }
 
     public interface OnStageClickListener {
-        boolean onStageClick(Stage stage);
+        void onStageClick(StageView stage);
     }
 
     public interface OnStageLongClickListener {
-        boolean onStageLongClick(Stage stage);
+        boolean onStageLongClick(StageView stage);
     }
 
     public interface PropAdapter extends Adapter {
@@ -475,6 +549,7 @@ public class Stage extends AdapterView<PropAdapter> {
     private class CheckForLongPress extends WindowRunnable {
         @Override
         public void run() {
+            Log.d("asdf", "long press");
             if (mFingersDown == 1) {
                 final View child = getChildAt(mMotionPosition);
                 if (child != null) {
@@ -494,7 +569,7 @@ public class Stage extends AdapterView<PropAdapter> {
                     }
                 }
             } else {
-                performLongPress(mFingersDown);
+                performStageMultipleFingerLongPress(mFingersDown);
             }
         }
     }
@@ -502,6 +577,7 @@ public class Stage extends AdapterView<PropAdapter> {
     protected class CheckForTap extends WindowRunnable {
         @Override
         public void run() {
+            Log.d("asdf", "press");
             if (mTouchMode == TOUCH_MODE_DOWN) {
                 mTouchMode = TOUCH_MODE_TAP;
 

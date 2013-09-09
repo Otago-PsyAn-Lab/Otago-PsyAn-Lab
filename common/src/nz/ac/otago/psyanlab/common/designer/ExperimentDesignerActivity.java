@@ -32,6 +32,7 @@ import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment;
 import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment.Details;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
+import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Asset;
@@ -39,6 +40,7 @@ import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Loop;
+import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.util.Args;
@@ -88,6 +90,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     private static final int MODE_NEW = 0x01;
 
     private static final int REQUEST_ASSET_IMPORT = 0x02;
+
+    private static final int REQUEST_EDIT_STAGE = 0x03;
 
     private ArrayList<ActionDataChangeListener> mActionDataChangeListeners;
 
@@ -359,8 +363,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public void editStage(long objectId) {
-        // TODO: Edit stage activity
+    public void editStage(long sceneId) {
+        Intent intent = new Intent(this, StageActivity.class);
+        intent.putExtra(Args.EXPERIMENT_PROPS, getPropsArray(sceneId));
+        intent.putExtra(Args.SCENE_ID, sceneId);
+        startActivityForResult(intent, REQUEST_EDIT_STAGE);
     }
 
     @Override
@@ -490,7 +497,22 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
-            case REQUEST_ASSET_IMPORT:
+            case REQUEST_EDIT_STAGE: {
+                switch (resultCode) {
+                    case RESULT_OK:
+                        ArrayList<Prop> props = data
+                                .getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
+                        long sceneId = data.getIntExtra(Args.SCENE_ID, -1);
+
+                        updatePropsInScene(sceneId, props);
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+            }
+            case REQUEST_ASSET_IMPORT: {
                 switch (resultCode) {
                     case RESULT_OK:
                         String[] paths = data.getStringArrayExtra(Args.ASSET_PATHS);
@@ -504,9 +526,26 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                         break;
                 }
                 break;
-
+            }
             default:
                 break;
+        }
+    }
+
+    private void updatePropsInScene(long sceneId, ArrayList<Prop> props) {
+        // Remove old props to make way for new ones. There may be no changes
+        // but since passing the props to the stage loses us the ids we have to
+        // do this.
+        Scene scene = mExperiment.scenes.get(sceneId);
+        for (Long propId : scene.props) {
+            mExperiment.props.remove(propId);
+        }
+
+        // Generate new keys and add props into the prop map and the scene.
+        for (Prop prop : props) {
+            Long key = findUnusedKey(mExperiment.props);
+            mExperiment.props.put(key, prop);
+            scene.props.add(key);
         }
     }
 
@@ -534,6 +573,19 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                     }
                 });
         dialog.show(getSupportFragmentManager(), "ConfirmDeleteDialog");
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+
+        } else {
+            throw new RuntimeException("Unsupported orientation.");
+        }
     }
 
     @Override
@@ -570,25 +622,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        // ExperimentUtils.convertToScreen(this, mExperiment);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-
-        } else {
-            throw new RuntimeException("Unsupported orientation.");
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater mi = getMenuInflater();
         mi.inflate(R.menu.activity_experiment_designer, menu);
@@ -603,6 +636,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        // ExperimentUtils.convertToScreen(this, mExperiment);
     }
 
     @Override
@@ -787,6 +826,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             throw new RuntimeException(e);
         }
         return experiment;
+    }
+
+    private ArrayList<Prop> getPropsArray(long stageId) {
+        ArrayList<Prop> props = new ArrayList<Prop>();
+        for (Long propId : mExperiment.scenes.get(stageId).props) {
+            props.add(mExperiment.props.get(propId));
+        }
+        return props;
     }
 
     private void initActionBar(ActionBar actionBar) {

@@ -38,6 +38,9 @@ public class Experiment {
     public Program program;
 
     @Expose
+    public HashMap<Long, Prop> props;
+
+    @Expose
     public HashMap<Long, Rule> rules;
 
     @Expose
@@ -47,9 +50,6 @@ public class Experiment {
     public int version;
 
     private File workingDirectory;
-
-    @Expose
-    HashMap<Long, Prop> props;
 
     public Experiment() {
         actions = new HashMap<Long, Action>();

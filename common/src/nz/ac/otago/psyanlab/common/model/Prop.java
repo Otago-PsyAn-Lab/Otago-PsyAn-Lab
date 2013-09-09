@@ -37,10 +37,21 @@ public abstract class Prop implements Parcelable {
         }
     };
 
+    public String name;
+
     public Prop() {
     }
 
     public Prop(Parcel in) {
+        name = in.readString();
+    }
+
+    public Prop(Prop prop) {
+        if (prop == null) {
+            return;
+        }
+
+        name = prop.name;
     }
 
     @Override
@@ -51,5 +62,11 @@ public abstract class Prop implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getClass().getSimpleName());
+        dest.writeString(name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

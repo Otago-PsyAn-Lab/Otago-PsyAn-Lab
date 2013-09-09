@@ -30,7 +30,8 @@
         <activity android:name="nz.ac.otago.psyanlab.common.runtime.ExperimentRuntimeActivity" />
         <activity android:name="nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity" />
         <activity android:name="nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity" />
-        <activity android:name="nz.ac.otago.psyanlab.common.designer.program.StageActivity" />
+        <activity android:name="nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity" />
+        <activity android:name="nz.ac.otago.psyanlab.common.designer.program.stage.EditPropActivity" />
 
         <provider
             android:name="nz.ac.otago.psyanlab.single.DataProvider"

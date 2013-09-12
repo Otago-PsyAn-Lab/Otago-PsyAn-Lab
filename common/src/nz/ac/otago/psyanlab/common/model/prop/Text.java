@@ -10,7 +10,7 @@ import android.os.Parcel;
 
 public class Text extends Prop {
     @Expose
-    @PALEPropProperty("Text")
+    @PALEPropProperty(value="Text")
     public String text;
 
     @Expose

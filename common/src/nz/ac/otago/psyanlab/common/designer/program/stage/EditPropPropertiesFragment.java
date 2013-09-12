@@ -10,13 +10,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.GridLayout;
-import android.widget.GridLayout.LayoutParams;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
@@ -121,20 +121,24 @@ public class EditPropPropertiesFragment extends Fragment {
         // Run through groupings of properties adding the created views to the
         // GridLayout in sections.
         for (String group : mGroupings.keySet()) {
-            TextView sectionBreak = (TextView)inflater.inflate(
-                    R.layout.prop_property_section_break, grid, false);
-            LayoutParams sectionBreakParams = new GridLayout.LayoutParams();
-            sectionBreakParams.columnSpec = GridLayout.spec(0, 2);
-            sectionBreak.setLayoutParams(sectionBreakParams);
-            grid.addView(sectionBreak);
+            if (!TextUtils.isEmpty(group) && !TextUtils.equals(group, "")) {
+                TextView sectionBreak = (TextView)inflater.inflate(
+                        R.layout.prop_property_section_break, grid, false);
+                sectionBreak.setText(group);
+                GridLayout.LayoutParams sectionBreakParams = new GridLayout.LayoutParams();
+                sectionBreakParams.columnSpec = GridLayout.spec(0, 2);
+                sectionBreak.setLayoutParams(sectionBreakParams);
+                grid.addView(sectionBreak);
+            }
 
             for (String name : mGroupings.get(group)) {
                 TextView propertyLabel = (TextView)inflater.inflate(R.layout.prop_property_label,
                         grid, false);
+                propertyLabel.setLayoutParams(new GridLayout.LayoutParams());
                 propertyLabel.setText(name);
 
                 View propertyView = mViewMap.get(name);
-                LayoutParams params = new GridLayout.LayoutParams();
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.setGravity(Gravity.FILL_HORIZONTAL);
                 propertyView.setLayoutParams(params);
 

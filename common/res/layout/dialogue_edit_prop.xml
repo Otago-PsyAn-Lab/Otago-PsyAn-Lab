@@ -109,10 +109,8 @@
 
             <FrameLayout
                 android:id="@+id/prop_properties_container"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:minHeight="40dip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingLeft="8dip"
                 android:paddingRight="8dip" />
         </LinearLayout>

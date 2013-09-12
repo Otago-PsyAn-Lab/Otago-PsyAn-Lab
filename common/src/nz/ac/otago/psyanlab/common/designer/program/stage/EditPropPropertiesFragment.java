@@ -116,7 +116,9 @@ public class EditPropPropertiesFragment extends Fragment {
         GridLayout grid = new GridLayout(getActivity());
         grid.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
+        grid.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
         grid.setColumnCount(2);
+        grid.setUseDefaultMargins(true);
 
         // Run through groupings of properties adding the created views to the
         // GridLayout in sections.
@@ -134,11 +136,13 @@ public class EditPropPropertiesFragment extends Fragment {
             for (String name : mGroupings.get(group)) {
                 TextView propertyLabel = (TextView)inflater.inflate(R.layout.prop_property_label,
                         grid, false);
-                propertyLabel.setLayoutParams(new GridLayout.LayoutParams());
-                propertyLabel.setText(name);
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                propertyLabel.setLayoutParams(params);
+                propertyLabel.setText(getResources()
+                        .getString(R.string.format_property_label, name));
 
                 View propertyView = mViewMap.get(name);
-                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params = new GridLayout.LayoutParams();
                 params.setGravity(Gravity.FILL_HORIZONTAL);
                 propertyView.setLayoutParams(params);
 

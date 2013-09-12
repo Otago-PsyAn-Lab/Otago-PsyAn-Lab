@@ -72,11 +72,11 @@ public class EditPropDialogueFragment extends DialogFragment {
                 return;
             }
 
-            mPropertiesFragment = EditPropPropertiesFragment.newInstance(mPropId);
+            mPropertiesFragment = EditPropPropertiesFragment.newInstance(mProp);
 
             mViews.name.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-            ft.replace(R.id.options_container, mPropertiesFragment, TAG_PROPERTIES_FRAGMENT);
+            ft.replace(R.id.prop_properties_container, mPropertiesFragment, TAG_PROPERTIES_FRAGMENT);
             ft.commit();
 
         }
@@ -132,11 +132,11 @@ public class EditPropDialogueFragment extends DialogFragment {
         if (mPropertiesFragment == null && mProp != null) {
             mPropertiesFragment = EditPropPropertiesFragment.newInstance(mPropId);
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-            ft.replace(R.id.options_container, mPropertiesFragment, TAG_PROPERTIES_FRAGMENT);
+            ft.replace(R.id.prop_properties_container, mPropertiesFragment, TAG_PROPERTIES_FRAGMENT);
             ft.commit();
         }
 
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
     }
 
     @Override

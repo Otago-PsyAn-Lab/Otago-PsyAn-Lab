@@ -47,7 +47,7 @@
                     android:layout_width="0dp"
                     android:layout_columnSpan="3"
                     android:layout_gravity="fill_horizontal"
-                    android:entries="@array/subject_stat_types"
+                    android:entries="@array/prop_types"
                     android:minHeight="48dip" />
 
                 <TextView

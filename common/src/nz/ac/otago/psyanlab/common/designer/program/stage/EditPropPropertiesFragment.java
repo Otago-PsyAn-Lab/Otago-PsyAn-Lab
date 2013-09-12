@@ -2,7 +2,6 @@
 package nz.ac.otago.psyanlab.common.designer.program.stage;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.program.stage.EditPropDialogueFragment.Callbacks;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.util.PALEPropProperty;
@@ -31,10 +30,21 @@ import java.util.HashMap;
 public class EditPropPropertiesFragment extends Fragment {
     private static final String ARG_PROP_ID = "arg_prop_id";
 
+    private static final String ARG_PROP = "arg_prop";
+
     public static Fragment newInstance(int propId) {
         EditPropPropertiesFragment f = new EditPropPropertiesFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PROP_ID, propId);
+        f.setArguments(args);
+
+        return f;
+    }
+
+    public static Fragment newInstance(Prop prop) {
+        EditPropPropertiesFragment f = new EditPropPropertiesFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(ARG_PROP, prop);
         f.setArguments(args);
 
         return f;
@@ -46,14 +56,14 @@ public class EditPropPropertiesFragment extends Fragment {
 
     private HashMap<String, View> mViewMap;
 
-    private HashMap<String, ArrayList<String>> mGroupings;
+    private HashMap<String, ArrayList<String>> mGroupings = new HashMap<String, ArrayList<String>>();
 
     private Callbacks mCallbacks;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof ProgramCallbacks)) {
+        if (!(activity instanceof Callbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
         mCallbacks = (Callbacks)activity;
@@ -61,7 +71,12 @@ public class EditPropPropertiesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mProp = mCallbacks.getProp(getArguments().getInt(ARG_PROP_ID));
+        Bundle args = getArguments();
+        if (args.containsKey(ARG_PROP)) {
+            mProp = args.getParcelable(ARG_PROP);
+        } else {
+            mProp = mCallbacks.getProp(args.getInt(ARG_PROP_ID));
+        }
 
         mFieldMap = new HashMap<String, Field>();
         mViewMap = new HashMap<String, View>();

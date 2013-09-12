@@ -7,9 +7,12 @@ import nz.ac.otago.psyanlab.common.util.Args;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 
@@ -62,6 +65,17 @@ public class EditPropActivity extends FragmentActivity implements
             mProps = savedInstanceState.getParcelableArrayList(Args.EXPERIMENT_PROPS);
         }
 
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+                WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        Point displaySize = new Point();
+        getWindowManager().getDefaultDisplay().getSize(displaySize);
+        params.width = (int)(displaySize.x * 0.8f);
+        params.height = (int)(displaySize.y * 0.9f);
+        params.dimAmount = 0.5f;
+        getWindow().setAttributes(params);
+
         setContentView(R.layout.activity_edit_prop);
 
         mListNavigationAdapter = new ArrayAdapter<Prop>(this,
@@ -70,6 +84,7 @@ public class EditPropActivity extends FragmentActivity implements
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         actionBar.setListNavigationCallbacks(mListNavigationAdapter, mListNavigationListener);
+        actionBar.setDisplayShowHomeEnabled(false);
 
         mContentFragment = (EditPropDialogueFragment)getSupportFragmentManager().findFragmentByTag(
                 TAG_CONTENT_FRAGMENT);

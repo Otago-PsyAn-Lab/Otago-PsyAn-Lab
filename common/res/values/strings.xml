@@ -148,5 +148,6 @@
     <string name="title_edit_iterations">Set Number of Cycles</string>
     <string name="action_confirm">Confirm</string>
     <string name="format_property_label">%s:</string>
+    <string name="title_new_prop">New Prop</string>
 
 </resources>

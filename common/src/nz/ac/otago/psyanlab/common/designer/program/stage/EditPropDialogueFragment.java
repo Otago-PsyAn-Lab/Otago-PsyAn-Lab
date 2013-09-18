@@ -10,7 +10,6 @@ import nz.ac.otago.psyanlab.common.model.prop.Text;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -55,15 +54,16 @@ public class EditPropDialogueFragment extends DialogFragment {
             }
             final String kind = getResources().getStringArray(R.array.prop_types)[position];
 
-            mViews.name.setInputType(InputType.TYPE_NULL);
+            mViews.mName.setInputType(InputType.TYPE_NULL);
 
+            Prop prop = getConfiguredProp();
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
             if (TextUtils.equals(kind, "Text")) {
-                mProp = new Text(mProp);
+                prop = new Text(prop);
             } else if (TextUtils.equals(kind, "Image")) {
-                mProp = new Image(mProp);
+                prop = new Image(prop);
             } else if (TextUtils.equals(kind, "Button")) {
-                mProp = new Button(mProp);
+                prop = new Button(prop);
             } else {
                 if (mPropertiesFragment != null) {
                     ft.remove(mPropertiesFragment);
@@ -72,9 +72,10 @@ public class EditPropDialogueFragment extends DialogFragment {
                 return;
             }
 
-            mPropertiesFragment = EditPropPropertiesFragment.newInstance(mProp);
+            mViews.setViewValues(prop);
+            mPropertiesFragment = EditPropPropertiesFragment.newInstance(prop);
 
-            mViews.name.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            mViews.mName.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
             ft.replace(R.id.prop_properties_container, mPropertiesFragment, TAG_PROPERTIES_FRAGMENT);
             ft.commit();
@@ -93,11 +94,9 @@ public class EditPropDialogueFragment extends DialogFragment {
 
     private int mPropId = INVALID_ID;
 
-    private Prop mProp;
-
     private ViewHolder mViews;
 
-    protected Fragment mPropertiesFragment;
+    protected EditPropPropertiesFragment mPropertiesFragment;
 
     protected boolean mWasOptionsFragmentPersisted;
 
@@ -121,16 +120,18 @@ public class EditPropDialogueFragment extends DialogFragment {
             }
         }
 
+        Prop prop = null;
         if (mPropId != INVALID_ID) {
-            mProp = mCallbacks.getProp(mPropId);
+            prop = mCallbacks.getProp(mPropId);
         }
 
         mViews = new ViewHolder(view);
         mViews.initViews();
 
-        mPropertiesFragment = getChildFragmentManager().findFragmentByTag(TAG_PROPERTIES_FRAGMENT);
-        if (mPropertiesFragment == null && mProp != null) {
-            mPropertiesFragment = EditPropPropertiesFragment.newInstance(mPropId);
+        mPropertiesFragment = (EditPropPropertiesFragment)getChildFragmentManager()
+                .findFragmentByTag(TAG_PROPERTIES_FRAGMENT);
+        if (mPropertiesFragment == null && prop != null) {
+            mPropertiesFragment = EditPropPropertiesFragment.newInstance(prop);
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
             ft.replace(R.id.prop_properties_container, mPropertiesFragment, TAG_PROPERTIES_FRAGMENT);
             ft.commit();
@@ -142,33 +143,91 @@ public class EditPropDialogueFragment extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        Prop prop = getConfiguredProp();
         if (mPropId == INVALID_ID) {
-            mCallbacks.saveProp(mProp);
+            mCallbacks.saveProp(prop);
+        } else {
+            mCallbacks.setProp(mPropId, prop);
         }
+    }
+
+    protected Prop getConfiguredProp() {
+        if (mPropertiesFragment != null) {
+            return mViews.getConfiguredProp(mPropertiesFragment.getConfiguredProp());
+        }
+        return null;
     }
 
     public interface Callbacks {
         Prop getProp(int id);
 
         void saveProp(Prop prop);
+
+        void setProp(int propId, Prop prop);
     }
 
     public class ViewHolder {
-        public EditText name;
+        private EditText mHeight;
 
-        public Spinner type;
+        private EditText mName;
+
+        private Spinner mType;
+
+        private EditText mWidth;
+
+        private EditText mXPos;
+
+        private EditText mYPos;
 
         public ViewHolder(View view) {
-            name = (EditText)view.findViewById(R.id.name);
-            type = (Spinner)view.findViewById(R.id.type);
+            mName = (EditText)view.findViewById(R.id.name);
+            mType = (Spinner)view.findViewById(R.id.type);
+            mXPos = (EditText)view.findViewById(R.id.xPos);
+            mYPos = (EditText)view.findViewById(R.id.yPos);
+            mWidth = (EditText)view.findViewById(R.id.width);
+            mHeight = (EditText)view.findViewById(R.id.height);
+        }
+
+        public Prop getConfiguredProp(Prop prop) {
+            prop.name = mName.getText().toString();
+
+            try {
+                prop.xPos = Integer.valueOf(mXPos.getText().toString());
+            } catch (NumberFormatException e) {
+                // Bad input here can be ignored.
+            }
+
+            try {
+                prop.yPos = Integer.valueOf(mYPos.getText().toString());
+            } catch (NumberFormatException e) {
+                // Bad input here can be ignored.
+            }
+
+            try {
+                prop.width = Integer.valueOf(mWidth.getText().toString());
+            } catch (NumberFormatException e) {
+                // Bad input here can be ignored.
+            }
+
+            try {
+                prop.height = Integer.valueOf(mHeight.getText().toString());
+            } catch (NumberFormatException e) {
+                // Bad input here can be ignored.
+            }
+
+            return prop;
         }
 
         public void initViews() {
-            type.setOnItemSelectedListener(mOnTypeSelectedListener);
+            mType.setOnItemSelectedListener(mOnTypeSelectedListener);
         }
 
         public void setViewValues(Prop prop) {
-            name.setText(prop.name);
+            mName.setText(prop.name);
+            mXPos.setText(String.valueOf(prop.xPos));
+            mYPos.setText(String.valueOf(prop.yPos));
+            mWidth.setText(String.valueOf(prop.width));
+            mHeight.setText(String.valueOf(prop.height));
         }
     }
 }

@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * Activity containing the stage editor. In this the user lays out props and
  * sets their initial properties.
  */
-public class StageActivity extends FragmentActivity implements EditPropDialogueFragment.Callbacks {
+public class StageActivity extends FragmentActivity {
     private static final int REQUEST_EDIT_PROP = 0x01;
 
     private PropAdapter mPropAdapter;
@@ -44,6 +44,13 @@ public class StageActivity extends FragmentActivity implements EditPropDialogueF
         @Override
         public void onStageClick(StageView stage) {
             onAddClicked();
+        }
+    };
+
+    private OnStageClickListener mEditClickListener = new OnStageClickListener() {
+        @Override
+        public void onStageClick(StageView stage) {
+            onEditClicked();
         }
     };
 
@@ -72,7 +79,8 @@ public class StageActivity extends FragmentActivity implements EditPropDialogueF
         stage.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         stage.setAdapter(mPropAdapter);
         stage.setOnItemClickListener(mPropClickListener);
-        stage.setOnStageClickListener(2, mAddClickListener);
+        stage.setOnStageClickListener(2, mEditClickListener);
+        stage.setOnStageClickListener(3, mAddClickListener);
         setContentView(stage);
     }
 
@@ -103,12 +111,16 @@ public class StageActivity extends FragmentActivity implements EditPropDialogueF
     protected void onAddClicked() {
         Log.d("asdfadf", "add clicked");
         Intent intent = new Intent(this, EditPropActivity.class);
+        startActivityForResult(intent, REQUEST_EDIT_PROP);
+    }
+
+    /**
+     * Open a dialogue to edit props.
+     */
+    protected void onEditClicked() {
+        Intent intent = new Intent(this, EditPropActivity.class);
         intent.putExtra(Args.EXPERIMENT_PROPS, mProps);
         startActivityForResult(intent, REQUEST_EDIT_PROP);
-
-        // EditPropDialogueFragment dialog =
-        // EditPropDialogueFragment.newDialogue(-1);
-        // dialog.show(getSupportFragmentManager(), "dialog_edit_prop");
     }
 
     /**
@@ -117,7 +129,10 @@ public class StageActivity extends FragmentActivity implements EditPropDialogueF
      * @param position Position of prop in the prop data set.
      */
     protected void onPropClicked(int position) {
-
+        Intent intent = new Intent(this, EditPropActivity.class);
+        intent.putExtra(Args.PROP_ID, position);
+        intent.putExtra(Args.EXPERIMENT_PROPS, mProps);
+        startActivityForResult(intent, REQUEST_EDIT_PROP);
     }
 
     /**
@@ -181,15 +196,5 @@ public class StageActivity extends FragmentActivity implements EditPropDialogueF
 
             return convertView;
         }
-    }
-
-    @Override
-    public Prop getProp(int id) {
-        return mProps.get(id);
-    }
-
-    @Override
-    public void saveProp(Prop prop) {
-        mProps.add(prop);
     }
 }

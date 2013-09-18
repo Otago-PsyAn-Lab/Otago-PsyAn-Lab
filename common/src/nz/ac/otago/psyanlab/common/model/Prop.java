@@ -7,8 +7,6 @@ import android.os.Parcelable;
 import java.lang.reflect.InvocationTargetException;
 
 public abstract class Prop implements Parcelable {
-    public static final String NAMESPACE = "nz.ac.otago.psyanlab.common.model.prop.";
-
     public static final Parcelable.Creator<Prop> CREATOR = new Parcelable.Creator<Prop>() {
         public Prop createFromParcel(Parcel in) {
             String propKind = in.readString();
@@ -37,13 +35,27 @@ public abstract class Prop implements Parcelable {
         }
     };
 
+    public static final String NAMESPACE = "nz.ac.otago.psyanlab.common.model.prop.";
+
+    public int height;
+
     public String name;
+
+    public int width;
+
+    public int xPos;
+
+    public int yPos;
 
     public Prop() {
     }
 
     public Prop(Parcel in) {
         name = in.readString();
+        xPos = in.readInt();
+        yPos = in.readInt();
+        width = in.readInt();
+        height = in.readInt();
     }
 
     public Prop(Prop prop) {
@@ -52,6 +64,10 @@ public abstract class Prop implements Parcelable {
         }
 
         name = prop.name;
+        xPos = prop.xPos;
+        yPos = prop.yPos;
+        width = prop.width;
+        height = prop.height;
     }
 
     @Override
@@ -60,13 +76,17 @@ public abstract class Prop implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getClass().getSimpleName());
-        dest.writeString(name);
+    public String toString() {
+        return name;
     }
 
     @Override
-    public String toString() {
-        return name;
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getClass().getSimpleName());
+        dest.writeString(name);
+        dest.writeInt(xPos);
+        dest.writeInt(yPos);
+        dest.writeInt(width);
+        dest.writeInt(height);
     }
 }

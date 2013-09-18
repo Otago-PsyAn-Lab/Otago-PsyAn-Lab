@@ -32,7 +32,7 @@ public class EditPropPropertiesFragment extends Fragment {
 
     private static final String ARG_PROP = "arg_prop";
 
-    public static Fragment newInstance(int propId) {
+    public static EditPropPropertiesFragment newInstance(int propId) {
         EditPropPropertiesFragment f = new EditPropPropertiesFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PROP_ID, propId);
@@ -41,7 +41,7 @@ public class EditPropPropertiesFragment extends Fragment {
         return f;
     }
 
-    public static Fragment newInstance(Prop prop) {
+    public static EditPropPropertiesFragment newInstance(Prop prop) {
         EditPropPropertiesFragment f = new EditPropPropertiesFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_PROP, prop);
@@ -159,7 +159,7 @@ public class EditPropPropertiesFragment extends Fragment {
      * 
      * @return Prop with user values.
      */
-    public void storeProperties() {
+    public Prop getConfiguredProp() {
         for (String name : mViewMap.keySet()) {
             Field field = mFieldMap.get(name);
             View view = mViewMap.get(name);
@@ -173,9 +173,19 @@ public class EditPropPropertiesFragment extends Fragment {
                 }
 
                 if (field.getType().isAssignableFrom(Integer.TYPE)) {
-                    value = Integer.valueOf(((EditText)view).getText().toString());
+                    try {
+                        value = Integer.valueOf(((EditText)view).getText().toString());
+                    } catch (NumberFormatException e) {
+                        // Bad input here can be ignored. Continue to next item.
+                        continue;
+                    }
                 } else if (field.getType().isAssignableFrom(Float.TYPE)) {
-                    value = Float.valueOf(((EditText)view).getText().toString());
+                    try {
+                        value = Float.valueOf(((EditText)view).getText().toString());
+                    } catch (NumberFormatException e) {
+                        // Bad input here can be ignored. Continue to next item.
+                        continue;
+                    }
                 } else if (field.getType().isAssignableFrom(String.class)) {
                     value = ((EditText)view).getText().toString();
                 } else {
@@ -186,13 +196,15 @@ public class EditPropPropertiesFragment extends Fragment {
             }
 
             try {
-                field.set(field, value);
+                field.set(mProp, value);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
+
+        return mProp;
     }
 
     /**

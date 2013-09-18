@@ -14,7 +14,7 @@ public class Text extends Prop {
     public String text;
 
     @Expose
-    @PALEPropProperty("Font Size")
+    @PALEPropProperty(value="Font Size")
     public int fontSize;
 
     public Text(Parcel in) {

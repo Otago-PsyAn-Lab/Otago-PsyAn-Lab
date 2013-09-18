@@ -83,7 +83,7 @@ public class EditPropPropertiesFragment extends Fragment {
 
         // Run through the fields of the prop and build groups and mappings for
         // the fields and views to allow the user to change the property values.
-        Field[] fields = mProp.getClass().getDeclaredFields();
+        Field[] fields = mProp.getClass().getFields();
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             PALEPropProperty annotation = field.getAnnotation(PALEPropProperty.class);

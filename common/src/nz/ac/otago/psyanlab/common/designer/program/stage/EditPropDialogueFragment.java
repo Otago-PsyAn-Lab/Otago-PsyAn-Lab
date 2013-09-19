@@ -11,8 +11,10 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,14 +58,14 @@ public class EditPropDialogueFragment extends DialogFragment {
 
             mViews.mName.setInputType(InputType.TYPE_NULL);
 
-            Prop prop = getConfiguredProp();
+            mProp = getConfiguredProp();
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
             if (TextUtils.equals(kind, "Text")) {
-                prop = new Text(prop);
+                mProp = new Text(mProp);
             } else if (TextUtils.equals(kind, "Image")) {
-                prop = new Image(prop);
+                mProp = new Image(mProp);
             } else if (TextUtils.equals(kind, "Button")) {
-                prop = new Button(prop);
+                mProp = new Button(mProp);
             } else {
                 if (mPropertiesFragment != null) {
                     ft.remove(mPropertiesFragment);
@@ -72,8 +74,8 @@ public class EditPropDialogueFragment extends DialogFragment {
                 return;
             }
 
-            mViews.setViewValues(prop);
-            mPropertiesFragment = EditPropPropertiesFragment.newInstance(prop);
+            mViews.setViewValues(mProp);
+            mPropertiesFragment = EditPropPropertiesFragment.newInstance(mProp);
 
             mViews.mName.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
@@ -99,6 +101,33 @@ public class EditPropDialogueFragment extends DialogFragment {
     protected EditPropPropertiesFragment mPropertiesFragment;
 
     protected boolean mWasOptionsFragmentPersisted;
+
+    public TextWatcher mNameChangedListener = new TextWatcher() {
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            mProp.name = s.toString();
+            mCallbacks.saveProp(mPropId, mProp);
+        }
+    };
+
+    private Prop mProp;
+
+    public void doSave() {
+        mProp = getConfiguredProp();
+        if (mPropId == INVALID_ID) {
+            mCallbacks.saveProp(mProp);
+        } else {
+            mCallbacks.saveProp(mPropId, mProp);
+        }
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -126,6 +155,7 @@ public class EditPropDialogueFragment extends DialogFragment {
         }
 
         mViews = new ViewHolder(view);
+        mViews.setViewValues(prop);
         mViews.initViews();
 
         mPropertiesFragment = (EditPropPropertiesFragment)getChildFragmentManager()
@@ -140,22 +170,12 @@ public class EditPropDialogueFragment extends DialogFragment {
         return view;
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Prop prop = getConfiguredProp();
-        if (mPropId == INVALID_ID) {
-            mCallbacks.saveProp(prop);
-        } else {
-            mCallbacks.setProp(mPropId, prop);
-        }
-    }
-
     protected Prop getConfiguredProp() {
         if (mPropertiesFragment != null) {
-            return mViews.getConfiguredProp(mPropertiesFragment.getConfiguredProp());
+            mProp = mViews.getConfiguredProp(mPropertiesFragment.getConfiguredProp());
+            mViews.getConfiguredProp(mProp);
         }
-        return null;
+        return mProp;
     }
 
     public interface Callbacks {
@@ -163,7 +183,7 @@ public class EditPropDialogueFragment extends DialogFragment {
 
         void saveProp(Prop prop);
 
-        void setProp(int propId, Prop prop);
+        void saveProp(int propId, Prop prop);
     }
 
     public class ViewHolder {
@@ -220,9 +240,16 @@ public class EditPropDialogueFragment extends DialogFragment {
 
         public void initViews() {
             mType.setOnItemSelectedListener(mOnTypeSelectedListener);
+            if (mPropId != INVALID_ID) {
+                mName.addTextChangedListener(mNameChangedListener);
+            }
         }
 
         public void setViewValues(Prop prop) {
+            if (prop == null) {
+                return;
+            }
+
             mName.setText(prop.name);
             mXPos.setText(String.valueOf(prop.xPos));
             mYPos.setText(String.valueOf(prop.yPos));

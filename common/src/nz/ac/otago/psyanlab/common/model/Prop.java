@@ -13,7 +13,7 @@ public abstract class Prop implements Parcelable {
 
             try {
                 return (Prop)getClass().getClassLoader().loadClass(NAMESPACE + propKind)
-                        .getConstructor(Parcelable.class).newInstance(in);
+                        .getConstructor(Parcel.class).newInstance(in);
 
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Unknown prop type: " + propKind, e);
@@ -37,15 +37,15 @@ public abstract class Prop implements Parcelable {
 
     public static final String NAMESPACE = "nz.ac.otago.psyanlab.common.model.prop.";
 
-    public int height;
+    public int height = 200;
 
     public String name;
 
-    public int width;
+    public int width = 200;
 
-    public int xPos;
+    public int xPos = 50;
 
-    public int yPos;
+    public int yPos = 50;
 
     public Prop() {
     }

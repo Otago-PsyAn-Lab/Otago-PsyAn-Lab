@@ -113,7 +113,6 @@ public class StageView extends AdapterView<PropAdapter> {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Log.d("asdf", event.toString());
         final int action = event.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_POINTER_DOWN: {
@@ -134,6 +133,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 mMotionY = y;
                 mMotionX = x;
                 mMotionPosition = findMotionChildPosition(x, y);
+                Log.d("motion position", "" + mMotionPosition);
 
                 mTouchMode = TOUCH_MODE_DOWN;
                 return true;
@@ -208,62 +208,64 @@ public class StageView extends AdapterView<PropAdapter> {
                     } else if (!mDataChanged) {
                         performPropClick.run();
                     }
-                }
+                } else {
 
-                // Handle touch on child.
+                    // Handle touch on child.
 
-                if (mMotionPosition == NO_MATCHED_CHILD) {
-                    break;
-                }
-
-                final View child = getChildAt(mMotionPosition);
-                if (child != null && !child.hasFocusable()) {
-                    if (mTouchMode != TOUCH_MODE_DOWN) {
-                        child.setPressed(false);
+                    if (mMotionPosition == NO_MATCHED_CHILD) {
+                        break;
                     }
 
-                    if (mPerformPropClick == null) {
-                        mPerformPropClick = new PerformClick();
-                    }
-
-                    final PerformClick performPropClick = mPerformPropClick;
-                    performPropClick.mClickMotionPosition = mMotionPosition;
-                    performPropClick.rememberWindowAttachCount();
-
-                    if (mTouchMode != TOUCH_MODE_DOWN || mTouchMode != TOUCH_MODE_TAP) {
-                        final Handler handler = getHandler();
-                        if (handler != null) {
-                            handler.removeCallbacks(mTouchMode == TOUCH_MODE_DOWN ? mPendingCheckForTap
-                                    : mPendingCheckForLongPress);
+                    final View child = getChildAt(mMotionPosition);
+                    if (child != null && !child.hasFocusable()) {
+                        if (mTouchMode != TOUCH_MODE_DOWN) {
+                            child.setPressed(false);
                         }
 
-                        if (!mDataChanged) {
-                            // Got here so must be a tap. The long press would
-                            // have triggered inside the delayed runnable.
-                            mTouchMode = TOUCH_MODE_TAP;
-                            child.setPressed(true);
-                            setPressed(true);
-                            if (mTouchModeReset != null) {
-                                removeCallbacks(mTouchModeReset);
+                        if (mPerformPropClick == null) {
+                            mPerformPropClick = new PerformClick();
+                        }
+
+                        final PerformClick performPropClick = mPerformPropClick;
+                        performPropClick.mClickMotionPosition = mMotionPosition;
+                        performPropClick.rememberWindowAttachCount();
+
+                        if (mTouchMode != TOUCH_MODE_DOWN || mTouchMode != TOUCH_MODE_TAP) {
+                            final Handler handler = getHandler();
+                            if (handler != null) {
+                                handler.removeCallbacks(mTouchMode == TOUCH_MODE_DOWN ? mPendingCheckForTap
+                                        : mPendingCheckForLongPress);
                             }
-                            mTouchModeReset = new Runnable() {
-                                @Override
-                                public void run() {
-                                    mTouchMode = TOUCH_MODE_AT_REST;
-                                    child.setPressed(false);
-                                    setPressed(false);
-                                    if (!mDataChanged) {
-                                        performPropClick.run();
-                                    }
+
+                            if (!mDataChanged) {
+                                // Got here so must be a tap. The long press
+                                // would
+                                // have triggered inside the delayed runnable.
+                                mTouchMode = TOUCH_MODE_TAP;
+                                child.setPressed(true);
+                                setPressed(true);
+                                if (mTouchModeReset != null) {
+                                    removeCallbacks(mTouchModeReset);
                                 }
-                            };
-                            postDelayed(mTouchModeReset,
-                                    ViewConfiguration.getPressedStateDuration());
-                        } else {
-                            mTouchMode = TOUCH_MODE_AT_REST;
+                                mTouchModeReset = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mTouchMode = TOUCH_MODE_AT_REST;
+                                        child.setPressed(false);
+                                        setPressed(false);
+                                        if (!mDataChanged) {
+                                            performPropClick.run();
+                                        }
+                                    }
+                                };
+                                postDelayed(mTouchModeReset,
+                                        ViewConfiguration.getPressedStateDuration());
+                            } else {
+                                mTouchMode = TOUCH_MODE_AT_REST;
+                            }
+                        } else if (!mDataChanged) {
+                            performPropClick.run();
                         }
-                    } else if (!mDataChanged) {
-                        performPropClick.run();
                     }
                 }
                 mTouchMode = TOUCH_MODE_AT_REST;
@@ -392,6 +394,8 @@ public class StageView extends AdapterView<PropAdapter> {
                 addViewInLayout(child, i, params, true);
             }
         }
+
+        mDataChanged = false;
     }
 
     private View obtainView(int position) {
@@ -463,16 +467,18 @@ public class StageView extends AdapterView<PropAdapter> {
         for (int i = 0; i < numChildren; i++) {
             View child = obtainView(i);
             child.measure(childWidthSpec, childHeightSpec);
+            Log.d("child size",
+                    "width: " + child.getMeasuredWidth() + " Height: " + child.getMeasuredHeight());
         }
 
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec),
                 MeasureSpec.getSize(heightMeasureSpec));
     }
 
-    public class LayoutParams extends ViewGroup.LayoutParams {
-        private int xPosition;
+    public static class LayoutParams extends ViewGroup.LayoutParams {
+        public int xPosition;
 
-        private int yPosition;
+        public int yPosition;
 
         public LayoutParams() {
             this(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -499,10 +505,10 @@ public class StageView extends AdapterView<PropAdapter> {
             yPosition = y;
         }
 
-        public LayoutParams(ViewGroup.LayoutParams p) {
-            super(p);
-            if (p instanceof LayoutParams) {
-                LayoutParams params = (LayoutParams)p;
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+            if (source instanceof LayoutParams) {
+                LayoutParams params = (LayoutParams)source;
                 this.xPosition = params.xPosition;
                 this.yPosition = params.yPosition;
             } else {

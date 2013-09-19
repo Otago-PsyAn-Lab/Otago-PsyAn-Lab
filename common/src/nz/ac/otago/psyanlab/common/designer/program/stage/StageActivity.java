@@ -9,7 +9,6 @@ import nz.ac.otago.psyanlab.common.util.Args;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -27,18 +26,9 @@ import java.util.ArrayList;
  * sets their initial properties.
  */
 public class StageActivity extends FragmentActivity {
+    private static final int REQUEST_ADD_PROP = 0x02;
+
     private static final int REQUEST_EDIT_PROP = 0x01;
-
-    private PropAdapter mPropAdapter;
-
-    private ArrayList<Prop> mProps;
-
-    private OnItemClickListener mPropClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> stage, View view, int position, long id) {
-            onPropClicked(position);
-        }
-    };
 
     private OnStageClickListener mAddClickListener = new OnStageClickListener() {
         @Override
@@ -53,6 +43,71 @@ public class StageActivity extends FragmentActivity {
             onEditClicked();
         }
     };
+
+    private PropAdapter mPropAdapter;
+
+    private OnItemClickListener mPropClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> stage, View view, int position, long id) {
+            onPropClicked(position);
+        }
+    };
+
+    private ArrayList<Prop> mProps;
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        switch (requestCode) {
+            case REQUEST_ADD_PROP:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        Prop prop = data.getParcelableExtra(Args.EXPERIMENT_PROP);
+                        mProps.add(prop);
+                        mPropAdapter.notifyDataSetChanged();
+                        break;
+                }
+                break;
+
+            case REQUEST_EDIT_PROP:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        mProps = data.getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
+                        mPropAdapter.setProps(mProps);
+                        break;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Open a dialogue to add a prop.
+     */
+    protected void onAddClicked() {
+        Intent intent = new Intent(this, EditPropActivity.class);
+        startActivityForResult(intent, REQUEST_ADD_PROP);
+    }
+
+    /**
+     * Call to handle cancel event when the user wishes to exit the stage editor
+     * and not store any changes.
+     */
+    protected void onCancel() {
+        setResult(RESULT_CANCELED);
+    }
+
+    /**
+     * Call to handle event when the user wishes to exit the stage editor and
+     * store the changes made.
+     */
+    protected void onConfirm() {
+        Intent result = new Intent();
+        result.putExtra(Args.EXPERIMENT_PROPS, mProps);
+        result.putExtra(Args.SCENE_ID, getIntent().getIntExtra(Args.SCENE_ID, -1));
+        setResult(RESULT_OK, result);
+    }
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -84,36 +139,6 @@ public class StageActivity extends FragmentActivity {
         setContentView(stage);
     }
 
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        switch (requestCode) {
-            case REQUEST_EDIT_PROP:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        mProps = data.getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
-                        mPropAdapter.setProps(mProps);
-                        break;
-
-                    default:
-                        break;
-                }
-
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Open a dialogue to add a prop.
-     */
-    protected void onAddClicked() {
-        Log.d("asdfadf", "add clicked");
-        Intent intent = new Intent(this, EditPropActivity.class);
-        startActivityForResult(intent, REQUEST_EDIT_PROP);
-    }
-
     /**
      * Open a dialogue to edit props.
      */
@@ -135,32 +160,8 @@ public class StageActivity extends FragmentActivity {
         startActivityForResult(intent, REQUEST_EDIT_PROP);
     }
 
-    /**
-     * Call to handle event when the user wishes to exit the stage editor and
-     * store the changes made.
-     */
-    protected void onConfirm() {
-        Intent result = new Intent();
-        result.putExtra(Args.EXPERIMENT_PROPS, mProps);
-        result.putExtra(Args.SCENE_ID, getIntent().getIntExtra(Args.SCENE_ID, -1));
-        setResult(RESULT_OK, result);
-    }
-
-    /**
-     * Call to handle cancel event when the user wishes to exit the stage editor
-     * and not store any changes.
-     */
-    protected void onCancel() {
-        setResult(RESULT_CANCELED);
-    }
-
     private final class PropAdapter extends BaseAdapter implements StageView.PropAdapter {
         private ArrayList<Prop> mProps;
-
-        public void setProps(ArrayList<Prop> props) {
-            mProps = props;
-            notifyDataSetChanged();
-        }
 
         public PropAdapter(ArrayList<Prop> props) {
             mProps = props;
@@ -182,19 +183,27 @@ public class StageActivity extends FragmentActivity {
         }
 
         @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-
-        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = getLayoutInflater().inflate(R.layout.stage_prop, parent, false);
             }
 
-            ((TextView)convertView).setText(mProps.get(position).name);
+            Prop prop = mProps.get(position);
+            ((TextView)convertView).setText(prop.name);
+            convertView.setLayoutParams(new StageView.LayoutParams(prop.xPos, prop.yPos,
+                    prop.width, prop.height));
 
             return convertView;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        public void setProps(ArrayList<Prop> props) {
+            mProps = props;
+            notifyDataSetChanged();
         }
     }
 }

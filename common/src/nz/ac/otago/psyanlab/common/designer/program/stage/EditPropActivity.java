@@ -7,16 +7,20 @@ import nz.ac.otago.psyanlab.common.util.Args;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.SpinnerAdapter;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
@@ -34,9 +38,27 @@ public class EditPropActivity extends FragmentActivity implements
 
     private static final String TAG_CONTENT_FRAGMENT = "tag_content_fragment";
 
+    private static final int RETURN_ARRAY = 0x01;
+
+    private static final int RETURN_SINGLE = 0x02;
+
+    public OnClickListener mOnConfirmListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onConfirm();
+        }
+    };
+
+    public OnClickListener mOnDiscardListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onDiscard();
+        }
+    };
+
     private EditPropDialogueFragment mContentFragment;
 
-    private SpinnerAdapter mListNavigationAdapter;
+    private ArrayAdapter mListNavigationAdapter;
 
     private OnNavigationListener mListNavigationListener = new OnNavigationListener() {
         @Override
@@ -52,23 +74,66 @@ public class EditPropActivity extends FragmentActivity implements
 
     private ArrayList<Prop> mProps;
 
+    private ViewHolder mViews;
+
+    private Prop mProp;
+
+    private int mReturnKind;
+
     @Override
     public Prop getProp(int id) {
         return mProps.get(id);
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (mMode == MODE_EDIT) {
+            getMenuInflater().inflate(R.menu.activity_edit_prop, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_delete) {
+            onDeleteProp();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onDeleteProp() {
+        mProps.remove(mPropId);
+        if (mProps.size() == 0) {
+            Intent data = new Intent();
+            data.putExtra(Args.EXPERIMENT_PROPS, mProps);
+            setResult(RESULT_OK, data);
+            finish();
+            return;
+        }
+
+        mListNavigationAdapter.notifyDataSetChanged();
+        onPropSelected(0, 0);
+    }
+
+    @Override
     public void saveProp(Prop prop) {
         if (mMode == MODE_ADD) {
-            // TODO:
+            mProp = prop;
         } else {
             mProps.add(prop);
         }
     }
 
     @Override
-    public void setProp(int propId, Prop prop) {
+    public void saveProp(int propId, Prop prop) {
+        if (mProps.size() <= propId) {
+            return;
+        }
+
         mProps.set(propId, prop);
+        mListNavigationAdapter.notifyDataSetChanged();
     }
 
     private Point getDisplaySize() {
@@ -95,15 +160,18 @@ public class EditPropActivity extends FragmentActivity implements
                 mProps = extras.getParcelableArrayList(Args.EXPERIMENT_PROPS);
                 if (mProps.size() == 0) {
                     mMode = MODE_ADD;
+                    mReturnKind = RETURN_ARRAY;
                     mPropId = INVALID_ID;
                 } else {
                     mMode = MODE_EDIT;
+                    mReturnKind = RETURN_ARRAY;
                     if (extras.containsKey(Args.PROP_ID)) {
                         mPropId = extras.getInt(Args.PROP_ID, 0);
                     }
                 }
             } else {
                 mMode = MODE_ADD;
+                mReturnKind = RETURN_SINGLE;
                 mPropId = INVALID_ID;
             }
 
@@ -123,6 +191,8 @@ public class EditPropActivity extends FragmentActivity implements
         getWindow().setAttributes(params);
 
         setContentView(R.layout.activity_edit_prop);
+        mViews = new ViewHolder(this);
+        mViews.initViews();
 
         ActionBar actionBar = getActionBar();
 
@@ -130,8 +200,9 @@ public class EditPropActivity extends FragmentActivity implements
             actionBar.setTitle(R.string.title_new_prop);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         } else {
-            mListNavigationAdapter = new ArrayAdapter<Prop>(this,
-                    android.R.layout.simple_spinner_dropdown_item, mProps);
+            actionBar.setTitle(R.string.title_edit_prop);
+            mListNavigationAdapter = new ArrayAdapter<Prop>(getActionBar().getThemedContext(),
+                    android.R.layout.simple_dropdown_item_1line, mProps);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             actionBar.setListNavigationCallbacks(mListNavigationAdapter, mListNavigationListener);
         }
@@ -145,24 +216,31 @@ public class EditPropActivity extends FragmentActivity implements
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (mMode == MODE_EDIT) {
-            getMenuInflater().inflate(R.menu.activity_edit_prop, menu);
-        }
-        return true;
-    }
+    protected void onConfirm() {
+        Intent data = new Intent();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.menu_delete) {
-            mProps.remove(mPropId);
+        if (mContentFragment != null) {
+            mContentFragment.doSave();
         }
 
-        return super.onOptionsItemSelected(item);
+        if (mMode == MODE_ADD && mReturnKind == RETURN_SINGLE) {
+            data.putExtra(Args.EXPERIMENT_PROP, mProp);
+        } else {
+            if (mMode == MODE_ADD) {
+                mProps = new ArrayList<Prop>();
+                mProps.add(mProp);
+            }
+            data.putExtra(Args.EXPERIMENT_PROPS, mProps);
+        }
+        setResult(RESULT_OK, data);
+        finish();
     }
-  
+
+    protected void onDiscard() {
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
     protected void onPropSelected(int itemPosition, long itemId) {
         loadContent(itemPosition);
     }
@@ -172,5 +250,21 @@ public class EditPropActivity extends FragmentActivity implements
         super.onSaveInstanceState(outState);
 
         outState.putParcelableArrayList(Args.EXPERIMENT_PROPS, mProps);
+    }
+
+    class ViewHolder {
+        private Button mConfirm;
+
+        private Button mDiscard;
+
+        public ViewHolder(Activity activity) {
+            mConfirm = (Button)activity.findViewById(R.id.confirm);
+            mDiscard = (Button)activity.findViewById(R.id.discard);
+        }
+
+        public void initViews() {
+            mConfirm.setOnClickListener(mOnConfirmListener);
+            mDiscard.setOnClickListener(mOnDiscardListener);
+        }
     }
 }

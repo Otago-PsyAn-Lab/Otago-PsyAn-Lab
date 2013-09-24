@@ -2,5 +2,8 @@
 	path = FilePicker
 	url = git@github.com:TonicArtos/FilePicker.git
 [submodule "drag-sort-listview"]
-	path = drag-sort-listview
+	path = drag-sort-listview 
+	url = git@github.com:Otago-PsyAn-Lab/drag-sort-listview.git
+[submodule "DragSortListView"]
+	path = DragSortListView
 	url = git@github.com:Otago-PsyAn-Lab/drag-sort-listview.git

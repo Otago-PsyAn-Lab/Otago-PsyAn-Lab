@@ -58,7 +58,7 @@ public class EditPropActivity extends FragmentActivity implements
 
     private EditPropDialogueFragment mContentFragment;
 
-    private ArrayAdapter mListNavigationAdapter;
+    private ArrayAdapter<Prop> mListNavigationAdapter;
 
     private OnNavigationListener mListNavigationListener = new OnNavigationListener() {
         @Override
@@ -204,6 +204,7 @@ public class EditPropActivity extends FragmentActivity implements
             mListNavigationAdapter = new ArrayAdapter<Prop>(getActionBar().getThemedContext(),
                     android.R.layout.simple_dropdown_item_1line, mProps);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            actionBar.setSelectedNavigationItem(mPropId);
             actionBar.setListNavigationCallbacks(mListNavigationAdapter, mListNavigationListener);
         }
         actionBar.setDisplayShowHomeEnabled(false);

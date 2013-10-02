@@ -502,7 +502,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                     case RESULT_OK:
                         ArrayList<Prop> props = data
                                 .getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
-                        long sceneId = data.getIntExtra(Args.SCENE_ID, -1);
+                        long sceneId = data.getLongExtra(Args.SCENE_ID, -1);
 
                         updatePropsInScene(sceneId, props);
                         break;
@@ -533,15 +533,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     private void updatePropsInScene(long sceneId, ArrayList<Prop> props) {
-        // Remove old props to make way for new ones. There may be no changes
-        // but since passing the props to the stage loses us the ids we have to
-        // do this.
+        /*
+         * Refresh all props by first removing the old versions from the prop
+         * map and then adding the new ones. The new versions may actually be
+         * completely unchanged but there is currently no mechanism to check
+         * this.
+         */
         Scene scene = mExperiment.scenes.get(sceneId);
+
         for (Long propId : scene.props) {
             mExperiment.props.remove(propId);
         }
 
-        // Generate new keys and add props into the prop map and the scene.
         for (Prop prop : props) {
             Long key = findUnusedKey(mExperiment.props);
             mExperiment.props.put(key, prop);

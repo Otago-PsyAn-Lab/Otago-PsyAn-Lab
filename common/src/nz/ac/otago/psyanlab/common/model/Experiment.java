@@ -54,10 +54,12 @@ public class Experiment {
     public Experiment() {
         actions = new HashMap<Long, Action>();
         assets = new HashMap<Long, Asset>();
+        generators = new HashMap<Long, Generator>();
         loops = new HashMap<Long, Loop>();
+        props = new HashMap<Long, Prop>();
         rules = new HashMap<Long, Rule>();
         scenes = new HashMap<Long, Scene>();
-        generators = new HashMap<Long, Generator>();
+
         landingPage = new LandingPage();
         program = new Program();
     }

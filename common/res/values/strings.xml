@@ -150,5 +150,7 @@
     <string name="format_property_label">%s:</string>
     <string name="title_new_prop">New Prop</string>
     <string name="title_edit_prop">Edit Prop</string>
+    <string name="action_save">Save</string>
+    <string name="title_save_changes">Save Changes?</string>
 
 </resources>

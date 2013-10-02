@@ -5,9 +5,12 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView.OnStageClickListener;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.util.Args;
+import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,8 +108,35 @@ public class StageActivity extends FragmentActivity {
     protected void onConfirm() {
         Intent result = new Intent();
         result.putExtra(Args.EXPERIMENT_PROPS, mProps);
-        result.putExtra(Args.SCENE_ID, getIntent().getIntExtra(Args.SCENE_ID, -1));
+        result.putExtra(Args.SCENE_ID, getIntent().getLongExtra(Args.SCENE_ID, -1));
         setResult(RESULT_OK, result);
+    }
+
+    @Override
+    public void onBackPressed() {
+        DialogFragment dialog = ConfirmDialogFragment.newInstance(R.string.title_save_changes,
+                R.string.action_save, R.string.action_cancel, R.string.action_discard,
+                new ConfirmDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(Dialog dialog) {
+                        onConfirm();
+                        finish();
+                        dialog.dismiss();
+                    }
+                }, new ConfirmDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(Dialog dialog) {
+                        dialog.dismiss();
+                    }
+                }, new ConfirmDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(Dialog dialog) {
+                        onCancel();
+                        finish();
+                        dialog.dismiss();
+                    }
+                });
+        dialog.show(getSupportFragmentManager(), "ConfirmDeleteDialog");
     }
 
     @Override

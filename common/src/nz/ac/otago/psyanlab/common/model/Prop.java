@@ -37,15 +37,15 @@ public abstract class Prop implements Parcelable {
 
     public static final String NAMESPACE = "nz.ac.otago.psyanlab.common.model.prop.";
 
-    public int height = 200;
+    public int height = 0;
 
     public String name;
 
-    public int width = 200;
+    public int width = 0;
 
-    public int xPos = 50;
+    public int xPos = 0;
 
-    public int yPos = 50;
+    public int yPos = 0;
 
     public Prop() {
     }

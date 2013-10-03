@@ -366,6 +366,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         Intent intent = new Intent(this, StageActivity.class);
         intent.putExtra(Args.EXPERIMENT_PROPS, getPropsArray(sceneId));
         intent.putExtra(Args.SCENE_ID, sceneId);
+        intent.putExtra(Args.STAGE_ORIENTATION, mExperiment.scenes.get(sceneId).orientation);
         startActivityForResult(intent, REQUEST_EDIT_STAGE);
     }
 
@@ -625,8 +626,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater mi = getMenuInflater();
-//        mi.inflate(R.menu.activity_experiment_designer, menu);
+        // MenuInflater mi = getMenuInflater();
+        // mi.inflate(R.menu.activity_experiment_designer, menu);
         return true;
     }
 

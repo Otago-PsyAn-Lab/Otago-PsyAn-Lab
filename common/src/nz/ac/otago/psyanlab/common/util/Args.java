@@ -37,6 +37,8 @@ public class Args {
 
     public static final String SCENE_ID = "scene_id";
 
+    public static final String STAGE_ORIENTATION = "stage_orientation";
+
     public static final String USER_DELEGATE = "user_delegate";
 
     public static final String USER_EXPERIMENT_DELEGATE = "user_experiment_delegate";

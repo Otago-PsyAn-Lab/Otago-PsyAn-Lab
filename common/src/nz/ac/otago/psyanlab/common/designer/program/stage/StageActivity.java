@@ -9,6 +9,7 @@ import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -29,6 +30,10 @@ import java.util.ArrayList;
  * sets their initial properties.
  */
 public class StageActivity extends FragmentActivity {
+    private static final int LANDSCAPE = 0;
+
+    private static final int PORTRAIT = 1;
+
     private static final int REQUEST_ADD_PROP = 0x02;
 
     private static final int REQUEST_EDIT_PROP = 0x01;
@@ -47,6 +52,8 @@ public class StageActivity extends FragmentActivity {
         }
     };
 
+    private int mOrientation;
+
     private PropAdapter mPropAdapter;
 
     private OnItemClickListener mPropClickListener = new OnItemClickListener() {
@@ -57,6 +64,33 @@ public class StageActivity extends FragmentActivity {
     };
 
     private ArrayList<Prop> mProps;
+
+    @Override
+    public void onBackPressed() {
+        DialogFragment dialog = ConfirmDialogFragment.newInstance(R.string.title_save_changes,
+                R.string.action_save, R.string.action_cancel, R.string.action_discard,
+                new ConfirmDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(Dialog dialog) {
+                        onConfirm();
+                        finish();
+                        dialog.dismiss();
+                    }
+                }, new ConfirmDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(Dialog dialog) {
+                        dialog.dismiss();
+                    }
+                }, new ConfirmDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(Dialog dialog) {
+                        onCancel();
+                        finish();
+                        dialog.dismiss();
+                    }
+                });
+        dialog.show(getSupportFragmentManager(), "ConfirmDeleteDialog");
+    }
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -113,33 +147,6 @@ public class StageActivity extends FragmentActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        DialogFragment dialog = ConfirmDialogFragment.newInstance(R.string.title_save_changes,
-                R.string.action_save, R.string.action_cancel, R.string.action_discard,
-                new ConfirmDialogFragment.OnClickListener() {
-                    @Override
-                    public void onClick(Dialog dialog) {
-                        onConfirm();
-                        finish();
-                        dialog.dismiss();
-                    }
-                }, new ConfirmDialogFragment.OnClickListener() {
-                    @Override
-                    public void onClick(Dialog dialog) {
-                        dialog.dismiss();
-                    }
-                }, new ConfirmDialogFragment.OnClickListener() {
-                    @Override
-                    public void onClick(Dialog dialog) {
-                        onCancel();
-                        finish();
-                        dialog.dismiss();
-                    }
-                });
-        dialog.show(getSupportFragmentManager(), "ConfirmDeleteDialog");
-    }
-
-    @Override
     protected void onCreate(Bundle arg0) {
         super.onCreate(arg0);
 
@@ -154,8 +161,16 @@ public class StageActivity extends FragmentActivity {
             if (extras.containsKey(Args.EXPERIMENT_PROPS)) {
                 mProps = extras.getParcelableArrayList(Args.EXPERIMENT_PROPS);
             }
+
+            mOrientation = extras.getInt(Args.STAGE_ORIENTATION, LANDSCAPE);
         } else {
             mProps = new ArrayList<Prop>();
+        }
+
+        if (mOrientation == PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
 
         mPropAdapter = new PropAdapter(mProps);

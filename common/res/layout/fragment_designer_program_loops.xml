@@ -16,6 +16,10 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
         android:orientation="vertical"
+        android:paddingBottom="@dimen/program_bottom_padding"
+        android:paddingLeft="@dimen/program_beginning_padding"
+        android:paddingRight="@dimen/program_right_padding"
+        android:paddingTop="@dimen/program_top_padding"
         android:showDividers="middle" >
 
         <Button

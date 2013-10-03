@@ -21,5 +21,9 @@
         <item>Image</item>
         <item>Button</item>
     </string-array>
+    <string-array name="orientation_options">
+        <item>Landscape</item>
+        <item>Portrait</item>
+    </string-array>
 
 </resources>

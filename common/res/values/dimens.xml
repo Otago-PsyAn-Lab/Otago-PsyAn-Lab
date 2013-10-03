@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <dimen name="window_import_width">480dip</dimen>
     <dimen name="grid_column_width">180dip</dimen>
+    <dimen name="program_between_padding">8dp</dimen>
+    <dimen name="program_bottom_padding">16dp</dimen>
+    <dimen name="program_left_padding">16dp</dimen>
+    <dimen name="program_right_padding">0dp</dimen>
+    <dimen name="program_top_padding">0dp</dimen>
+    <dimen name="program_beginning_padding">0dp</dimen>
+    <dimen name="program_end_padding">16dp</dimen>
+
 </resources>

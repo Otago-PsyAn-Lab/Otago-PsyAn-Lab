@@ -20,13 +20,17 @@
 
     <LinearLayout
         android:id="@+id/rule_column"
+        style="?android:attr/buttonBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
         android:layout_toRightOf="@+id/colour_left_margin"
         android:orientation="vertical"
-        android:paddingLeft="16dip"
-        android:paddingTop="8dip" >
+        android:paddingBottom="@dimen/program_bottom_padding"
+        android:paddingLeft="@dimen/program_left_padding"
+        android:paddingRight="@dimen/program_between_padding"
+        android:paddingTop="@dimen/program_top_padding"
+        android:showDividers="end" >
 
         <EditText
             android:id="@+id/name"
@@ -35,7 +39,7 @@
             android:hint="@string/hint_rule_name"
             android:inputType="text|textNoSuggestions"
             android:maxEms="24"
-            android:minEms="16"
+            android:minEms="12"
             android:textSize="24sp" />
 
         <TextView
@@ -49,16 +53,38 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingRight="8dip"
+                android:text="@string/label_trigger_object"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
             <Spinner
                 android:id="@+id/trigger_object"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
+                android:layout_height="48dip"
                 android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingRight="8dip"
+                android:text="@string/label_trigger_event"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Spinner
                 android:id="@+id/trigger_event"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
+                android:layout_height="48dip"
                 android:layout_weight="1" />
         </LinearLayout>
 
@@ -84,6 +110,10 @@
         android:layout_below="@+id/colour_bar_spacer"
         android:layout_toRightOf="@+id/rule_column"
         android:orientation="vertical"
+        android:paddingBottom="@dimen/program_bottom_padding"
+        android:paddingLeft="@dimen/program_between_padding"
+        android:paddingRight="@dimen/program_right_padding"
+        android:paddingTop="@dimen/program_top_padding"
         android:showDividers="middle" >
 
         <Button

@@ -20,13 +20,17 @@
 
     <LinearLayout
         android:id="@+id/scene_column"
+        style="?android:attr/buttonBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
         android:layout_toRightOf="@+id/colour_left_margin"
         android:orientation="vertical"
-        android:paddingLeft="16dip"
-        android:paddingTop="8dip" >
+        android:paddingBottom="@dimen/program_bottom_padding"
+        android:paddingLeft="@dimen/program_left_padding"
+        android:paddingRight="@dimen/program_between_padding"
+        android:paddingTop="@dimen/program_top_padding"
+        android:showDividers="end" >
 
         <EditText
             android:id="@+id/name"
@@ -37,6 +41,27 @@
             android:maxEms="24"
             android:minEms="12"
             android:textSize="24sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingRight="8dip"
+                android:text="@string/label_stage_orientation"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/stage_orientation"
+                android:layout_width="0dip"
+                android:layout_height="48dip"
+                android:layout_weight="1"
+                android:entries="@array/orientation_options" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/stage"
@@ -54,6 +79,10 @@
         android:layout_below="@+id/colour_bar_spacer"
         android:layout_toRightOf="@+id/scene_column"
         android:orientation="vertical"
+        android:paddingBottom="@dimen/program_bottom_padding"
+        android:paddingLeft="@dimen/program_between_padding"
+        android:paddingRight="@dimen/program_right_padding"
+        android:paddingTop="@dimen/program_top_padding"
         android:showDividers="middle" >
 
         <Button

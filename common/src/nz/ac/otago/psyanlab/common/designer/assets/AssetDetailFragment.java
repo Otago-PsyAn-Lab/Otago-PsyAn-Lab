@@ -17,6 +17,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,6 +65,8 @@ public class AssetDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        inflater.cloneInContext(new ContextThemeWrapper(getActivity(),
+                android.R.style.Theme_Holo_Light));
         return inflater.inflate(R.layout.fragment_designer_asset_detail, container, false);
     }
 

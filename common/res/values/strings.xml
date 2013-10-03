@@ -152,5 +152,10 @@
     <string name="title_edit_prop">Edit Prop</string>
     <string name="action_save">Save</string>
     <string name="title_save_changes">Save Changes?</string>
+    <string name="label_stage_orientation">Stage Orientation:</string>
+    <string name="label_trigger_object">Object:</string>
+    <string name="label_trigger_event">Event:</string>
+    <string name="label_action_method">Method:</string>
+    <string name="label_action_object">Object:</string>
 
 </resources>

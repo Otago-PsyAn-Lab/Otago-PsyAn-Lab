@@ -24,10 +24,12 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 public class SceneFragment extends BaseProgramFragment implements SceneDataChangeListener {
     public static BaseProgramFragment newInstance(long id) {
@@ -123,9 +125,9 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             MenuInflater inflater = getActivity().getMenuInflater();
             inflater.inflate(R.menu.context_program_component, menu);
             mode.setTitle(R.string.title_select_scenes);
-            
+
             mActionMode = mode;
-            
+
             return true;
         }
 
@@ -163,6 +165,17 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             return true;
+        }
+    };
+
+    protected OnItemSelectedListener mOnOrientationSelectedListener = new OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            mScene.orientation = position;
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
         }
     };
 
@@ -215,7 +228,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         mScene.rules.add(newRuleId);
         mCallbacks.updateScene(mObjectId, mScene);
         setNextFragment(RuleFragment.newInstance(newRuleId));
-        
+
         if (mActionMode != null) {
             mActionMode.finish();
             mViews.rulesList.post(new Runnable() {
@@ -242,11 +255,14 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
         public ListView rulesList;
 
+        public Spinner stageOrientation;
+
         public ViewHolder(Resources resources, View view) {
             editStage = (Button)view.findViewById(R.id.stage);
             name = (EditText)view.findViewById(R.id.name);
             newRule = (Button)view.findViewById(R.id.new_rule);
             rulesList = (ListView)view.findViewById(R.id.rules);
+            stageOrientation = (Spinner)view.findViewById(R.id.stage_orientation);
         }
 
         public void initViews() {
@@ -261,10 +277,13 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             rulesList.setOnItemClickListener(mOnRuleItemClickListener);
             rulesList.setOnItemLongClickListener(mItemLongClickListener);
+
+            stageOrientation.setOnItemSelectedListener(mOnOrientationSelectedListener);
         }
 
         public void setViewValues(Scene scene) {
             name.setText(scene.name);
+            stageOrientation.setSelection(mScene.orientation);
         }
 
         public void updateViews(Scene newScene, Scene oldScene) {

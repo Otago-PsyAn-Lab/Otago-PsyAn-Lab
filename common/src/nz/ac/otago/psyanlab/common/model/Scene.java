@@ -15,6 +15,9 @@ public class Scene {
     @Expose
     public ArrayList<Long> rules;
 
+    @Expose
+    public int orientation = 0;
+
     public Scene() {
         props = new ArrayList<Long>();
         rules = new ArrayList<Long>();

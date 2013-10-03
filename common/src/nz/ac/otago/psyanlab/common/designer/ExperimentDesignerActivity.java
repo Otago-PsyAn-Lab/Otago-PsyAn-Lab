@@ -66,7 +66,6 @@ import android.text.format.Time;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -626,8 +625,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater mi = getMenuInflater();
-        mi.inflate(R.menu.activity_experiment_designer, menu);
+//        MenuInflater mi = getMenuInflater();
+//        mi.inflate(R.menu.activity_experiment_designer, menu);
         return true;
     }
 

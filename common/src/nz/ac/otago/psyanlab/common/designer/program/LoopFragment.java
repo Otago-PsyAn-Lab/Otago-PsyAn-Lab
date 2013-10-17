@@ -358,9 +358,9 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         public EditText name;
 
-        public Button newGenerator;
+        public View newGenerator;
 
-        public Button newScene;
+        public View newScene;
 
         public ListView scenesList;
 
@@ -369,8 +369,8 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
             iterations = (Button)view.findViewById(R.id.iterations);
             name = (EditText)view.findViewById(R.id.name);
-            newGenerator = (Button)view.findViewById(R.id.new_generator);
-            newScene = (Button)view.findViewById(R.id.new_scene);
+            newGenerator = view.findViewById(R.id.new_generator);
+            newScene = view.findViewById(R.id.new_scene);
             scenesList = (ListView)view.findViewById(R.id.scenes);
             generatorsList = (ListView)view.findViewById(R.id.generators);
         }
@@ -389,11 +389,13 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             scenesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             scenesList.setOnItemClickListener(mOnSceneItemClickListener);
             scenesList.setOnItemLongClickListener(mItemLongClickListener);
+            scenesList.setDivider(null);
 
             generatorsList.setAdapter(mGeneratorAdapter);
             generatorsList.setOnItemClickListener(mOnGeneratorItemClickListener);
             generatorsList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             generatorsList.setMultiChoiceModeListener(mGeneratorMultiChoiceModeCallbacks);
+            generatorsList.setDivider(null);
 
         }
 

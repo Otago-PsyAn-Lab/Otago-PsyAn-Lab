@@ -45,6 +45,10 @@ public abstract class BaseProgramFragment extends Fragment {
         return mScrollerPosition;
     }
 
+    public void hide() {
+        getView().setVisibility(View.INVISIBLE);
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -87,6 +91,13 @@ public abstract class BaseProgramFragment extends Fragment {
     }
 
     /**
+     * Called should the Fragment be passed an invalid object id, thereby
+     * indicating the fragment should create a new object to back its views.
+     */
+    // protected void onCreateNewObject() {
+    // }
+
+    /**
      * Ask the manager to hide the next fragment after this one.
      * 
      * @param f Fragment to be next in the scroller.
@@ -94,13 +105,6 @@ public abstract class BaseProgramFragment extends Fragment {
     protected void hideNextFragment() {
         mScrollerManager.hideNextFragment(this);
     }
-
-    /**
-     * Called should the Fragment be passed an invalid object id, thereby
-     * indicating the fragment should create a new object to back its views.
-     */
-    // protected void onCreateNewObject() {
-    // }
 
     /**
      * Ask the manager to remove self from the scroller.
@@ -146,9 +150,5 @@ public abstract class BaseProgramFragment extends Fragment {
         void requestMoveTo(int x);
 
         void setNextFragment(BaseProgramFragment requester, BaseProgramFragment f);
-    }
-
-    public void hide() {
-        getView().setVisibility(View.INVISIBLE);
     }
 }

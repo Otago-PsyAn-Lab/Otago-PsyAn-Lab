@@ -18,7 +18,6 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -35,7 +34,7 @@ public class LoopsListFragment extends BaseProgramFragment {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (mViews.listview.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
                 mViews.listview.setItemChecked(position, true);
-                // setNextFragment(null);
+
             } else if (mViews.listview.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
                 setNextFragment(LoopFragment.newInstance(id));
             }
@@ -167,11 +166,11 @@ public class LoopsListFragment extends BaseProgramFragment {
     protected class ViewHolder {
         public ListView listview;
 
-        public Button newLoop;
+        public View newLoop;
 
         public ViewHolder(View view) {
             listview = (ListView)view.findViewById(android.R.id.list);
-            newLoop = (Button)view.findViewById(R.id.new_loop);
+            newLoop = view.findViewById(R.id.new_loop);
         }
 
         public void initViews() {
@@ -180,6 +179,8 @@ public class LoopsListFragment extends BaseProgramFragment {
             listview.setOnItemClickListener(mOnLoopItemClickListener);
             listview.setOnItemLongClickListener(mItemLongClickListener);
             listview.setAdapter(mLoopsAdapter);
+            listview.setDivider(null);
+            listview.setDrawSelectorOnTop(true);
 
             newLoop.setOnClickListener(mNewLoopClickListener);
         }

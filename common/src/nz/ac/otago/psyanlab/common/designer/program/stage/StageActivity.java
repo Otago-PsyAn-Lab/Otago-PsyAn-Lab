@@ -4,22 +4,25 @@ package nz.ac.otago.psyanlab.common.designer.program.stage;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView.OnStageClickListener;
 import nz.ac.otago.psyanlab.common.model.Prop;
+import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -29,26 +32,23 @@ import java.util.ArrayList;
  * Activity containing the stage editor. In this the user lays out props and
  * sets their initial properties.
  */
-public class StageActivity extends FragmentActivity {
-    private static final int LANDSCAPE = 0;
+public class StageActivity extends FragmentActivity implements StageCallbacks {
+    private static final int MODE_FOREIGN = 0x01;
 
-    private static final int PORTRAIT = 1;
+    private static final int MODE_NATIVE = 0x02;
 
-    private static final int REQUEST_ADD_PROP = 0x02;
+    static final String DIALOGUE_ADD = "dialogue_add";
 
-    private static final int REQUEST_EDIT_PROP = 0x01;
+    static final String DIALOGUE_EDIT = "dialogue_edit";
+
+    static final String DIALOGUE_PROPERTIES = "dialogue_properties";
+
+    static final String DIALOGUE_SELECT_EDIT = "dialogue_select_edit";
 
     private OnStageClickListener mAddClickListener = new OnStageClickListener() {
         @Override
         public void onStageClick(StageView stage) {
             onAddClicked();
-        }
-    };
-
-    private OnStageClickListener mEditClickListener = new OnStageClickListener() {
-        @Override
-        public void onStageClick(StageView stage) {
-            onEditClicked();
         }
     };
 
@@ -63,7 +63,79 @@ public class StageActivity extends FragmentActivity {
         }
     };
 
+    private OnStageClickListener mPropertiesClickListener = new OnStageClickListener() {
+        @Override
+        public void onStageClick(StageView stage) {
+            onPropertiesClicked();
+        }
+    };
+
+    private ArrayAdapter<Prop> mPropListAdapter;
+
     private ArrayList<Prop> mProps;
+
+    private OnStageClickListener mSelectClickListener = new OnStageClickListener() {
+        @Override
+        public void onStageClick(StageView stage) {
+            onSelectClicked();
+        }
+    };
+
+    private int mSpecifiedHeight;
+
+    private int mSpecifiedWidth;
+
+    private StageView mStage;
+
+    @Override
+    public void deleteProp(int propId) {
+        mProps.remove(propId);
+
+        if (mPropAdapter != null) {
+            mPropAdapter.notifyDataSetChanged();
+        }
+        if (mPropListAdapter != null) {
+            mPropListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public Prop getProp(int id) {
+        return mProps.get(id);
+    }
+
+    @Override
+    public ArrayAdapter getPropAdapter() {
+        if (mPropListAdapter == null) {
+            mPropListAdapter = new ArrayAdapter<Prop>(this,
+                    android.R.layout.simple_list_item_activated_1, mProps);
+        }
+        return mPropListAdapter;
+    }
+
+    @Override
+    public int getStageHeight() {
+        return mStage.getNativeHeight();
+    }
+
+    @Override
+    public int getStageMode() {
+        if (mStage.getWidth() != mStage.getNativeWidth()
+                || mStage.getHeight() == mStage.getNativeHeight()) {
+            return MODE_FOREIGN;
+        }
+        return MODE_NATIVE;
+    }
+
+    @Override
+    public int getStageOrientation() {
+        return mOrientation;
+    }
+
+    @Override
+    public int getStageWidth() {
+        return mStage.getNativeWidth();
+    }
 
     @Override
     public void onBackPressed() {
@@ -84,7 +156,7 @@ public class StageActivity extends FragmentActivity {
                 }, new ConfirmDialogFragment.OnClickListener() {
                     @Override
                     public void onClick(Dialog dialog) {
-                        onCancel();
+                        dialog.cancel();
                         finish();
                         dialog.dismiss();
                     }
@@ -93,38 +165,57 @@ public class StageActivity extends FragmentActivity {
     }
 
     @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        switch (requestCode) {
-            case REQUEST_ADD_PROP:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        Prop prop = data.getParcelableExtra(Args.EXPERIMENT_PROP);
-                        mProps.add(prop);
-                        mPropAdapter.notifyDataSetChanged();
-                        break;
-                }
-                break;
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
 
-            case REQUEST_EDIT_PROP:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        mProps = data.getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
-                        mPropAdapter.setProps(mProps);
-                        break;
-                }
-                break;
+        mStage.setNativeHeight(-1);
+        mStage.setNativeWidth(-1);
+    }
 
-            default:
-                break;
+    @Override
+    public void refreshStage() {
+        if (mOrientation == Scene.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
+    }
+
+    @Override
+    public void saveProp(int propId, Prop prop) {
+        mProps.set(propId, prop);
+
+        if (mPropAdapter != null) {
+            mPropAdapter.notifyDataSetChanged();
+        }
+        if (mPropListAdapter != null) {
+            mPropListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void saveProp(Prop prop) {
+        mProps.add(prop);
+
+        if (mPropAdapter != null) {
+            mPropAdapter.notifyDataSetChanged();
+        }
+        if (mPropListAdapter != null) {
+            mPropListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void setStageOrientation(int orientation) {
+        mOrientation = orientation;
     }
 
     /**
      * Open a dialogue to add a prop.
      */
     protected void onAddClicked() {
-        Intent intent = new Intent(this, EditPropActivity.class);
-        startActivityForResult(intent, REQUEST_ADD_PROP);
+        EditPropDialogueFragment dialogue = EditPropDialogueFragment.newAddDialogue();
+        dialogue.show(getSupportFragmentManager(), DIALOGUE_ADD);
     }
 
     /**
@@ -143,12 +234,15 @@ public class StageActivity extends FragmentActivity {
         Intent result = new Intent();
         result.putExtra(Args.EXPERIMENT_PROPS, mProps);
         result.putExtra(Args.SCENE_ID, getIntent().getLongExtra(Args.SCENE_ID, -1));
+        result.putExtra(Args.STAGE_WIDTH, mStage.getWidth());
+        result.putExtra(Args.STAGE_HEIGHT, mStage.getHeight());
+        result.putExtra(Args.STAGE_ORIENTATION, mOrientation);
         setResult(RESULT_OK, result);
     }
 
     @Override
-    protected void onCreate(Bundle arg0) {
-        super.onCreate(arg0);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -162,35 +256,33 @@ public class StageActivity extends FragmentActivity {
                 mProps = extras.getParcelableArrayList(Args.EXPERIMENT_PROPS);
             }
 
-            mOrientation = extras.getInt(Args.STAGE_ORIENTATION, LANDSCAPE);
+            mOrientation = extras
+                    .getInt(Args.STAGE_ORIENTATION,
+                            (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ? Scene.ORIENTATION_LANDSCAPE
+                                    : Scene.ORIENTATION_PORTRAIT);
+
+            mSpecifiedWidth = extras.getInt(Args.STAGE_WIDTH, -1);
+            mSpecifiedHeight = extras.getInt(Args.STAGE_HEIGHT, -1);
         } else {
             mProps = new ArrayList<Prop>();
         }
 
-        if (mOrientation == PORTRAIT) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
+        refreshStage();
 
         mPropAdapter = new PropAdapter(mProps);
 
-        StageView stage = new StageView(this);
-        stage.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        stage.setAdapter(mPropAdapter);
-        stage.setOnItemClickListener(mPropClickListener);
-        stage.setOnStageClickListener(2, mEditClickListener);
-        stage.setOnStageClickListener(3, mAddClickListener);
-        setContentView(stage);
-    }
-
-    /**
-     * Open a dialogue to edit props.
-     */
-    protected void onEditClicked() {
-        Intent intent = new Intent(this, EditPropActivity.class);
-        intent.putExtra(Args.EXPERIMENT_PROPS, mProps);
-        startActivityForResult(intent, REQUEST_EDIT_PROP);
+        View view = getLayoutInflater().inflate(R.layout.activity_stage, null);
+        mStage = (StageView)view.findViewById(R.id.stage);
+        mStage.setNativeWidth(mSpecifiedWidth);
+        mStage.setNativeHeight(mSpecifiedHeight);
+        mStage.setAdapter(mPropAdapter);
+        mStage.setOnItemClickListener(mPropClickListener);
+        mStage.setOnStageClickListener(2, mSelectClickListener);
+        mStage.setOnStageClickListener(3, mAddClickListener);
+        mStage.forceMultiTouchWhenEmpty(3);
+        mStage.setOnStageClickListener(4, mPropertiesClickListener);
+        mStage.exemptMultiTouchFromEmptyCondition(4);
+        setContentView(view);
     }
 
     /**
@@ -199,10 +291,24 @@ public class StageActivity extends FragmentActivity {
      * @param position Position of prop in the prop data set.
      */
     protected void onPropClicked(int position) {
-        Intent intent = new Intent(this, EditPropActivity.class);
-        intent.putExtra(Args.PROP_ID, position);
-        intent.putExtra(Args.EXPERIMENT_PROPS, mProps);
-        startActivityForResult(intent, REQUEST_EDIT_PROP);
+        DialogFragment dialogue = EditPropDialogueFragment.newEditDialogue(position);
+        dialogue.show(getSupportFragmentManager(), DIALOGUE_EDIT);
+    }
+
+    /**
+     * Open a dialogue to edit the stage properties.
+     */
+    protected void onPropertiesClicked() {
+        DialogFragment dialogue = EditPropertiesDialogueFragment.newDialogue();
+        dialogue.show(getSupportFragmentManager(), DIALOGUE_PROPERTIES);
+    }
+
+    /**
+     * Open a dialogue to select props for editing.
+     */
+    protected void onSelectClicked() {
+        DialogFragment dialogue = SelectPropDialogueFragment.newDialogue();
+        dialogue.show(getSupportFragmentManager(), DIALOGUE_SELECT_EDIT);
     }
 
     private final class PropAdapter extends BaseAdapter implements StageView.PropAdapter {
@@ -243,12 +349,25 @@ public class StageActivity extends FragmentActivity {
 
         @Override
         public boolean hasStableIds() {
-            return true;
+            return false;
         }
+    }
 
-        public void setProps(ArrayList<Prop> props) {
-            mProps = props;
-            notifyDataSetChanged();
+    @Override
+    public int getPropNumber() {
+        return findUnusedKey();
+    }
+
+    private int findUnusedKey() {
+        int currKey = 1;
+        for (Prop prop : mProps) {
+            if (TextUtils.equals(
+                    prop.name,
+                    getString(R.string.format_default_prop_name,
+                            getString(R.string.default_prop_name), currKey))) {
+                currKey++;
+            }
         }
+        return currKey;
     }
 }

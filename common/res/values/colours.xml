@@ -2,5 +2,7 @@
 <resources>
 
     <color name="accent">#ff7200</color>
+    <color name="background">#fff3f3f3</color>
+    <color name="card_background">#fffefefe</color>
 
 </resources>

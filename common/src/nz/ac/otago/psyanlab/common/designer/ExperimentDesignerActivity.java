@@ -169,6 +169,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             }
 
             holder.textViews[0].setText(loop.name);
+
             return convertView;
         }
     };
@@ -363,10 +364,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public void editStage(long sceneId) {
+        Scene scene = mExperiment.scenes.get(sceneId);
         Intent intent = new Intent(this, StageActivity.class);
+
         intent.putExtra(Args.EXPERIMENT_PROPS, getPropsArray(sceneId));
         intent.putExtra(Args.SCENE_ID, sceneId);
-        intent.putExtra(Args.STAGE_ORIENTATION, mExperiment.scenes.get(sceneId).orientation);
+        intent.putExtra(Args.STAGE_WIDTH, scene.stageWidth);
+        intent.putExtra(Args.STAGE_HEIGHT, scene.stageHeight);
+
+        if (scene.orientation != -1) {
+            intent.putExtra(Args.STAGE_ORIENTATION, scene.orientation);
+        }
+
         startActivityForResult(intent, REQUEST_EDIT_STAGE);
     }
 
@@ -504,7 +513,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                                 .getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
                         long sceneId = data.getLongExtra(Args.SCENE_ID, -1);
 
-                        updatePropsInScene(sceneId, props);
+                        int height = data.getIntExtra(Args.STAGE_HEIGHT, -1);
+                        int width = data.getIntExtra(Args.STAGE_WIDTH, -1);
+                        int orientation = data.getIntExtra(Args.STAGE_ORIENTATION,
+                                Scene.ORIENTATION_LANDSCAPE);
+
+                        updateStageInScene(sceneId, props, orientation, width, height);
                         break;
 
                     default:
@@ -532,7 +546,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     }
 
-    private void updatePropsInScene(long sceneId, ArrayList<Prop> props) {
+    private void updateStageInScene(long sceneId, ArrayList<Prop> props, int orientation,
+            int width, int height) {
         /*
          * Refresh all props by first removing the old versions from the prop
          * map and then adding the new ones. The new versions may actually be
@@ -541,15 +556,22 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
          */
         Scene scene = mExperiment.scenes.get(sceneId);
 
+        scene.orientation = orientation;
+        scene.stageWidth = width;
+        scene.stageHeight = height;
+
         for (Long propId : scene.props) {
             mExperiment.props.remove(propId);
         }
+        scene.props = new ArrayList<Long>();
 
         for (Prop prop : props) {
             Long key = findUnusedKey(mExperiment.props);
             mExperiment.props.put(key, prop);
             scene.props.add(key);
         }
+
+        notifySceneDataChangeListeners();
     }
 
     @Override

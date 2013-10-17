@@ -11,15 +11,15 @@ import android.support.v4.app.Fragment;
 public class ExperimentHolderFragment extends Fragment {
 	private Experiment mExperiment;
 
+	public Experiment getExperiment() {
+		return mExperiment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setRetainInstance(true);
-	}
-
-	public Experiment getExperiment() {
-		return mExperiment;
 	}
 
 	public void setExperiment(Experiment experiment) {

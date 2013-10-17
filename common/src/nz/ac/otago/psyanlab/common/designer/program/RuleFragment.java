@@ -21,7 +21,6 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -215,7 +214,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     }
 
     private class ViewHolder {
-        public Button condition;
+        public View condition;
 
         public TextView name;
 
@@ -227,15 +226,15 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         private ListView actionsList;
 
-        private Button newAction;
+        private View newAction;
 
         public ViewHolder(View view) {
             name = (EditText)view.findViewById(R.id.name);
             triggerObject = (Spinner)view.findViewById(R.id.trigger_object);
             triggerEvent = (Spinner)view.findViewById(R.id.trigger_event);
-            condition = (Button)view.findViewById(R.id.condition);
+            condition = view.findViewById(R.id.edit_condition);
             actionsList = (ListView)view.findViewById(R.id.actions);
-            newAction = (Button)view.findViewById(R.id.new_action);
+            newAction = view.findViewById(R.id.new_action);
         }
 
         public void initViews() {
@@ -248,6 +247,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             actionsList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             actionsList.setOnItemClickListener(mOnActionItemClickListener);
             actionsList.setOnItemLongClickListener(mActionItemLongClickListener);
+            actionsList.setDivider(null);
         }
 
         public void setViewValues(Rule rule) {

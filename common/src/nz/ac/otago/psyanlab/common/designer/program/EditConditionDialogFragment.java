@@ -34,9 +34,9 @@ public class EditConditionDialogFragment extends DialogFragment {
 
     private ProgramCallbacks mCallbacks;
 
-    private Loop mLoop;
-
     private long mId;
+
+    private Loop mLoop;
 
     private ViewHolder mViews;
 

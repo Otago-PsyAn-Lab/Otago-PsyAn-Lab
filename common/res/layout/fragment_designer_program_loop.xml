@@ -20,90 +20,163 @@
         android:layout_below="@+id/colour_bar_spacer"
         android:background="#cd0fdddf" />
 
-    <GridLayout
-        android:id="@+id/loop_column"
+    <LinearLayout
+        android:id="@+id/column"
+        style="@style/column"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
         android:layout_toRightOf="@+id/colour_left_margin"
-        android:columnCount="2"
+        android:orientation="vertical"
         android:paddingBottom="@dimen/program_bottom_padding"
         android:paddingLeft="@dimen/program_left_padding"
         android:paddingRight="@dimen/program_between_padding"
         android:paddingTop="@dimen/program_top_padding" >
 
-        <EditText
-            android:id="@+id/name"
-            android:layout_columnSpan="2"
-            android:hint="@string/hint_loop_name"
-            android:inputType="text|textNoSuggestions"
-            android:maxEms="24"
-            android:minEms="12"
-            android:textSize="24sp" />
-
-        <TextView
-            android:layout_gravity="left"
-            android:paddingRight="8dip"
-            android:text="Cycles:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <Button
-            android:id="@+id/iterations"
-            style="?android:attr/spinnerStyle"
-            android:layout_gravity="fill_horizontal"
-            android:text="12 Iterations" />
-
         <LinearLayout
-            style="?android:attr/buttonBarStyle"
-            android:layout_columnSpan="2"
-            android:orientation="vertical"
-            android:showDividers="middle" >
+            style="@style/card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-            <Button
-                android:id="@+id/new_generator"
-                style="?android:attr/buttonBarButtonStyle"
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_loop_name"
+                android:inputType="text|textNoSuggestions"
+                android:maxEms="24"
+                android:minEms="12"
+                android:textSize="24sp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Generator" />
+                android:layout_gravity="fill_horizontal"
+                android:orientation="horizontal"
+                android:padding="8dip"
+                android:showDividers="none" >
 
-            <com.mobeta.android.dslv.DragSortListView
-                android:id="@+id/generators"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:listSelector="@drawable/loop_list_selector_holo_light"
-                app:drag_enabled="true"
-                app:drag_handle_id="@+id/handle"
-                app:drag_start_mode="onDown"
-                app:float_background_color="@android:color/transparent"
-                app:remove_enabled="false" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left|center_vertical"
+                    android:fontFamily="sans-serif-light"
+                    android:paddingRight="8dip"
+                    android:text="@string/label_loop_cycles"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Button
+                    android:id="@+id/iterations"
+                    style="?android:attr/spinnerStyle"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_weight="1" />
+            </LinearLayout>
         </LinearLayout>
-    </GridLayout>
+
+        <LinearLayout
+            android:id="@+id/new_generator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            android:layout_marginTop="8dip"
+            android:background="@drawable/loop_item_background_holo_light"
+            android:orientation="horizontal"
+            android:padding="8dip"
+            android:showDividers="none" >
+
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/title_generators"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/edit_stage_psudeo_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="#cd0fdddf"
+                android:paddingBottom="2dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:paddingTop="2dip"
+                android:text="@string/action_add_new"
+                android:textAllCaps="true"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <com.mobeta.android.dslv.DragSortListView
+            android:id="@+id/generators"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="true"
+            android:listSelector="@drawable/loop_list_selector_holo_light"
+            app:drag_enabled="true"
+            app:drag_handle_id="@+id/handle"
+            app:drag_start_mode="onDown"
+            app:float_background_color="@android:color/transparent"
+            app:remove_enabled="false" />
+    </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/scenes_column"
-        style="?android:attr/buttonBarStyle"
+        android:id="@+id/right_column"
+        style="@style/column_right"
         android:layout_width="240dip"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/loop_column"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/program_bottom_padding"
-        android:paddingLeft="@dimen/program_between_padding"
-        android:paddingRight="@dimen/program_right_padding"
-        android:paddingTop="@dimen/program_top_padding"
-        android:showDividers="middle" >
+        android:layout_toRightOf="@+id/column"
+        android:orientation="vertical" >
 
-        <Button
+        <LinearLayout
             android:id="@+id/new_scene"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="New Scene" />
+            android:layout_gravity="fill_horizontal"
+            android:background="@drawable/loop_item_background_holo_light"
+            android:orientation="horizontal"
+            android:padding="8dip"
+            android:showDividers="none" >
+
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/title_rules"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="#cd0fdddf"
+                android:paddingBottom="2dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:paddingTop="2dip"
+                android:text="@string/action_add_new"
+                android:textAllCaps="true"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <com.mobeta.android.dslv.DragSortListView
             android:id="@+id/scenes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:drawSelectorOnTop="true"
             android:listSelector="@drawable/scene_list_selector_holo_light"
             app:drag_enabled="true"
             app:drag_handle_id="@+id/handle"
@@ -116,7 +189,7 @@
         android:layout_width="0dip"
         android:layout_height="16dip"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/scenes_column"
+        android:layout_alignRight="@+id/right_column"
         android:background="#cd0fdddf" />
 
     <!-- <View -->
@@ -125,5 +198,10 @@
     <!-- android:layout_alignRight="@+id/loop_column" -->
     <!-- android:layout_alignLeft="@+id/scenes_column" -->
     <!-- android:background="#ffff8800" /> -->
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+    </LinearLayout>
 
 </RelativeLayout>

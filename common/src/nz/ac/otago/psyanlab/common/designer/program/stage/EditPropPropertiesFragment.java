@@ -2,7 +2,6 @@
 package nz.ac.otago.psyanlab.common.designer.program.stage;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.program.stage.EditPropDialogueFragment.Callbacks;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.util.PALEPropProperty;
 
@@ -28,9 +27,9 @@ import java.util.HashMap;
  * a UI to edit the properties.
  */
 public class EditPropPropertiesFragment extends Fragment {
-    private static final String ARG_PROP_ID = "arg_prop_id";
-
     private static final String ARG_PROP = "arg_prop";
+
+    private static final String ARG_PROP_ID = "arg_prop_id";
 
     public static EditPropPropertiesFragment newInstance(int propId) {
         EditPropPropertiesFragment f = new EditPropPropertiesFragment();
@@ -50,23 +49,76 @@ public class EditPropPropertiesFragment extends Fragment {
         return f;
     }
 
+    private StageCallbacks mCallbacks;
+
     private HashMap<String, Field> mFieldMap;
+
+    private HashMap<String, ArrayList<String>> mGroupings = new HashMap<String, ArrayList<String>>();
 
     private Prop mProp;
 
     private HashMap<String, View> mViewMap;
 
-    private HashMap<String, ArrayList<String>> mGroupings = new HashMap<String, ArrayList<String>>();
+    /**
+     * Get the prop with properties set from the user entered values.
+     * 
+     * @return Prop with user values.
+     */
+    public Prop getConfiguredProp() {
+        for (String name : mViewMap.keySet()) {
+            Field field = mFieldMap.get(name);
+            View view = mViewMap.get(name);
 
-    private Callbacks mCallbacks;
+            Object value;
+
+            if (view instanceof EditText) {
+                String in = ((EditText)view).getText().toString();
+                if (in == null) {
+                    continue;
+                }
+
+                if (field.getType().isAssignableFrom(Integer.TYPE)) {
+                    try {
+                        value = Integer.valueOf(((EditText)view).getText().toString());
+                    } catch (NumberFormatException e) {
+                        // Bad input here can be ignored. Continue to next item.
+                        continue;
+                    }
+                } else if (field.getType().isAssignableFrom(Float.TYPE)) {
+                    try {
+                        value = Float.valueOf(((EditText)view).getText().toString());
+                    } catch (NumberFormatException e) {
+                        // Bad input here can be ignored. Continue to next item.
+                        continue;
+                    }
+                } else if (field.getType().isAssignableFrom(String.class)) {
+                    value = ((EditText)view).getText().toString();
+                } else {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+
+            try {
+                field.set(mProp, value);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return mProp;
+    }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof Callbacks)) {
+        if (!(activity instanceof StageCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (Callbacks)activity;
+        mCallbacks = (StageCallbacks)activity;
     }
 
     @Override
@@ -91,11 +143,29 @@ public class EditPropPropertiesFragment extends Fragment {
                 String fieldName = annotation.value();
                 View view;
                 if (field.getType().isAssignableFrom(Integer.TYPE)) {
-                    view = newIntegerInputView(annotation.isSigned());
+                    try {
+                        view = newIntegerInputView(annotation.isSigned(), field.getInt(mProp));
+                    } catch (IllegalArgumentException e) {
+                        throw new RuntimeException("Should never get here.", e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Should never get here.", e);
+                    }
                 } else if (field.getType().isAssignableFrom(Float.TYPE)) {
-                    view = newFloatInputView(annotation.isSigned());
+                    try {
+                        view = newFloatInputView(annotation.isSigned(), field.getFloat(mProp));
+                    } catch (IllegalArgumentException e) {
+                        throw new RuntimeException("Should never get here.", e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Should never get here.", e);
+                    }
                 } else if (field.getType().isAssignableFrom(String.class)) {
-                    view = newStringInputView();
+                    try {
+                        view = newStringInputView((String)field.get(mProp));
+                    } catch (IllegalArgumentException e) {
+                        throw new RuntimeException("Should never get here.", e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Should never get here.", e);
+                    }
                 } else {
                     continue;
                 }
@@ -155,66 +225,13 @@ public class EditPropPropertiesFragment extends Fragment {
     }
 
     /**
-     * Get the prop with properties set from the user entered values.
-     * 
-     * @return Prop with user values.
-     */
-    public Prop getConfiguredProp() {
-        for (String name : mViewMap.keySet()) {
-            Field field = mFieldMap.get(name);
-            View view = mViewMap.get(name);
-
-            Object value;
-
-            if (view instanceof EditText) {
-                String in = ((EditText)view).getText().toString();
-                if (in == null) {
-                    continue;
-                }
-
-                if (field.getType().isAssignableFrom(Integer.TYPE)) {
-                    try {
-                        value = Integer.valueOf(((EditText)view).getText().toString());
-                    } catch (NumberFormatException e) {
-                        // Bad input here can be ignored. Continue to next item.
-                        continue;
-                    }
-                } else if (field.getType().isAssignableFrom(Float.TYPE)) {
-                    try {
-                        value = Float.valueOf(((EditText)view).getText().toString());
-                    } catch (NumberFormatException e) {
-                        // Bad input here can be ignored. Continue to next item.
-                        continue;
-                    }
-                } else if (field.getType().isAssignableFrom(String.class)) {
-                    value = ((EditText)view).getText().toString();
-                } else {
-                    continue;
-                }
-            } else {
-                continue;
-            }
-
-            try {
-                field.set(mProp, value);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return mProp;
-    }
-
-    /**
      * Creates an edit text entry field that allows the user to enter a
      * fractional number.
      * 
      * @param signedAnnotation
      * @return EditText
      */
-    private View newFloatInputView(boolean isSigned) {
+    private View newFloatInputView(boolean isSigned, float f) {
         EditText view = new EditText(getActivity());
         if (isSigned) {
             view.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -223,6 +240,7 @@ public class EditPropPropertiesFragment extends Fragment {
             view.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         }
         view.setSingleLine();
+        view.setText(String.valueOf(f));
         return view;
     }
 
@@ -230,10 +248,11 @@ public class EditPropPropertiesFragment extends Fragment {
      * Creates an edit text entry field that allows the user to enter an
      * integer.
      * 
+     * @param i
      * @param posOnlyAnnotation
      * @return EditText
      */
-    private View newIntegerInputView(boolean isSigned) {
+    private View newIntegerInputView(boolean isSigned, int i) {
         EditText view = new EditText(getActivity());
         if (isSigned) {
             view.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL
@@ -242,6 +261,7 @@ public class EditPropPropertiesFragment extends Fragment {
             view.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL);
         }
         view.setSingleLine();
+        view.setText(String.valueOf(i));
         return view;
     }
 
@@ -250,10 +270,11 @@ public class EditPropPropertiesFragment extends Fragment {
      * 
      * @return EditText
      */
-    private View newStringInputView() {
+    private View newStringInputView(String s) {
         EditText view = new EditText(getActivity());
         view.setInputType(InputType.TYPE_CLASS_TEXT);
         view.setSingleLine();
+        view.setText(s);
         return view;
     }
 }

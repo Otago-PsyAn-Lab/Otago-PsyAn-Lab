@@ -16,78 +16,82 @@
         android:background="#cdff5a00" />
 
     <LinearLayout
-        android:id="@+id/action_column"
+        android:id="@+id/column"
+        style="@style/column"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
         android:layout_toRightOf="@+id/colour_left_margin"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/program_bottom_padding"
-        android:paddingLeft="@dimen/program_left_padding"
-        android:paddingRight="@dimen/program_end_padding"
-        android:paddingTop="@dimen/program_top_padding" >
+        android:orientation="vertical" >
 
-        <EditText
-            android:id="@+id/name"
+        <FrameLayout
+            style="@style/card"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="@string/hint_action_name"
-            android:inputType="text|textNoSuggestions"
-            android:maxEms="24"
-            android:minEms="12"
-            android:textSize="24sp" />
+            android:layout_height="wrap_content" >
 
-        <TextView
-            style="@style/sectionHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_action" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
+            <EditText
+                android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:hint="@string/hint_action_name"
+                android:inputType="text|textNoSuggestions"
+                android:maxEms="24"
+                android:minEms="12"
+                android:textSize="24sp" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="8dip"
+            android:fontFamily="sans-serif-light"
+            android:padding="8dip"
+            android:text="@string/label_action"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <GridLayout
+            style="@style/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:orientation="horizontal"
+            android:useDefaultMargins="true" >
+
+            <TextView
+                android:layout_gravity="center_vertical|end"
+                android:fontFamily="sans-serif-light"
                 android:paddingRight="8dip"
                 android:text="@string/label_action_object"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Spinner
                 android:id="@+id/action_object"
-                android:layout_width="0dip"
-                android:layout_height="48dip"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+                android:layout_gravity="fill_horizontal"
+                android:minHeight="48dip" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="center_vertical|end"
+                android:fontFamily="sans-serif-light"
                 android:paddingRight="8dip"
                 android:text="@string/label_action_method"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Spinner
                 android:id="@+id/action_method"
-                android:layout_width="0dip"
-                android:layout_height="48dip"
-                android:layout_weight="1" />
-        </LinearLayout>
+                android:layout_gravity="fill_horizontal"
+                android:minHeight="48dip" />
+        </GridLayout>
 
         <TextView
-            style="@style/sectionHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_parameters" />
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="8dip"
+            android:fontFamily="sans-serif-light"
+            android:padding="8dip"
+            android:text="@string/label_parameters"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <ListView
             android:id="@+id/parameters"
@@ -99,7 +103,7 @@
         android:layout_width="0dip"
         android:layout_height="16dip"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/action_column"
+        android:layout_alignRight="@+id/column"
         android:background="#cdff5a00" />
 
 </RelativeLayout>

@@ -1,6 +1,9 @@
 
 package nz.ac.otago.psyanlab.common.model;
 
+import nz.ac.otago.psyanlab.common.R;
+
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -58,7 +61,10 @@ public abstract class Prop implements Parcelable {
         height = in.readInt();
     }
 
-    public Prop(Prop prop) {
+    public Prop(Context context, Prop prop, int defaultSuffix) {
+        name = context.getString(R.string.format_default_prop_name,
+                context.getString(R.string.default_prop_name), defaultSuffix);
+
         if (prop == null) {
             return;
         }

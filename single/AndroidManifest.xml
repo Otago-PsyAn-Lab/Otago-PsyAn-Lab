@@ -30,10 +30,10 @@
         <activity android:name="nz.ac.otago.psyanlab.common.runtime.ExperimentRuntimeActivity" />
         <activity android:name="nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity" />
         <activity android:name="nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity" />
-        <activity android:name="nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity" />
         <activity
-            android:name="nz.ac.otago.psyanlab.common.designer.program.stage.EditPropActivity"
-            android:theme="@style/PopupTheme" />
+            android:name="nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity"
+            android:configChanges="orientation|screenSize"
+            android:windowSoftInputMode="adjustResize" />
 
         <provider
             android:name="nz.ac.otago.psyanlab.single.DataProvider"

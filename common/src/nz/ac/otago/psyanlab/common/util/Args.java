@@ -37,7 +37,11 @@ public class Args {
 
     public static final String SCENE_ID = "scene_id";
 
+    public static final String STAGE_HEIGHT = "stage_height";
+
     public static final String STAGE_ORIENTATION = "stage_orientation";
+
+    public static final String STAGE_WIDTH = "stage_width";
 
     public static final String USER_DELEGATE = "user_delegate";
 

@@ -28,6 +28,19 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
     private HorizontalScrollView mScroller;
 
     @Override
+    public void hideNextFragment(BaseProgramFragment requester) {
+        int nextPos = requester.getScrollerPos() + 1;
+
+        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+        snip(nextPos + 1, ft);
+        ft.commit();
+
+        if (nextPos < mFragments.size()) {
+            mFragments.get(nextPos).hide();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program, container, false);
     }
@@ -92,6 +105,19 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
     }
 
     @Override
+    public void requestMoveTo(final int x) {
+        getChildFragmentManager().executePendingTransactions();
+        mScroller.post(new Runnable() {
+            @Override
+            public void run() {
+                if (x > 0) {
+                    mScroller.smoothScrollBy(x, 0);
+                }
+            }
+        });
+    }
+
+    @Override
     public void setNextFragment(BaseProgramFragment requester, BaseProgramFragment next) {
         if (next != null) {
             next.setScrollerManager(this);
@@ -137,32 +163,6 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
             ft.remove(mFragments.get(i));
             Log.e("snip", i + "");
             mFragments.remove(i);
-        }
-    }
-
-    @Override
-    public void requestMoveTo(final int x) {
-        getChildFragmentManager().executePendingTransactions();
-        mScroller.post(new Runnable() {
-            @Override
-            public void run() {
-                if (x > 0) {
-                    mScroller.smoothScrollBy(x, 0);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void hideNextFragment(BaseProgramFragment requester) {
-        int nextPos = requester.getScrollerPos() + 1;
-
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        snip(nextPos + 1, ft);
-        ft.commit();
-
-        if (nextPos < mFragments.size()) {
-            mFragments.get(nextPos).hide();
         }
     }
 }

@@ -18,115 +18,184 @@
         android:layout_below="@+id/colour_bar_spacer"
         android:background="#cdffbb33" />
 
-    <LinearLayout
-        android:id="@+id/rule_column"
-        style="?android:attr/buttonBarStyle"
+    <ScrollView
+        android:id="@+id/column"
+        style="@style/column"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/colour_left_margin"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/program_bottom_padding"
-        android:paddingLeft="@dimen/program_left_padding"
-        android:paddingRight="@dimen/program_between_padding"
-        android:paddingTop="@dimen/program_top_padding"
-        android:showDividers="end" >
+        android:layout_toRightOf="@+id/colour_left_margin" >
 
-        <EditText
-            android:id="@+id/name"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_rule_name"
-            android:inputType="text|textNoSuggestions"
-            android:maxEms="24"
-            android:minEms="12"
-            android:textSize="24sp" />
+            android:orientation="vertical" >
 
-        <TextView
-            style="@style/sectionHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_trigger" />
+            <FrameLayout
+                style="@style/card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+                <EditText
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_rule_name"
+                    android:inputType="text|textNoSuggestions"
+                    android:maxEms="24"
+                    android:minEms="12"
+                    android:textSize="24sp" />
+            </FrameLayout>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:paddingRight="8dip"
-                android:text="@string/label_trigger_object"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_marginTop="8dip"
+                android:fontFamily="sans-serif-light"
+                android:padding="8dip"
+                android:text="@string/label_trigger"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <Spinner
-                android:id="@+id/trigger_object"
-                android:layout_width="0dip"
-                android:layout_height="48dip"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:layout_width="wrap_content"
+            <GridLayout
+                style="@style/card"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingRight="8dip"
-                android:text="@string/label_trigger_event"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:columnCount="2"
+                android:orientation="horizontal"
+                android:useDefaultMargins="true" >
 
-            <Spinner
-                android:id="@+id/trigger_event"
-                android:layout_width="0dip"
-                android:layout_height="48dip"
-                android:layout_weight="1" />
+                <TextView
+                    android:layout_gravity="center_vertical|end"
+                    android:fontFamily="sans-serif-light"
+                    android:paddingRight="8dip"
+                    android:text="@string/label_trigger_object"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Spinner
+                    android:id="@+id/trigger_object"
+                    android:layout_gravity="fill_horizontal"
+                    android:minHeight="48dip" />
+
+                <TextView
+                    android:layout_gravity="center_vertical|end"
+                    android:fontFamily="sans-serif-light"
+                    android:paddingRight="8dip"
+                    android:text="@string/label_trigger_event"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Spinner
+                    android:id="@+id/trigger_event"
+                    android:layout_gravity="fill_horizontal"
+                    android:minHeight="48dip" />
+            </GridLayout>
+
+            <LinearLayout
+                android:id="@+id/edit_condition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill_horizontal"
+                android:layout_marginTop="8dip"
+                android:background="@drawable/rule_item_background_holo_light"
+                android:orientation="horizontal"
+                android:padding="8dip"
+                android:showDividers="none" >
+
+                <TextView
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-light"
+                    android:paddingRight="8dip"
+                    android:text="@string/label_condition"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <TextView
+                    android:id="@+id/edit_stage_psudeo_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="#cdffbb33"
+                    android:paddingBottom="2dip"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="8dip"
+                    android:paddingTop="2dip"
+                    android:text="@string/action_edit"
+                    android:textAllCaps="true"
+                    android:textColor="#ffffff"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:useDefaultMargins="true" >
+
+                <TextView
+                    android:id="@+id/stage_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Condition details"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+            </LinearLayout>
         </LinearLayout>
-
-        <TextView
-            style="@style/sectionHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_condition" />
-
-        <Button
-            android:id="@+id/condition"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Edit Condition" />
-    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
-        android:id="@+id/actions_column"
-        style="?android:attr/buttonBarStyle"
+        android:id="@+id/right_column"
+        style="@style/column_right"
         android:layout_width="240dip"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/rule_column"
+        android:layout_toRightOf="@+id/column"
         android:orientation="vertical"
-        android:paddingBottom="@dimen/program_bottom_padding"
-        android:paddingLeft="@dimen/program_between_padding"
-        android:paddingRight="@dimen/program_right_padding"
-        android:paddingTop="@dimen/program_top_padding"
         android:showDividers="middle" >
 
-        <Button
+        <LinearLayout
             android:id="@+id/new_action"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="New Action" />
+            android:layout_gravity="fill_horizontal"
+            android:background="@drawable/rule_item_background_holo_light"
+            android:orientation="horizontal"
+            android:padding="8dip"
+            android:showDividers="none" >
+
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/title_actions"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="#cdffbb33"
+                android:paddingBottom="2dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:paddingTop="2dip"
+                android:text="@string/action_add_new"
+                android:textAllCaps="true"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <com.mobeta.android.dslv.DragSortListView
             android:id="@+id/actions"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:drawSelectorOnTop="true"
             android:listSelector="@drawable/action_list_selector_holo_light"
             app:drag_enabled="true"
             app:drag_handle_id="@+id/handle"
@@ -139,7 +208,7 @@
         android:layout_width="0dip"
         android:layout_height="16dip"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/actions_column"
+        android:layout_alignRight="@+id/right_column"
         android:background="#cdffbb33" />
 
 </RelativeLayout>

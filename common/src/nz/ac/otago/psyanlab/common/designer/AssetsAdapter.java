@@ -40,11 +40,6 @@ class AssetsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
     }
 
     @Override
-    public boolean hasStableIds() {
-        return true;
-    }
-
-    @Override
     public long getHeaderId(int pos) {
         return mAssets.get(mAssetKeys[pos]).getTypeId();
     }
@@ -93,6 +88,11 @@ class AssetsAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
         holder.textViews[0].setText(mAssets.get(mAssetKeys[pos]).name);
         return convertView;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
     }
 
     @Override

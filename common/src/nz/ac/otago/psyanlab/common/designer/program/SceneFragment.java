@@ -3,10 +3,11 @@ package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.program.stage.StageView;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -24,12 +25,10 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
+import android.widget.TextView;
 
 public class SceneFragment extends BaseProgramFragment implements SceneDataChangeListener {
     public static BaseProgramFragment newInstance(long id) {
@@ -47,7 +46,9 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
                 mViews.rulesList.setItemChecked(position, true);
+                mViews.restoreRightColumnPadding();
             } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
+                mViews.alignRightColumnRight();
                 onRuleClick(id);
             }
         }
@@ -96,6 +97,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             mViews.rulesList.setItemChecked(position, true);
             setNextFragment(null);
+            mViews.restoreRightColumnPadding();
             return true;
         }
     };
@@ -168,17 +170,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
-    protected OnItemSelectedListener mOnOrientationSelectedListener = new OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            mScene.orientation = position;
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-        }
-    };
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_scene, container, false);
@@ -212,7 +203,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
         mRulesAdapter = mCallbacks.getRuleAdapter(mObjectId);
 
-        mViews = new ViewHolder(getResources(), view);
+        mViews = new ViewHolder(getActivity(), view);
         mViews.setViewValues(mScene);
         mViews.initViews();
     }
@@ -240,31 +231,41 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         } else {
             selectItemInList(newRuleId, mViews.rulesList);
         }
+
+        mViews.alignRightColumnRight();
     }
 
     protected void onRuleClick(long id) {
         setNextFragment(RuleFragment.newInstance(id));
     }
 
-    private class ViewHolder {
-        public Button editStage;
+    private class ViewHolder extends AbsViewHolder<Scene> {
+        public View editStage;
 
         public EditText name;
 
-        public Button newRule;
+        public View newRule;
 
         public ListView rulesList;
 
-        public Spinner stageOrientation;
+        public TextView stageDetail;
 
-        public ViewHolder(Resources resources, View view) {
-            editStage = (Button)view.findViewById(R.id.stage);
+        public StageView stageThumb;
+
+        public TextView editStagePsuedoButton;
+
+        public ViewHolder(Context context, View view) {
+            super(context, view);
+            editStage = view.findViewById(R.id.edit_stage);
             name = (EditText)view.findViewById(R.id.name);
-            newRule = (Button)view.findViewById(R.id.new_rule);
+            newRule = view.findViewById(R.id.new_rule);
             rulesList = (ListView)view.findViewById(R.id.rules);
-            stageOrientation = (Spinner)view.findViewById(R.id.stage_orientation);
+            stageThumb = (StageView)view.findViewById(R.id.stage);
+            stageDetail = (TextView)view.findViewById(R.id.stage_detail);
+            editStagePsuedoButton = (TextView)view.findViewById(R.id.edit_stage_psudeo_button);
         }
 
+        @Override
         public void initViews() {
             name.addTextChangedListener(mNameWatcher);
 
@@ -277,19 +278,45 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             rulesList.setOnItemClickListener(mOnRuleItemClickListener);
             rulesList.setOnItemLongClickListener(mItemLongClickListener);
-
-            stageOrientation.setOnItemSelectedListener(mOnOrientationSelectedListener);
+            rulesList.setDivider(null);
         }
 
+        @Override
         public void setViewValues(Scene scene) {
             name.setText(scene.name);
-            stageOrientation.setSelection(mScene.orientation);
+            if (scene.orientation == -1) {
+                editStagePsuedoButton.setText(R.string.action_create);
+            }
+            updateStageDetail(scene);
         }
 
         public void updateViews(Scene newScene, Scene oldScene) {
             if (!TextUtils.equals(newScene.name, oldScene.name)) {
                 name.setText(newScene.name);
             }
+            if (newScene.orientation == -1) {
+                mViews.editStagePsuedoButton.setText(R.string.action_create);
+            } else {
+                mViews.editStagePsuedoButton.setText(R.string.action_edit);
+            }
+            updateStageDetail(newScene);
+        }
+
+        private void updateStageDetail(Scene scene) {
+            if (scene.orientation == -1) {
+                stageDetail.setText(getString(R.string.text_stage_undefined));
+            } else {
+                stageDetail
+                        .setText(getResources()
+                                .getString(
+                                        R.string.format_stage_detail,
+                                        mScene.stageWidth,
+                                        mScene.stageHeight,
+                                        getResources().getStringArray(R.array.orientation_options)[scene.orientation],
+                                        mScene.props.size()));
+            }
+            stageThumb.setNativeWidth(mScene.stageWidth);
+            stageThumb.setNativeHeight(mScene.stageHeight);
         }
     }
 }

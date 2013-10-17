@@ -1,118 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?android:attr/buttonBarStyle"
     android:layout_width="wrap_content"
-    android:layout_height="0dip"
-    android:layout_weight="1" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="0dip"
+        android:layout_weight="1" >
 
-        <GridLayout
-            android:id="@+id/container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alignmentMode="alignBounds"
-            android:columnCount="4"
-            android:columnOrderPreserved="false"
-            android:paddingLeft="8dip"
-            android:paddingRight="8dip"
-            android:useDefaultMargins="true" >
-
-            <TextView
-                android:layout_gravity="end"
-                android:text="Name:" />
-
-            <EditText
-                android:id="@+id/name"
-                android:layout_columnSpan="3"
-                android:ems="8"
-                android:imeOptions="actionNext"
-                android:inputType="textNoSuggestions"
-                android:selectAllOnFocus="true"
-                android:singleLine="true" />
-
-            <TextView
-                android:layout_column="0"
-                android:layout_gravity="center_vertical|end"
-                android:text="Type:" />
-
-            <Spinner
-                android:id="@+id/type"
-                android:layout_width="0dp"
-                android:layout_columnSpan="3"
-                android:layout_gravity="fill_horizontal"
-                android:entries="@array/prop_types"
-                android:minHeight="48dip" />
-
-            <TextView
-                style="@style/sectionHeader"
-                android:layout_columnSpan="4"
-                android:layout_gravity="fill_horizontal"
-                android:text="Dimensions" />
-
-            <TextView
-                android:layout_gravity="end"
-                android:text="X:" />
-
-            <EditText
-                android:id="@+id/xPos"
-                android:ems="4"
-                android:imeOptions="actionNext"
-                android:inputType="number"
-                android:selectAllOnFocus="true"
-                android:singleLine="true" />
-
-            <TextView
-                android:layout_gravity="end"
-                android:text="Y:" />
-
-            <EditText
-                android:id="@+id/yPos"
-                android:ems="4"
-                android:imeOptions="actionNext"
-                android:inputType="number"
-                android:selectAllOnFocus="true"
-                android:singleLine="true" />
-
-            <TextView
-                android:layout_gravity="end"
-                android:text="Width:" />
-
-            <EditText
-                android:id="@+id/width"
-                android:ems="4"
-                android:imeOptions="actionNext"
-                android:inputType="number"
-                android:selectAllOnFocus="true"
-                android:singleLine="true" />
-
-            <TextView
-                android:layout_gravity="end"
-                android:text="Height:" />
-
-            <EditText
-                android:id="@+id/height"
-                android:ems="4"
-                android:imeOptions="actionNext"
-                android:inputType="number"
-                android:selectAllOnFocus="true"
-                android:singleLine="true" />
-
-            <TextView
-                style="@style/sectionHeader"
-                android:layout_columnSpan="4"
-                android:layout_gravity="fill_horizontal"
-                android:text="Properties" />
-        </GridLayout>
-
-        <FrameLayout
-            android:id="@+id/prop_properties_container"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dip"
-            android:paddingRight="8dip" />
-    </LinearLayout>
+            android:orientation="vertical" >
 
-</ScrollView>
+            <GridLayout
+                android:id="@+id/container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alignmentMode="alignBounds"
+                android:columnCount="4"
+                android:columnOrderPreserved="false"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:useDefaultMargins="true" >
+
+                <TextView
+                    android:layout_gravity="end"
+                    android:text="Name:" />
+
+                <EditText
+                    android:id="@+id/name"
+                    android:layout_columnSpan="3"
+                    android:ems="8"
+                    android:imeOptions="actionNext"
+                    android:inputType="textNoSuggestions"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:layout_column="0"
+                    android:layout_gravity="center_vertical|end"
+                    android:text="Type:" />
+
+                <Spinner
+                    android:id="@+id/type"
+                    android:layout_width="0dp"
+                    android:layout_columnSpan="3"
+                    android:layout_gravity="fill_horizontal"
+                    android:entries="@array/prop_types"
+                    android:minHeight="48dip" />
+
+                <TextView
+                    style="@style/sectionHeader"
+                    android:layout_columnSpan="4"
+                    android:layout_gravity="fill_horizontal"
+                    android:text="Dimensions" />
+
+                <TextView
+                    android:layout_gravity="end"
+                    android:text="X:" />
+
+                <EditText
+                    android:id="@+id/xPos"
+                    android:ems="4"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:layout_gravity="end"
+                    android:text="Y:" />
+
+                <EditText
+                    android:id="@+id/yPos"
+                    android:ems="4"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:layout_gravity="end"
+                    android:text="Width:" />
+
+                <EditText
+                    android:id="@+id/width"
+                    android:ems="4"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:layout_gravity="end"
+                    android:text="Height:" />
+
+                <EditText
+                    android:id="@+id/height"
+                    android:ems="4"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+
+                <TextView
+                    style="@style/sectionHeader"
+                    android:layout_columnSpan="4"
+                    android:layout_gravity="fill_horizontal"
+                    android:text="Properties" />
+            </GridLayout>
+
+            <FrameLayout
+                android:id="@+id/prop_properties_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip" />
+        </LinearLayout>
+    </ScrollView>
+
+    <include
+        android:id="@+id/button_bar_ref"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/dialogue_button_bar_include" />
+
+</LinearLayout>

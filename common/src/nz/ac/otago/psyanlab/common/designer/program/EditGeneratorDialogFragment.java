@@ -26,13 +26,13 @@ public class EditGeneratorDialogFragment extends DialogFragment {
 
     private static final long INVALID_ID = -1;
 
-    private static final int POS_RANDOM = 0x00;
-
-    private static final int POS_SHUFFLE = 0x01;
+    private static final int MODE_EDIT = 0x02;
 
     private static final int MODE_NEW = 0x01;
 
-    private static final int MODE_EDIT = 0x02;
+    private static final int POS_RANDOM = 0x00;
+
+    private static final int POS_SHUFFLE = 0x01;
 
     public static EditGeneratorDialogFragment newDialog(long id) {
         EditGeneratorDialogFragment f = new EditGeneratorDialogFragment();
@@ -48,11 +48,11 @@ public class EditGeneratorDialogFragment extends DialogFragment {
 
     private long mId;
 
+    private int mMode;
+
     private OnGeneratorCreatedListener mOnGeneratorCreatedListener;
 
     private ViewHolder mViews;
-
-    private int mMode;
 
     @Override
     public void onAttach(Activity activity) {

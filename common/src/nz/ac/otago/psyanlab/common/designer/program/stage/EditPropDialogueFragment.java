@@ -17,7 +17,9 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
@@ -27,14 +29,21 @@ public class EditPropDialogueFragment extends DialogFragment {
 
     private static final String ARG_ID = "arg_id";
 
+    private static final String ARG_IS_DIALOGUE = "arg_is_dialogue";
+
     private static final int INVALID_ID = -1;
 
     protected static final String TAG_PROPERTIES_FRAGMENT = "tag_properties_fragment";
 
-    public static EditPropDialogueFragment newDialogue(int propId) {
+    public static EditPropDialogueFragment newAddDialogue() {
+        return newEditDialogue(INVALID_ID);
+    }
+
+    public static EditPropDialogueFragment newEditDialogue(int propId) {
         EditPropDialogueFragment f = new EditPropDialogueFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_ID, propId);
+        args.putBoolean(ARG_IS_DIALOGUE, true);
         f.setArguments(args);
         return f;
     }
@@ -47,6 +56,47 @@ public class EditPropDialogueFragment extends DialogFragment {
         return f;
     }
 
+    public OnClickListener mConfirmListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            doSave();
+            dismiss();
+        }
+    };
+
+    public OnClickListener mDeleteListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mCallbacks.deleteProp(mPropId);
+            dismiss();
+        }
+    };
+
+    public OnClickListener mDiscardListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            getDialog().cancel();
+        }
+    };
+
+    public TextWatcher mNameChangedListener = new TextWatcher() {
+        @Override
+        public void afterTextChanged(Editable s) {
+            mProp.name = s.toString();
+            if (!mIsDialogue) {
+                mCallbacks.saveProp(mPropId, mProp);
+            }
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+    };
+
     public OnItemSelectedListener mOnTypeSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> spinner, View view, int position, long id) {
@@ -56,16 +106,16 @@ public class EditPropDialogueFragment extends DialogFragment {
             }
             final String kind = getResources().getStringArray(R.array.prop_types)[position];
 
-            mViews.mName.setInputType(InputType.TYPE_NULL);
+            mViews.name.setInputType(InputType.TYPE_NULL);
 
             mProp = getConfiguredProp();
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
             if (TextUtils.equals(kind, "Text")) {
-                mProp = new Text(mProp);
+                mProp = new Text(getActivity(), mProp, mCallbacks.getPropNumber());
             } else if (TextUtils.equals(kind, "Image")) {
-                mProp = new Image(mProp);
+                mProp = new Image(getActivity(), mProp, mCallbacks.getPropNumber());
             } else if (TextUtils.equals(kind, "Button")) {
-                mProp = new Button(mProp);
+                mProp = new Button(getActivity(), mProp, mCallbacks.getPropNumber());
             } else {
                 if (mPropertiesFragment != null) {
                     ft.remove(mPropertiesFragment);
@@ -77,7 +127,7 @@ public class EditPropDialogueFragment extends DialogFragment {
             mViews.setViewValues(mProp);
             mPropertiesFragment = EditPropPropertiesFragment.newInstance(mProp);
 
-            mViews.mName.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            mViews.name.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
             ft.replace(R.id.prop_properties_container, mPropertiesFragment, TAG_PROPERTIES_FRAGMENT);
             ft.commit();
@@ -92,7 +142,11 @@ public class EditPropDialogueFragment extends DialogFragment {
         }
     };
 
-    private Callbacks mCallbacks;
+    private StageCallbacks mCallbacks;
+
+    private boolean mIsDialogue;
+
+    private Prop mProp;
 
     private int mPropId = INVALID_ID;
 
@@ -101,24 +155,6 @@ public class EditPropDialogueFragment extends DialogFragment {
     protected EditPropPropertiesFragment mPropertiesFragment;
 
     protected boolean mWasOptionsFragmentPersisted;
-
-    public TextWatcher mNameChangedListener = new TextWatcher() {
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            mProp.name = s.toString();
-            mCallbacks.saveProp(mPropId, mProp);
-        }
-    };
-
-    private Prop mProp;
 
     public void doSave() {
         mProp = getConfiguredProp();
@@ -132,10 +168,10 @@ public class EditPropDialogueFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof Callbacks)) {
+        if (!(activity instanceof StageCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (Callbacks)activity;
+        mCallbacks = (StageCallbacks)activity;
     }
 
     @Override
@@ -147,6 +183,8 @@ public class EditPropDialogueFragment extends DialogFragment {
             if (args.containsKey(ARG_ID)) {
                 mPropId = args.getInt(ARG_ID, INVALID_ID);
             }
+
+            mIsDialogue = args.getBoolean(ARG_IS_DIALOGUE, false);
         }
 
         Prop prop = null;
@@ -167,7 +205,20 @@ public class EditPropDialogueFragment extends DialogFragment {
             ft.commit();
         }
 
+        if (mIsDialogue) {
+            getDialog().setTitle(
+                    (mPropId == INVALID_ID) ? R.string.title_new_prop : R.string.title_edit_prop);
+        }
+
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        getDialog().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
 
     protected Prop getConfiguredProp() {
@@ -178,59 +229,63 @@ public class EditPropDialogueFragment extends DialogFragment {
         return mProp;
     }
 
-    public interface Callbacks {
-        Prop getProp(int id);
-
-        void saveProp(Prop prop);
-
-        void saveProp(int propId, Prop prop);
-    }
-
     public class ViewHolder {
-        private EditText mHeight;
+        public View buttonBar;
 
-        private EditText mName;
+        public android.widget.Button confirm;
 
-        private Spinner mType;
+        public android.widget.Button delete;
 
-        private EditText mWidth;
+        public android.widget.Button discard;
 
-        private EditText mXPos;
+        public EditText height;
 
-        private EditText mYPos;
+        public EditText name;
+
+        public Spinner type;
+
+        public EditText width;
+
+        public EditText xPos;
+
+        public EditText yPos;
 
         public ViewHolder(View view) {
-            mName = (EditText)view.findViewById(R.id.name);
-            mType = (Spinner)view.findViewById(R.id.type);
-            mXPos = (EditText)view.findViewById(R.id.xPos);
-            mYPos = (EditText)view.findViewById(R.id.yPos);
-            mWidth = (EditText)view.findViewById(R.id.width);
-            mHeight = (EditText)view.findViewById(R.id.height);
+            name = (EditText)view.findViewById(R.id.name);
+            type = (Spinner)view.findViewById(R.id.type);
+            xPos = (EditText)view.findViewById(R.id.xPos);
+            yPos = (EditText)view.findViewById(R.id.yPos);
+            width = (EditText)view.findViewById(R.id.width);
+            height = (EditText)view.findViewById(R.id.height);
+            buttonBar = view.findViewById(R.id.button_bar);
+            discard = (android.widget.Button)view.findViewById(R.id.discard);
+            delete = (android.widget.Button)view.findViewById(R.id.delete);
+            confirm = (android.widget.Button)view.findViewById(R.id.confirm);
         }
 
         public Prop getConfiguredProp(Prop prop) {
-            prop.name = mName.getText().toString();
+            prop.name = name.getText().toString();
 
             try {
-                prop.xPos = Integer.valueOf(mXPos.getText().toString());
+                prop.xPos = Integer.valueOf(xPos.getText().toString());
             } catch (NumberFormatException e) {
                 // Bad input here can be ignored.
             }
 
             try {
-                prop.yPos = Integer.valueOf(mYPos.getText().toString());
+                prop.yPos = Integer.valueOf(yPos.getText().toString());
             } catch (NumberFormatException e) {
                 // Bad input here can be ignored.
             }
 
             try {
-                prop.width = Integer.valueOf(mWidth.getText().toString());
+                prop.width = Integer.valueOf(width.getText().toString());
             } catch (NumberFormatException e) {
                 // Bad input here can be ignored.
             }
 
             try {
-                prop.height = Integer.valueOf(mHeight.getText().toString());
+                prop.height = Integer.valueOf(height.getText().toString());
             } catch (NumberFormatException e) {
                 // Bad input here can be ignored.
             }
@@ -239,22 +294,47 @@ public class EditPropDialogueFragment extends DialogFragment {
         }
 
         public void initViews() {
-            mType.setOnItemSelectedListener(mOnTypeSelectedListener);
+            type.setOnItemSelectedListener(mOnTypeSelectedListener);
             if (mPropId != INVALID_ID) {
-                mName.addTextChangedListener(mNameChangedListener);
+                name.addTextChangedListener(mNameChangedListener);
+            }
+
+            if (!mIsDialogue) {
+                // Hide action buttons.
+                buttonBar.setVisibility(View.GONE);
+            } else {
+                delete.setOnClickListener(mDeleteListener);
+                discard.setOnClickListener(mDiscardListener);
+                confirm.setOnClickListener(mConfirmListener);
+            }
+
+            if (mPropId == INVALID_ID) {
+                delete.setVisibility(View.GONE);
             }
         }
 
         public void setViewValues(Prop prop) {
             if (prop == null) {
+                confirm.setText(R.string.action_create);
                 return;
             }
 
-            mName.setText(prop.name);
-            mXPos.setText(String.valueOf(prop.xPos));
-            mYPos.setText(String.valueOf(prop.yPos));
-            mWidth.setText(String.valueOf(prop.width));
-            mHeight.setText(String.valueOf(prop.height));
+            int typeSelected = 0;
+            if (prop instanceof Button) {
+                typeSelected = 2;
+            } else if (prop instanceof Image) {
+                typeSelected = 1;
+            } else if (prop instanceof Text) {
+                typeSelected = 0;
+
+            }
+            type.setSelection(typeSelected);
+
+            name.setText(prop.name);
+            xPos.setText(String.valueOf(prop.xPos));
+            yPos.setText(String.valueOf(prop.yPos));
+            width.setText(String.valueOf(prop.width));
+            height.setText(String.valueOf(prop.height));
         }
     }
 }

@@ -15,6 +15,7 @@
         android:layout_width="240dip"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
+        android:paddingLeft="8dip"
         android:orientation="vertical"
         android:showDividers="middle" >
 
@@ -62,7 +63,7 @@
             android:listSelector="@drawable/loop_list_selector_holo_light"
             app:drag_enabled="true"
             app:drag_handle_id="@+id/handle"
-            app:drag_start_mode="onDown"
+            app:drag_start_mode="onLongPress"
             app:float_background_color="@android:color/transparent"
             app:remove_enabled="false" />
     </LinearLayout>

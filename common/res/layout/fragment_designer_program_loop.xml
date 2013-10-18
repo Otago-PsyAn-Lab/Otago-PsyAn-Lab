@@ -122,7 +122,7 @@
             android:listSelector="@drawable/loop_list_selector_holo_light"
             app:drag_enabled="true"
             app:drag_handle_id="@+id/handle"
-            app:drag_start_mode="onDown"
+            app:drag_start_mode="onLongPress"
             app:float_background_color="@android:color/transparent"
             app:remove_enabled="false" />
     </LinearLayout>
@@ -180,7 +180,7 @@
             android:listSelector="@drawable/scene_list_selector_holo_light"
             app:drag_enabled="true"
             app:drag_handle_id="@+id/handle"
-            app:drag_start_mode="onDown"
+            app:drag_start_mode="onLongPress"
             app:float_background_color="@android:color/transparent"
             app:remove_enabled="false" />
     </LinearLayout>

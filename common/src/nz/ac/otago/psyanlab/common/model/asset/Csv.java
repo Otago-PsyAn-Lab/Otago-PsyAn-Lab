@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class Csv extends Asset {
     @Expose
-    public int colStart = 1;
+    public int colStart = 0;
 
     @Expose
     public ArrayList<String> fieldnames;
@@ -23,7 +23,7 @@ public class Csv extends Asset {
     public int numRows = 1;
 
     @Expose
-    public int rowStart = 1;
+    public int rowStart = 0;
 
     public Csv() {
         fieldnames = new ArrayList<String>();

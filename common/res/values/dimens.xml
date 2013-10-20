@@ -13,5 +13,6 @@
     <dimen name="default_text_size">12sp</dimen>
     <dimen name="right_column">240dip</dimen>
     <dimen name="right_column_aligned">232dip</dimen>
+    <dimen name="sticky_header_offset">16dip</dimen>
 
 </resources>

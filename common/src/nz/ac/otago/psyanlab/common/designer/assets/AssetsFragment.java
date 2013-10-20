@@ -26,10 +26,7 @@ public class AssetsFragment extends Fragment implements AssetsListFragment.OnSho
     @Override
     public void showAsset(long id) {
         FragmentManager fm = getChildFragmentManager();
-        AssetDetailFragment frag = (AssetDetailFragment)fm.findFragmentByTag("detail");
-        if (frag != null) {
-            frag.saveAsset();
-        }
+
         if (mDisplayMode == TWO_PANE) {
             FragmentTransaction ft = fm.beginTransaction();
             mDetailFragment = AssetDetailFragment.newInstance(id);

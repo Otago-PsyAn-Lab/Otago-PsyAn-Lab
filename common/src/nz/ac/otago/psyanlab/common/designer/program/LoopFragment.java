@@ -4,6 +4,8 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.EditGeneratorDialogFragment.OnGeneratorCreatedListener;
+import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogFragment;
+import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogFragment.OnConfirmedValueListener;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
@@ -341,8 +343,16 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             mActionMode.finish();
         }
 
-        EditIterationDialogFragment.newDialog(mObjectId).show(getChildFragmentManager(),
-                "dialog_edit_iteration");
+        NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newDialog(mLoop.iterations,
+                0);
+        dialog.setOnConfirmedValueListener(new OnConfirmedValueListener() {
+            @Override
+            public void onConfirmedValue(int value) {
+                mLoop.iterations = value;
+                mCallbacks.updateLoop(mObjectId, mLoop);
+            }
+        });
+        dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
     }
 
     protected void showNewGeneratorDialogue() {

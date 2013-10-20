@@ -15,8 +15,8 @@
     <style name="sectionHeader" parent="android:Widget.Holo.Light.TextView">
         <item name="android:drawableBottom">@drawable/section_header</item>
         <item name="android:drawablePadding">2dp</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingLeft">8dp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/accent</item>
         <item name="android:textStyle">bold</item>
@@ -25,7 +25,7 @@
 
     <style name="column">
         <item name="android:background">@color/background</item>
-        <item name="android:paddingBottom">8dip</item>
+        <item name="android:paddingBottom">0dip</item>
         <item name="android:paddingLeft">8dip</item>
         <item name="android:paddingRight">8dip</item>
         <item name="android:paddingTop">8dip</item>
@@ -40,6 +40,30 @@
     <style name="card">
         <item name="android:background">@color/card_background</item>
         <item name="android:padding">8dip</item>
+    </style>
+
+    <style name="header_button" parent="android:Widget.Holo.TextView">
+        <item name="android:background">#ff0cb7b9</item>
+        <item name="android:paddingBottom">2dip</item>
+        <item name="android:paddingLeft">8dip</item>
+        <item name="android:paddingRight">8dip</item>
+        <item name="android:paddingTop">2dip</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="rule_header_button" parent="header_button">
+        <item name="android:background">#cdffbb33</item>
+    </style>
+
+    <style name="loop_header_button" parent="header_button">
+        <item name="android:background">#cdffbb33</item>
+    </style>
+
+    <style name="scene_header_button" parent="header_button">
+        <item name="android:background">#cdffbb33</item>
     </style>
 
 </resources>

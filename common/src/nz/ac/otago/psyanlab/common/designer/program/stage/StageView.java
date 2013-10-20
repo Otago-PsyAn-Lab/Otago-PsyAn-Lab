@@ -231,7 +231,7 @@ public class StageView extends AdapterView<PropAdapter> {
             case MotionEvent.ACTION_MOVE: {
                 boolean moveOverSlop = false;
                 for (int i = 0; i < pointerCount; i++) {
-                    int touchSlop = (i > 0) ? mTouchSlop * 2 : mTouchSlop;
+                    int touchSlop = (i > 0) ? mTouchSlop * 6 : mTouchSlop;
                     moveOverSlop = moveOverSlop
                             || (Math.abs(event.getY(i) - mMotionY.get(i)) > touchSlop || Math
                                     .abs(event.getX(i) - mMotionX.get(i)) > touchSlop);

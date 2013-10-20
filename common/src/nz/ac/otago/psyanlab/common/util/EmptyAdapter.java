@@ -1,14 +1,13 @@
 
 package nz.ac.otago.psyanlab.common.util;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
+import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-public final class EmptyAdapter extends BaseAdapter implements
-        StickyListHeadersAdapter {
+public final class EmptyAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapter {
     @Override
     public int getCount() {
         return 0;

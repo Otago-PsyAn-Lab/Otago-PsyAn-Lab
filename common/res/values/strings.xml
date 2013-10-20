@@ -184,5 +184,16 @@
     <string name="content_description_drag_handle">Drag Handle</string>
     <string name="title_generators">Generators</string>
     <string name="title_actions">Actions</string>
+    <string name="title_assets">Assets</string>
+    <string name="title_scenes">Scenes</string>
+    <string name="action_remove">Remove</string>
+    <string name="title_columns">Columns</string>
+    <string name="label_column_start">Start</string>
+    <string name="label_column_names">Names</string>
+    <string name="hint_column_names">Column names, comma separated.</string>
+    <string name="title_column_rows">Rows</string>
+    <string name="label_row_start">Start</string>
+    <string name="label_row_number">Number</string>
+    <string name="hint_asset_name">Asset name</string>
 
 </resources>

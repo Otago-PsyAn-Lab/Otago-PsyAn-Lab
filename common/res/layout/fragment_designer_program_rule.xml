@@ -112,20 +112,11 @@
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <TextView
-                    android:id="@+id/edit_stage_psudeo_button"
+                    style="@style/rule_header_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:background="#cdffbb33"
-                    android:paddingBottom="2dip"
-                    android:paddingLeft="8dip"
-                    android:paddingRight="8dip"
-                    android:paddingTop="2dip"
-                    android:text="@string/action_edit"
-                    android:textAllCaps="true"
-                    android:textColor="#ffffff"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:text="@string/action_edit" />
             </LinearLayout>
 
             <LinearLayout
@@ -176,19 +167,11 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
+                style="@style/rule_header_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="#cdffbb33"
-                android:paddingBottom="2dip"
-                android:paddingLeft="8dip"
-                android:paddingRight="8dip"
-                android:paddingTop="2dip"
-                android:text="@string/action_add_new"
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:text="@string/action_add_new" />
         </LinearLayout>
 
         <com.mobeta.android.dslv.DragSortListView

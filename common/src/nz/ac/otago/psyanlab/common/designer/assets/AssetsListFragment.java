@@ -1,18 +1,22 @@
 
 package nz.ac.otago.psyanlab.common.designer.assets;
 
+import com.tonicartos.widget.stickygridheaders.StickyGridHeadersGridView;
+
 import nz.ac.otago.psyanlab.common.R;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 
-public class AssetsListFragment extends ListFragment {
+public class AssetsListFragment extends Fragment {
     private static final OnShowAssetListener sDummy = new OnShowAssetListener() {
         @Override
         public void showAsset(long id) {
@@ -29,6 +33,15 @@ public class AssetsListFragment extends ListFragment {
             mCallbacks.doImportAsset();
         }
     };
+
+    public OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mShowAssetListener.showAsset(id);
+        }
+    };
+
+    private ViewHolder mViews;
 
     @Override
     public void onAttach(Activity activity) {
@@ -51,22 +64,33 @@ public class AssetsListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_designer_asset_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_designer_asset_list, container, false);
+        mViews = new ViewHolder(view);
+        mViews.initViews();
+        return view;
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int p, long id) {
-        super.onListItemClick(l, v, p, id);
-        mShowAssetListener.showAsset(id);
+    class ViewHolder {
+        public StickyGridHeadersGridView list;
+
+        public View addAsset;
+
+        public ViewHolder(View view) {
+            list = (StickyGridHeadersGridView)view.findViewById(R.id.stickyList);
+            addAsset = view.findViewById(R.id.button_import);
+        }
+
+        public void initViews() {
+            addAsset.setOnClickListener(mImportClickListener);
+            list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            list.setOnItemClickListener(mOnItemClickListener);
+            list.setAdapter(mCallbacks.getAssetsAdapter());
+        }
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        setListAdapter(mCallbacks.getAssetsAdapter());
-        View buttonImport = view.findViewById(R.id.button_import);
-        buttonImport.setOnClickListener(mImportClickListener);
     }
 
     public void setOnAssetClickedListener(OnShowAssetListener listener) {

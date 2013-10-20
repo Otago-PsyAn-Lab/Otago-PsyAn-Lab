@@ -11,7 +11,8 @@
         android:layout_width="32dip"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:contentDescription="Drag Handle"
+        android:background="@drawable/loop_activated_background_holo_light"
+        android:contentDescription="@string/content_description_drag_handle"
         android:paddingLeft="4dip"
         android:paddingRight="12dip"
         android:src="@drawable/ic_handle" />

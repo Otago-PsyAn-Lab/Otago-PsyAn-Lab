@@ -22,8 +22,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class AssetDetailFragment extends Fragment {
@@ -45,12 +45,17 @@ public class AssetDetailFragment extends Fragment {
     private OnClickListener mDeleteClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            mCallbacks.deleteAsset(mAssetId);
-            getView().setVisibility(View.GONE);
+            // Post delayed because we want to let the visual feedback have time
+            // to show.
+            v.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mCallbacks.deleteAsset(mAssetId);
+                    getView().setVisibility(View.GONE);
+                }
+            }, ViewConfiguration.getTapTimeout());
         }
     };
-
-    private DetailFragmentI mDetailFragmentI;
 
     private ViewHolder mViews;
 
@@ -123,7 +128,6 @@ public class AssetDetailFragment extends Fragment {
         if (mAsset instanceof Csv) {
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
             CSVDataDetailFragment f = CSVDataDetailFragment.newInstance(mAssetId);
-            mDetailFragmentI = f;
             ft.replace(R.id.fragment_container, f, "extra_detail");
             ft.commit();
 
@@ -143,22 +147,12 @@ public class AssetDetailFragment extends Fragment {
         }
     }
 
-    public void saveAsset() {
-        if (getView().getVisibility() != View.GONE) {
-            mDetailFragmentI.saveAsset();
-        }
-    }
-
     public void setAssetId(long id) {
         mAssetId = id;
     }
 
-    public interface DetailFragmentI {
-        void saveAsset();
-    }
-
     private class ViewHolder {
-        public ImageButton delete;
+        public View delete;
 
         public TextView filename;
 
@@ -167,7 +161,7 @@ public class AssetDetailFragment extends Fragment {
         public ViewHolder(View view) {
             filename = (TextView)view.findViewById(R.id.filename);
             filesize = (TextView)view.findViewById(R.id.filesize);
-            delete = (ImageButton)view.findViewById(R.id.button_delete);
+            delete = view.findViewById(R.id.button_delete);
         }
 
         public void setViewValues(Asset asset) {

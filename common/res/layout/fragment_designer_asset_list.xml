@@ -1,29 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/column"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:divider="?android:dividerHorizontal"
-    android:orientation="vertical"
-    android:showDividers="middle" >
+    android:orientation="vertical" >
 
-    <Button
+    <LinearLayout
         android:id="@+id/button_import"
-        style="?android:buttonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/label_add_asset" />
+        android:background="@drawable/loop_item_background_holo_light"
+        android:orientation="horizontal"
+        android:padding="8dip"
+        android:showDividers="none" >
 
-    <com.emilsjolander.components.stickylistheaders.StickyListHeadersListView
-        android:id="@android:id/list"
+        <TextView
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/title_assets"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            style="@style/header_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/action_add_new" />
+    </LinearLayout>
+
+    <com.tonicartos.widget.stickygridheaders.StickyGridHeadersGridView
+        android:id="@+id/stickyList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:drawSelectorOnTop="true"
+        android:listSelector="@drawable/loop_item_background_holo_light"
         android:orientation="vertical" />
 
     <TextView
         android:id="@android:id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fontFamily="sans-serif-thin"
         android:gravity="center"
         android:text="@string/label_no_assets" />
 

@@ -3,15 +3,16 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
+import android.support.v4.util.LongSparseArray;
+
 import java.io.File;
-import java.util.HashMap;
 
 public class Experiment {
     @Expose
-    public HashMap<Long, Action> actions;
+    public LongSparseArray<Action> actions;
 
     @Expose
-    public HashMap<Long, Asset> assets;
+    public LongSparseArray<Asset> assets;
 
     @Expose
     public String authors;
@@ -23,13 +24,13 @@ public class Experiment {
     public String description;
 
     @Expose
-    public HashMap<Long, Generator> generators;
+    public LongSparseArray<Generator> generators;
 
     @Expose
     public LandingPage landingPage;
 
     @Expose
-    public HashMap<Long, Loop> loops;
+    public LongSparseArray<Loop> loops;
 
     @Expose
     public String name;
@@ -38,13 +39,13 @@ public class Experiment {
     public Program program;
 
     @Expose
-    public HashMap<Long, Prop> props;
+    public LongSparseArray<Prop> props;
 
     @Expose
-    public HashMap<Long, Rule> rules;
+    public LongSparseArray<Rule> rules;
 
     @Expose
-    public HashMap<Long, Scene> scenes;
+    public LongSparseArray<Scene> scenes;
 
     @Expose
     public int version;
@@ -52,13 +53,13 @@ public class Experiment {
     private File workingDirectory;
 
     public Experiment() {
-        actions = new HashMap<Long, Action>();
-        assets = new HashMap<Long, Asset>();
-        generators = new HashMap<Long, Generator>();
-        loops = new HashMap<Long, Loop>();
-        props = new HashMap<Long, Prop>();
-        rules = new HashMap<Long, Rule>();
-        scenes = new HashMap<Long, Scene>();
+        actions = new LongSparseArray<Action>();
+        assets = new LongSparseArray<Asset>();
+        generators = new LongSparseArray<Generator>();
+        loops = new LongSparseArray<Loop>();
+        props = new LongSparseArray<Prop>();
+        rules = new LongSparseArray<Rule>();
+        scenes = new LongSparseArray<Scene>();
 
         landingPage = new LandingPage();
         program = new Program();

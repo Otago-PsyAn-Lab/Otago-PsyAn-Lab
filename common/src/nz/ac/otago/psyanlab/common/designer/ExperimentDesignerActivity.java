@@ -20,6 +20,8 @@
 
 package nz.ac.otago.psyanlab.common.designer;
 
+import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.ScreenValuesI;
 import nz.ac.otago.psyanlab.common.UserDelegateI;
@@ -61,6 +63,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.ViewPager;
 import android.text.format.Time;
 import android.util.Log;
@@ -75,7 +78,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * Provides an interface to the fragments implementing the UI whereby they can
@@ -222,12 +225,22 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private ViewPager mViewPager;
 
+    private ArrayList<AssetDataChangeListener> mAssetDataChangeListeners;
+
     @Override
     public void addActionDataChangeListener(ActionDataChangeListener listener) {
         if (mActionDataChangeListeners == null) {
             mActionDataChangeListeners = new ArrayList<ActionDataChangeListener>();
         }
         mActionDataChangeListeners.add(listener);
+    }
+
+    @Override
+    public void addAssetDataChangeListener(AssetDataChangeListener listener) {
+        if (mAssetDataChangeListeners == null) {
+            mAssetDataChangeListeners = new ArrayList<AssetDataChangeListener>();
+        }
+        mAssetDataChangeListeners.add(listener);
     }
 
     @Override
@@ -320,9 +333,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public void deleteAsset(long id) {
-        if (mExperiment.assets.containsKey(id)) {
+        if (mExperiment.assets.indexOfKey(id) >= 0) {
             mExperiment.assets.remove(id);
             mAssetsAdapter.notifyDataSetChanged();
+            notifyAssetDataChangeListeners();
         }
     }
 
@@ -404,7 +418,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ListAdapter getAssetsAdapter() {
+    public StickyGridHeadersSimpleAdapter getAssetsAdapter() {
         return mAssetsAdapter;
     }
 
@@ -530,10 +544,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 switch (resultCode) {
                     case RESULT_OK:
                         String[] paths = data.getStringArrayExtra(Args.ASSET_PATHS);
+                        String[] paths2 = new String[20];
+                        Arrays.fill(paths2, paths[0]);
                         Time t = new Time();
                         t.setToNow();
-                        mExperiment.assets.put(t.toMillis(false),
-                                Asset.getFactory().newAsset(paths[0]));
+                        long t2 = 0;
+                        for (String string : paths2) {
+                            mExperiment.assets.put(t.toMillis(false) + t2++, Asset.getFactory()
+                                    .newAsset(string));
+                        }
                         mAssetsAdapter.notifyDataSetChanged();
                         break;
                     default:
@@ -670,6 +689,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void removeAssetDataChangeListener(AssetDataChangeListener listener) {
+        mAssetDataChangeListeners.remove(listener);
+    }
+
+    @Override
     public void removeActionDataChangeListener(ActionDataChangeListener listener) {
         mActionDataChangeListeners.remove(listener);
     }
@@ -720,9 +744,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public void updateAsset(long id, Asset asset) {
-        if (mExperiment.assets.containsKey(id)) {
+        if (mExperiment.assets.indexOfKey(id) >= 0) {
             mExperiment.assets.put(id, asset);
             mAssetsAdapter.notifyDataSetChanged();
+            notifyAssetDataChangeListeners();
         }
     }
 
@@ -831,10 +856,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     }
 
-    private Long findUnusedKey(HashMap<Long, ?> map) {
+    private Long findUnusedKey(LongSparseArray<?> map) {
         Long currKey = 0l;
         while (true) {
-            if (!map.containsKey(currKey)) {
+            if (map.indexOfKey(currKey) < 0) {
                 break;
             }
             currKey++;
@@ -885,6 +910,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         mCurrentActionAdapter.second.notifyDataSetChanged();
+    }
+
+    private void notifyAssetDataChangeListeners() {
+        if (mAssetDataChangeListeners == null) {
+            return;
+        }
+
+        for (AssetDataChangeListener l : mAssetDataChangeListeners) {
+            l.onAssetDataChange();
+        }
     }
 
     private void notifyActionDataChangeListeners() {
@@ -1047,6 +1082,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     public interface ActionDataChangeListener {
         void onActionDataChange();
+    }
+
+    public interface AssetDataChangeListener {
+        void onAssetDataChange();
     }
 
     public interface GeneratorDataChangeListener {

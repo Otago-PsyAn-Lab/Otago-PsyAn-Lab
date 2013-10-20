@@ -1,77 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/column"
+    style="@style/column"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:layout_below="@+id/colour_bar_spacer"
+    android:layout_toRightOf="@+id/colour_left_margin" >
 
-    <GridLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alignmentMode="alignBounds"
-        android:columnCount="4"
-        android:columnOrderPreserved="false"
-        android:useDefaultMargins="true" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            style="@style/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_asset_name"
+                android:inputType="text|textNoSuggestions"
+                android:textSize="24sp" />
+        </FrameLayout>
 
         <TextView
-            android:layout_gravity="right"
-            android:text="Name:" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="8dip"
+            android:fontFamily="sans-serif-light"
+            android:padding="8dip"
+            android:text="@string/title_columns"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <EditText
-            android:id="@+id/name"
-            android:layout_width="0dp"
-            android:layout_columnSpan="3"
-            android:layout_gravity="fill_horizontal"
-            android:inputType="text"
-            android:selectAllOnFocus="true" />
+        <GridLayout
+            style="@style/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:orientation="horizontal"
+            android:useDefaultMargins="true" >
 
-        <TextView
-            style="@style/sectionHeader"
-            android:layout_columnSpan="4"
-            android:layout_gravity="fill_horizontal"
-            android:text="COLUMNS" />
+            <TextView
+                android:layout_gravity="center_vertical|end"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/label_column_start"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:layout_gravity="center_horizontal"
-            android:text="Start" />
+            <Button
+                android:id="@+id/col_start"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal" />
 
-        <EditText
-            android:id="@+id/column_names"
-            android:layout_width="0dp"
-            android:layout_columnSpan="3"
-            android:layout_gravity="fill_horizontal|center_vertical"
-            android:layout_rowSpan="2"
-            android:hint="Column names, comma separated."
-            android:inputType="textMultiLine" />
+            <TextView
+                android:layout_gravity="center_vertical|end"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/label_column_names"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <NumberPicker
-            android:id="@+id/col_start"
-            android:layout_gravity="center_horizontal"
-            android:saveEnabled="true" />
-
-        <TextView
-            style="@style/sectionHeader"
-            android:layout_columnSpan="4"
-            android:layout_gravity="fill_horizontal"
-            android:text="ROWS" />
-
-        <TextView
-            android:layout_column="0"
-            android:layout_gravity="center_horizontal"
-            android:text="Start" />
+            <EditText
+                android:id="@+id/column_names"
+                android:layout_gravity="fill_horizontal"
+                android:hint="@string/hint_column_names"
+                android:inputType="textMultiLine" />
+        </GridLayout>
 
         <TextView
-            android:layout_gravity="center_horizontal"
-            android:text="Number" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="8dip"
+            android:fontFamily="sans-serif-light"
+            android:padding="8dip"
+            android:text="@string/title_column_rows"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <NumberPicker
-            android:id="@+id/row_start"
-            android:layout_column="0"
-            android:layout_gravity="center_horizontal"
-            android:saveEnabled="true" />
+        <GridLayout
+            style="@style/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:orientation="horizontal"
+            android:useDefaultMargins="true" >
 
-        <NumberPicker
-            android:id="@+id/num_rows"
-            android:layout_gravity="center_horizontal"
-            android:saveEnabled="true" />
-    </GridLayout>
+            <TextView
+                android:layout_gravity="center_vertical|end"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/label_row_start"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/row_start"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_gravity="center_vertical|end"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/label_row_number"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/num_rows"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal" />
+        </GridLayout>
+    </LinearLayout>
 
 </ScrollView>

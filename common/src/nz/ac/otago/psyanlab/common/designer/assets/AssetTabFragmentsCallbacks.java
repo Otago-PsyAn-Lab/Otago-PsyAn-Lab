@@ -1,9 +1,10 @@
 
 package nz.ac.otago.psyanlab.common.designer.assets;
 
-import nz.ac.otago.psyanlab.common.model.Asset;
+import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 
-import android.widget.ListAdapter;
+import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.AssetDataChangeListener;
+import nz.ac.otago.psyanlab.common.model.Asset;
 
 import java.io.File;
 
@@ -12,13 +13,17 @@ public interface AssetTabFragmentsCallbacks {
 
     public void doImportAsset();
 
+    public File getWorkingDirectory();
+
+    void addAssetDataChangeListener(AssetDataChangeListener listener);
+
     void deleteAsset(long id);
 
     Asset getAsset(long id);
 
-    ListAdapter getAssetsAdapter();
+    StickyGridHeadersSimpleAdapter getAssetsAdapter();
+
+    void removeAssetDataChangeListener(AssetDataChangeListener listener);
 
     void updateAsset(long id, Asset asset);
-
-    public File getWorkingDirectory();
 }

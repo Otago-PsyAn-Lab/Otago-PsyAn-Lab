@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
+import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-class RecordAdapterWrapper implements StickyListHeadersAdapter {
+class RecordAdapterWrapper implements StickyGridHeadersSimpleAdapter {
     private final ListAdapter mDelegate;
 
     private Context mContext;

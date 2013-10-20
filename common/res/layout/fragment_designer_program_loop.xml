@@ -27,11 +27,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
         android:layout_toRightOf="@+id/colour_left_margin"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/program_bottom_padding"
-        android:paddingLeft="@dimen/program_left_padding"
-        android:paddingRight="@dimen/program_between_padding"
-        android:paddingTop="@dimen/program_top_padding" >
+        android:orientation="vertical" >
 
         <LinearLayout
             style="@style/card"
@@ -153,7 +149,7 @@
                 android:layout_weight="1"
                 android:fontFamily="sans-serif-light"
                 android:paddingRight="8dip"
-                android:text="@string/title_rules"
+                android:text="@string/title_scenes"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView

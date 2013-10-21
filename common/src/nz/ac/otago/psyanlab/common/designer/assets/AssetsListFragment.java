@@ -23,9 +23,14 @@ public class AssetsListFragment extends Fragment {
         }
     };
 
-    private AssetTabFragmentsCallbacks mCallbacks;
+    public OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mShowAssetListener.showAsset(id);
+        }
+    };
 
-    private OnShowAssetListener mShowAssetListener = sDummy;
+    private AssetTabFragmentsCallbacks mCallbacks;
 
     private OnClickListener mImportClickListener = new OnClickListener() {
         @Override
@@ -34,12 +39,7 @@ public class AssetsListFragment extends Fragment {
         }
     };
 
-    public OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mShowAssetListener.showAsset(id);
-        }
-    };
+    private OnShowAssetListener mShowAssetListener = sDummy;
 
     private ViewHolder mViews;
 
@@ -50,11 +50,6 @@ public class AssetsListFragment extends Fragment {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
         mCallbacks = (AssetTabFragmentsCallbacks)activity;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -70,22 +65,9 @@ public class AssetsListFragment extends Fragment {
         return view;
     }
 
-    class ViewHolder {
-        public StickyGridHeadersGridView list;
-
-        public View addAsset;
-
-        public ViewHolder(View view) {
-            list = (StickyGridHeadersGridView)view.findViewById(R.id.stickyList);
-            addAsset = view.findViewById(R.id.button_import);
-        }
-
-        public void initViews() {
-            addAsset.setOnClickListener(mImportClickListener);
-            list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            list.setOnItemClickListener(mOnItemClickListener);
-            list.setAdapter(mCallbacks.getAssetsAdapter());
-        }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -99,5 +81,23 @@ public class AssetsListFragment extends Fragment {
 
     public interface OnShowAssetListener {
         void showAsset(long id);
+    }
+
+    class ViewHolder {
+        public View addAsset;
+
+        public StickyGridHeadersGridView list;
+
+        public ViewHolder(View view) {
+            list = (StickyGridHeadersGridView)view.findViewById(R.id.stickyList);
+            addAsset = view.findViewById(R.id.button_import);
+        }
+
+        public void initViews() {
+            addAsset.setOnClickListener(mImportClickListener);
+            list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            list.setOnItemClickListener(mOnItemClickListener);
+            list.setAdapter(mCallbacks.getAssetsAdapter());
+        }
     }
 }

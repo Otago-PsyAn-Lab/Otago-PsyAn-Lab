@@ -31,6 +31,14 @@
         <item name="android:paddingTop">8dip</item>
     </style>
 
+    <style name="list_column">
+        <item name="android:background">@drawable/opal_list_background</item>
+        <item name="android:paddingBottom">0dip</item>
+        <item name="android:paddingLeft">0dip</item>
+        <item name="android:paddingRight">0dip</item>
+        <item name="android:paddingTop">8dip</item>
+    </style>
+
     <style name="column_right" parent="column">
         <item name="android:paddingBottom">0dip</item>
         <item name="android:paddingLeft">0dip</item>
@@ -39,6 +47,10 @@
 
     <style name="card">
         <item name="android:background">@color/card_background</item>
+        <item name="android:padding">8dip</item>
+    </style>
+
+    <style name="card_transparent">
         <item name="android:padding">8dip</item>
     </style>
 

@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/column"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#fff9f9f9"
     android:orientation="vertical"
+    android:padding="0dip"
     android:showDividers="middle" >
 
     <RelativeLayout
         android:id="@+id/button_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/loop_item_background_holo_light" >
+        android:background="@drawable/card_item_background_holo_light"
+        android:paddingBottom="8dip"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip"
+        android:paddingTop="8dip" >
 
         <TextView
             android:id="@+id/text_delete"

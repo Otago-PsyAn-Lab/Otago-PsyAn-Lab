@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/text1"
-    style="@style/sectionHeader"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+    android:layout_height="wrap_content"
+    android:paddingLeft="16dip"
+    android:paddingRight="16dip" >
+
+    <TextView
+        android:id="@android:id/text1"
+        style="@style/sectionHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dip" />
+
+</FrameLayout>

@@ -4,8 +4,8 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.EditGeneratorDialogFragment.OnGeneratorCreatedListener;
-import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogFragment;
-import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogFragment.OnConfirmedValueListener;
+import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogueFragment;
+import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
@@ -34,6 +34,8 @@ import android.widget.ListView;
 
 public class LoopFragment extends BaseProgramFragment implements LoopDataChangeListener,
         OnGeneratorCreatedListener {
+    private static final String REQUEST_ITERATION_NUMBER = "request_iteration_number";
+
     public static BaseProgramFragment newInstance(long id) {
         return init(new LoopFragment(), id);
     }
@@ -244,6 +246,14 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
     ListAdapter mScenesAdapter;
 
+    private DialogueResultListener<Integer> mOnIterationPickedListener = new DialogueResultListener<Integer>() {
+        @Override
+        public void onResult(Integer value) {
+            mLoop.iterations = value;
+            mCallbacks.updateLoop(mObjectId, mLoop);
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
@@ -281,6 +291,8 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         mLoop = mCallbacks.getLoop(mObjectId);
         mCallbacks.addLoopDataChangeListener(this);
+        mCallbacks.registerDialogueResultListener(REQUEST_ITERATION_NUMBER,
+                mOnIterationPickedListener);
 
         mScenesAdapter = mCallbacks.getScenesAdapter(mObjectId);
         mGeneratorAdapter = mCallbacks.getGeneratorAdapter(mObjectId);
@@ -288,6 +300,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         mViews = new ViewHolder(getResources(), view);
         mViews.setViewValues(mLoop);
         mViews.initViews();
+
     }
 
     private void saveChanges() {
@@ -343,15 +356,8 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             mActionMode.finish();
         }
 
-        NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newDialog(mLoop.iterations,
-                0);
-        dialog.setOnConfirmedValueListener(new OnConfirmedValueListener() {
-            @Override
-            public void onConfirmedValue(int value) {
-                mLoop.iterations = value;
-                mCallbacks.updateLoop(mObjectId, mLoop);
-            }
-        });
+        NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
+                R.string.title_edit_iterations, mLoop.iterations, 0, REQUEST_ITERATION_NUMBER);
         dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
     }
 

@@ -195,5 +195,10 @@
     <string name="label_row_start">Start</string>
     <string name="label_row_number">Number</string>
     <string name="hint_asset_name">Asset name</string>
+    <string name="title_pick_number">Pick Number</string>
+    <string name="format_number_range">range: %1$d — %2$d</string>
+    <string name="title_set_start_column">Set Start Column</string>
+    <string name="title_set_start_row">Set Start Row</string>
+    <string name="title_set_number_of_rows">Set Number of Rows</string>
 
 </resources>

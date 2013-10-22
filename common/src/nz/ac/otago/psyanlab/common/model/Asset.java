@@ -39,6 +39,8 @@ public abstract class Asset {
 
     protected long mTypeId = 0x00;
 
+    public String path;
+
     public int compareTo(Asset another) {
         int cmpr = this.getClass().getName().compareToIgnoreCase(another.getClass().getName());
         if (cmpr == 0) {
@@ -57,6 +59,7 @@ public abstract class Asset {
 
     public void setFile(File file) {
         filesize = file.length();
+        path = file.getPath();
         filename = file.getName();
         name = file.getName();
     }

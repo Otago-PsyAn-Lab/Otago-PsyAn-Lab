@@ -7,19 +7,15 @@ import nz.ac.otago.psyanlab.common.model.asset.Csv;
 import nz.ac.otago.psyanlab.common.model.asset.Image;
 import nz.ac.otago.psyanlab.common.model.asset.Sound;
 import nz.ac.otago.psyanlab.common.model.asset.Video;
-import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 import nz.ac.otago.psyanlab.common.util.FileUtils;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
@@ -83,28 +79,6 @@ public class AssetDetailFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_delete) {
-            DialogFragment dialog = ConfirmDialogFragment.newInstance(
-                    R.string.title_confirm_delete_asset, R.string.action_delete,
-                    R.string.action_cancel, new ConfirmDialogFragment.OnClickListener() {
-                        @Override
-                        public void onClick(Dialog dialog) {
-                            mCallbacks.deleteAsset(mAssetId);
-                            dialog.dismiss();
-                        }
-                    }, new ConfirmDialogFragment.OnClickListener() {
-                        @Override
-                        public void onClick(Dialog dialog) {
-                            dialog.dismiss();
-                        }
-                    });
-            dialog.show(getChildFragmentManager(), "ConfirmDeleteDialog");
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -126,10 +100,14 @@ public class AssetDetailFragment extends Fragment {
         mViews.setViewValues(mAsset);
 
         if (mAsset instanceof Csv) {
-            FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-            CSVDataDetailFragment f = CSVDataDetailFragment.newInstance(mAssetId);
-            ft.replace(R.id.fragment_container, f, "extra_detail");
-            ft.commit();
+            CSVDataDetailFragment f = (CSVDataDetailFragment)getChildFragmentManager()
+                    .findFragmentByTag("extra_detail");
+            if (f == null) {
+                FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+                f = CSVDataDetailFragment.newInstance(mAssetId);
+                ft.replace(R.id.fragment_container, f, "extra_detail");
+                ft.commit();
+            }
 
         } else if (mAsset instanceof Image) {
             // FragmentTransaction ft =

@@ -4,11 +4,12 @@ package nz.ac.otago.psyanlab.common.designer.assets;
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.AssetDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.Asset;
 
 import java.io.File;
 
-public interface AssetTabFragmentsCallbacks {
+public interface AssetTabFragmentsCallbacks extends RegisterDialogueResultListener {
     public void displayAsset(long id);
 
     public void doImportAsset();

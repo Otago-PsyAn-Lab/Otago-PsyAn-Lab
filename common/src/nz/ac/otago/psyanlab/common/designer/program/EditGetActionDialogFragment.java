@@ -64,7 +64,7 @@ public class EditGetActionDialogFragment extends DialogFragment {
 
         mLoop = mCallbacks.getLoop(mId);
 
-        View view = inflater.inflate(R.layout.dialogue_designer_program_iteration, null);
+        View view = inflater.inflate(R.layout.dialogue_number_picker, null);
         mViews = new ViewHolder(view);
         mViews.initViews();
         mViews.setViewValues(mLoop);

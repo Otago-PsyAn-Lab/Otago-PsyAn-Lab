@@ -6,6 +6,7 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.Generator
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Loop;
@@ -14,7 +15,7 @@ import nz.ac.otago.psyanlab.common.model.Scene;
 
 import android.widget.ListAdapter;
 
-public interface ProgramCallbacks {
+public interface ProgramCallbacks extends RegisterDialogueResultListener {
     void addActionDataChangeListener(ActionDataChangeListener listener);
 
     void addGeneratorDataChangeListener(GeneratorDataChangeListener listener);

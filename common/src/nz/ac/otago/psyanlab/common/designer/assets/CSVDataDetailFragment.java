@@ -3,8 +3,8 @@ package nz.ac.otago.psyanlab.common.designer.assets;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentUtils;
-import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogFragment;
-import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogFragment.OnConfirmedValueListener;
+import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogueFragment;
+import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.asset.Csv;
 
 import android.app.Activity;
@@ -25,7 +25,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class CSVDataDetailFragment extends Fragment {
+    private static final String DIALOG_EDIT_COL_START = "dialog_edit_col_start";
+
+    private static final String DIALOG_EDIT_NUM_ROWS = "dialog_edit_num_rows";
+
+    private static final String DIALOG_EDIT_ROW_START = "dialog_edit_row_start";
+
     private static final String KEY_ASSET_ID = "key_asset_id";
+
+    private static final String REQUEST_NUM_ROWS = "request_num_rows";
+
+    private static final String REQUEST_START_COLUMN = "request_start_column";
+
+    private static final String REQUEST_START_ROW = "request_start_row";
 
     public static CSVDataDetailFragment newInstance(long assetId) {
         CSVDataDetailFragment f = new CSVDataDetailFragment();
@@ -69,12 +81,43 @@ public class CSVDataDetailFragment extends Fragment {
 
     private Csv mCsv;
 
-    private String[][] mCsvContent;
-
     private OnClickListener mNumRowsClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             showEditNumRowsDialogue();
+        }
+    };
+
+    private DialogueResultListener<Integer> mOnNumRowsPickedListener = new DialogueResultListener<Integer>() {
+        @Override
+        public void onResult(Integer value) {
+            mCsv.numRows = value;
+            mViews.numRows.setText(String.valueOf(mCsv.numRows));
+            mCallbacks.updateAsset(mAssetId, mCsv);
+        }
+    };
+
+    private DialogueResultListener<Integer> mOnStartColumnPickedListener = new DialogueResultListener<Integer>() {
+        @Override
+        public void onResult(Integer value) {
+            mCsv.colStart = ExperimentUtils.userValueToZeroBased(value);
+            mViews.colStart.setText(String.valueOf(ExperimentUtils
+                    .zeroBasedToUserValue(mCsv.colStart)));
+            mCallbacks.updateAsset(mAssetId, mCsv);
+        }
+    };
+
+    private DialogueResultListener<Integer> mOnStartRowPickedListener = new DialogueResultListener<Integer>() {
+        @Override
+        public void onResult(Integer value) {
+            mCsv.rowStart = ExperimentUtils.userValueToZeroBased(value);
+            if (mCsv.rowStart + mCsv.numRows > mCsv.getTotalRows()) {
+                mCsv.numRows = mCsv.getTotalRows() - mCsv.rowStart;
+            }
+            mViews.rowStart.setText(String.valueOf(ExperimentUtils
+                    .zeroBasedToUserValue(mCsv.rowStart)));
+            mViews.numRows.setText(String.valueOf(mCsv.numRows));
+            mCallbacks.updateAsset(mAssetId, mCsv);
         }
     };
 
@@ -136,62 +179,46 @@ public class CSVDataDetailFragment extends Fragment {
 
         mCsv = (Csv)mCallbacks.getAsset(mAssetId);
 
-        try {
-            mCsvContent = Csv.readAllData(mCsv, mCallbacks.getWorkingDirectory());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!mCsv.fileCounted()) {
+            try {
+                Csv.countRowsAndCols(mCsv);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        mViews.setViewValues(mCsv, mCsvContent);
+        mViews.setViewValues(mCsv);
         mViews.initViews();
+
+        mCallbacks.registerDialogueResultListener(REQUEST_START_COLUMN,
+                mOnStartColumnPickedListener);
+        mCallbacks.registerDialogueResultListener(REQUEST_START_ROW, mOnStartRowPickedListener);
+        mCallbacks.registerDialogueResultListener(REQUEST_NUM_ROWS, mOnNumRowsPickedListener);
     }
 
     private void showEditNumRowsDialogue() {
-        NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newDialog(mCsv.numRows, 1,
-                mCsvContent.length - mCsv.rowStart);
-        dialog.setOnConfirmedValueListener(new OnConfirmedValueListener() {
-            @Override
-            public void onConfirmedValue(int value) {
-                mCsv.numRows = value;
-                mViews.numRows.setText(String.valueOf(mCsv.numRows));
-                mCallbacks.updateAsset(mAssetId, mCsv);
-            }
-        });
-        dialog.show(getChildFragmentManager(), "dialog_edit_col_start");
+        NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
+                R.string.title_set_number_of_rows, mCsv.numRows, 1, mCsv.getTotalRows()
+                        - mCsv.rowStart, REQUEST_NUM_ROWS);
+        dialog.showRange(true);
+        dialog.show(getChildFragmentManager(), DIALOG_EDIT_NUM_ROWS);
     }
 
     private void showEditStartColumnDialogue() {
-        NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newDialog(
-                ExperimentUtils.zeroBasedToUserValue(mCsv.colStart), 1, mCsvContent[0].length);
-        dialog.setOnConfirmedValueListener(new OnConfirmedValueListener() {
-            @Override
-            public void onConfirmedValue(int value) {
-                mCsv.colStart = ExperimentUtils.userValueToZeroBased(value);
-                mViews.colStart.setText(String.valueOf(ExperimentUtils
-                        .zeroBasedToUserValue(mCsv.colStart)));
-                mCallbacks.updateAsset(mAssetId, mCsv);
-            }
-        });
-        dialog.show(getChildFragmentManager(), "dialog_edit_col_start");
+        NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
+                R.string.title_set_start_column,
+                ExperimentUtils.zeroBasedToUserValue(mCsv.colStart), 1, mCsv.getTotalCols(),
+                REQUEST_START_COLUMN);
+        dialog.showRange(true);
+        dialog.show(getChildFragmentManager(), DIALOG_EDIT_COL_START);
     }
 
     private void showEditStartRowDialogue() {
-        NumberPickerDialogFragment dialog = NumberPickerDialogFragment.newDialog(
-                ExperimentUtils.zeroBasedToUserValue(mCsv.rowStart), 1, mCsvContent.length);
-        dialog.setOnConfirmedValueListener(new OnConfirmedValueListener() {
-            @Override
-            public void onConfirmedValue(int value) {
-                mCsv.rowStart = ExperimentUtils.userValueToZeroBased(value);
-                if (mCsv.rowStart + mCsv.numRows > mCsvContent.length) {
-                    mCsv.numRows = mCsvContent.length - mCsv.rowStart;
-                }
-                mViews.rowStart.setText(String.valueOf(ExperimentUtils
-                        .zeroBasedToUserValue(mCsv.rowStart)));
-                mViews.numRows.setText(String.valueOf(mCsv.numRows));
-                mCallbacks.updateAsset(mAssetId, mCsv);
-            }
-        });
-        dialog.show(getChildFragmentManager(), "dialog_edit_col_start");
+        NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
+                R.string.title_set_start_row, ExperimentUtils.zeroBasedToUserValue(mCsv.rowStart),
+                1, mCsv.getTotalRows(), REQUEST_START_ROW);
+        dialog.showRange(true);
+        dialog.show(getChildFragmentManager(), DIALOG_EDIT_ROW_START);
     }
 
     private class ViewHolder {
@@ -222,7 +249,7 @@ public class CSVDataDetailFragment extends Fragment {
             colNames.addTextChangedListener(mColNameChangeWatcher);
         }
 
-        public void setViewValues(Csv asset, String[][] csvContent) {
+        public void setViewValues(Csv asset) {
             name.setText(asset.name);
 
             colNames.setText(TextUtils.join(",", asset.fieldnames));

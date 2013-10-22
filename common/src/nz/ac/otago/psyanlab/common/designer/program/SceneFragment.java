@@ -3,6 +3,7 @@ package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
@@ -25,7 +26,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -77,7 +77,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
-    private ListAdapter mRulesAdapter;
+    private ProgramComponentAdapter<Rule> mRulesAdapter;
 
     private Scene mScene;
 
@@ -93,6 +93,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             }
             mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             mViews.rulesList.setItemChecked(position, true);
+            mRulesAdapter.fixItemBackground(R.drawable.scene_activated_background);
             setNextFragment(null);
             return true;
         }
@@ -135,6 +136,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             mViews.rulesList.post(new Runnable() {
                 @Override
                 public void run() {
+                    mRulesAdapter.fixItemBackground(R.drawable.scene_activated_background_arrow);
                     mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                 }
             });

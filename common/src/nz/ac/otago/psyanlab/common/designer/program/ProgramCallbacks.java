@@ -14,8 +14,6 @@ import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
-import android.widget.ListAdapter;
-
 public interface ProgramCallbacks extends RegisterDialogueResultListener {
     void addActionDataChangeListener(ActionDataChangeListener listener);
 
@@ -51,23 +49,23 @@ public interface ProgramCallbacks extends RegisterDialogueResultListener {
 
     Action getAction(long id);
 
-    ListAdapter getActionAdapter(long ruleId);
+    ProgramComponentAdapter<Action> getActionAdapter(long ruleId);
 
     Generator getGenerator(long id);
 
-    ListAdapter getGeneratorAdapter(long loopId);
+    ProgramComponentAdapter<Generator> getGeneratorAdapter(long loopId);
 
     Loop getLoop(long loopId);
 
-    ProgramComponentAdapter<?> getLoopAdapter();
+    ProgramComponentAdapter<Loop> getLoopAdapter();
 
     Rule getRule(long ruleId);
 
-    ListAdapter getRuleAdapter(long sceneId);
+    ProgramComponentAdapter<Rule> getRuleAdapter(long sceneId);
 
     Scene getScene(long sceneId);
 
-    ListAdapter getScenesAdapter(long loopId);
+    ProgramComponentAdapter<Scene> getScenesAdapter(long loopId);
 
     void removeActionDataChangeListener(ActionDataChangeListener listener);
 

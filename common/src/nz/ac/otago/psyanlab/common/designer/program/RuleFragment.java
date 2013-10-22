@@ -3,6 +3,7 @@ package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Rule;
 
@@ -22,7 +23,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -40,12 +40,13 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             }
             mViews.actionsList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             mViews.actionsList.setItemChecked(position, true);
+            mActionsAdapter.fixItemBackground(R.drawable.rule_activated_background);
             setNextFragment(null);
             return true;
         }
     };
 
-    public ListAdapter mActionsAdapter;
+    public ProgramComponentAdapter<Action> mActionsAdapter;
 
     public OnClickListener mConditionClickListener = new OnClickListener() {
         @Override
@@ -90,6 +91,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             mViews.actionsList.post(new Runnable() {
                 @Override
                 public void run() {
+                    mActionsAdapter.fixItemBackground(R.drawable.rule_activated_background_arrow);
                     mViews.actionsList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                 }
             });

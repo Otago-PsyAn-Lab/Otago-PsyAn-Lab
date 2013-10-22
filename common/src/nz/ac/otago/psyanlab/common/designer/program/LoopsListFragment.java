@@ -92,10 +92,10 @@ public class LoopsListFragment extends BaseProgramFragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            mLoopsAdapter.fixItemBackground(R.drawable.loop_activated_background_arrow);
             mViews.listview.post(new Runnable() {
                 @Override
                 public void run() {
+                    mLoopsAdapter.fixItemBackground(R.drawable.loop_activated_background_arrow);
                     mViews.listview.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                 }
             });
@@ -127,6 +127,7 @@ public class LoopsListFragment extends BaseProgramFragment {
     };
 
     protected ViewHolder mViews;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_loops, container, false);

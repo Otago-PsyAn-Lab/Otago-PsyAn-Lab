@@ -24,18 +24,8 @@
     </style>
     
     <style name="column">
-        <item name="android:paddingBottom">0dip</item>
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
-        <item name="android:paddingTop">8dip</item>
-    </style>
-
-    <style name="list_column">
-        <item name="android:background">@drawable/opal_list_background_flat</item>
-        <item name="android:paddingBottom">0dip</item>
-        <item name="android:paddingLeft">0dip</item>
-        <item name="android:paddingRight">0dip</item>
-        <item name="android:paddingTop">8dip</item>
     </style>
 
     <style name="group">

@@ -73,7 +73,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.io.File;
@@ -144,8 +143,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         public View bind(Generator generator, View convertView, ViewGroup parent) {
             TextViewHolder holder;
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item, parent,
-                        false);
+                convertView = getLayoutInflater().inflate(R.layout.list_item, parent, false);
                 holder = new TextViewHolder(1);
                 holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
                 convertView.setTag(holder);
@@ -403,7 +401,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ListAdapter getActionAdapter(long ruleId) {
+    public ProgramComponentAdapter<Action> getActionAdapter(long ruleId) {
         if (mCurrentActionAdapter != null && mCurrentActionAdapter.first == ruleId) {
             return mCurrentActionAdapter.second;
         }
@@ -442,7 +440,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ListAdapter getGeneratorAdapter(long loopId) {
+    public ProgramComponentAdapter<Generator> getGeneratorAdapter(long loopId) {
         if (mCurrentGeneratorAdapter != null && mCurrentGeneratorAdapter.first == loopId) {
             return mCurrentGeneratorAdapter.second;
         }
@@ -467,7 +465,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ProgramComponentAdapter<?> getLoopAdapter() {
+    public ProgramComponentAdapter<Loop> getLoopAdapter() {
         if (mLoopAdapter != null) {
             return mLoopAdapter;
         }
@@ -484,7 +482,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ListAdapter getRuleAdapter(long sceneId) {
+    public ProgramComponentAdapter<Rule> getRuleAdapter(long sceneId) {
         if (mCurrentRuleAdapter != null && mCurrentRuleAdapter.first == sceneId) {
             return mCurrentRuleAdapter.second;
         }
@@ -504,7 +502,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ListAdapter getScenesAdapter(long loopId) {
+    public ProgramComponentAdapter<Scene> getScenesAdapter(long loopId) {
         if (mCurrentSceneAdapter != null && mCurrentSceneAdapter.first == loopId) {
             return mCurrentSceneAdapter.second;
         }

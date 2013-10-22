@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/background"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
@@ -14,54 +15,140 @@
         android:layout_height="8dip" />
 
     <LinearLayout
-        android:id="@+id/column"
-        style="@style/column"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:id="@+id/title_spacer"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/colour_bar_spacer"
-        android:orientation="vertical" >
+        android:background="@drawable/loop_button"
+        android:orientation="horizontal"
+        android:padding="16dip"
+        android:showDividers="none" >
 
-        <LinearLayout
-            style="@style/card_transparent"
+        <TextView
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/name_container"
+        android:layout_width="wrap_content"
+        android:layout_height="0dip"
+        android:layout_alignBottom="@+id/title_spacer"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:background="@color/card_background"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip" >
+
+        <EditText
+            android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_gravity="center_vertical"
+            android:hint="@string/hint_loop_name"
+            android:inputType="text|textNoSuggestions"
+            android:maxEms="24"
+            android:minEms="12"
+            android:singleLine="true"
+            android:textSize="24sp" />
+    </FrameLayout>
 
-            <EditText
-                android:id="@+id/name"
+    <FrameLayout
+        android:id="@+id/new_scene_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_toRightOf="@+id/name_container"
+        android:paddingRight="1dip" >
+
+        <LinearLayout
+            android:id="@+id/new_scene"
+            android:layout_width="240dip"
+            android:layout_height="wrap_content"
+            android:background="@drawable/loop_button"
+            android:orientation="horizontal"
+            android:padding="16dip"
+            android:showDividers="none"
+            tools:ignore="UselessParent" >
+
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/title_scenes"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_loop_name"
-                android:inputType="text|textNoSuggestions"
-                android:maxEms="24"
-                android:minEms="12"
-                android:textSize="24sp" />
+                android:layout_gravity="center_vertical"
+                android:background="#cd0fdddf"
+                android:paddingBottom="2dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:paddingTop="2dip"
+                android:text="@string/action_add_new"
+                android:textAllCaps="true"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+    <View
+        android:id="@+id/divide"
+        android:layout_width="0dip"
+        android:layout_height="1dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/new_scene_container"
+        android:layout_below="@+id/name_container"
+        android:background="?android:attr/listDivider" />
+
+    <LinearLayout
+        android:id="@+id/column"
+        style="@style/column"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/name_container"
+        android:layout_below="@+id/divide"
+        android:orientation="vertical"
+        android:paddingTop="8dip" >
+
+        <LinearLayout
+            android:id="@+id/iterations_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            android:orientation="horizontal"
+            android:padding="8dip"
+            android:showDividers="none" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/label_loop_cycles"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/iterations"
+                style="?android:attr/spinnerStyle"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_gravity="fill_horizontal"
-                android:orientation="horizontal"
-                android:padding="8dip"
-                android:showDividers="none" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left|center_vertical"
-                    android:fontFamily="sans-serif-light"
-                    android:paddingRight="8dip"
-                    android:text="@string/label_loop_cycles"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <Button
-                    android:id="@+id/iterations"
-                    style="?android:attr/spinnerStyle"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="fill_horizontal"
-                    android:layout_weight="1" />
-            </LinearLayout>
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
@@ -115,68 +202,27 @@
             android:listSelector="@drawable/loop_list_selector_holo_light" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/right_column"
-        android:layout_width="240dip"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/column"
-        android:orientation="vertical" >
-
-        <LinearLayout
-            android:id="@+id/new_scene"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_horizontal"
-            android:background="@drawable/loop_item_background_holo_light"
-            android:orientation="horizontal"
-            android:padding="8dip"
-            android:showDividers="none" >
-
-            <TextView
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:fontFamily="sans-serif-light"
-                android:paddingRight="8dip"
-                android:text="@string/title_scenes"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="#cd0fdddf"
-                android:paddingBottom="2dip"
-                android:paddingLeft="8dip"
-                android:paddingRight="8dip"
-                android:paddingTop="2dip"
-                android:text="@string/action_add_new"
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <com.mobeta.android.dslv.DragSortListView
-            android:id="@+id/scenes"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:drawSelectorOnTop="true"
-            android:listSelector="@drawable/loop_list_selector_holo_light"
-            app:drag_enabled="true"
-            app:drag_handle_id="@+id/handle"
-            app:drag_start_mode="onLongPress"
-            app:float_background_color="@android:color/transparent"
-            app:remove_enabled="false" />
-    </LinearLayout>
+    <com.mobeta.android.dslv.DragSortListView
+        android:id="@+id/scenes"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
+        android:layout_alignLeft="@+id/new_scene_container"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/new_scene_container"
+        android:layout_below="@+id/divide"
+        android:drawSelectorOnTop="true"
+        android:listSelector="@drawable/loop_list_selector_holo_light"
+        app:drag_enabled="true"
+        app:drag_handle_id="@+id/handle"
+        app:drag_start_mode="onLongPress"
+        app:float_background_color="@android:color/transparent"
+        app:remove_enabled="false" />
 
     <View
         android:layout_width="0dip"
         android:layout_height="8dip"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/right_column"
+        android:layout_alignRight="@+id/new_scene_container"
         android:background="#cd0fdddf" />
 
 </RelativeLayout>

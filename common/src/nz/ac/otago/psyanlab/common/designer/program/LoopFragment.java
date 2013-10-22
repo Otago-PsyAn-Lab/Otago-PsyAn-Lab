@@ -3,6 +3,7 @@ package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.EditGeneratorDialogFragment.OnGeneratorCreatedListener;
 import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener.DialogueResultListener;
@@ -109,6 +110,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             mCallbacks.updateLoop(mObjectId, mLoop);
         }
     };
+
     private ViewHolder mViews;
 
     protected ActionMode mActionMode;
@@ -179,6 +181,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             }
             mViews.scenesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             mViews.scenesList.setItemChecked(position, true);
+            mScenesAdapter.fixItemBackground(R.drawable.loop_activated_background);
             setNextFragment(null);
             return true;
         }
@@ -221,6 +224,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             mViews.scenesList.post(new Runnable() {
                 @Override
                 public void run() {
+                    mScenesAdapter.fixItemBackground(R.drawable.loop_activated_background_arrow);
                     mViews.scenesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                 }
             });
@@ -251,7 +255,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    ListAdapter mScenesAdapter;
+    ProgramComponentAdapter<Scene> mScenesAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

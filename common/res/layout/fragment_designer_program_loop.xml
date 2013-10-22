@@ -22,7 +22,7 @@
         android:orientation="vertical" >
 
         <LinearLayout
-            style="@style/card"
+            style="@style/card_transparent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
             android:layout_marginTop="8dip"
-            android:background="@drawable/loop_item_background_holo_light"
+            android:background="@drawable/loop_button"
             android:orientation="horizontal"
             android:padding="8dip"
             android:showDividers="none" >
@@ -102,17 +102,17 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <com.mobeta.android.dslv.DragSortListView
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="?android:attr/listDivider" />
+
+        <ListView
             android:id="@+id/generators"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:drawSelectorOnTop="true"
-            android:listSelector="@drawable/loop_list_selector_holo_light"
-            app:drag_enabled="true"
-            app:drag_handle_id="@+id/handle"
-            app:drag_start_mode="onLongPress"
-            app:float_background_color="@android:color/transparent"
-            app:remove_enabled="false" />
+            android:drawSelectorOnTop="false"
+            android:listSelector="@drawable/loop_list_selector_holo_light" />
     </LinearLayout>
 
     <LinearLayout

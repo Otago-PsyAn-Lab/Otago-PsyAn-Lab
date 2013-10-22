@@ -144,8 +144,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         public View bind(Generator generator, View convertView, ViewGroup parent) {
             TextViewHolder holder;
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item_program_component,
-                        parent, false);
+                convertView = getLayoutInflater().inflate(R.layout.list_item, parent,
+                        false);
                 holder = new TextViewHolder(1);
                 holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
                 convertView.setTag(holder);

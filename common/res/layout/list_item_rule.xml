@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/rule_activated_background_holo_light"
-    android:minHeight="48dip"
+    android:background="@drawable/scene_activated_background_arrow"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:orientation="horizontal" >
 
     <ImageView

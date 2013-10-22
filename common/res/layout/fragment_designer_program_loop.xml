@@ -228,6 +228,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/new_scene_container"
         android:layout_marginRight="1dip"
-        android:background="#cd0fdddf" />
+        android:background="@color/loop_accent" />
 
 </RelativeLayout>

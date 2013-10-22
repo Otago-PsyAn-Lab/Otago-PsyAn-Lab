@@ -152,6 +152,6 @@
         android:layout_height="8dip"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/name_container"
-        android:background="#cdff5a00" />
+        android:background="@color/action_accent" />
 
 </RelativeLayout>

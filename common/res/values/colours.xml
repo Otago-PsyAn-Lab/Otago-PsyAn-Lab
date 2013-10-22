@@ -7,9 +7,9 @@
     <color name="card_background">#fffefefe</color>
     
     <color name="accent">#ff0cb7b9</color>
-    <color name="loop_accent">#cd0fdddf</color>
-    <color name="scene_accent">#cd99cc00</color>
-    <color name="rule_accent">#cdffbb33</color>
-    <color name="action_accent">#cdff5a00</color>
+    <color name="loop_accent">#ff0fdddf</color>
+    <color name="scene_accent">#ff99cc00</color>
+    <color name="rule_accent">#ffffbb33</color>
+    <color name="action_accent">#ffff5a00</color>
 
 </resources>

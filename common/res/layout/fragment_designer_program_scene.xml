@@ -203,6 +203,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/new_rule_container"
         android:layout_marginRight="1dip"
-        android:background="#cd99cc00" />
+        android:background="@color/scene_accent" />
 
 </RelativeLayout>

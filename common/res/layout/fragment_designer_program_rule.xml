@@ -239,6 +239,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/new_action_container"
         android:layout_marginRight="1dip"
-        android:background="#cdffbb33" />
+        android:background="@color/rule_accent" />
 
 </RelativeLayout>

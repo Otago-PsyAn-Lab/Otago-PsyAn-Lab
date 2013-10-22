@@ -11,11 +11,10 @@
         android:id="@+id/button_import"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="16dip"
+        android:layout_marginRight="1dip"
         android:background="@drawable/card_item_background_holo_light"
         android:orientation="horizontal"
-        android:padding="8dip"
+        android:padding="16dip"
         android:showDividers="none" >
 
         <TextView
@@ -36,14 +35,18 @@
             android:text="@string/action_add_new" />
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
+
     <com.tonicartos.widget.stickygridheaders.StickyGridHeadersGridView
         android:id="@+id/stickyList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:drawSelectorOnTop="true"
         android:listSelector="@drawable/loop_list_selector_holo_light"
-        android:orientation="vertical"
-        android:paddingLeft="16dip" />
+        android:orientation="vertical" />
 
     <TextView
         android:id="@android:id/empty"

@@ -12,10 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/card_item_background_holo_light"
-        android:paddingBottom="8dip"
-        android:paddingLeft="16dip"
-        android:paddingRight="16dip"
-        android:paddingTop="8dip" >
+        android:padding="16dip" >
 
         <TextView
             android:id="@+id/text_delete"
@@ -27,31 +24,33 @@
             android:text="@string/action_remove" />
 
         <TextView
+            android:id="@+id/filesize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="16dip"
+            android:layout_toLeftOf="@+id/text_delete"
+            android:fontFamily="sans-serif"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp" />
+
+        <TextView
             android:id="@+id/filename"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/text_delete"
+            android:layout_marginRight="16dip"
+            android:layout_toLeftOf="@+id/filesize"
+            android:ellipsize="end"
             android:fontFamily="sans-serif-light"
+            android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/filesize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/filename"
-            android:layout_toLeftOf="@+id/text_delete"
-            android:fontFamily="sans-serif"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@android:color/darker_gray" />
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dip"
-        android:background="@color/accent" />
+        android:background="?android:attr/listDivider" />
 
     <FrameLayout
         android:id="@+id/fragment_container"

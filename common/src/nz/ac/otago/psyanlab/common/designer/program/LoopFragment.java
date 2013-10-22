@@ -434,11 +434,13 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             scenesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             scenesList.setOnItemClickListener(mOnSceneItemClickListener);
             scenesList.setOnItemLongClickListener(mItemLongClickListener);
+            scenesList.setDivider(null);
 
             generatorsList.setAdapter(mGeneratorAdapter);
             generatorsList.setOnItemClickListener(mOnGeneratorItemClickListener);
             generatorsList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             generatorsList.setMultiChoiceModeListener(mGeneratorMultiChoiceModeCallbacks);
+            generatorsList.setDivider(null);
         }
 
         public void setViewValues(Loop loop) {

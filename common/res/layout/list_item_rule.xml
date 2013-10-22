@@ -22,7 +22,6 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
         android:paddingEnd="24dip"
         android:textAppearance="?android:attr/textAppearanceListItemSmall" />
 

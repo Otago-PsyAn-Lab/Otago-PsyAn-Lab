@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -106,14 +105,14 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
 
         public TextView name;
 
-        private ListView parametersList;
+        private View parametersList;
 
         public ViewHolder(View view) {
             super(view);
             name = (EditText)view.findViewById(R.id.name);
             actionObject = (Spinner)view.findViewById(R.id.action_object);
             actionMethod = (Spinner)view.findViewById(R.id.action_method);
-            parametersList = (ListView)view.findViewById(R.id.parameters);
+            parametersList = view.findViewById(R.id.parameters);
         }
 
         public void initViews() {

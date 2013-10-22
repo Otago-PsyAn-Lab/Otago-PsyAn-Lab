@@ -34,11 +34,11 @@
     
     <style name="card">
         <item name="android:background">@color/card_background</item>
-        <item name="android:padding">8dip</item>
+        <item name="android:padding">16dip</item>
     </style>
 
     <style name="card_transparent">
-        <item name="android:padding">8dip</item>
+        <item name="android:padding">16dip</item>
     </style>
 
     <style name="header_button" parent="android:Widget.Holo.TextView">

@@ -19,7 +19,6 @@
         android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_below="@+id/colour_bar_spacer"
-        android:background="@drawable/loop_button"
         android:orientation="horizontal"
         android:padding="16dip"
         android:showDividers="none" >
@@ -121,16 +120,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/name_container"
         android:layout_below="@+id/divide"
-        android:orientation="vertical"
-        android:paddingTop="8dip" >
+        android:orientation="vertical" >
 
         <LinearLayout
             android:id="@+id/iterations_container"
+            style="@style/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
+            android:layout_marginTop="16dip"
             android:orientation="horizontal"
-            android:padding="8dip"
             android:showDividers="none" >
 
             <TextView
@@ -151,15 +150,20 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="?android:attr/listDivider" />
+
         <LinearLayout
             android:id="@+id/new_generator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
-            android:layout_marginTop="8dip"
+            android:layout_marginTop="16dip"
             android:background="@drawable/loop_button"
             android:orientation="horizontal"
-            android:padding="8dip"
+            android:padding="16dip"
             android:showDividers="none" >
 
             <TextView
@@ -223,6 +227,7 @@
         android:layout_height="8dip"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/new_scene_container"
+        android:layout_marginRight="1dip"
         android:background="#cd0fdddf" />
 
 </RelativeLayout>

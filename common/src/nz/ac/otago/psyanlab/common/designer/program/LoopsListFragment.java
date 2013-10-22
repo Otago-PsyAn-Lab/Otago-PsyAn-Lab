@@ -191,6 +191,7 @@ public class LoopsListFragment extends BaseProgramFragment {
             listview.setOnItemClickListener(mOnLoopItemClickListener);
             listview.setOnItemLongClickListener(mItemLongClickListener);
             listview.setAdapter(mLoopsAdapter);
+            listview.setDivider(null);
 
             newLoop.setOnClickListener(mNewLoopClickListener);
         }

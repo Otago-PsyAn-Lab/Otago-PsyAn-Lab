@@ -7,104 +7,151 @@
     <View
         android:id="@+id/colour_bar_spacer"
         android:layout_width="0dip"
-        android:layout_height="16dip" />
-
-    <View
-        android:id="@+id/colour_left_margin"
-        android:layout_width="4dip"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:background="#cdff5a00" />
+        android:layout_height="8dip" />
 
     <LinearLayout
+        android:id="@+id/title_spacer"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:orientation="horizontal"
+        android:padding="16dip"
+        android:showDividers="none" >
+
+        <TextView
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/name_container"
+        android:layout_width="wrap_content"
+        android:layout_height="0dip"
+        android:layout_alignBottom="@+id/title_spacer"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:background="@color/card_background"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip" >
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:hint="@string/hint_loop_name"
+            android:inputType="text|textNoSuggestions"
+            android:maxEms="24"
+            android:minEms="12"
+            android:singleLine="true"
+            android:textSize="24sp" />
+    </FrameLayout>
+
+    <View
+        android:id="@+id/divide"
+        android:layout_width="0dip"
+        android:layout_height="1dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/name_container"
+        android:layout_below="@+id/name_container"
+        android:background="?android:attr/listDivider" />
+
+    <ScrollView
         android:id="@+id/column"
         style="@style/column"
-        android:layout_width="wrap_content"
+        android:layout_width="0dip"
         android:layout_height="match_parent"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/colour_left_margin"
-        android:orientation="vertical" >
+        android:layout_alignLeft="@+id/name_container"
+        android:layout_alignRight="@+id/name_container"
+        android:layout_below="@+id/divide" >
 
-        <FrameLayout
-            style="@style/card"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-            <EditText
-                android:id="@+id/name"
-                android:layout_width="wrap_content"
+            <GridLayout
+                style="@style/card"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_action_name"
-                android:inputType="text|textNoSuggestions"
-                android:maxEms="24"
-                android:minEms="12"
-                android:textSize="24sp" />
-        </FrameLayout>
+                android:layout_marginTop="16dip"
+                android:columnCount="2"
+                android:useDefaultMargins="false" >
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginTop="8dip"
-            android:fontFamily="sans-serif-light"
-            android:padding="8dip"
-            android:text="@string/label_action"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+                <TextView
+                    android:layout_columnSpan="2"
+                    android:layout_gravity="center_vertical"
+                    android:fontFamily="sans-serif-light"
+                    android:text="@string/label_action"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <GridLayout
-            style="@style/card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:orientation="horizontal"
-            android:useDefaultMargins="true" >
+                <TextView
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginTop="8dip"
+                    android:fontFamily="sans-serif-light"
+                    android:paddingRight="8dip"
+                    android:text="@string/label_action_object"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Spinner
+                    android:id="@+id/action_object"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_marginTop="8dip"
+                    android:minHeight="48dip" />
+
+                <TextView
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginTop="8dip"
+                    android:fontFamily="sans-serif-light"
+                    android:paddingRight="8dip"
+                    android:text="@string/label_action_method"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Spinner
+                    android:id="@+id/action_method"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_marginTop="8dip"
+                    android:minHeight="48dip" />
+            </GridLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dip"
+                android:background="?android:attr/listDivider" />
 
             <TextView
-                android:layout_gravity="center_vertical|end"
+                style="@style/card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="16dip"
                 android:fontFamily="sans-serif-light"
-                android:paddingRight="8dip"
-                android:text="@string/label_action_object"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="@string/label_parameters"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <Spinner
-                android:id="@+id/action_object"
-                android:layout_gravity="fill_horizontal"
-                android:minHeight="48dip" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dip"
+                android:background="?android:attr/listDivider" />
 
-            <TextView
-                android:layout_gravity="center_vertical|end"
-                android:fontFamily="sans-serif-light"
-                android:paddingRight="8dip"
-                android:text="@string/label_action_method"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Spinner
-                android:id="@+id/action_method"
-                android:layout_gravity="fill_horizontal"
-                android:minHeight="48dip" />
-        </GridLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginTop="8dip"
-            android:fontFamily="sans-serif-light"
-            android:padding="8dip"
-            android:text="@string/label_parameters"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <ListView
-            android:id="@+id/parameters"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/parameters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+    </ScrollView>
 
     <View
         android:layout_width="0dip"
-        android:layout_height="16dip"
+        android:layout_height="8dip"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/column"
+        android:layout_alignRight="@+id/name_container"
         android:background="#cdff5a00" />
 
 </RelativeLayout>

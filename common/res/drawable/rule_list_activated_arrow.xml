@@ -18,6 +18,6 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item android:drawable="@drawable/rule_list_activated_holo"/>
-    <item android:drawable="@drawable/rule_list_activated_arrow_flat_overlay"/>
+    <item android:drawable="@drawable/action_list_activated_arrow_flat_overlay"/>
 
 </layer-list>

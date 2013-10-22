@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/background"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
@@ -10,55 +11,128 @@
     <View
         android:id="@+id/colour_bar_spacer"
         android:layout_width="0dip"
-        android:layout_height="16dip" />
+        android:layout_height="8dip" />
 
-    <View
-        android:id="@+id/colour_left_margin"
-        android:layout_width="4dip"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
+    <LinearLayout
+        android:id="@+id/title_spacer"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:orientation="horizontal"
+        android:padding="16dip"
+        android:showDividers="none" >
+
+        <TextView
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/name_container"
+        android:layout_width="wrap_content"
+        android:layout_height="0dip"
+        android:layout_alignBottom="@+id/title_spacer"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/colour_bar_spacer"
-        android:background="#cd99cc00" />
+        android:background="@color/card_background"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip" >
 
-    <ScrollView
-        android:id="@+id/column"
-        style="@style/column"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/colour_left_margin" >
-
-        <LinearLayout
+        <EditText
+            android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_gravity="center_vertical"
+            android:hint="@string/hint_loop_name"
+            android:inputType="text|textNoSuggestions"
+            android:maxEms="24"
+            android:minEms="12"
+            android:singleLine="true"
+            android:textSize="24sp" />
+    </FrameLayout>
 
-            <FrameLayout
-                style="@style/card"
+    <FrameLayout
+        android:id="@+id/new_rule_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_toRightOf="@+id/name_container"
+        android:paddingRight="1dip" >
+
+        <LinearLayout
+            android:id="@+id/new_rule"
+            android:layout_width="240dip"
+            android:layout_height="wrap_content"
+            android:background="@drawable/scene_button"
+            android:orientation="horizontal"
+            android:padding="16dip"
+            android:showDividers="none"
+            tools:ignore="UselessParent" >
+
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/title_rules"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="#cd99cc00"
+                android:paddingBottom="2dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="8dip"
+                android:paddingTop="2dip"
+                android:text="@string/action_add_new"
+                android:textAllCaps="true"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </FrameLayout>
 
-                <EditText
-                    android:id="@+id/name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/hint_scene_name"
-                    android:inputType="text|textNoSuggestions"
-                    android:maxEms="24"
-                    android:minEms="12"
-                    android:textSize="24sp" />
-            </FrameLayout>
+    <View
+        android:id="@+id/divide"
+        android:layout_width="0dip"
+        android:layout_height="1dip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/new_rule_container"
+        android:layout_below="@+id/name_container"
+        android:background="?android:attr/listDivider" />
+
+    <LinearLayout
+        android:id="@+id/column"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_alignLeft="@+id/name_container"
+        android:layout_alignRight="@+id/name_container"
+        android:layout_below="@+id/divide"
+        android:orientation="vertical"
+        android:padding="16dip" >
+
+        <LinearLayout
+            android:id="@+id/edit_stage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/scene_button"
+            android:orientation="vertical"
+            android:padding="16dip" >
 
             <LinearLayout
-                android:id="@+id/edit_stage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="fill_horizontal"
-                android:layout_marginTop="8dip"
-                android:background="@drawable/scene_item_background_holo_light"
                 android:orientation="horizontal"
-                android:padding="8dip"
                 android:showDividers="none" >
 
                 <TextView
@@ -88,91 +162,47 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/card"
+            <nz.ac.otago.psyanlab.common.designer.program.stage.StageView
+                android:id="@+id/stage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/stage_detail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:useDefaultMargins="true" >
-
-                <nz.ac.otago.psyanlab.common.designer.program.stage.StageView
-                    android:id="@+id/stage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/stage_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-light"
-                    android:text="XXX×YYY (orientation)  —  # props"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/right_column"
-        android:layout_width="240dip"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/column"
-        android:orientation="vertical"
-        android:showDividers="none" >
-
-        <LinearLayout
-            android:id="@+id/new_rule"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_horizontal"
-            android:background="@drawable/scene_item_background_holo_light"
-            android:orientation="horizontal"
-            android:padding="8dip"
-            android:showDividers="none" >
-
-            <TextView
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
                 android:fontFamily="sans-serif-light"
-                android:paddingRight="8dip"
-                android:text="@string/title_rules"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="#cd99cc00"
-                android:paddingBottom="2dip"
-                android:paddingLeft="8dip"
-                android:paddingRight="8dip"
-                android:paddingTop="2dip"
-                android:text="@string/action_add_new"
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
 
-        <com.mobeta.android.dslv.DragSortListView
-            android:id="@+id/rules"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:drawSelectorOnTop="true"
-            android:listSelector="@drawable/rule_list_selector_holo_light"
-            app:drag_enabled="true"
-            app:drag_handle_id="@+id/handle"
-            app:drag_start_mode="onLongPress"
-            app:float_background_color="@android:color/transparent"
-            app:remove_enabled="false" />
+            android:layout_height="1dip"
+            android:background="?android:attr/listDivider" />
     </LinearLayout>
+
+    <com.mobeta.android.dslv.DragSortListView
+        android:id="@+id/rules"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
+        android:layout_alignLeft="@+id/new_rule_container"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/new_rule_container"
+        android:layout_below="@+id/divide"
+        android:drawSelectorOnTop="true"
+        android:listSelector="@drawable/scene_list_selector_holo_light"
+        app:drag_enabled="true"
+        app:drag_handle_id="@+id/handle"
+        app:drag_start_mode="onLongPress"
+        app:float_background_color="@android:color/transparent"
+        app:remove_enabled="false" />
 
     <View
         android:layout_width="0dip"
-        android:layout_height="16dip"
+        android:layout_height="8dip"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/right_column"
+        android:layout_alignRight="@+id/new_rule_container"
+        android:layout_marginRight="1dip"
         android:background="#cd99cc00" />
 
 </RelativeLayout>

@@ -467,7 +467,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ListAdapter getLoopAdapter() {
+    public ProgramComponentAdapter<?> getLoopAdapter() {
         if (mLoopAdapter != null) {
             return mLoopAdapter;
         }

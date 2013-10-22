@@ -21,6 +21,8 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     private ViewBinder<T> mViewBinder;
 
+    private int mBackgroundResource = -1;
+
     public ProgramComponentAdapter(LongSparseArray<T> map, ArrayList<Long> keys,
             ViewBinder<T> viewBinder) {
         mMap = map;
@@ -59,7 +61,11 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public View getView(int pos, View convertView, ViewGroup parent) {
-        return mViewBinder.bind(mMap.get(mKeys.get(pos)), convertView, parent);
+        View view = mViewBinder.bind(mMap.get(mKeys.get(pos)), convertView, parent);
+        if (mBackgroundResource != -1) {
+            view.setBackgroundResource(mBackgroundResource);
+        }
+        return view;
     }
 
     @Override
@@ -75,5 +81,10 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     public interface ViewBinder<T> {
         public View bind(T t, View convertView, ViewGroup parent);
+    }
+
+    public void fixItemBackground(int resId) {
+        mBackgroundResource = resId;
+        notifyDataSetChanged();
     }
 }

@@ -102,6 +102,13 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
+    private DialogueResultListener<Integer> mOnIterationPickedListener = new DialogueResultListener<Integer>() {
+        @Override
+        public void onResult(Integer value) {
+            mLoop.iterations = value;
+            mCallbacks.updateLoop(mObjectId, mLoop);
+        }
+    };
     private ViewHolder mViews;
 
     protected ActionMode mActionMode;
@@ -246,14 +253,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
     ListAdapter mScenesAdapter;
 
-    private DialogueResultListener<Integer> mOnIterationPickedListener = new DialogueResultListener<Integer>() {
-        @Override
-        public void onResult(Integer value) {
-            mLoop.iterations = value;
-            mCallbacks.updateLoop(mObjectId, mLoop);
-        }
-    };
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
@@ -303,8 +302,33 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
     }
 
+    @Override
+    public void setIsLastInList(boolean isLastInList) {
+        if (isLastInList) {
+            mBackgroundResource = R.drawable.opal_list_background_flat;
+            if (mViews != null) {
+                mViews.background.setBackgroundResource(mBackgroundResource);
+            }
+        } else {
+            mBackgroundResource = R.drawable.loop_background_flat;
+            if (mViews != null) {
+                mViews.background.setBackgroundResource(mBackgroundResource);
+            }
+        }
+    }
+
     private void saveChanges() {
         mCallbacks.updateLoop(mObjectId, mLoop);
+    }
+
+    @Override
+    protected int getFavouredBackground() {
+        return R.drawable.loop_background_flat;
+    }
+
+    @Override
+    protected ViewHolder getViewHolder() {
+        return mViews;
     }
 
     protected void onGeneratorClick(long id) {
@@ -365,7 +389,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         showEditGeneratorDialogue(-1);
     }
 
-    private class ViewHolder {
+    public class ViewHolder extends BaseProgramFragment.ViewHolder<Loop> {
         public ListView generatorsList;
 
         public Button iterations;
@@ -381,6 +405,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         public ListView scenesList;
 
         public ViewHolder(Resources resources, View view) {
+            super(view);
             mResources = resources;
 
             iterations = (Button)view.findViewById(R.id.iterations);

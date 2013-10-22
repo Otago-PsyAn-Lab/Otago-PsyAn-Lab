@@ -6,6 +6,7 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.Generator
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Generator;
@@ -58,7 +59,7 @@ public interface ProgramCallbacks extends RegisterDialogueResultListener {
 
     Loop getLoop(long loopId);
 
-    ListAdapter getLoopAdapter();
+    ProgramComponentAdapter<?> getLoopAdapter();
 
     Rule getRule(long ruleId);
 

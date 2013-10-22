@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/background"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@drawable/loops_background_flat" >
 
     <View
         android:id="@+id/colour_bar_spacer"
         android:layout_width="0dip"
-        android:layout_height="16dip" />
+        android:layout_height="8dip" />
 
     <LinearLayout
         android:id="@+id/right_column"
-        style="@style/column_right"
         android:layout_width="240dip"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
-        android:paddingLeft="8dip"
         android:orientation="vertical"
         android:showDividers="middle" >
 
@@ -24,9 +24,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
-            android:background="@drawable/loop_item_background_holo_light"
+            android:layout_marginRight="1dip"
+            android:background="@drawable/loop_button"
             android:orientation="horizontal"
-            android:padding="8dip"
+            android:padding="16dip"
             android:showDividers="none" >
 
             <TextView
@@ -55,11 +56,18 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:layout_marginRight="1dip"
+            android:background="#ffdddddd" >
+        </View>
+
         <com.mobeta.android.dslv.DragSortListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:drawSelectorOnTop="true"
+            android:drawSelectorOnTop="false"
             android:listSelector="@drawable/loop_list_selector_holo_light"
             app:drag_enabled="true"
             app:drag_handle_id="@+id/handle"
@@ -70,9 +78,10 @@
 
     <View
         android:layout_width="0dip"
-        android:layout_height="16dip"
+        android:layout_height="8dip"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/right_column"
-        android:background="#ff0cb7b9" />
+        android:layout_marginRight="1dip"
+        android:background="@color/accent" />
 
 </RelativeLayout>

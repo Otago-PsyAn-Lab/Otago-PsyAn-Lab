@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.designer.program;
 
+import nz.ac.otago.psyanlab.common.R;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,8 @@ public abstract class BaseProgramFragment extends Fragment {
     protected static final String ARG_OBJECT_ID = "arg_object_id";
 
     protected static final long INVALID_ID = -1;
+
+    private static final String ARG_BACKGROUND = "arg_background";
 
     /**
      * Perform common initialisation tasks to all base program fragments.
@@ -30,6 +34,8 @@ public abstract class BaseProgramFragment extends Fragment {
     private ScrollerManager mScrollerManager;
 
     private int mScrollerPosition;
+
+    protected int mBackgroundResource;
 
     protected ProgramCallbacks mCallbacks;
 
@@ -62,6 +68,10 @@ public abstract class BaseProgramFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (savedInstanceState != null) {
+            mBackgroundResource = savedInstanceState.getInt(ARG_BACKGROUND);
+        }
+
         Bundle args = getArguments();
         if (args != null) {
             mObjectId = args.getLong(ARG_OBJECT_ID, INVALID_ID);
@@ -74,6 +84,24 @@ public abstract class BaseProgramFragment extends Fragment {
 
     }
 
+    public void setIsLastInList(boolean isLastInList) {
+        if (isLastInList) {
+            mBackgroundResource = R.drawable.opal_list_background_flat;
+            if (getViewHolder() != null) {
+                getViewHolder().background.setBackgroundResource(mBackgroundResource);
+            }
+        } else {
+            mBackgroundResource = getFavouredBackground();
+            if (getViewHolder() != null) {
+                getViewHolder().background.setBackgroundResource(mBackgroundResource);
+            }
+        }
+    }
+
+    protected int getFavouredBackground() {
+        return R.drawable.opal_list_background_flat;
+    }
+
     /**
      * Set the manager for the scroller.
      * 
@@ -84,18 +112,20 @@ public abstract class BaseProgramFragment extends Fragment {
     }
 
     /**
+     * Called should the Fragment be passed an invalid object id, thereby
+     * indicating the fragment should create a new object to back its views.
+     */
+    // protected void onCreateNewObject() {
+    // }
+
+    /**
      * Set the position of this fragment in the scroller.
      */
     public void setScrollerPos(int position) {
         mScrollerPosition = position;
     }
 
-    /**
-     * Called should the Fragment be passed an invalid object id, thereby
-     * indicating the fragment should create a new object to back its views.
-     */
-    // protected void onCreateNewObject() {
-    // }
+    protected abstract ViewHolder getViewHolder();
 
     /**
      * Ask the manager to hide the next fragment after this one.
@@ -132,6 +162,13 @@ public abstract class BaseProgramFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(ARG_BACKGROUND, mBackgroundResource);
+    }
+
     /**
      * Ask the manager to set the next fragment after this one as the given
      * fragment.
@@ -150,5 +187,20 @@ public abstract class BaseProgramFragment extends Fragment {
         void requestMoveTo(int x);
 
         void setNextFragment(BaseProgramFragment requester, BaseProgramFragment f);
+    }
+
+    protected abstract class ViewHolder<T> {
+        public View background;
+
+        public ViewHolder(View view) {
+            background = view.findViewById(R.id.background);
+            if (mBackgroundResource != -1) {
+                background.setBackgroundResource(mBackgroundResource);
+            }
+        }
+
+        abstract void initViews();
+
+        abstract void setViewValues(T object);
     }
 }

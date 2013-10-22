@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/loop_activated_background_holo_light"
+    android:background="@drawable/loop_activated_background_arrow"
     android:minHeight="48dip"
     android:orientation="horizontal" >
 
@@ -11,7 +11,7 @@
         android:layout_width="32dip"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/loop_activated_background_holo_light"
+        android:background="@drawable/loop_activated_background_arrow"
         android:contentDescription="@string/content_description_drag_handle"
         android:paddingLeft="4dip"
         android:paddingRight="12dip"

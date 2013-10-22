@@ -50,7 +50,6 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     public OnClickListener mConditionClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO Auto-generated method stub
         }
     };
 
@@ -92,7 +91,6 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 @Override
                 public void run() {
                     mViews.actionsList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                    // FIXME: Marked checked the current selected loop.
                 }
             });
         }
@@ -188,6 +186,16 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         mCallbacks.updateRule(mObjectId, mRule);
     }
 
+    @Override
+    protected int getFavouredBackground() {
+        return R.drawable.rule_background_flat;
+    }
+
+    @Override
+    protected ViewHolder getViewHolder() {
+        return mViews;
+    }
+
     protected void onActionClick(long id) {
         setNextFragment(ActionFragment.newInstance(id));
     }
@@ -213,7 +221,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     }
 
-    private class ViewHolder {
+    private class ViewHolder extends BaseProgramFragment.ViewHolder<Rule> {
         public View condition;
 
         public TextView name;
@@ -229,6 +237,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         private View newAction;
 
         public ViewHolder(View view) {
+            super(view);
             name = (EditText)view.findViewById(R.id.name);
             triggerObject = (Spinner)view.findViewById(R.id.trigger_object);
             triggerEvent = (Spinner)view.findViewById(R.id.trigger_event);

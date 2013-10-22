@@ -7,7 +7,6 @@ import nz.ac.otago.psyanlab.common.designer.program.stage.StageView;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -46,9 +45,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
                 mViews.rulesList.setItemChecked(position, true);
-                mViews.restoreRightColumnPadding();
             } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
-                mViews.alignRightColumnRight();
                 onRuleClick(id);
             }
         }
@@ -97,7 +94,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             mViews.rulesList.setItemChecked(position, true);
             setNextFragment(null);
-            mViews.restoreRightColumnPadding();
             return true;
         }
     };
@@ -140,7 +136,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
                 @Override
                 public void run() {
                     mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                    // FIXME: Marked checked the current selected loop.
                 }
             });
         }
@@ -203,13 +198,23 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
         mRulesAdapter = mCallbacks.getRuleAdapter(mObjectId);
 
-        mViews = new ViewHolder(getActivity(), view);
+        mViews = new ViewHolder(view);
         mViews.setViewValues(mScene);
         mViews.initViews();
     }
 
     private void saveChanges() {
         mCallbacks.updateScene(mObjectId, mScene);
+    }
+
+    @Override
+    protected int getFavouredBackground() {
+        return R.drawable.scene_background_flat;
+    }
+
+    @Override
+    protected ViewHolder getViewHolder() {
+        return mViews;
     }
 
     protected void onNewRule() {
@@ -231,16 +236,16 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         } else {
             selectItemInList(newRuleId, mViews.rulesList);
         }
-
-        mViews.alignRightColumnRight();
     }
 
     protected void onRuleClick(long id) {
         setNextFragment(RuleFragment.newInstance(id));
     }
 
-    private class ViewHolder extends AbsViewHolder<Scene> {
+    private class ViewHolder extends BaseProgramFragment.ViewHolder<Scene> {
         public View editStage;
+
+        public TextView editStagePsuedoButton;
 
         public EditText name;
 
@@ -252,10 +257,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
         public StageView stageThumb;
 
-        public TextView editStagePsuedoButton;
-
-        public ViewHolder(Context context, View view) {
-            super(context, view);
+        public ViewHolder(View view) {
+            super(view);
             editStage = view.findViewById(R.id.edit_stage);
             name = (EditText)view.findViewById(R.id.name);
             newRule = view.findViewById(R.id.new_rule);
@@ -265,7 +268,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             editStagePsuedoButton = (TextView)view.findViewById(R.id.edit_stage_psudeo_button);
         }
 
-        @Override
         public void initViews() {
             name.addTextChangedListener(mNameWatcher);
 
@@ -281,7 +283,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             rulesList.setDivider(null);
         }
 
-        @Override
         public void setViewValues(Scene scene) {
             name.setText(scene.name);
             if (scene.orientation == -1) {

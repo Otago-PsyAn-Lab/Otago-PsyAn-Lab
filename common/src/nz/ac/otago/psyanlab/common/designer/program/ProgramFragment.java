@@ -131,7 +131,13 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
         }
 
         if (next != null) {
+            if (requester != null) {
+                requester.setIsLastInList(false);
+            }
+            next.setIsLastInList(true);
             addFragment(next, ft);
+        } else if (requester != null) {
+            requester.setIsLastInList(true);
         }
 
         ft.commit();

@@ -1,24 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/background"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
+    android:background="@drawable/loops_background_flat"
     android:focusable="true"
     android:focusableInTouchMode="true" >
 
     <View
         android:id="@+id/colour_bar_spacer"
         android:layout_width="0dip"
-        android:layout_height="16dip" />
-
-    <View
-        android:id="@+id/colour_left_margin"
-        android:layout_width="4dip"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:background="#cd0fdddf" />
+        android:layout_height="8dip" />
 
     <LinearLayout
         android:id="@+id/column"
@@ -26,7 +19,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/colour_left_margin"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -125,7 +117,6 @@
 
     <LinearLayout
         android:id="@+id/right_column"
-        style="@style/column_right"
         android:layout_width="240dip"
         android:layout_height="match_parent"
         android:layout_below="@+id/colour_bar_spacer"
@@ -173,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:drawSelectorOnTop="true"
-            android:listSelector="@drawable/scene_list_selector_holo_light"
+            android:listSelector="@drawable/loop_list_selector_holo_light"
             app:drag_enabled="true"
             app:drag_handle_id="@+id/handle"
             app:drag_start_mode="onLongPress"
@@ -183,21 +174,9 @@
 
     <View
         android:layout_width="0dip"
-        android:layout_height="16dip"
+        android:layout_height="8dip"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/right_column"
         android:background="#cd0fdddf" />
-
-    <!-- <View -->
-    <!-- android:layout_width="0dip" -->
-    <!-- android:layout_height="24dip" -->
-    <!-- android:layout_alignRight="@+id/loop_column" -->
-    <!-- android:layout_alignLeft="@+id/scenes_column" -->
-    <!-- android:background="#ffff8800" /> -->
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-    </LinearLayout>
 
 </RelativeLayout>

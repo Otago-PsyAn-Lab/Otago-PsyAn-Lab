@@ -200,5 +200,6 @@
     <string name="title_set_start_column">Set Start Column</string>
     <string name="title_set_start_row">Set Start Row</string>
     <string name="title_set_number_of_rows">Set Number of Rows</string>
+    <string name="hint_prop_name">Prop name</string>
 
 </resources>

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="accent">#ff0cb7b9</color>
     <color name="background">#fff3f3f3</color>
-    <color name="column_divide">#77aaaaaa</color>
-    <color name="shadow">#55aaaaaa</color>
+<!--     <color name="background_detail">#fff9f9f9</color> -->
+<!--     <color name="background_list">#ffeeeeee</color> -->
     <color name="card_background">#fffefefe</color>
-    <color name="background_asset">#fff9f9f9</color>
-    <color name="background_darker">#ffeeeeee</color>
+    
+    <color name="accent">#ff0cb7b9</color>
+    <color name="loop_accent">#cd0fdddf</color>
+    <color name="scene_accent">#cd99cc00</color>
+    <color name="rule_accent">#cdffbb33</color>
+    <color name="action_accent">#cdff5a00</color>
 
 </resources>

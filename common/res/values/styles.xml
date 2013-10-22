@@ -22,29 +22,26 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
     </style>
-
+    
     <style name="column">
-        <item name="android:background">@color/background</item>
         <item name="android:paddingBottom">0dip</item>
-        <item name="android:paddingLeft">8dip</item>
-        <item name="android:paddingRight">8dip</item>
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">16dip</item>
         <item name="android:paddingTop">8dip</item>
     </style>
 
     <style name="list_column">
-        <item name="android:background">@drawable/opal_list_background</item>
+        <item name="android:background">@drawable/opal_list_background_flat</item>
         <item name="android:paddingBottom">0dip</item>
         <item name="android:paddingLeft">0dip</item>
         <item name="android:paddingRight">0dip</item>
         <item name="android:paddingTop">8dip</item>
     </style>
 
-    <style name="column_right" parent="column">
-        <item name="android:paddingBottom">0dip</item>
-        <item name="android:paddingLeft">0dip</item>
-        <item name="android:paddingRight">0dip</item>
+    <style name="group">
+        <item name="android:padding">8dip</item>
     </style>
-
+    
     <style name="card">
         <item name="android:background">@color/card_background</item>
         <item name="android:padding">8dip</item>

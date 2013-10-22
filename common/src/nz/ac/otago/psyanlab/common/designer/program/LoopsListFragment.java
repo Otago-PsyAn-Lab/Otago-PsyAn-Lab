@@ -2,6 +2,7 @@
 package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.model.Loop;
 
 import android.os.Bundle;
@@ -18,7 +19,6 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 public class LoopsListFragment extends BaseProgramFragment {
@@ -27,7 +27,7 @@ public class LoopsListFragment extends BaseProgramFragment {
         return f;
     }
 
-    public ListAdapter mLoopsAdapter;
+    public ProgramComponentAdapter<?> mLoopsAdapter;
 
     public OnItemClickListener mOnLoopItemClickListener = new OnItemClickListener() {
         @Override
@@ -48,8 +48,6 @@ public class LoopsListFragment extends BaseProgramFragment {
         }
     };
 
-    private ViewHolder mViews;
-
     protected ActionMode mActionMode;
 
     protected OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
@@ -60,6 +58,7 @@ public class LoopsListFragment extends BaseProgramFragment {
             }
             mViews.listview.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             mViews.listview.setItemChecked(position, true);
+            mLoopsAdapter.fixItemBackground(R.drawable.loop_activated_background);
             setNextFragment(null);
             return true;
         }
@@ -93,11 +92,11 @@ public class LoopsListFragment extends BaseProgramFragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
+            mLoopsAdapter.fixItemBackground(R.drawable.loop_activated_background_arrow);
             mViews.listview.post(new Runnable() {
                 @Override
                 public void run() {
                     mViews.listview.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                    // FIXME: Marked checked the current selected loop.
                 }
             });
         }
@@ -127,6 +126,7 @@ public class LoopsListFragment extends BaseProgramFragment {
         }
     };
 
+    protected ViewHolder mViews;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_loops, container, false);
@@ -141,6 +141,16 @@ public class LoopsListFragment extends BaseProgramFragment {
         mViews = new ViewHolder(view);
         mViews.initViews();
 
+    }
+
+    @Override
+    protected int getFavouredBackground() {
+        return R.drawable.loops_background_flat;
+    }
+
+    @Override
+    protected ViewHolder getViewHolder() {
+        return mViews;
     }
 
     protected void onNewLoop() {
@@ -163,12 +173,13 @@ public class LoopsListFragment extends BaseProgramFragment {
         }
     }
 
-    protected class ViewHolder {
+    protected class ViewHolder extends BaseProgramFragment.ViewHolder<Object> {
         public ListView listview;
 
         public View newLoop;
 
         public ViewHolder(View view) {
+            super(view);
             listview = (ListView)view.findViewById(android.R.id.list);
             newLoop = view.findViewById(R.id.new_loop);
         }
@@ -180,9 +191,12 @@ public class LoopsListFragment extends BaseProgramFragment {
             listview.setOnItemLongClickListener(mItemLongClickListener);
             listview.setAdapter(mLoopsAdapter);
             listview.setDivider(null);
-            listview.setDrawSelectorOnTop(true);
 
             newLoop.setOnClickListener(mNewLoopClickListener);
+        }
+
+        @Override
+        void setViewValues(Object object) {
         }
     }
 }

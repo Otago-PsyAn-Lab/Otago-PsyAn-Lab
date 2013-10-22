@@ -81,8 +81,17 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         mViews.initViews();
     }
 
+    @Override
+    public void setIsLastInList(boolean isLastInList) {
+    }
+
     private void saveChanges() {
         mCallbacks.updateAction(mObjectId, mAction);
+    }
+
+    @Override
+    protected ViewHolder getViewHolder() {
+        return mViews;
     }
 
     protected void onActionClick(long id) {
@@ -90,7 +99,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
 
     }
 
-    private class ViewHolder {
+    private class ViewHolder extends BaseProgramFragment.ViewHolder<Action> {
         public Spinner actionMethod;
 
         public Spinner actionObject;
@@ -100,6 +109,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         private ListView parametersList;
 
         public ViewHolder(View view) {
+            super(view);
             name = (EditText)view.findViewById(R.id.name);
             actionObject = (Spinner)view.findViewById(R.id.action_object);
             actionMethod = (Spinner)view.findViewById(R.id.action_method);

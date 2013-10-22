@@ -3,6 +3,7 @@
     android:id="@+id/main_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_darker"
     android:baselineAligned="false"
     android:orientation="horizontal"
     android:splitMotionEvents="true" >
@@ -14,9 +15,11 @@
         android:layout_weight="1" />
 
     <FrameLayout
-        android:id="@+id/asset_detail_container"
+            android:id="@+id/asset_detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2" />
+        android:layout_weight="2"
+        android:background="@color/background_asset" >
+    </FrameLayout>
 
 </LinearLayout>

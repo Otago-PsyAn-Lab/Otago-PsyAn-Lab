@@ -98,6 +98,7 @@ public class AssetsListFragment extends Fragment {
             list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             list.setOnItemClickListener(mOnItemClickListener);
             list.setAdapter(mCallbacks.getAssetsAdapter());
+            list.setDrawSelectorOnTop(false);
         }
     }
 }

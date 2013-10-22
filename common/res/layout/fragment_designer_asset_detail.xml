@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff9f9f9"
     android:orientation="vertical"
     android:padding="0dip"
     android:showDividers="middle" >
@@ -48,6 +47,11 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@android:color/darker_gray" />
     </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="@color/accent" />
 
     <FrameLayout
         android:id="@+id/fragment_container"

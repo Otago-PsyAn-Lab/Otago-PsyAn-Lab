@@ -40,8 +40,9 @@
         android:id="@+id/stickyList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingLeft="16dip"
         android:drawSelectorOnTop="true"
-        android:listSelector="@drawable/loop_item_background_holo_light"
+        android:listSelector="@drawable/loop_list_selector_holo_light"
         android:orientation="vertical" />
 
     <TextView

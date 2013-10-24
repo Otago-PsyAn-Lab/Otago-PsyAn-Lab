@@ -765,6 +765,7 @@ public class StageView extends AdapterView<StageAdapter> {
 
         if (!isEnabled() && (mNativeHeight == -1 || mNativeWidth == -1)) {
             setMeasuredDimension(0, 0);
+            return;
         }
 
         int specifiedWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -776,9 +777,14 @@ public class StageView extends AdapterView<StageAdapter> {
         if (mNativeWidth == -1) {
             mNativeWidth = specifiedWidth;
         }
-
-        float horizontalScaleFactor = ((float)specifiedWidth) / ((float)mNativeWidth);
-        float verticalScaleFactor = ((float)specifiedHeight) / ((float)mNativeHeight);
+        float horizontalScaleFactor = 1;
+        if (specifiedWidth != 0) {
+            horizontalScaleFactor = ((float)specifiedWidth) / ((float)mNativeWidth);
+        }
+        float verticalScaleFactor = 1;
+        if (specifiedHeight != 0) {
+            verticalScaleFactor = ((float)specifiedHeight) / ((float)mNativeHeight);
+        }
 
         mScaleFactor = (horizontalScaleFactor < verticalScaleFactor) ? horizontalScaleFactor
                 : verticalScaleFactor;

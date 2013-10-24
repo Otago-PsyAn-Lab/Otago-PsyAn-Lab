@@ -230,7 +230,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 }
 
                 if (mTouchMode != TOUCH_MODE_AT_REST
-                        && (virtualFingers() > 1 || mMotionPosition != NO_MATCHED_CHILD)
+                        && (getVirtualFingers() > 1 || mMotionPosition != NO_MATCHED_CHILD)
                         && moveOverSlop) {
                     // Too much movement to be a tap event.
                     mTouchMode = TOUCH_MODE_AT_REST;
@@ -260,7 +260,7 @@ public class StageView extends AdapterView<PropAdapter> {
 
                 // Handle stage multi-touch.
 
-                if (virtualFingers() > 1) {
+                if (getVirtualFingers() > 1) {
                     if (mPerformPropClick == null) {
                         mPerformPropClick = new PerformClick();
                     }
@@ -284,7 +284,7 @@ public class StageView extends AdapterView<PropAdapter> {
                             updateSelectorState();
                             invalidate();
 
-                            resetSelectorTransition(virtualFingers());
+                            resetSelectorTransition(getVirtualFingers());
 
                             if (mTouchModeReset != null) {
                                 removeCallbacks(mTouchModeReset);
@@ -348,7 +348,7 @@ public class StageView extends AdapterView<PropAdapter> {
                                 updateSelectorState();
                                 invalidate();
 
-                                resetSelectorTransition(virtualFingers());
+                                resetSelectorTransition(getVirtualFingers());
 
                                 if (mTouchModeReset != null) {
                                     removeCallbacks(mTouchModeReset);
@@ -512,7 +512,7 @@ public class StageView extends AdapterView<PropAdapter> {
         if (!mSelectorRect.isEmpty()) {
             Drawable selector;
 
-            selector = mSelectors.get(virtualFingers());
+            selector = mSelectors.get(getVirtualFingers());
             if (selector == null) {
                 selector = mSelectors.get(0);
             }
@@ -683,14 +683,15 @@ public class StageView extends AdapterView<PropAdapter> {
     }
 
     private void useDefaultSelector() {
-        Drawable selector = getResources().getDrawable(R.drawable.loop_list_selector_holo_light);
-        Drawable addSelector = getResources()
-                .getDrawable(R.drawable.scene_list_selector_holo_light);
+        Drawable selector = getResources().getDrawable(R.drawable.scene_list_selector_holo_light);
+        Drawable listSelector = getResources()
+                .getDrawable(R.drawable.loop_list_selector_holo_light);
         Drawable propertiesSelector = getResources().getDrawable(
                 R.drawable.rule_list_selector_holo_light);
 
         setItemSelector(selector);
-        setSelector(3, addSelector);
+        setSelector(2, listSelector);
+        setSelector(3, selector);
         setSelector(4, propertiesSelector);
     }
 
@@ -712,15 +713,6 @@ public class StageView extends AdapterView<PropAdapter> {
         updateSelectorState();
     }
 
-    protected int virtualFingers() {
-        if (mAdapter.getCount() == 0
-                && (mForceFingersExemptions == null || Arrays.binarySearch(mForceFingersExemptions,
-                        mMaxFingersDown) < 0)) {
-            return mForceFingersWhenEmpty;
-        }
-        return mMaxFingersDown;
-    }
-
     @Override
     protected LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams();
@@ -729,6 +721,15 @@ public class StageView extends AdapterView<PropAdapter> {
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         return new LayoutParams(super.generateLayoutParams(p));
+    }
+
+    protected int getVirtualFingers() {
+        if (mAdapter.getCount() == 0
+                && (mForceFingersExemptions == null || Arrays.binarySearch(mForceFingersExemptions,
+                        mMaxFingersDown) < 0)) {
+            return mForceFingersWhenEmpty;
+        }
+        return mMaxFingersDown;
     }
 
     @Override
@@ -863,7 +864,7 @@ public class StageView extends AdapterView<PropAdapter> {
             boolean handled = false;
             final View child;
 
-            if (virtualFingers() == 1) {
+            if (getVirtualFingers() == 1) {
                 child = getChildAt(mMotionPosition);
                 if (child != null) {
                     final long longPressId = childViewPositionToId(mMotionPosition);
@@ -874,7 +875,7 @@ public class StageView extends AdapterView<PropAdapter> {
 
                 }
             } else {
-                handled = performStageMultipleFingerLongPress(virtualFingers());
+                handled = performStageMultipleFingerLongPress(getVirtualFingers());
                 child = null;
             }
 
@@ -902,7 +903,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 if (child != null && !child.hasFocusable()) {
                     child.setPressed(true);
                     positionSelector(child);
-                } else if (virtualFingers() > 1) {
+                } else if (getVirtualFingers() > 1) {
                     positionSelector(StageView.this);
                 } else {
                     positionSelector(null);
@@ -913,7 +914,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 final int longPressTimeout = ViewConfiguration.getLongPressTimeout();
                 final boolean longClickable = isLongClickable();
 
-                Drawable selector = mSelectors.get(virtualFingers());
+                Drawable selector = mSelectors.get(getVirtualFingers());
                 if (selector != null) {
                     Drawable d = selector.getCurrent();
                     if (d != null && d instanceof TransitionDrawable) {
@@ -949,8 +950,8 @@ public class StageView extends AdapterView<PropAdapter> {
                 return;
             }
 
-            if (virtualFingers() > 1) {
-                performStageMultipleFingerClick(virtualFingers());
+            if (getVirtualFingers() > 1) {
+                performStageMultipleFingerClick(getVirtualFingers());
                 return;
             }
 

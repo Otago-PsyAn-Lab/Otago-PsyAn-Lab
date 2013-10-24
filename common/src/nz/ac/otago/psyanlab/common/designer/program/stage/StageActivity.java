@@ -114,11 +114,6 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
     }
 
     @Override
-    public int getPropNumber() {
-        return findUnusedKey();
-    }
-
-    @Override
     public int getStageHeight() {
         return mStage.getNativeHeight();
     }
@@ -215,19 +210,6 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         mOrientation = orientation;
     }
 
-    private int findUnusedKey() {
-        int currKey = 1;
-        for (Prop prop : mProps) {
-            if (TextUtils.equals(
-                    prop.name,
-                    getString(R.string.format_default_prop_name,
-                            getString(R.string.default_prop_name), currKey))) {
-                currKey++;
-            }
-        }
-        return currKey;
-    }
-
     /**
      * Open a dialogue to add a prop.
      */
@@ -266,6 +248,7 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -368,5 +351,23 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         public boolean hasStableIds() {
             return false;
         }
+    }
+
+    @Override
+    public int getPropNumber() {
+        return findUnusedKey();
+    }
+
+    private int findUnusedKey() {
+        int currKey = 1;
+        for (Prop prop : mProps) {
+            if (TextUtils.equals(
+                    prop.name,
+                    getString(R.string.format_default_prop_name,
+                            getString(R.string.default_prop_name), currKey))) {
+                currKey++;
+            }
+        }
+        return currKey;
     }
 }

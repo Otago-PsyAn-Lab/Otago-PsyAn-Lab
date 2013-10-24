@@ -26,6 +26,7 @@
         android:paddingLeft="96dip"
         android:paddingRight="96dip"
         android:paddingTop="16dip"
+        android:scrollbarStyle="outsideOverlay"
         app:drag_enabled="true"
         app:drag_handle_id="@+id/handle"
         app:drag_start_mode="onDown"

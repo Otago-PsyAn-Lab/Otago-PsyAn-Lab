@@ -32,6 +32,7 @@
         <activity android:name="nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity" />
         <activity
             android:name="nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity"
+            android:theme="@style/AppTheme.Overlay"
             android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
 

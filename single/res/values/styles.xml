@@ -16,5 +16,9 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+    
+    <style name="AppTheme.Overlay" parent="AppBaseTheme">
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
 
 </resources>

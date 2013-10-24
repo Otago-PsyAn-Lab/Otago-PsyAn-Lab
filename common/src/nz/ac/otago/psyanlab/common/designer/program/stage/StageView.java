@@ -13,8 +13,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.support.v4.util.LongSparseArray;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.StateSet;
 import android.view.HapticFeedbackConstants;
@@ -92,13 +92,13 @@ public class StageView extends AdapterView<PropAdapter> {
 
     private LongSparseArray<View> mViewIdMap = new LongSparseArray<View>();
 
-    protected int mFingersDown;
+    protected int mMaxFingersDown;
 
     protected int mMotionPosition;
 
-    protected ArrayList<Float> mMotionX = new ArrayList<Float>();
+    protected SparseArrayCompat<Float> mMotionX = new SparseArrayCompat<Float>(10);
 
-    protected ArrayList<Float> mMotionY = new ArrayList<Float>();
+    protected SparseArrayCompat<Float> mMotionY = new SparseArrayCompat<Float>(10);
 
     protected int mTouchMode;
 
@@ -177,12 +177,13 @@ public class StageView extends AdapterView<PropAdapter> {
         final Handler handler = getHandler();
 
         switch (action & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_POINTER_UP: {
-                mMotionX.remove(event.getActionIndex());
-                mMotionY.remove(event.getActionIndex());
-                return true;
-            }
             case MotionEvent.ACTION_POINTER_DOWN: {
+                // Throw away event if we have already seen at least this many
+                // fingers before.
+                if (mMaxFingersDown > pointerCount) {
+                    return true;
+                }
+
                 if (handler != null) {
                     handler.removeCallbacks(mPendingCheckForTap);
                     handler.removeCallbacks(mPendingCheckForLongPress);
@@ -191,13 +192,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 mPendingCheckForTap = new CheckForTap();
                 postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
 
-                if (mAdapter.getCount() == 0
-                        && (mForceFingersExemptions == null || Arrays.binarySearch(
-                                mForceFingersExemptions, pointerCount) < 0)) {
-                    mFingersDown = mForceFingersWhenEmpty;
-                } else {
-                    mFingersDown = pointerCount;
-                }
+                mMaxFingersDown = pointerCount;
 
                 mMotionPosition = INVALID_POSITION;
                 updateMotionPositions(event, pointerCount);
@@ -208,11 +203,7 @@ public class StageView extends AdapterView<PropAdapter> {
             }
 
             case MotionEvent.ACTION_DOWN: {
-                if (mAdapter.getCount() == 0) {
-                    mFingersDown = mForceFingersWhenEmpty;
-                } else {
-                    mFingersDown = pointerCount;
-                }
+                mMaxFingersDown = pointerCount;
 
                 if (mPendingCheckForTap == null) {
                     mPendingCheckForTap = new CheckForTap();
@@ -230,15 +221,16 @@ public class StageView extends AdapterView<PropAdapter> {
 
             case MotionEvent.ACTION_MOVE: {
                 boolean moveOverSlop = false;
-                for (int i = 0; i < pointerCount; i++) {
-                    int touchSlop = (i > 0) ? mTouchSlop * 6 : mTouchSlop;
+                int touchSlop = (mMaxFingersDown > 1) ? mTouchSlop * 6 : mTouchSlop;
+                for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
+                    int pointerId = event.getPointerId(pointerIndex);
                     moveOverSlop = moveOverSlop
-                            || (Math.abs(event.getY(i) - mMotionY.get(i)) > touchSlop || Math
-                                    .abs(event.getX(i) - mMotionX.get(i)) > touchSlop);
+                            || (Math.abs(event.getY(pointerIndex) - mMotionY.get(pointerId)) > touchSlop || Math
+                                    .abs(event.getX(pointerIndex) - mMotionX.get(pointerId)) > touchSlop);
                 }
 
                 if (mTouchMode != TOUCH_MODE_AT_REST
-                        && (mFingersDown > 1 || mMotionPosition != NO_MATCHED_CHILD)
+                        && (virtualFingers() > 1 || mMotionPosition != NO_MATCHED_CHILD)
                         && moveOverSlop) {
                     // Too much movement to be a tap event.
                     mTouchMode = TOUCH_MODE_AT_REST;
@@ -268,7 +260,7 @@ public class StageView extends AdapterView<PropAdapter> {
 
                 // Handle stage multi-touch.
 
-                if (mFingersDown > 1) {
+                if (virtualFingers() > 1) {
                     if (mPerformPropClick == null) {
                         mPerformPropClick = new PerformClick();
                     }
@@ -292,7 +284,7 @@ public class StageView extends AdapterView<PropAdapter> {
                             updateSelectorState();
                             invalidate();
 
-                            resetSelectorTransition(mFingersDown);
+                            resetSelectorTransition(virtualFingers());
 
                             if (mTouchModeReset != null) {
                                 removeCallbacks(mTouchModeReset);
@@ -356,7 +348,7 @@ public class StageView extends AdapterView<PropAdapter> {
                                 updateSelectorState();
                                 invalidate();
 
-                                resetSelectorTransition(mFingersDown);
+                                resetSelectorTransition(virtualFingers());
 
                                 if (mTouchModeReset != null) {
                                     removeCallbacks(mTouchModeReset);
@@ -520,7 +512,7 @@ public class StageView extends AdapterView<PropAdapter> {
         if (!mSelectorRect.isEmpty()) {
             Drawable selector;
 
-            selector = mSelectors.get(mFingersDown);
+            selector = mSelectors.get(virtualFingers());
             if (selector == null) {
                 selector = mSelectors.get(0);
             }
@@ -670,14 +662,10 @@ public class StageView extends AdapterView<PropAdapter> {
     }
 
     private void updateMotionPositions(MotionEvent event, final int pointerCount) {
-        for (int i = 0; i < pointerCount; i++) {
-            if (mMotionX.size() == i) {
-                mMotionX.add(event.getX(i));
-                mMotionY.add(event.getY(i));
-            } else {
-                mMotionX.set(i, event.getX(i));
-                mMotionY.set(i, event.getY(i));
-            }
+        for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
+            int pointerId = event.getPointerId(pointerIndex);
+            mMotionX.put(pointerId, event.getX(pointerIndex));
+            mMotionY.put(pointerId, event.getY(pointerIndex));
         }
     }
 
@@ -724,6 +712,15 @@ public class StageView extends AdapterView<PropAdapter> {
         updateSelectorState();
     }
 
+    protected int virtualFingers() {
+        if (mAdapter.getCount() == 0
+                && (mForceFingersExemptions == null || Arrays.binarySearch(mForceFingersExemptions,
+                        mMaxFingersDown) < 0)) {
+            return mForceFingersWhenEmpty;
+        }
+        return mMaxFingersDown;
+    }
+
     @Override
     protected LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams();
@@ -753,8 +750,6 @@ public class StageView extends AdapterView<PropAdapter> {
             useDefaultSelector();
         }
 
-        Log.d("asdfadsf", "native width " + mNativeWidth + "   height " + mNativeHeight);
-
         int specifiedWidth = MeasureSpec.getSize(widthMeasureSpec);
         int specifiedHeight = MeasureSpec.getSize(heightMeasureSpec);
 
@@ -765,20 +760,14 @@ public class StageView extends AdapterView<PropAdapter> {
             mNativeWidth = specifiedWidth;
         }
 
-        Log.d("asdfadsf", "specified width " + specifiedWidth + "   height " + specifiedHeight);
-
         float horizontalScaleFactor = ((float)specifiedWidth) / ((float)mNativeWidth);
         float verticalScaleFactor = ((float)specifiedHeight) / ((float)mNativeHeight);
-        Log.d("asdfadsf", "scale width " + horizontalScaleFactor + "   height "
-                + verticalScaleFactor);
 
         mScaleFactor = (horizontalScaleFactor < verticalScaleFactor) ? horizontalScaleFactor
                 : verticalScaleFactor;
 
         float width = ((float)mNativeWidth) * mScaleFactor;
         float height = ((float)mNativeHeight) * mScaleFactor;
-
-        Log.d("asdfadsf", "final width " + width + "   height " + height);
 
         setMeasuredDimension((int)width, (int)height);
     }
@@ -874,7 +863,7 @@ public class StageView extends AdapterView<PropAdapter> {
             boolean handled = false;
             final View child;
 
-            if (mFingersDown == 1) {
+            if (virtualFingers() == 1) {
                 child = getChildAt(mMotionPosition);
                 if (child != null) {
                     final long longPressId = childViewPositionToId(mMotionPosition);
@@ -885,7 +874,7 @@ public class StageView extends AdapterView<PropAdapter> {
 
                 }
             } else {
-                handled = performStageMultipleFingerLongPress(mFingersDown);
+                handled = performStageMultipleFingerLongPress(virtualFingers());
                 child = null;
             }
 
@@ -913,7 +902,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 if (child != null && !child.hasFocusable()) {
                     child.setPressed(true);
                     positionSelector(child);
-                } else if (mFingersDown > 1) {
+                } else if (virtualFingers() > 1) {
                     positionSelector(StageView.this);
                 } else {
                     positionSelector(null);
@@ -924,7 +913,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 final int longPressTimeout = ViewConfiguration.getLongPressTimeout();
                 final boolean longClickable = isLongClickable();
 
-                Drawable selector = mSelectors.get(mFingersDown);
+                Drawable selector = mSelectors.get(virtualFingers());
                 if (selector != null) {
                     Drawable d = selector.getCurrent();
                     if (d != null && d instanceof TransitionDrawable) {
@@ -960,8 +949,8 @@ public class StageView extends AdapterView<PropAdapter> {
                 return;
             }
 
-            if (mFingersDown > 1) {
-                performStageMultipleFingerClick(mFingersDown);
+            if (virtualFingers() > 1) {
+                performStageMultipleFingerClick(virtualFingers());
                 return;
             }
 

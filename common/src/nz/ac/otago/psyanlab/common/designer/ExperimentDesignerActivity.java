@@ -862,7 +862,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         return experiment;
     }
 
-    private ArrayList<Prop> getPropsArray(long stageId) {
+    @Override
+    public ArrayList<Prop> getPropsArray(long stageId) {
         ArrayList<Prop> props = new ArrayList<Prop>();
         for (Long propId : mExperiment.scenes.get(stageId).props) {
             props.add(mExperiment.props.get(propId));

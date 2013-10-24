@@ -2,7 +2,7 @@
 package nz.ac.otago.psyanlab.common.designer.program.stage;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.program.stage.StageView.PropAdapter;
+import nz.ac.otago.psyanlab.common.designer.program.stage.StageView.StageAdapter;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -30,7 +30,7 @@ import android.widget.AdapterView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class StageView extends AdapterView<PropAdapter> {
+public class StageView extends AdapterView<StageAdapter> {
     public static final int INVALID_POSITION = -1;
 
     private static final int NO_MATCHED_CHILD = INVALID_POSITION;
@@ -45,7 +45,7 @@ public class StageView extends AdapterView<PropAdapter> {
 
     protected static final int TOUCH_MODE_TAP = 0x01;
 
-    public PropAdapter mAdapter;
+    public StageAdapter mAdapter;
 
     public boolean mDataChanged;
 
@@ -153,7 +153,7 @@ public class StageView extends AdapterView<PropAdapter> {
     }
 
     @Override
-    public PropAdapter getAdapter() {
+    public StageAdapter getAdapter() {
         return mAdapter;
     }
 
@@ -172,6 +172,11 @@ public class StageView extends AdapterView<PropAdapter> {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!isEnabled()) {
+            // Ignore touch events if not enabled.
+            return false;
+        }
+
         final int action = event.getAction();
         final int pointerCount = event.getPointerCount();
         final Handler handler = getHandler();
@@ -220,18 +225,18 @@ public class StageView extends AdapterView<PropAdapter> {
             }
 
             case MotionEvent.ACTION_MOVE: {
-                boolean moveOverSlop = false;
+                boolean moveIsOverSlop = false;
                 int touchSlop = (mMaxFingersDown > 1) ? mTouchSlop * 6 : mTouchSlop;
                 for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
                     int pointerId = event.getPointerId(pointerIndex);
-                    moveOverSlop = moveOverSlop
+                    moveIsOverSlop = moveIsOverSlop
                             || (Math.abs(event.getY(pointerIndex) - mMotionY.get(pointerId)) > touchSlop || Math
                                     .abs(event.getX(pointerIndex) - mMotionX.get(pointerId)) > touchSlop);
                 }
-
+                
                 if (mTouchMode != TOUCH_MODE_AT_REST
                         && (getVirtualFingers() > 1 || mMotionPosition != NO_MATCHED_CHILD)
-                        && moveOverSlop) {
+                        && moveIsOverSlop) {
                     // Too much movement to be a tap event.
                     mTouchMode = TOUCH_MODE_AT_REST;
                     final View child = getChildAt(mMotionPosition);
@@ -413,7 +418,7 @@ public class StageView extends AdapterView<PropAdapter> {
     }
 
     @Override
-    public void setAdapter(PropAdapter adapter) {
+    public void setAdapter(StageAdapter adapter) {
         if (null != mAdapter) {
             mAdapter.unregisterDataSetObserver(mDataSetObserver);
         }
@@ -713,6 +718,15 @@ public class StageView extends AdapterView<PropAdapter> {
         updateSelectorState();
     }
 
+    protected int getVirtualFingers() {
+        if (mAdapter.getCount() == 0
+                && (mForceFingersExemptions == null || Arrays.binarySearch(mForceFingersExemptions,
+                        mMaxFingersDown) < 0)) {
+            return mForceFingersWhenEmpty;
+        }
+        return mMaxFingersDown;
+    }
+
     @Override
     protected LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams();
@@ -721,15 +735,6 @@ public class StageView extends AdapterView<PropAdapter> {
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         return new LayoutParams(super.generateLayoutParams(p));
-    }
-
-    protected int getVirtualFingers() {
-        if (mAdapter.getCount() == 0
-                && (mForceFingersExemptions == null || Arrays.binarySearch(mForceFingersExemptions,
-                        mMaxFingersDown) < 0)) {
-            return mForceFingersWhenEmpty;
-        }
-        return mMaxFingersDown;
     }
 
     @Override
@@ -749,6 +754,10 @@ public class StageView extends AdapterView<PropAdapter> {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (mSelectors.get(0) == null) {
             useDefaultSelector();
+        }
+
+        if (!isEnabled() && (mNativeHeight == -1 || mNativeWidth == -1)) {
+            setMeasuredDimension(0, 0);
         }
 
         int specifiedWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -824,7 +833,7 @@ public class StageView extends AdapterView<PropAdapter> {
         boolean onStageLongClick(StageView stage);
     }
 
-    public interface PropAdapter extends Adapter {
+    public interface StageAdapter extends Adapter {
         /**
          * Returns true if the item at the specified position is not a
          * separator.
@@ -955,7 +964,7 @@ public class StageView extends AdapterView<PropAdapter> {
                 return;
             }
 
-            final PropAdapter adapter = mAdapter;
+            final StageAdapter adapter = mAdapter;
             final int motionPosition = mClickMotionPosition;
             if (adapter != null && adapter.getCount() > 0 && motionPosition != INVALID_POSITION
                     && motionPosition < adapter.getCount() && sameWindow()) {

@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.program.stage.PropAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
@@ -167,6 +168,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
+    private PropAdapter mPropAdapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_scene, container, false);
@@ -188,6 +191,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             removeSelf();
         }
 
+        mPropAdapter.setProps(mCallbacks.getPropsArray(mObjectId));
+        mViews.stageThumb.setAdapter(mPropAdapter);
         mViews.updateViews(mScene, old);
     }
 
@@ -199,6 +204,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         mCallbacks.addSceneDataChangeListener(this);
 
         mRulesAdapter = mCallbacks.getRuleAdapter(mObjectId);
+        mPropAdapter = new PropAdapter(getActivity(), mCallbacks.getPropsArray(mObjectId));
 
         mViews = new ViewHolder(view);
         mViews.setViewValues(mScene);
@@ -274,6 +280,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             name.addTextChangedListener(mNameWatcher);
 
             editStage.setOnClickListener(mEditStageClickListener);
+            stageThumb.setAdapter(mPropAdapter);
+            stageThumb.setEnabled(false);
 
             newRule.setOnClickListener(mNewRuleClickListener);
 
@@ -297,6 +305,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             if (!TextUtils.equals(newScene.name, oldScene.name)) {
                 name.setText(newScene.name);
             }
+            
             if (newScene.orientation == -1) {
                 mViews.editStagePsuedoButton.setText(R.string.action_create);
             } else {

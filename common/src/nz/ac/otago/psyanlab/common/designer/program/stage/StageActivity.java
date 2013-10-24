@@ -17,14 +17,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -105,12 +102,17 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
     }
 
     @Override
-    public ArrayAdapter getPropAdapter() {
+    public ArrayAdapter<Prop> getPropAdapter() {
         if (mPropListAdapter == null) {
             mPropListAdapter = new ArrayAdapter<Prop>(this,
                     android.R.layout.simple_list_item_activated_1, mProps);
         }
         return mPropListAdapter;
+    }
+
+    @Override
+    public int getPropNumber() {
+        return findUnusedKey();
     }
 
     @Override
@@ -210,6 +212,19 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         mOrientation = orientation;
     }
 
+    private int findUnusedKey() {
+        int currKey = 1;
+        for (Prop prop : mProps) {
+            if (TextUtils.equals(
+                    prop.name,
+                    getString(R.string.format_default_prop_name,
+                            getString(R.string.default_prop_name), currKey))) {
+                currKey++;
+            }
+        }
+        return currKey;
+    }
+
     /**
      * Open a dialogue to add a prop.
      */
@@ -269,7 +284,7 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
 
         refreshStage();
 
-        mPropAdapter = new PropAdapter(mProps);
+        mPropAdapter = new PropAdapter(this, mProps);
 
         View view = getLayoutInflater().inflate(R.layout.activity_stage, null);
         mStage = (StageView)view.findViewById(R.id.stage);
@@ -309,65 +324,5 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
     protected void onSelectClicked() {
         DialogFragment dialogue = SelectPropDialogueFragment.newDialogue();
         dialogue.show(getSupportFragmentManager(), DIALOGUE_SELECT_EDIT);
-    }
-
-    private final class PropAdapter extends BaseAdapter implements StageView.PropAdapter {
-        private ArrayList<Prop> mProps;
-
-        public PropAdapter(ArrayList<Prop> props) {
-            mProps = props;
-        }
-
-        @Override
-        public int getCount() {
-            return mProps.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return mProps.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.stage_prop, parent, false);
-            }
-
-            Prop prop = mProps.get(position);
-            ((TextView)convertView).setText(prop.name);
-            convertView.setLayoutParams(new StageView.LayoutParams(prop.xPos, prop.yPos,
-                    prop.width, prop.height));
-
-            return convertView;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return false;
-        }
-    }
-
-    @Override
-    public int getPropNumber() {
-        return findUnusedKey();
-    }
-
-    private int findUnusedKey() {
-        int currKey = 1;
-        for (Prop prop : mProps) {
-            if (TextUtils.equals(
-                    prop.name,
-                    getString(R.string.format_default_prop_name,
-                            getString(R.string.default_prop_name), currKey))) {
-                currKey++;
-            }
-        }
-        return currKey;
     }
 }

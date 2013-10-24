@@ -11,10 +11,15 @@ import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Loop;
+import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
+import java.util.ArrayList;
+
 public interface ProgramCallbacks extends RegisterDialogueResultListener {
+    public ArrayList<Prop> getPropsArray(long stageId);
+
     void addActionDataChangeListener(ActionDataChangeListener listener);
 
     void addGeneratorDataChangeListener(GeneratorDataChangeListener listener);

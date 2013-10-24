@@ -214,7 +214,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/new_scene_container"
         android:layout_below="@+id/divide"
-        android:drawSelectorOnTop="true"
+        android:drawSelectorOnTop="false"
         android:listSelector="@drawable/loop_list_selector_holo_light"
         app:drag_enabled="true"
         app:drag_handle_id="@+id/handle"

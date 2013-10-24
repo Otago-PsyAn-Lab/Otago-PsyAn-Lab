@@ -200,7 +200,7 @@ public class StageView extends AdapterView<StageAdapter> {
                 mMaxFingersDown = pointerCount;
 
                 mMotionPosition = INVALID_POSITION;
-                updateMotionPositions(event, pointerCount);
+                updateMotionCoords(event, pointerCount);
 
                 mTouchMode = TOUCH_MODE_DOWN;
 
@@ -215,7 +215,7 @@ public class StageView extends AdapterView<StageAdapter> {
                 }
                 postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
 
-                updateMotionPositions(event, pointerCount);
+                updateMotionCoords(event, pointerCount);
                 mMotionPosition = pointToPosition(mMotionX.get(0).intValue(), mMotionY.get(0)
                         .intValue());
 
@@ -225,6 +225,13 @@ public class StageView extends AdapterView<StageAdapter> {
             }
 
             case MotionEvent.ACTION_MOVE: {
+                if (mMaxFingersDown == 1
+                        && mMotionPosition == pointToPosition((int)event.getX(), (int)event.getY())) {
+                    // Ignore movement in single touch mode until the user has
+                    // moved out of the prop hit area.
+                    return true;
+                }
+
                 boolean moveIsOverSlop = false;
                 int touchSlop = (mMaxFingersDown > 1) ? mTouchSlop * 6 : mTouchSlop;
                 for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
@@ -233,7 +240,7 @@ public class StageView extends AdapterView<StageAdapter> {
                             || (Math.abs(event.getY(pointerIndex) - mMotionY.get(pointerId)) > touchSlop || Math
                                     .abs(event.getX(pointerIndex) - mMotionX.get(pointerId)) > touchSlop);
                 }
-                
+
                 if (mTouchMode != TOUCH_MODE_AT_REST
                         && (getVirtualFingers() > 1 || mMotionPosition != NO_MATCHED_CHILD)
                         && moveIsOverSlop) {
@@ -666,7 +673,7 @@ public class StageView extends AdapterView<StageAdapter> {
         }
     }
 
-    private void updateMotionPositions(MotionEvent event, final int pointerCount) {
+    private void updateMotionCoords(MotionEvent event, final int pointerCount) {
         for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
             int pointerId = event.getPointerId(pointerIndex);
             mMotionX.put(pointerId, event.getX(pointerIndex));

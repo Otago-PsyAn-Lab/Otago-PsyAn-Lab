@@ -160,7 +160,7 @@ public class EditPropertiesDialogueFragment extends DialogFragment {
                 public void run() {
                     mViews.setDimensions(mCallbacks.getStageWidth(), mCallbacks.getStageHeight());
                 }
-            }, 33);
+            }, 150);
         }
     }
 }

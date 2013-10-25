@@ -249,8 +249,8 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         Intent result = new Intent();
         result.putExtra(Args.EXPERIMENT_PROPS, mProps);
         result.putExtra(Args.SCENE_ID, getIntent().getLongExtra(Args.SCENE_ID, -1));
-        result.putExtra(Args.STAGE_WIDTH, mStage.getWidth());
-        result.putExtra(Args.STAGE_HEIGHT, mStage.getHeight());
+        result.putExtra(Args.STAGE_WIDTH, mStage.getNativeWidth());
+        result.putExtra(Args.STAGE_HEIGHT, mStage.getNativeHeight());
         result.putExtra(Args.STAGE_ORIENTATION, mOrientation);
         setResult(RESULT_OK, result);
     }

@@ -4,8 +4,13 @@ package nz.ac.otago.psyanlab.common.model.prop;
 import nz.ac.otago.psyanlab.common.model.Prop;
 
 import android.content.Context;
+import android.os.Parcel;
 
 public class Button extends Text {
+    public Button(Parcel in) {
+        super(in);
+    }
+
     public Button(Context context, Prop prop, int defaultSuffix) {
         super(context, prop, defaultSuffix);
 

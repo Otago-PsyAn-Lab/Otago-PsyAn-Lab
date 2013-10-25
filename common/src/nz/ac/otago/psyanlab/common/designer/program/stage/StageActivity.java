@@ -293,6 +293,7 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         mStage.setAdapter(mPropAdapter);
         mStage.setOnItemClickListener(mPropClickListener);
         mStage.setOnStageClickListener(2, mSelectClickListener);
+        mStage.setOnStageClickListener(1, mAddClickListener);
         mStage.setOnStageClickListener(3, mAddClickListener);
         mStage.forceMultiTouchWhenEmpty(3);
         mStage.setOnStageClickListener(4, mPropertiesClickListener);

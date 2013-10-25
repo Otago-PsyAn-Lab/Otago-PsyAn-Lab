@@ -225,7 +225,7 @@ public class StageView extends AdapterView<StageAdapter> {
             }
 
             case MotionEvent.ACTION_MOVE: {
-                if (mMaxFingersDown == 1
+                if (mMaxFingersDown == 1 && mMotionPosition != NO_MATCHED_CHILD
                         && mMotionPosition == pointToPosition((int)event.getX(), (int)event.getY())) {
                     // Ignore movement in single touch mode until the user has
                     // moved out of the prop hit area.
@@ -241,9 +241,7 @@ public class StageView extends AdapterView<StageAdapter> {
                                     .abs(event.getX(pointerIndex) - mMotionX.get(pointerId)) > touchSlop);
                 }
 
-                if (mTouchMode != TOUCH_MODE_AT_REST
-                        && (getVirtualFingers() > 1 || mMotionPosition != NO_MATCHED_CHILD)
-                        && moveIsOverSlop) {
+                if (mTouchMode != TOUCH_MODE_AT_REST && moveIsOverSlop) {
                     // Too much movement to be a tap event.
                     mTouchMode = TOUCH_MODE_AT_REST;
                     final View child = getChildAt(mMotionPosition);
@@ -272,7 +270,7 @@ public class StageView extends AdapterView<StageAdapter> {
 
                 // Handle stage multi-touch.
 
-                if (getVirtualFingers() > 1) {
+                if (mMotionPosition == NO_MATCHED_CHILD) {
                     if (mPerformPropClick == null) {
                         mPerformPropClick = new PerformClick();
                     }
@@ -322,13 +320,7 @@ public class StageView extends AdapterView<StageAdapter> {
                         performPropClick.run();
                     }
                 } else {
-
                     // Handle touch on child.
-
-                    if (mMotionPosition == NO_MATCHED_CHILD) {
-                        break;
-                    }
-
                     final View child = getChildAt(mMotionPosition);
                     if (child != null && !child.hasFocusable()) {
                         if (mTouchMode != TOUCH_MODE_DOWN) {
@@ -702,6 +694,7 @@ public class StageView extends AdapterView<StageAdapter> {
                 R.drawable.rule_list_selector_holo_light);
 
         setItemSelector(selector);
+        setSelector(1, selector);
         setSelector(2, listSelector);
         setSelector(3, selector);
         setSelector(4, propertiesSelector);
@@ -726,12 +719,21 @@ public class StageView extends AdapterView<StageAdapter> {
     }
 
     protected int getVirtualFingers() {
+        int virtualFingers;
+
         if (mAdapter.getCount() == 0
                 && (mForceFingersExemptions == null || Arrays.binarySearch(mForceFingersExemptions,
                         mMaxFingersDown) < 0)) {
-            return mForceFingersWhenEmpty;
+            virtualFingers = mForceFingersWhenEmpty;
+        } else {
+            virtualFingers = mMaxFingersDown;
         }
-        return mMaxFingersDown;
+
+        if (mOnStageClickListeners.get(virtualFingers) == null) {
+            return 0;
+        }
+
+        return virtualFingers;
     }
 
     @Override
@@ -886,7 +888,7 @@ public class StageView extends AdapterView<StageAdapter> {
             boolean handled = false;
             final View child;
 
-            if (getVirtualFingers() == 1) {
+            if (mMotionPosition != NO_MATCHED_CHILD) {
                 child = getChildAt(mMotionPosition);
                 if (child != null) {
                     final long longPressId = childViewPositionToId(mMotionPosition);
@@ -925,6 +927,8 @@ public class StageView extends AdapterView<StageAdapter> {
                 if (child != null && !child.hasFocusable()) {
                     child.setPressed(true);
                     positionSelector(child);
+                } else if (getVirtualFingers() == 1) {
+                    positionSelector(StageView.this);
                 } else if (getVirtualFingers() > 1) {
                     positionSelector(StageView.this);
                 } else {
@@ -972,7 +976,7 @@ public class StageView extends AdapterView<StageAdapter> {
                 return;
             }
 
-            if (getVirtualFingers() > 1) {
+            if (mMotionPosition == NO_MATCHED_CHILD) {
                 performStageMultipleFingerClick(getVirtualFingers());
                 return;
             }

@@ -74,7 +74,7 @@ public interface ProgramCallbacks extends RegisterDialogueResultListener {
     ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType);
 
     FragmentPagerAdapter getObjectsAdapter(long sceneId, FragmentManager fm,
-            FragmentFactory<String, ListAdapter> factory);
+            FragmentFactory<ListAdapter> factory);
 
     Rule getRule(long ruleId);
 

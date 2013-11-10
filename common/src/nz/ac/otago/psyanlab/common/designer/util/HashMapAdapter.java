@@ -9,20 +9,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
-public class HashMapAdapter<K, V> extends FragmentPagerAdapter {
-    private HashMap<K, V> mItems;
+public class HashMapAdapter<V> extends FragmentPagerAdapter {
+    private HashMap<String, V> mItems;
 
     private Object[] mKeys;
 
-    private FragmentFactory<K, V> mFactory;
+    private FragmentFactory<V> mFactory;
 
     private ArrayList<Fragment> mFragments;
 
-    public HashMapAdapter(FragmentManager fm, FragmentFactory<K, V> factory, HashMap<K, V> items) {
+    public HashMapAdapter(FragmentManager fm, FragmentFactory<V> factory, HashMap<String, V> items) {
         super(fm);
         mFactory = factory;
         mItems = items;
-        Set<K> keySet = mItems.keySet();
+        Set<String> keySet = mItems.keySet();
         mKeys = keySet.toArray();
         mFragments = new ArrayList<Fragment>();
     }
@@ -33,16 +33,20 @@ public class HashMapAdapter<K, V> extends FragmentPagerAdapter {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    public CharSequence getPageTitle(int position) {
+        return (String)mKeys[position];
+    }
+
+    @Override
     public Fragment getItem(int position) {
         Fragment f = mFragments.get(position);
         if (f == null) {
-            f = mFactory.getFragment((K)mKeys[position], mItems.get((K)mKeys[position]));
+            f = mFactory.getFragment((String)mKeys[position], mItems.get(mKeys[position]));
         }
         return f;
     }
 
-    public interface FragmentFactory<K, V> {
-        Fragment getFragment(K key, V value);
+    public interface FragmentFactory<V> {
+        Fragment getFragment(String title, V value);
     }
 }

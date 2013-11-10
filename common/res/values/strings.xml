@@ -201,5 +201,10 @@
     <string name="title_set_start_row">Set Start Row</string>
     <string name="title_set_number_of_rows">Set Number of Rows</string>
     <string name="hint_prop_name">Prop name</string>
+    <string name="title_props">Props</string>
+    <string name="title_experiment">Experiment</string>
+    <string name="format_loop_class_name">Loop (%1$s)</string>
+    <string name="format_scene_class_name">Scene (%1$s)</string>
+    <string name="format_generator_class_name">Generator (%1$s)</string>
 
 </resources>

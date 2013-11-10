@@ -36,16 +36,22 @@ import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
+import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactory;
+import nz.ac.otago.psyanlab.common.designer.util.LongSparseArrayAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.OnConfirmCallbacks;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
+import nz.ac.otago.psyanlab.common.model.ExperimentControl;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
+import nz.ac.otago.psyanlab.common.model.util.EventMethod;
+import nz.ac.otago.psyanlab.common.model.util.I18nName;
 import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
@@ -59,10 +65,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings.Global;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.ViewPager;
@@ -73,12 +81,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Provides an interface to the fragments implementing the UI whereby they can
@@ -1091,6 +1107,148 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         notifySceneDataChangeListeners();
+    }
+
+    /**
+     * Get an array of adapters for all objects accessible from the given scene.
+     * 
+     * @param sceneId
+     * @return Array of ListAdapters
+     */
+    @Override
+    public FragmentPagerAdapter getObjectsAdapter(long sceneId, FragmentManager fm,
+            FragmentFactory<String, ListAdapter> factory) {
+        HashMap<String, ListAdapter> adapters = new HashMap<String, ListAdapter>();
+        adapters.put(getString(R.string.title_props), getPropsAdapter(sceneId));
+        adapters.put(getString(R.string.title_experiment), getExperimentControlsAdapter(sceneId));
+        adapters.put(getString(R.string.title_assets), getAssetsAdapter());
+        return new HashMapAdapter<String, ListAdapter>(fm, factory, adapters);
+    }
+
+    /**
+     * Get an adapter containing all objects related to the experiment program
+     * flow. The objects are grouped by kind in the adapter.
+     * 
+     * @param sceneId Scene defining scope of objects to gather into the
+     *            adapter.
+     * @return Program flow objects ListAdapter.
+     */
+    ListAdapter getExperimentControlsAdapter(long sceneId) {
+        SortedSet<ExperimentControl> experimentControls = new TreeSet<ExperimentControl>(
+                new Comparator<ExperimentControl>() {
+                    @Override
+                    public int compare(ExperimentControl lhs, ExperimentControl rhs) {
+                        Collator collator = getCollater();
+                        return collator.compare(lhs.getClassName(ExperimentDesignerActivity.this),
+                                rhs.getClassName(ExperimentDesignerActivity.this));
+                    }
+                });
+
+        experimentControls.add(mExperiment.scenes.get(sceneId));
+
+        for (int i = 0; i < mExperiment.loops.size(); i++) {
+            if (mExperiment.loops.valueAt(i).contains(sceneId)) {
+                experimentControls.add(mExperiment.loops.valueAt(i));
+                break;
+            }
+        }
+
+        // TODO: Records and Stores.
+        // experimentControls.add(mExperiment.stores);
+        // experimentControls.add(mExperiment.records);
+
+        for (int i = 0; i < mExperiment.generators.size(); i++) {
+            experimentControls.add(mExperiment.generators.valueAt(i));
+        }
+
+        // TODO: Sticky headers.
+
+        return new ArrayAdapter<Global>(this, android.R.layout.simple_list_item_1,
+                experimentControls.toArray(new Global[experimentControls.size()]));
+    }
+
+    /**
+     * Get an adapter for all props in the given scene.
+     * 
+     * @param sceneId Id of the scene to gather props for.
+     * @return ListAdapter of all props in the given scene.
+     */
+    ListAdapter getPropsAdapter(long sceneId) {
+        LongSparseArray<Prop> props = new LongSparseArray<Prop>();
+
+        for (Long propId : mExperiment.scenes.get(sceneId).props) {
+            props.put(propId, mExperiment.props.get(propId));
+        }
+
+        return new LongSparseArrayAdapter<Prop>(this, android.R.layout.simple_list_item_1, props);
+    }
+
+    /**
+     * Get an adapter containing all methods which register listeners for events
+     * emitted by the given class.
+     * 
+     * @param clazz Class with the events that are emitted.
+     * @return Events ListAdapter.
+     */
+    @Override
+    public ListAdapter getEventsAdapter(Class<?> clazz) {
+        SortedSet<Method> filteredMethods = getFilteredMethodSet();
+
+        Method[] methods = clazz.getDeclaredMethods();
+        // Filter methods for those which register listeners for events.
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].isAnnotationPresent(EventMethod.class)) {
+                filteredMethods.add(methods[i]);
+            }
+        }
+
+        return new ArrayAdapter<Method>(this, android.R.layout.simple_spinner_item,
+                filteredMethods.toArray(new Method[filteredMethods.size()]));
+    }
+
+    /**
+     * Get a method set which keeps values sorted per i18n names defined in
+     * annotations.
+     * 
+     * @return Set to add selected methods to.
+     */
+    TreeSet<Method> getFilteredMethodSet() {
+        return new TreeSet<Method>(new Comparator<Method>() {
+            @Override
+            public int compare(Method lhs, Method rhs) {
+                Collator collator = getCollater();
+                return collator.compare(getString(lhs.getAnnotation(I18nName.class).value()),
+                        getString(rhs.getAnnotation(I18nName.class).value()));
+            }
+        });
+    }
+
+    /**
+     * Get an adapter for all methods in given class hierarchy which return a
+     * given type.
+     * 
+     * @param clazz Class to fetch methods from.
+     * @param returnType Type to select methods by.
+     * @return
+     */
+    @Override
+    public ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
+        SortedSet<Method> filteredMethods = getFilteredMethodSet();
+
+        Method[] methods = clazz.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].getReturnType().equals(returnType)) {
+                filteredMethods.add(methods[i]);
+            }
+        }
+        return null;
+    }
+
+    Collator getCollater() {
+        Locale locale = Locale.getDefault();
+        Collator collator = Collator.getInstance(locale);
+        collator.setStrength(Collator.SECONDARY);
+        return collator;
     }
 
     public interface ActionDataChangeListener {

@@ -3,7 +3,11 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
-public abstract class Generator {
+import nz.ac.otago.psyanlab.common.R;
+
+import android.content.Context;
+
+public abstract class Generator implements ExperimentControl {
     @Expose
     public int end;
 
@@ -15,5 +19,10 @@ public abstract class Generator {
 
     public Generator() {
         name = "New Generator";
+    }
+
+    @Override
+    public String getClassName(Context context) {
+        return context.getString(R.string.format_generator_class_name, name);
     }
 }

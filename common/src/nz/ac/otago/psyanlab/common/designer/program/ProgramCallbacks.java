@@ -7,6 +7,7 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataC
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactory;
 import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Generator;
@@ -14,6 +15,10 @@ import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
+
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.widget.ListAdapter;
 
 import java.util.ArrayList;
 
@@ -56,6 +61,8 @@ public interface ProgramCallbacks extends RegisterDialogueResultListener {
 
     ProgramComponentAdapter<Action> getActionAdapter(long ruleId);
 
+    ListAdapter getEventsAdapter(Class<?> clazz);
+
     Generator getGenerator(long id);
 
     ProgramComponentAdapter<Generator> getGeneratorAdapter(long loopId);
@@ -63,6 +70,11 @@ public interface ProgramCallbacks extends RegisterDialogueResultListener {
     Loop getLoop(long loopId);
 
     ProgramComponentAdapter<Loop> getLoopAdapter();
+
+    ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType);
+
+    FragmentPagerAdapter getObjectsAdapter(long sceneId, FragmentManager fm,
+            FragmentFactory<String, ListAdapter> factory);
 
     Rule getRule(long ruleId);
 

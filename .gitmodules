@@ -4,3 +4,6 @@
 [submodule "DragSortListView"]
 	path = DragSortListView
 	url = git@github.com:Otago-PsyAn-Lab/drag-sort-listview.git
+[submodule "PagerSlidingTabStrip"]
+	path = PagerSlidingTabStrip
+	url = git@github.com:Otago-PsyAn-Lab/PagerSlidingTabStrip.git

@@ -1117,12 +1117,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      */
     @Override
     public FragmentPagerAdapter getObjectsAdapter(long sceneId, FragmentManager fm,
-            FragmentFactory<String, ListAdapter> factory) {
+            FragmentFactory<ListAdapter> factory) {
         HashMap<String, ListAdapter> adapters = new HashMap<String, ListAdapter>();
         adapters.put(getString(R.string.title_props), getPropsAdapter(sceneId));
         adapters.put(getString(R.string.title_experiment), getExperimentControlsAdapter(sceneId));
         adapters.put(getString(R.string.title_assets), getAssetsAdapter());
-        return new HashMapAdapter<String, ListAdapter>(fm, factory, adapters);
+        return new HashMapAdapter<ListAdapter>(fm, factory, adapters);
     }
 
     /**

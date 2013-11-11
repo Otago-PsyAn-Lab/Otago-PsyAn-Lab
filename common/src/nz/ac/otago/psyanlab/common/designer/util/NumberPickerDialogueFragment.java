@@ -17,6 +17,8 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 public class NumberPickerDialogueFragment extends DialogFragment {
+    public static final String RESULT_PICKED_NUMBER = "result_number";
+
     private static final String ARG_DEFAULT_VALUE = "arg_default_value";
 
     private static final String ARG_MAX = "arg_max";
@@ -26,14 +28,6 @@ public class NumberPickerDialogueFragment extends DialogFragment {
     private static final String ARG_REQUEST_CODE = "arg_request_code";
 
     private static final String ARG_TITLE = "arg_title";
-
-    /**
-     * Create a new dialogue to edit the number of iterations a loop undergoes.
-     */
-    public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
-            int minValue, String requestCode) {
-        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
-    }
 
     /**
      * Create a new dialogue to edit the number of iterations a loop undergoes.
@@ -51,7 +45,15 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         return f;
     }
 
-    private OnConfirmCallbacks mCallbacks;
+    /**
+     * Create a new dialogue to edit the number of iterations a loop undergoes.
+     */
+    public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
+            int minValue, String requestCode) {
+        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
+    }
+
+    private DialogueResultCallbacks mCallbacks;
 
     private OnClickListener mNegativeListener = new OnClickListener() {
         public void onClick(DialogInterface dialog, int id) {
@@ -61,7 +63,9 @@ public class NumberPickerDialogueFragment extends DialogFragment {
 
     private OnClickListener mPositiveListener = new OnClickListener() {
         public void onClick(DialogInterface dialog, int id) {
-            mCallbacks.onConfirm(mRequestCode, mViews.numberPicker.getValue());
+            Bundle data = new Bundle();
+            data.putInt(RESULT_PICKED_NUMBER, mViews.numberPicker.getValue());
+            mCallbacks.onDialogueResult(mRequestCode, data);
             dismiss();
         }
     };
@@ -75,10 +79,10 @@ public class NumberPickerDialogueFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof OnConfirmCallbacks)) {
-            throw new RuntimeException("Activity must implement number picker dialog callbacks.");
+        if (!(activity instanceof DialogueResultCallbacks)) {
+            throw new RuntimeException("Activity must implement dialogue result callbacks.");
         }
-        mCallbacks = (OnConfirmCallbacks)activity;
+        mCallbacks = (DialogueResultCallbacks)activity;
     }
 
     @Override

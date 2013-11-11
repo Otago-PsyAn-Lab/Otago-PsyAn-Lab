@@ -7,8 +7,8 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataC
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
-import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactory;
-import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener;
+import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar;
+import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactoryI;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Loop;
@@ -16,13 +16,16 @@ import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.widget.ListAdapter;
 
 import java.util.ArrayList;
 
-public interface ProgramCallbacks extends RegisterDialogueResultListener {
+public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
+    public Fragment getFragment(String tag);
+
     public ArrayList<Prop> getPropsArray(long stageId);
 
     void addActionDataChangeListener(ActionDataChangeListener listener);
@@ -73,8 +76,10 @@ public interface ProgramCallbacks extends RegisterDialogueResultListener {
 
     ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType);
 
-    FragmentPagerAdapter getObjectsAdapter(long sceneId, FragmentManager fm,
-            FragmentFactory<ListAdapter> factory);
+    ListAdapter getObjectSectionListAdapter(long sceneId, int section, int filter);
+
+    FragmentPagerAdapter getObjectsPagerAdapter(long sceneId, FragmentManager fm,
+            FragmentFactoryI<Integer> factory);
 
     Rule getRule(long ruleId);
 
@@ -103,4 +108,5 @@ public interface ProgramCallbacks extends RegisterDialogueResultListener {
     void updateRule(long id, Rule rule);
 
     void updateScene(long id, Scene scene);
+
 }

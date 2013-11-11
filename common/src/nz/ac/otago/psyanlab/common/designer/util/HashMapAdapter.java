@@ -14,11 +14,11 @@ public class HashMapAdapter<V> extends FragmentPagerAdapter {
 
     private Object[] mKeys;
 
-    private FragmentFactory<V> mFactory;
+    private FragmentFactoryI<V> mFactory;
 
     private ArrayList<Fragment> mFragments;
 
-    public HashMapAdapter(FragmentManager fm, FragmentFactory<V> factory, HashMap<String, V> items) {
+    public HashMapAdapter(FragmentManager fm, FragmentFactoryI<V> factory, HashMap<String, V> items) {
         super(fm);
         mFactory = factory;
         mItems = items;
@@ -46,7 +46,7 @@ public class HashMapAdapter<V> extends FragmentPagerAdapter {
         return f;
     }
 
-    public interface FragmentFactory<V> {
+    public interface FragmentFactoryI<V> {
         Fragment getFragment(String title, V value);
     }
 }

@@ -73,18 +73,14 @@ public class EditConditionDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.title_edit_iterations).setView(view)
                 .setPositiveButton(R.string.action_create, new OnClickListener() {
-
                     public void onClick(DialogInterface dialog, int id) {
                         mLoop.iterations = mViews.iterations.getValue();
                         mCallbacks.updateLoop(mId, mLoop);
                     }
-
                 }).setNegativeButton(R.string.action_discard, new OnClickListener() {
-
                     public void onClick(DialogInterface dialog, int id) {
                         getDialog().cancel();
                     }
-
                 });
 
         // Create the AlertDialog object and return it

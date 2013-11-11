@@ -36,10 +36,10 @@ import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
+import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter;
-import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactory;
+import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactoryI;
 import nz.ac.otago.psyanlab.common.designer.util.LongSparseArrayAdapter;
-import nz.ac.otago.psyanlab.common.designer.util.OnConfirmCallbacks;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
@@ -102,7 +102,7 @@ import java.util.TreeSet;
  */
 public class ExperimentDesignerActivity extends FragmentActivity implements MetaFragment.Callbacks,
         SubjectFragment.Callbacks, AssetTabFragmentsCallbacks, ProgramCallbacks,
-        OnConfirmCallbacks<Integer> {
+        DialogueResultCallbacks {
 
     private static final int MODE_EDIT = 0x02;
 
@@ -144,7 +144,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private Pair<Long, ProgramComponentAdapter<Scene>> mCurrentSceneAdapter;
 
-    private HashMap<String, DialogueResultListener<?>> mDialogueResultListeners;
+    private HashMap<String, DialogueResultListener> mDialogueResultListeners;
 
     private Experiment mExperiment;
 
@@ -440,6 +440,29 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         return mAssetsAdapter;
     }
 
+    /**
+     * Get an adapter containing all methods which register listeners for events
+     * emitted by the given class.
+     * 
+     * @param clazz Class with the events that are emitted.
+     * @return Events ListAdapter.
+     */
+    @Override
+    public ListAdapter getEventsAdapter(Class<?> clazz) {
+        SortedSet<Method> filteredMethods = getFilteredMethodSet();
+
+        Method[] methods = clazz.getDeclaredMethods();
+        // Filter methods for those which register listeners for events.
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].isAnnotationPresent(EventMethod.class)) {
+                filteredMethods.add(methods[i]);
+            }
+        }
+
+        return new ArrayAdapter<Method>(this, android.R.layout.simple_spinner_item,
+                filteredMethods.toArray(new Method[filteredMethods.size()]));
+    }
+
     @Override
     public Details getExperimentDetails() {
         Details ed = new Details();
@@ -448,6 +471,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         ed.description = mExperiment.description;
         ed.version = String.valueOf(mExperiment.version);
         return ed;
+    }
+
+    @Override
+    public Fragment getFragment(String tag) {
+        return getSupportFragmentManager().findFragmentByTag(tag);
     }
 
     @Override
@@ -490,6 +518,67 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 mExperiment.program.loops, mLoopListItemViewBinder);
 
         return mLoopAdapter;
+    }
+
+    /**
+     * Get an adapter for all methods in given class hierarchy which return a
+     * given type.
+     * 
+     * @param clazz Class to fetch methods from.
+     * @param returnType Type to select methods by.
+     * @return
+     */
+    @Override
+    public ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
+        SortedSet<Method> filteredMethods = getFilteredMethodSet();
+
+        Method[] methods = clazz.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].getReturnType().equals(returnType)) {
+                filteredMethods.add(methods[i]);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public ListAdapter getObjectSectionListAdapter(long sceneId, int section, int filter) {
+        switch (section) {
+            case 0:
+                return getPropsAdapter(sceneId);
+            case 1:
+                return getExperimentControlsAdapter(sceneId);
+            case 2:
+                return getAssetsAdapter();
+
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Get an array of adapters for all objects accessible from the given scene.
+     * 
+     * @param sceneId
+     * @return Array of ListAdapters
+     */
+    @Override
+    public FragmentPagerAdapter getObjectsPagerAdapter(long sceneId, FragmentManager fm,
+            FragmentFactoryI<Integer> factory) {
+        HashMap<String, Integer> adapters = new HashMap<String, Integer>();
+        adapters.put(getString(R.string.title_props), 0);
+        adapters.put(getString(R.string.title_experiment), 1);
+        adapters.put(getString(R.string.title_assets), 2);
+        return new HashMapAdapter<Integer>(fm, factory, adapters);
+    }
+
+    @Override
+    public ArrayList<Prop> getPropsArray(long stageId) {
+        ArrayList<Prop> props = new ArrayList<Prop>();
+        for (Long propId : mExperiment.scenes.get(stageId).props) {
+            props.add(mExperiment.props.get(propId));
+        }
+        return props;
     }
 
     @Override
@@ -618,13 +707,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void onConfirm(String requestCode, Integer value) {
-        ((DialogueResultListener<Integer>)mDialogueResultListeners.get(requestCode))
-                .onResult(value);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -665,6 +747,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void onDialogueResult(String requestCode, Bundle data) {
+        ((DialogueResultListener)mDialogueResultListeners.get(requestCode)).onResult(data);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -681,9 +768,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public void registerDialogueResultListener(String requestTag, DialogueResultListener<?> listener) {
+    public void registerDialogueResultListener(String requestTag, DialogueResultListener listener) {
         if (mDialogueResultListeners == null) {
-            mDialogueResultListeners = new HashMap<String, DialogueResultListener<?>>();
+            mDialogueResultListeners = new HashMap<String, DialogueResultListener>();
         }
         mDialogueResultListeners.put(requestTag, listener);
     }
@@ -878,15 +965,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         return experiment;
     }
 
-    @Override
-    public ArrayList<Prop> getPropsArray(long stageId) {
-        ArrayList<Prop> props = new ArrayList<Prop>();
-        for (Long propId : mExperiment.scenes.get(stageId).props) {
-            props.add(mExperiment.props.get(propId));
-        }
-        return props;
-    }
-
     private void initActionBar(ActionBar actionBar) {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -1063,7 +1141,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return experiment;
-    }
+    };
 
     private void storeExperiment() {
         if (mMode == MODE_NEW) {
@@ -1109,20 +1187,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         notifySceneDataChangeListeners();
     }
 
-    /**
-     * Get an array of adapters for all objects accessible from the given scene.
-     * 
-     * @param sceneId
-     * @return Array of ListAdapters
-     */
-    @Override
-    public FragmentPagerAdapter getObjectsAdapter(long sceneId, FragmentManager fm,
-            FragmentFactory<ListAdapter> factory) {
-        HashMap<String, ListAdapter> adapters = new HashMap<String, ListAdapter>();
-        adapters.put(getString(R.string.title_props), getPropsAdapter(sceneId));
-        adapters.put(getString(R.string.title_experiment), getExperimentControlsAdapter(sceneId));
-        adapters.put(getString(R.string.title_assets), getAssetsAdapter());
-        return new HashMapAdapter<ListAdapter>(fm, factory, adapters);
+    Collator getCollater() {
+        Locale locale = Locale.getDefault();
+        Collator collator = Collator.getInstance(locale);
+        collator.setStrength(Collator.SECONDARY);
+        return collator;
     }
 
     /**
@@ -1168,45 +1237,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     /**
-     * Get an adapter for all props in the given scene.
-     * 
-     * @param sceneId Id of the scene to gather props for.
-     * @return ListAdapter of all props in the given scene.
-     */
-    ListAdapter getPropsAdapter(long sceneId) {
-        LongSparseArray<Prop> props = new LongSparseArray<Prop>();
-
-        for (Long propId : mExperiment.scenes.get(sceneId).props) {
-            props.put(propId, mExperiment.props.get(propId));
-        }
-
-        return new LongSparseArrayAdapter<Prop>(this, android.R.layout.simple_list_item_1, props);
-    }
-
-    /**
-     * Get an adapter containing all methods which register listeners for events
-     * emitted by the given class.
-     * 
-     * @param clazz Class with the events that are emitted.
-     * @return Events ListAdapter.
-     */
-    @Override
-    public ListAdapter getEventsAdapter(Class<?> clazz) {
-        SortedSet<Method> filteredMethods = getFilteredMethodSet();
-
-        Method[] methods = clazz.getDeclaredMethods();
-        // Filter methods for those which register listeners for events.
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].isAnnotationPresent(EventMethod.class)) {
-                filteredMethods.add(methods[i]);
-            }
-        }
-
-        return new ArrayAdapter<Method>(this, android.R.layout.simple_spinner_item,
-                filteredMethods.toArray(new Method[filteredMethods.size()]));
-    }
-
-    /**
      * Get a method set which keeps values sorted per i18n names defined in
      * annotations.
      * 
@@ -1224,31 +1254,19 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     /**
-     * Get an adapter for all methods in given class hierarchy which return a
-     * given type.
+     * Get an adapter for all props in the given scene.
      * 
-     * @param clazz Class to fetch methods from.
-     * @param returnType Type to select methods by.
-     * @return
+     * @param sceneId Id of the scene to gather props for.
+     * @return ListAdapter of all props in the given scene.
      */
-    @Override
-    public ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
-        SortedSet<Method> filteredMethods = getFilteredMethodSet();
+    ListAdapter getPropsAdapter(long sceneId) {
+        LongSparseArray<Prop> props = new LongSparseArray<Prop>();
 
-        Method[] methods = clazz.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getReturnType().equals(returnType)) {
-                filteredMethods.add(methods[i]);
-            }
+        for (Long propId : mExperiment.scenes.get(sceneId).props) {
+            props.put(propId, mExperiment.props.get(propId));
         }
-        return null;
-    }
 
-    Collator getCollater() {
-        Locale locale = Locale.getDefault();
-        Collator collator = Collator.getInstance(locale);
-        collator.setStrength(Collator.SECONDARY);
-        return collator;
+        return new LongSparseArrayAdapter<Prop>(this, android.R.layout.simple_list_item_1, props);
     }
 
     public interface ActionDataChangeListener {

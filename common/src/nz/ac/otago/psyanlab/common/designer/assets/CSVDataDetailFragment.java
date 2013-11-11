@@ -2,9 +2,9 @@
 package nz.ac.otago.psyanlab.common.designer.assets;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentUtils;
 import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogueFragment;
-import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.asset.Csv;
 
 import android.app.Activity;
@@ -88,29 +88,31 @@ public class CSVDataDetailFragment extends Fragment {
         }
     };
 
-    private DialogueResultListener<Integer> mOnNumRowsPickedListener = new DialogueResultListener<Integer>() {
+    private DialogueResultListener mOnNumRowsPickedListener = new DialogueResultListener() {
         @Override
-        public void onResult(Integer value) {
-            mCsv.numRows = value;
+        public void onResult(Bundle data) {
+            mCsv.numRows = data.getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER);
             mViews.numRows.setText(String.valueOf(mCsv.numRows));
             mCallbacks.updateAsset(mAssetId, mCsv);
         }
     };
 
-    private DialogueResultListener<Integer> mOnStartColumnPickedListener = new DialogueResultListener<Integer>() {
+    private DialogueResultListener mOnStartColumnPickedListener = new DialogueResultListener() {
         @Override
-        public void onResult(Integer value) {
-            mCsv.colStart = ExperimentUtils.userValueToZeroBased(value);
+        public void onResult(Bundle data) {
+            mCsv.colStart = ExperimentUtils.userValueToZeroBased(data
+                    .getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER));
             mViews.colStart.setText(String.valueOf(ExperimentUtils
                     .zeroBasedToUserValue(mCsv.colStart)));
             mCallbacks.updateAsset(mAssetId, mCsv);
         }
     };
 
-    private DialogueResultListener<Integer> mOnStartRowPickedListener = new DialogueResultListener<Integer>() {
+    private DialogueResultListener mOnStartRowPickedListener = new DialogueResultListener() {
         @Override
-        public void onResult(Integer value) {
-            mCsv.rowStart = ExperimentUtils.userValueToZeroBased(value);
+        public void onResult(Bundle data) {
+            mCsv.rowStart = ExperimentUtils.userValueToZeroBased(data
+                    .getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER));
             if (mCsv.rowStart + mCsv.numRows > mCsv.getTotalRows()) {
                 mCsv.numRows = mCsv.getTotalRows() - mCsv.rowStart;
             }

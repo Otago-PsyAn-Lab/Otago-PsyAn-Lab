@@ -5,8 +5,8 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.EditGeneratorDialogFragment.OnGeneratorCreatedListener;
+import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogueFragment;
-import nz.ac.otago.psyanlab.common.designer.util.RegisterDialogueResultListener.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
@@ -103,10 +103,10 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    private DialogueResultListener<Integer> mOnIterationPickedListener = new DialogueResultListener<Integer>() {
+    private DialogueResultListener mOnIterationPickedListener = new DialogueResultListener() {
         @Override
-        public void onResult(Integer value) {
-            mLoop.iterations = value;
+        public void onResult(Bundle data) {
+            mLoop.iterations = data.getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER);
             mCallbacks.updateLoop(mObjectId, mLoop);
         }
     };

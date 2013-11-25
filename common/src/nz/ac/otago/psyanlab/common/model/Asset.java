@@ -8,6 +8,7 @@ import nz.ac.otago.psyanlab.common.model.asset.Csv;
 import nz.ac.otago.psyanlab.common.model.asset.Image;
 import nz.ac.otago.psyanlab.common.model.asset.Sound;
 import nz.ac.otago.psyanlab.common.model.asset.Video;
+import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
 
@@ -52,13 +53,13 @@ public abstract class Asset implements ExperimentObject {
         return cmpr;
     }
 
+    public int getHeaderResId() {
+        return mHeaderResId;
+    }
+
     @Override
     public String getPrettyName(Context context) {
         return context.getString(R.string.format_asset_class_name, name);
-    }
-
-    public int getHeaderResId() {
-        return mHeaderResId;
     }
 
     public long getTypeId() {
@@ -102,6 +103,16 @@ public abstract class Asset implements ExperimentObject {
             asset.setFile(file);
 
             return asset;
+        }
+    }
+
+    protected static class MethodNameFactory implements NameResolverFactory {
+        @Override
+        public int getResId(int lookup) {
+            switch (lookup) {
+                default:
+                    return R.string.method_missing_string;
+            }
         }
     }
 }

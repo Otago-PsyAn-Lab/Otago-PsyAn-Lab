@@ -72,6 +72,6 @@ public class PickObjectListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         ((PickObjectDialogueFragment)getParentFragment()).onObjectPicked(id,
-                mAdapter.getObjectKind(position));
+                mAdapter.getObjectKind(position), l.getItemAtPosition(position));
     }
 }

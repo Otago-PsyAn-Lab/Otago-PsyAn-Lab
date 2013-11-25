@@ -22,6 +22,7 @@ import nz.ac.otago.psyanlab.common.model.Scene;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.widget.ListAdapter;
+import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
 
@@ -68,7 +69,7 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     ProgramComponentAdapter<Action> getActionAdapter(long ruleId);
 
-    ListAdapter getEventsAdapter(Class<?> clazz);
+    SpinnerAdapter getEventsAdapter(Class<?> clazz);
 
     Generator getGenerator(long id);
 

@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.model;
 import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
 
@@ -13,6 +14,14 @@ public class Scene implements ExperimentObject {
     public static final int ORIENTATION_LANDSCAPE = 0;
 
     public static final int ORIENTATION_PORTRAIT = 1;
+
+    public static NameResolverFactory getEventNameFactory() {
+        return new EventNameFactory();
+    }
+
+    public static NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
 
     @Expose
     public String name;
@@ -45,5 +54,25 @@ public class Scene implements ExperimentObject {
     @Override
     public int kind() {
         return ExperimentObjectReference.KIND_SCENE;
+    }
+
+    protected static class EventNameFactory implements NameResolverFactory {
+        @Override
+        public int getResId(int lookup) {
+            switch (lookup) {
+                default:
+                    return R.string.event_missing_string;
+            }
+        }
+    }
+
+    protected static class MethodNameFactory implements NameResolverFactory {
+        @Override
+        public int getResId(int lookup) {
+            switch (lookup) {
+                default:
+                    return R.string.method_missing_string;
+            }
+        }
     }
 }

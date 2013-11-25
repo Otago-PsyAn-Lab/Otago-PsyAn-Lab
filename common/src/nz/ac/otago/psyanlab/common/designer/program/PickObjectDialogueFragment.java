@@ -31,6 +31,8 @@ public class PickObjectDialogueFragment extends DialogFragment {
 
     public static final int FILTER_HAS_STRING_GETTERS = 0x05;
 
+    public static final String RESULT_OBJECT_CLASS_STRING = "result_object_class_string";
+
     public static final String RESULT_OBJECT_ID = "result_object_id";
 
     public static final String RESULT_OBJECT_KIND = "result_object_kind";
@@ -98,10 +100,11 @@ public class PickObjectDialogueFragment extends DialogFragment {
         return inflater.inflate(R.layout.dialogue_object_picker, container, false);
     }
 
-    public void onObjectPicked(long objectId, int objectKind) {
+    public void onObjectPicked(long objectId, int objectKind, Object object) {
         Bundle data = new Bundle();
         data.putLong(RESULT_OBJECT_ID, objectId);
         data.putInt(RESULT_OBJECT_KIND, objectKind);
+        data.putString(RESULT_OBJECT_CLASS_STRING, object.getClass().getName());
         mDialogueCallbacks.onDialogueResult(mRequestCode, data);
         getDialog().dismiss();
     }

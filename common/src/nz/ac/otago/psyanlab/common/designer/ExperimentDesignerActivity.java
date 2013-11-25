@@ -39,6 +39,7 @@ import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
 import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.EventAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.LongSparseArrayAdapter;
 import nz.ac.otago.psyanlab.common.model.Action;
@@ -53,7 +54,7 @@ import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.model.util.EventMethod;
-import nz.ac.otago.psyanlab.common.model.util.I18nName;
+import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
@@ -84,13 +85,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -452,19 +454,50 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      * @return Events ListAdapter.
      */
     @Override
-    public ListAdapter getEventsAdapter(Class<?> clazz) {
-        SortedSet<Method> filteredMethods = getMethodSet();
+    public SpinnerAdapter getEventsAdapter(final Class<?> clazz) {
+        // Obtain the name factory to pull the internationalised event names.
+        SortedSet<EventMethod> filteredEvents;
+        Method m;
+        try {
+            m = clazz.getMethod("getEventNameFactory", (Class<?>[])null);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+        }
 
-        Method[] methods = clazz.getDeclaredMethods();
+        NameResolverFactory factory;
+        try {
+            factory = (NameResolverFactory)m.invoke(null, (Object[])null);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+        }
+
+        // Toss into a final to enable access in the anon comparator.
+        final NameResolverFactory eventNameFactory = factory;
+
+        filteredEvents = new TreeSet<EventMethod>(new Comparator<EventMethod>() {
+            @Override
+            public int compare(EventMethod lhs, EventMethod rhs) {
+                Collator collator = getCollater();
+                return collator.compare(getString(eventNameFactory.getResId(lhs.methodId())),
+                        getString(eventNameFactory.getResId(rhs.methodId())));
+            }
+        });
+
+        Method[] methods = clazz.getMethods();
+
         // Filter methods for those which register listeners for events.
         for (int i = 0; i < methods.length; i++) {
-            if (methods[i].isAnnotationPresent(EventMethod.class)) {
-                filteredMethods.add(methods[i]);
+            EventMethod annotation = methods[i].getAnnotation(EventMethod.class);
+            if (annotation != null) {
+                filteredEvents.add(annotation);
             }
         }
 
-        return new ArrayAdapter<Method>(this, android.R.layout.simple_spinner_item,
-                filteredMethods.toArray(new Method[filteredMethods.size()]));
+        return new EventAdapter(this, filteredEvents, eventNameFactory);
     }
 
     @Override
@@ -548,7 +581,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      */
     @Override
     public ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
-        SortedSet<Method> filteredMethods = getMethodSet();
+        SortedSet<Method> filteredMethods = new TreeSet<Method>(new Comparator<Method>() {
+            @Override
+            public int compare(Method lhs, Method rhs) {
+                Collator collator = getCollater();
+                return 0;
+                // return
+                // collator.compare(getString(lhs.getAnnotation(Eve.class).value()),
+                // getString(rhs.getAnnotation(I18nName.class).value()));
+            }
+        });
 
         Method[] methods = clazz.getMethods();
         for (int i = 0; i < methods.length; i++) {
@@ -1263,44 +1305,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         return new ExperimentControlAdapter(this, new ArrayList<Pair<ExperimentObject, Long>>(
                 experimentControls));
-    }
-
-    /**
-     * Get an adapter for all props in the given scene that fit the given
-     * filter.
-     * 
-     * @param sceneId Id of the scene to gather props for.
-     * @return ListAdapter of all props in the given scene.
-     */
-    // ListAdapter getFilteredPropsAdapter(long sceneId, int filter) {
-    // LongSparseArray<Prop> props = new LongSparseArray<Prop>();
-    //
-    // for (Long propId : mExperiment.scenes.get(sceneId).props) {
-    // Prop prop = mExperiment.props.get(propId);
-    // if (prop.getClass().) {
-    // props.put(propId, prop);
-    // }
-    // }
-    //
-    // return new LongSparseArrayAdapter<Prop>(this,
-    // android.R.layout.simple_list_item_1, props);
-    // }
-
-    /**
-     * Get a method set which keeps values sorted per i18n names defined in
-     * annotations.
-     * 
-     * @return Set to add selected methods to.
-     */
-    TreeSet<Method> getMethodSet() {
-        return new TreeSet<Method>(new Comparator<Method>() {
-            @Override
-            public int compare(Method lhs, Method rhs) {
-                Collator collator = getCollater();
-                return collator.compare(getString(lhs.getAnnotation(I18nName.class).value()),
-                        getString(rhs.getAnnotation(I18nName.class).value()));
-            }
-        });
     }
 
     /**

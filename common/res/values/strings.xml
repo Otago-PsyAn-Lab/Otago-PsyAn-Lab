@@ -209,5 +209,9 @@
     <string name="format_generator_class_name">Generator (%1$s)</string>
     <string name="format_prop_class_name">Prop (%1$s)</string>
     <string name="title_dialogue_pick_object">Pick Object</string>
+    <string name="event_missing_string">Missing String</string>
+    <string name="event_on_click">On Click</string>
+    <string name="event_on_long_click">On Long Click</string>
+    <string name="method_missing_string">Missing String</string>
 
 </resources>

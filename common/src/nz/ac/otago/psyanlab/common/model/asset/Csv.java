@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Asset;
+import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import au.com.bytecode.opencsv.CSVReader;
 
 import java.io.File;
@@ -33,6 +34,10 @@ public class Csv extends Asset {
         csv.mFileCounted = true;
     }
 
+    public static NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
+
     @Expose
     public int colStart = 0;
 
@@ -45,16 +50,20 @@ public class Csv extends Asset {
     @Expose
     public int rowStart = 0;
 
+    private boolean mFileCounted = false;
+
     private int mTotalCols;
 
     private int mTotalRows;
-
-    private boolean mFileCounted = false;
 
     public Csv() {
         fieldnames = new ArrayList<String>();
         mTypeId = 0x01;
         mHeaderResId = R.string.header_csv_data;
+    }
+
+    public boolean fileCounted() {
+        return mFileCounted;
     }
 
     public int getTotalCols() {
@@ -65,7 +74,13 @@ public class Csv extends Asset {
         return mTotalRows;
     }
 
-    public boolean fileCounted() {
-        return mFileCounted;
+    protected static class MethodNameFactory extends Asset.MethodNameFactory {
+        @Override
+        public int getResId(int lookup) {
+            switch (lookup) {
+                default:
+                    return super.getResId(lookup);
+            }
+        }
     }
 }

@@ -166,8 +166,11 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         public void onResult(Bundle data) {
             long objectId = data.getLong(PickObjectDialogueFragment.RESULT_OBJECT_ID);
             int objectKind = data.getInt(PickObjectDialogueFragment.RESULT_OBJECT_KIND);
+            String objectClassString = data
+                    .getString(PickObjectDialogueFragment.RESULT_OBJECT_CLASS_STRING);
 
-            mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId);
+            mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId,
+                    objectClassString);
 
             mCallbacks.updateRule(mObjectId, mRule);
         }
@@ -299,13 +302,13 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             actionsList.setDivider(null);
 
             triggerObject.setOnClickListener(mTriggerObjectOnClickListener);
+            triggerEvent.setEnabled(false);
         }
 
         public void setViewValues(Rule rule) {
             name.setText(rule.name);
             if (rule.triggerObject != null) {
-                triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject)
-                        .getPrettyName(getActivity()));
+                setTrigger(rule);
             }
         }
 
@@ -314,8 +317,19 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 name.setText(newRule.name);
             }
             if (newRule.triggerObject != null) {
-                triggerObject.setText(mCallbacks.getExperimentObject(newRule.triggerObject)
-                        .getPrettyName(getActivity()));
+                setTrigger(newRule);
+            }
+        }
+
+        private void setTrigger(Rule rule) {
+            triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject).getPrettyName(
+                    getActivity()));
+            triggerEvent.setEnabled(true);
+            try {
+                triggerEvent.setAdapter(mCallbacks.getEventsAdapter(ClassLoader
+                        .getSystemClassLoader().loadClass(rule.triggerObject.clazz)));
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }

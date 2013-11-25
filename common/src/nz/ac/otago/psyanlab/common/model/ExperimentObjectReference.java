@@ -22,8 +22,11 @@ public class ExperimentObjectReference {
     @Expose
     public int kind;
 
-    public ExperimentObjectReference(int kind, long id) {
+    public String clazz;
+
+    public ExperimentObjectReference(int kind, long id, String objectClassString) {
         this.kind = kind;
         this.id = id;
+        this.clazz = objectClassString;
     }
 }

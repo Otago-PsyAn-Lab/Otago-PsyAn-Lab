@@ -17,8 +17,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ActionFragment extends BaseProgramFragment implements ActionDataChangeListener {
-    public static BaseProgramFragment newInstance(long id) {
-        return init(new ActionFragment(), id);
+    private static final String ARG_SCENE_ID = "arg_scene_id";
+
+    public static BaseProgramFragment newInstance(long id, long sceneId) {
+        ActionFragment fragment = init(new ActionFragment(), id);
+        Bundle args = fragment.getArguments();
+        args.putLong(ARG_SCENE_ID, sceneId);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public TextWatcher mNameWatcher = new TextWatcher() {
@@ -43,6 +49,8 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     private Action mAction;
 
     private ViewHolder mViews;
+
+    private long mSceneId;
 
     @Override
     public void onActionDataChange() {
@@ -72,6 +80,8 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mSceneId = getArguments().getLong(ARG_SCENE_ID);
+
         mAction = mCallbacks.getAction(mObjectId);
         mCallbacks.addActionDataChangeListener(this);
 
@@ -91,11 +101,6 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     @Override
     protected ViewHolder getViewHolder() {
         return mViews;
-    }
-
-    protected void onActionClick(long id) {
-        setNextFragment(ActionFragment.newInstance(id));
-
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Action> {

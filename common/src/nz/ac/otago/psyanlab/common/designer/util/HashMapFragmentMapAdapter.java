@@ -4,27 +4,29 @@ package nz.ac.otago.psyanlab.common.designer.util;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.SparseArray;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
-public class HashMapAdapter<V> extends FragmentPagerAdapter {
+public class HashMapFragmentMapAdapter<V> extends FragmentPagerAdapter {
     private HashMap<String, V> mItems;
 
-    private Object[] mKeys;
+    private String[] mKeys;
 
-    private FragmentFactoryI<V> mFactory;
+    private Factory<V> mFactory;
 
-    private ArrayList<Fragment> mFragments;
+    private SparseArray<Fragment> mFragments;
 
-    public HashMapAdapter(FragmentManager fm, FragmentFactoryI<V> factory, HashMap<String, V> items) {
+    public HashMapFragmentMapAdapter(FragmentManager fm, Factory<V> factory, HashMap<String, V> items) {
         super(fm);
         mFactory = factory;
         mItems = items;
         Set<String> keySet = mItems.keySet();
-        mKeys = keySet.toArray();
-        mFragments = new ArrayList<Fragment>();
+        mKeys = keySet.toArray(new String[mItems.size()]);
+        Arrays.sort(mKeys);
+        mFragments = new SparseArray<Fragment>();
     }
 
     @Override
@@ -42,11 +44,12 @@ public class HashMapAdapter<V> extends FragmentPagerAdapter {
         Fragment f = mFragments.get(position);
         if (f == null) {
             f = mFactory.getFragment((String)mKeys[position], mItems.get(mKeys[position]));
+            mFragments.put(position, f);
         }
         return f;
     }
 
-    public interface FragmentFactoryI<V> {
+    public interface Factory<V> {
         Fragment getFragment(String title, V value);
     }
 }

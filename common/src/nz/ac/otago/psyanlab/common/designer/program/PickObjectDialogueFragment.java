@@ -4,21 +4,21 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
-import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactoryI;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 
 public class PickObjectDialogueFragment extends DialogFragment {
     public static final int FILTER_EMITS_EVENTS = 0x01;
@@ -31,11 +31,13 @@ public class PickObjectDialogueFragment extends DialogFragment {
 
     public static final int FILTER_HAS_STRING_GETTERS = 0x05;
 
+    public static final String RESULT_OBJECT_ID = "result_object_id";
+
+    public static final String RESULT_OBJECT_KIND = "result_object_kind";
+
     public static final String TAG = "PickObjectDialogue";
 
     private static final String ARG_FILTER = "arg_filter";
-
-    private static final String ARG_OBJECT_ID = "arg_object_id";
 
     private static final String ARG_REQUEST_CODE = "arg_request_code";
 
@@ -46,17 +48,17 @@ public class PickObjectDialogueFragment extends DialogFragment {
     /**
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
-    public static PickObjectDialogueFragment newDialog(long sceneId, int filter, String requestCode) {
+    public static PickObjectDialogueFragment newDialog(long sceneId, int filter, int requestCode) {
         PickObjectDialogueFragment f = new PickObjectDialogueFragment();
         Bundle args = new Bundle();
         args.putLong(ARG_SCENE_ID, sceneId);
         args.putInt(ARG_FILTER, filter);
-        args.putString(ARG_REQUEST_CODE, requestCode);
+        args.putInt(ARG_REQUEST_CODE, requestCode);
         f.setArguments(args);
         return f;
     }
 
-    public FragmentFactoryI<Integer> mFragmentFactory = new FragmentFactory();
+    public ArrayFragmentMapAdapter.Factory mFragmentFactory;
 
     private ProgramCallbacks mCallbacks;
 
@@ -64,9 +66,18 @@ public class PickObjectDialogueFragment extends DialogFragment {
 
     private int mFilter;
 
-    private String mRequestCode;
+    private OnClickListener mOnCancelListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            getDialog().cancel();
+        }
+    };
+
+    private int mRequestCode;
 
     private long mSceneId;
+
+    private ViewHolder mViews;
 
     @Override
     public void onAttach(Activity activity) {
@@ -83,50 +94,62 @@ public class PickObjectDialogueFragment extends DialogFragment {
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.dialogue_object_picker, container, false);
+    }
+
+    public void onObjectPicked(long objectId, int objectKind) {
+        Bundle data = new Bundle();
+        data.putLong(RESULT_OBJECT_ID, objectId);
+        data.putInt(RESULT_OBJECT_KIND, objectKind);
+        mDialogueCallbacks.onDialogueResult(mRequestCode, data);
+        getDialog().dismiss();
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Dialog dialog = getDialog();
+        dialog.setTitle(R.string.title_dialogue_pick_object);
+        dialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         Bundle args = getArguments();
         if (args != null) {
             mSceneId = args.getLong(ARG_SCENE_ID, INVALID_ID);
             mFilter = args.getInt(ARG_FILTER);
-            mRequestCode = args.getString(ARG_REQUEST_CODE);
+            mRequestCode = args.getInt(ARG_REQUEST_CODE);
         }
 
         if (mSceneId == INVALID_ID) {
             throw new RuntimeException("Invalid scene id given.");
         }
 
-        View view = inflater.inflate(R.layout.dialogue_object_picker, null);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.title_edit_iterations).setView(view)
-                .setNegativeButton(R.string.action_discard, new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        getDialog().cancel();
-                    }
-                });
-
-        Dialog dialog = builder.create();
-        dialog.getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        return dialog;
+        mFragmentFactory = new FragmentFactory(mSceneId, mFilter);
+        mViews = new ViewHolder(view);
+        mViews.initViews();
     }
 
-    public void onObjectPicked(long objectId) {
-        Bundle data = new Bundle();
-        data.putLong(ARG_OBJECT_ID, objectId);
-        mDialogueCallbacks.onDialogueResult(mRequestCode, data);
-    }
+    static final class FragmentFactory implements ArrayFragmentMapAdapter.Factory {
+        private int mFilter;
 
-    private final class FragmentFactory implements FragmentFactoryI<Integer> {
+        private long mSceneId;
+
+        public FragmentFactory(long sceneId, int filter) {
+            mSceneId = sceneId;
+            mFilter = filter;
+        }
+
         @Override
-        public Fragment getFragment(String fragmentTitle, Integer section) {
+        public Fragment getFragment(String fragmentTitle, int section) {
             return PickObjectListFragment.newInstance(mSceneId, section, mFilter);
         }
-    }
+    };
 
     class ViewHolder {
+        Button cancel;
+
         ViewPager pager;
 
         PagerSlidingTabStrip tabs;
@@ -134,16 +157,18 @@ public class PickObjectDialogueFragment extends DialogFragment {
         public ViewHolder(View view) {
             pager = (ViewPager)view.findViewById(R.id.pager);
             tabs = (PagerSlidingTabStrip)view.findViewById(R.id.tabs);
+            cancel = (Button)view.findViewById(R.id.action_cancel);
         }
 
         public void initViews() {
             // Set the pager with an adapter
-            pager.setAdapter(mCallbacks.getObjectsPagerAdapter(mSceneId, getChildFragmentManager(),
+            pager.setAdapter(mCallbacks.getObjectsPagerAdapter(getChildFragmentManager(), mSceneId,
                     mFragmentFactory));
+
+            cancel.setOnClickListener(mOnCancelListener);
 
             // Bind the widget to the adapter
             tabs.setViewPager(pager);
-
         }
     }
 }

@@ -10,7 +10,7 @@ public class Rule {
     public String name;
 
     @Expose
-    public String triggerObject;
+    public ExperimentObjectReference triggerObject;
 
     @Expose
     public String triggerEvent;

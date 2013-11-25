@@ -7,16 +7,18 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataC
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter.Factory;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar;
-import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactoryI;
+import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.model.Action;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
+import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.widget.ListAdapter;
@@ -24,9 +26,11 @@ import android.widget.ListAdapter;
 import java.util.ArrayList;
 
 public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
-    public Fragment getFragment(String tag);
+    public ExperimentObject getExperimentObject(ExperimentObjectReference object);
 
     public ArrayList<Prop> getPropsArray(long stageId);
+
+    public void pickExperimentObject(long sceneId, int filter, int requestCode);
 
     void addActionDataChangeListener(ActionDataChangeListener listener);
 
@@ -76,10 +80,9 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType);
 
-    ListAdapter getObjectSectionListAdapter(long sceneId, int section, int filter);
+    ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter);
 
-    FragmentPagerAdapter getObjectsPagerAdapter(long sceneId, FragmentManager fm,
-            FragmentFactoryI<Integer> factory);
+    FragmentPagerAdapter getObjectsPagerAdapter(FragmentManager fm, long sceneId, Factory factory);
 
     Rule getRule(long ruleId);
 

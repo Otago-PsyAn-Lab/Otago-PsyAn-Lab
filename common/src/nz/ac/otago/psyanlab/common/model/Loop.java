@@ -9,27 +9,22 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-public class Loop implements ExperimentControl {
+public class Loop implements ExperimentObject {
     @Expose
-    public String name;
+    public ArrayList<Long> generators;
 
     @Expose
     public int iterations = 1;
 
     @Expose
-    public ArrayList<Long> scenes;
+    public String name;
 
     @Expose
-    public ArrayList<Long> generators;
+    public ArrayList<Long> scenes;
 
     public Loop() {
         scenes = new ArrayList<Long>();
         generators = new ArrayList<Long>();
-    }
-
-    @Override
-    public String getClassName(Context context) {
-        return context.getString(R.string.format_loop_class_name, name);
     }
 
     public boolean contains(long sceneId) {
@@ -39,5 +34,15 @@ public class Loop implements ExperimentControl {
             }
         }
         return false;
+    }
+
+    @Override
+    public String getPrettyName(Context context) {
+        return context.getString(R.string.format_loop_class_name, name);
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObjectReference.KIND_LOOP;
     }
 }

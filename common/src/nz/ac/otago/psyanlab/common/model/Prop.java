@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.model;
 
+import com.google.gson.annotations.Expose;
+
 import nz.ac.otago.psyanlab.common.R;
 
 import android.content.Context;
@@ -9,7 +11,7 @@ import android.os.Parcelable;
 
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class Prop implements Parcelable {
+public abstract class Prop implements Parcelable, ExperimentObject {
     public static final Parcelable.Creator<Prop> CREATOR = new Parcelable.Creator<Prop>() {
         public Prop createFromParcel(Parcel in) {
             String propKind = in.readString();
@@ -40,25 +42,22 @@ public abstract class Prop implements Parcelable {
 
     public static final String NAMESPACE = "nz.ac.otago.psyanlab.common.model.prop.";
 
+    @Expose
     public int height = 0;
 
+    @Expose
     public String name;
 
+    @Expose
     public int width = 0;
 
+    @Expose
     public int xPos = 0;
 
+    @Expose
     public int yPos = 0;
 
     public Prop() {
-    }
-
-    public Prop(Parcel in) {
-        name = in.readString();
-        xPos = in.readInt();
-        yPos = in.readInt();
-        width = in.readInt();
-        height = in.readInt();
     }
 
     public Prop(Context context, Prop prop, int defaultSuffix) {
@@ -76,9 +75,27 @@ public abstract class Prop implements Parcelable {
         height = prop.height;
     }
 
+    public Prop(Parcel in) {
+        name = in.readString();
+        xPos = in.readInt();
+        yPos = in.readInt();
+        width = in.readInt();
+        height = in.readInt();
+    }
+
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    @Override
+    public String getPrettyName(Context context) {
+        return context.getString(R.string.format_prop_class_name, name);
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObjectReference.KIND_PROP;
     }
 
     @Override

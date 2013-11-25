@@ -9,7 +9,7 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-public class Scene implements ExperimentControl {
+public class Scene implements ExperimentObject {
     public static final int ORIENTATION_LANDSCAPE = 0;
 
     public static final int ORIENTATION_PORTRAIT = 1;
@@ -18,19 +18,19 @@ public class Scene implements ExperimentControl {
     public String name;
 
     @Expose
+    public int orientation = -1;
+
+    @Expose
     public ArrayList<Long> props;
 
     @Expose
     public ArrayList<Long> rules;
 
     @Expose
-    public int orientation = -1;
+    public int stageHeight = -1;
 
     @Expose
     public int stageWidth = -1;
-
-    @Expose
-    public int stageHeight = -1;
 
     public Scene() {
         props = new ArrayList<Long>();
@@ -38,7 +38,12 @@ public class Scene implements ExperimentControl {
     }
 
     @Override
-    public String getClassName(Context context) {
+    public String getPrettyName(Context context) {
         return context.getString(R.string.format_scene_class_name, name);
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObjectReference.KIND_SCENE;
     }
 }

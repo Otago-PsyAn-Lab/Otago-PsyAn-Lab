@@ -140,8 +140,9 @@
                     android:text="@string/label_trigger_object"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <Spinner
+                <Button
                     android:id="@+id/trigger_object"
+                    style="?android:attr/spinnerStyle"
                     android:layout_gravity="fill_horizontal"
                     android:layout_marginTop="8dip"
                     android:minHeight="48dip" />

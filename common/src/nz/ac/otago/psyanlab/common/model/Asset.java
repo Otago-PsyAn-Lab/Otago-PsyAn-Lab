@@ -3,15 +3,18 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
+import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.asset.Csv;
 import nz.ac.otago.psyanlab.common.model.asset.Image;
 import nz.ac.otago.psyanlab.common.model.asset.Sound;
 import nz.ac.otago.psyanlab.common.model.asset.Video;
 
+import android.content.Context;
+
 import java.io.File;
 import java.util.regex.Pattern;
 
-public abstract class Asset {
+public abstract class Asset implements ExperimentObject {
     private static final String FILE_ENDINGS_CSV_DATA = ".*\\.csv";
 
     private static final String FILE_ENDINGS_IMAGES = ".*\\.jpg|.*\\.jpeg|.*\\.png|.*\\.bmp|.*\\.webp";
@@ -35,11 +38,11 @@ public abstract class Asset {
     @Expose
     public String name;
 
+    public String path;
+
     protected int mHeaderResId;
 
     protected long mTypeId = 0x00;
-
-    public String path;
 
     public int compareTo(Asset another) {
         int cmpr = this.getClass().getName().compareToIgnoreCase(another.getClass().getName());
@@ -49,12 +52,22 @@ public abstract class Asset {
         return cmpr;
     }
 
+    @Override
+    public String getPrettyName(Context context) {
+        return context.getString(R.string.format_asset_class_name, name);
+    }
+
     public int getHeaderResId() {
         return mHeaderResId;
     }
 
     public long getTypeId() {
         return mTypeId;
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObjectReference.KIND_ASSET;
     }
 
     public void setFile(File file) {

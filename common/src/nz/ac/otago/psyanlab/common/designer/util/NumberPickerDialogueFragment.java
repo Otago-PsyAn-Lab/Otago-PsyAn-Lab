@@ -33,14 +33,14 @@ public class NumberPickerDialogueFragment extends DialogFragment {
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
     public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
-            int minValue, int maxValue, String requestCode) {
+            int minValue, int maxValue, int requestCode) {
         NumberPickerDialogueFragment f = new NumberPickerDialogueFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_TITLE, titleResId);
         args.putInt(ARG_DEFAULT_VALUE, defaultValue);
         args.putInt(ARG_MIN, minValue);
         args.putInt(ARG_MAX, maxValue);
-        args.putString(ARG_REQUEST_CODE, requestCode);
+        args.putInt(ARG_REQUEST_CODE, requestCode);
         f.setArguments(args);
         return f;
     }
@@ -49,7 +49,7 @@ public class NumberPickerDialogueFragment extends DialogFragment {
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
     public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
-            int minValue, String requestCode) {
+            int minValue, int requestCode) {
         return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
     }
 
@@ -70,7 +70,7 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         }
     };
 
-    private String mRequestCode;
+    private int mRequestCode;
 
     private boolean mShowRange = false;
 
@@ -100,7 +100,7 @@ public class NumberPickerDialogueFragment extends DialogFragment {
             min = args.getInt(ARG_MIN, 0);
             max = args.getInt(ARG_MAX, Integer.MAX_VALUE);
             title = args.getInt(ARG_TITLE, R.string.title_pick_number);
-            mRequestCode = args.getString(ARG_REQUEST_CODE, "");
+            mRequestCode = args.getInt(ARG_REQUEST_CODE);
         }
 
         View view = inflater.inflate(R.layout.dialogue_number_picker, null);

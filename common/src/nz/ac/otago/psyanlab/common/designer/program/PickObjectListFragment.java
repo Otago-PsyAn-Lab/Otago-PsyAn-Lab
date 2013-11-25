@@ -1,10 +1,14 @@
 
 package nz.ac.otago.psyanlab.common.designer.program;
 
+import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 public class PickObjectListFragment extends ListFragment {
@@ -32,6 +36,8 @@ public class PickObjectListFragment extends ListFragment {
 
     private int mFilter;
 
+    private ExperimentObjectAdapter mAdapter;
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -39,6 +45,11 @@ public class PickObjectListFragment extends ListFragment {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
         mCallbacks = (ProgramCallbacks)activity;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -54,12 +65,13 @@ public class PickObjectListFragment extends ListFragment {
         mSceneId = args.getLong(ARG_SCENE_ID);
         mFilter = args.getInt(ARG_FILTER);
 
-        setListAdapter(mCallbacks.getObjectSectionListAdapter(mSceneId, mSection, mFilter));
+        mAdapter = mCallbacks.getObjectSectionListAdapter(mSceneId, mSection, mFilter);
+        setListAdapter(mAdapter);
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        ((PickObjectDialogueFragment)mCallbacks.getFragment(PickObjectDialogueFragment.TAG))
-                .onObjectPicked(id);
+        ((PickObjectDialogueFragment)getParentFragment()).onObjectPicked(id,
+                mAdapter.getObjectKind(position));
     }
 }

@@ -4,7 +4,10 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
+import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Action;
+import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Rule;
 
 import android.os.Bundle;
@@ -22,14 +25,21 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 public class RuleFragment extends BaseProgramFragment implements RuleDataChangeListener {
-    public static BaseProgramFragment newInstance(long id) {
-        return init(new RuleFragment(), id);
+    private static final String ARG_SCENE_ID = "arg_scene_id";
+
+    public static BaseProgramFragment newInstance(long id, long sceneId) {
+        RuleFragment fragment = init(new RuleFragment(), id);
+        Bundle args = fragment.getArguments();
+        args.putLong(ARG_SCENE_ID, sceneId);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public OnItemLongClickListener mActionItemLongClickListener = new OnItemLongClickListener() {
@@ -140,11 +150,34 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
+    public OnClickListener mTriggerObjectOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mCallbacks.pickExperimentObject(mSceneId,
+                    PickObjectDialogueFragment.FILTER_EMITS_EVENTS,
+                    RequestCodes.RULE_TRIGGER_OBJECT);
+        }
+    };
+
     private ActionMode mActionMode;
+
+    private DialogueResultListener mDialogueResultListener = new DialogueResultListener() {
+        @Override
+        public void onResult(Bundle data) {
+            long objectId = data.getLong(PickObjectDialogueFragment.RESULT_OBJECT_ID);
+            int objectKind = data.getInt(PickObjectDialogueFragment.RESULT_OBJECT_KIND);
+
+            mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId);
+
+            mCallbacks.updateRule(mObjectId, mRule);
+        }
+    };
 
     private Rule mRule;
 
     private ViewHolder mViews;
+
+    protected long mSceneId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -174,6 +207,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mSceneId = getArguments().getLong(ARG_SCENE_ID);
+
         mRule = mCallbacks.getRule(mObjectId);
         mCallbacks.addRuleDataChangeListener(this);
 
@@ -182,6 +217,9 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         mViews = new ViewHolder(view);
         mViews.setViewValues(mRule);
         mViews.initViews();
+
+        mCallbacks.registerDialogueResultListener(RequestCodes.RULE_TRIGGER_OBJECT,
+                mDialogueResultListener);
     }
 
     private void saveChanges() {
@@ -199,7 +237,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     }
 
     protected void onActionClick(long id) {
-        setNextFragment(ActionFragment.newInstance(id));
+        setNextFragment(ActionFragment.newInstance(id, mSceneId));
     }
 
     protected void onNewAction() {
@@ -208,7 +246,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         action.name = "Action " + (newActionId + 1);
         mRule.actions.add(newActionId);
         mCallbacks.updateRule(mObjectId, mRule);
-        setNextFragment(ActionFragment.newInstance(newActionId));
+        setNextFragment(ActionFragment.newInstance(newActionId, mSceneId));
 
         if (mActionMode != null) {
             mActionMode.finish();
@@ -232,7 +270,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         public Spinner triggerEvent;
 
-        public Spinner triggerObject;
+        public Button triggerObject;
 
         private ListView actionsList;
 
@@ -241,7 +279,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         public ViewHolder(View view) {
             super(view);
             name = (EditText)view.findViewById(R.id.name);
-            triggerObject = (Spinner)view.findViewById(R.id.trigger_object);
+            triggerObject = (Button)view.findViewById(R.id.trigger_object);
             triggerEvent = (Spinner)view.findViewById(R.id.trigger_event);
             condition = view.findViewById(R.id.edit_condition);
             actionsList = (ListView)view.findViewById(R.id.actions);
@@ -259,15 +297,25 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             actionsList.setOnItemClickListener(mOnActionItemClickListener);
             actionsList.setOnItemLongClickListener(mActionItemLongClickListener);
             actionsList.setDivider(null);
+
+            triggerObject.setOnClickListener(mTriggerObjectOnClickListener);
         }
 
         public void setViewValues(Rule rule) {
             name.setText(rule.name);
+            if (rule.triggerObject != null) {
+                triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject)
+                        .getPrettyName(getActivity()));
+            }
         }
 
         public void updateViews(Rule newRule, Rule oldRule) {
             if (!TextUtils.equals(newRule.name, oldRule.name)) {
                 name.setText(newRule.name);
+            }
+            if (newRule.triggerObject != null) {
+                triggerObject.setText(mCallbacks.getExperimentObject(newRule.triggerObject)
+                        .getPrettyName(getActivity()));
             }
         }
     }

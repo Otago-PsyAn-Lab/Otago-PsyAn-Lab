@@ -32,18 +32,20 @@ import nz.ac.otago.psyanlab.common.designer.assets.AssetsFragment;
 import nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity;
 import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment;
 import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment.Details;
+import nz.ac.otago.psyanlab.common.designer.program.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
+import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
-import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter;
-import nz.ac.otago.psyanlab.common.designer.util.HashMapAdapter.FragmentFactoryI;
+import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.LongSparseArrayAdapter;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
-import nz.ac.otago.psyanlab.common.model.ExperimentControl;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
+import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Loop;
@@ -65,7 +67,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Settings.Global;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -77,11 +78,14 @@ import android.support.v4.view.ViewPager;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -91,7 +95,7 @@ import java.lang.reflect.Method;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -144,7 +148,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private Pair<Long, ProgramComponentAdapter<Scene>> mCurrentSceneAdapter;
 
-    private HashMap<String, DialogueResultListener> mDialogueResultListeners;
+    private SparseArray<DialogueResultListener> mDialogueResultListeners;
 
     private Experiment mExperiment;
 
@@ -449,7 +453,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      */
     @Override
     public ListAdapter getEventsAdapter(Class<?> clazz) {
-        SortedSet<Method> filteredMethods = getFilteredMethodSet();
+        SortedSet<Method> filteredMethods = getMethodSet();
 
         Method[] methods = clazz.getDeclaredMethods();
         // Filter methods for those which register listeners for events.
@@ -474,8 +478,22 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public Fragment getFragment(String tag) {
-        return getSupportFragmentManager().findFragmentByTag(tag);
+    public ExperimentObject getExperimentObject(ExperimentObjectReference object) {
+        switch (object.kind) {
+            case ExperimentObjectReference.KIND_ASSET:
+                return mExperiment.assets.get(object.id);
+            case ExperimentObjectReference.KIND_GENERATOR:
+                return mExperiment.generators.get(object.id);
+            case ExperimentObjectReference.KIND_LOOP:
+                return mExperiment.loops.get(object.id);
+            case ExperimentObjectReference.KIND_PROP:
+                return mExperiment.props.get(object.id);
+            case ExperimentObjectReference.KIND_SCENE:
+                return mExperiment.scenes.get(object.id);
+            default:
+            case ExperimentObjectReference.KIND_EXPERIMENT:
+                return null;
+        }
     }
 
     @Override
@@ -530,7 +548,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      */
     @Override
     public ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
-        SortedSet<Method> filteredMethods = getFilteredMethodSet();
+        SortedSet<Method> filteredMethods = getMethodSet();
 
         Method[] methods = clazz.getMethods();
         for (int i = 0; i < methods.length; i++) {
@@ -542,14 +560,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public ListAdapter getObjectSectionListAdapter(long sceneId, int section, int filter) {
+    public ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter) {
         switch (section) {
             case 0:
-                return getPropsAdapter(sceneId);
+                return new ExperimentObjectAdapter.Wrapper(ExperimentObjectReference.KIND_PROP,
+                        getPropsAdapter(sceneId));
             case 1:
                 return getExperimentControlsAdapter(sceneId);
             case 2:
-                return getAssetsAdapter();
+                return new ExperimentObjectAdapter.Wrapper(ExperimentObjectReference.KIND_ASSET,
+                        getAssetsAdapter());
 
             default:
                 return null;
@@ -563,13 +583,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      * @return Array of ListAdapters
      */
     @Override
-    public FragmentPagerAdapter getObjectsPagerAdapter(long sceneId, FragmentManager fm,
-            FragmentFactoryI<Integer> factory) {
-        HashMap<String, Integer> adapters = new HashMap<String, Integer>();
-        adapters.put(getString(R.string.title_props), 0);
-        adapters.put(getString(R.string.title_experiment), 1);
-        adapters.put(getString(R.string.title_assets), 2);
-        return new HashMapAdapter<Integer>(fm, factory, adapters);
+    public FragmentPagerAdapter getObjectsPagerAdapter(FragmentManager fm, long sceneId,
+            ArrayFragmentMapAdapter.Factory factory) {
+        List<String> stubs = new ArrayList<String>();
+        stubs.add(getString(R.string.title_props));
+        stubs.add(getString(R.string.title_experiment));
+        stubs.add(getString(R.string.title_assets));
+        return new ArrayFragmentMapAdapter(fm, factory, stubs);
     }
 
     @Override
@@ -690,7 +710,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                         dialog.dismiss();
                     }
                 });
-        dialog.show(getSupportFragmentManager(), "ConfirmDeleteDialog");
+        dialog.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
     }
 
     @Override
@@ -747,7 +767,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public void onDialogueResult(String requestCode, Bundle data) {
+    public void onDialogueResult(int requestCode, Bundle data) {
         ((DialogueResultListener)mDialogueResultListeners.get(requestCode)).onResult(data);
     }
 
@@ -768,11 +788,17 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public void registerDialogueResultListener(String requestTag, DialogueResultListener listener) {
+    public void pickExperimentObject(long sceneId, int filter, int requestCode) {
+        DialogFragment dialog = PickObjectDialogueFragment.newDialog(sceneId, filter, requestCode);
+        dialog.show(getSupportFragmentManager(), PickObjectDialogueFragment.TAG);
+    }
+
+    @Override
+    public void registerDialogueResultListener(int requestCode, DialogueResultListener listener) {
         if (mDialogueResultListeners == null) {
-            mDialogueResultListeners = new HashMap<String, DialogueResultListener>();
+            mDialogueResultListeners = new SparseArray<DialogueResultListener>();
         }
-        mDialogueResultListeners.put(requestTag, listener);
+        mDialogueResultListeners.put(requestCode, listener);
     }
 
     @Override
@@ -1091,7 +1117,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         for (SceneDataChangeListener l : mSceneDataChangeListeners) {
             l.onSceneDataChange();
         }
-    }
+    };
 
     /**
      * Restore or create the fragment used to keep the experiment in memory
@@ -1141,7 +1167,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return experiment;
-    };
+    }
 
     private void storeExperiment() {
         if (mMode == MODE_NEW) {
@@ -1202,22 +1228,26 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      *            adapter.
      * @return Program flow objects ListAdapter.
      */
-    ListAdapter getExperimentControlsAdapter(long sceneId) {
-        SortedSet<ExperimentControl> experimentControls = new TreeSet<ExperimentControl>(
-                new Comparator<ExperimentControl>() {
+    ExperimentObjectAdapter getExperimentControlsAdapter(long sceneId) {
+        SortedSet<Pair<ExperimentObject, Long>> experimentControls = new TreeSet<Pair<ExperimentObject, Long>>(
+                new Comparator<Pair<ExperimentObject, Long>>() {
                     @Override
-                    public int compare(ExperimentControl lhs, ExperimentControl rhs) {
+                    public int compare(Pair<ExperimentObject, Long> lhs,
+                            Pair<ExperimentObject, Long> rhs) {
                         Collator collator = getCollater();
-                        return collator.compare(lhs.getClassName(ExperimentDesignerActivity.this),
-                                rhs.getClassName(ExperimentDesignerActivity.this));
+                        return collator.compare(
+                                lhs.first.getPrettyName(ExperimentDesignerActivity.this),
+                                rhs.first.getPrettyName(ExperimentDesignerActivity.this));
                     }
                 });
 
-        experimentControls.add(mExperiment.scenes.get(sceneId));
+        experimentControls.add(new Pair<ExperimentObject, Long>(mExperiment.scenes.get(sceneId),
+                sceneId));
 
         for (int i = 0; i < mExperiment.loops.size(); i++) {
             if (mExperiment.loops.valueAt(i).contains(sceneId)) {
-                experimentControls.add(mExperiment.loops.valueAt(i));
+                experimentControls.add(new Pair<ExperimentObject, Long>(mExperiment.loops
+                        .valueAt(i), (long)i));
                 break;
             }
         }
@@ -1227,14 +1257,34 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         // experimentControls.add(mExperiment.records);
 
         for (int i = 0; i < mExperiment.generators.size(); i++) {
-            experimentControls.add(mExperiment.generators.valueAt(i));
+            experimentControls.add(new Pair<ExperimentObject, Long>(mExperiment.generators
+                    .valueAt(i), (long)i));
         }
 
-        // TODO: Sticky headers.
-
-        return new ArrayAdapter<Global>(this, android.R.layout.simple_list_item_1,
-                experimentControls.toArray(new Global[experimentControls.size()]));
+        return new ExperimentControlAdapter(this, new ArrayList<Pair<ExperimentObject, Long>>(
+                experimentControls));
     }
+
+    /**
+     * Get an adapter for all props in the given scene that fit the given
+     * filter.
+     * 
+     * @param sceneId Id of the scene to gather props for.
+     * @return ListAdapter of all props in the given scene.
+     */
+    // ListAdapter getFilteredPropsAdapter(long sceneId, int filter) {
+    // LongSparseArray<Prop> props = new LongSparseArray<Prop>();
+    //
+    // for (Long propId : mExperiment.scenes.get(sceneId).props) {
+    // Prop prop = mExperiment.props.get(propId);
+    // if (prop.getClass().) {
+    // props.put(propId, prop);
+    // }
+    // }
+    //
+    // return new LongSparseArrayAdapter<Prop>(this,
+    // android.R.layout.simple_list_item_1, props);
+    // }
 
     /**
      * Get a method set which keeps values sorted per i18n names defined in
@@ -1242,7 +1292,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      * 
      * @return Set to add selected methods to.
      */
-    TreeSet<Method> getFilteredMethodSet() {
+    TreeSet<Method> getMethodSet() {
         return new TreeSet<Method>(new Comparator<Method>() {
             @Override
             public int compare(Method lhs, Method rhs) {
@@ -1298,8 +1348,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     public static class TabsAdapter extends FragmentStatePagerAdapter implements
-
-    ActionBar.TabListener, ViewPager.OnPageChangeListener {
+            ActionBar.TabListener, ViewPager.OnPageChangeListener {
         private final ActionBar mActionBar;
 
         private final Context mContext;
@@ -1378,5 +1427,57 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 args = _args;
             }
         }
+    }
+
+    class ExperimentControlAdapter extends BaseAdapter implements ExperimentObjectAdapter {
+        private Context mContext;
+
+        private LayoutInflater mInflater;
+
+        private List<Pair<ExperimentObject, Long>> mItems;
+
+        public ExperimentControlAdapter(Context context, List<Pair<ExperimentObject, Long>> items) {
+            mContext = context;
+            mItems = items;
+            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public int getCount() {
+            return mItems.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mItems.get(position).first;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return mItems.get(position).second;
+        }
+
+        @Override
+        public int getObjectKind(int position) {
+            return mItems.get(position).first.kind();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextViewHolder holder;
+            if (convertView == null) {
+                convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+                holder = new TextViewHolder(1);
+                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+                convertView.setTag(holder);
+            } else {
+                holder = (TextViewHolder)convertView.getTag();
+            }
+
+            holder.textViews[0].setText(mItems.get(position).first.getPrettyName(mContext));
+
+            return convertView;
+        }
+
     }
 }

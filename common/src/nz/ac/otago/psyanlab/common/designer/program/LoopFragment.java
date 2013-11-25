@@ -7,6 +7,7 @@ import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.EditGeneratorDialogFragment.OnGeneratorCreatedListener;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogueFragment;
+import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
@@ -35,8 +36,6 @@ import android.widget.ListView;
 
 public class LoopFragment extends BaseProgramFragment implements LoopDataChangeListener,
         OnGeneratorCreatedListener {
-    private static final String REQUEST_ITERATION_NUMBER = "request_iteration_number";
-
     public static BaseProgramFragment newInstance(long id) {
         return init(new LoopFragment(), id);
     }
@@ -294,7 +293,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         mLoop = mCallbacks.getLoop(mObjectId);
         mCallbacks.addLoopDataChangeListener(this);
-        mCallbacks.registerDialogueResultListener(REQUEST_ITERATION_NUMBER,
+        mCallbacks.registerDialogueResultListener(RequestCodes.ITERATION_NUMBER,
                 mOnIterationPickedListener);
 
         mScenesAdapter = mCallbacks.getScenesAdapter(mObjectId);
@@ -385,7 +384,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
 
         NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
-                R.string.title_edit_iterations, mLoop.iterations, 0, REQUEST_ITERATION_NUMBER);
+                R.string.title_edit_iterations, mLoop.iterations, 0, RequestCodes.ITERATION_NUMBER);
         dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
     }
 

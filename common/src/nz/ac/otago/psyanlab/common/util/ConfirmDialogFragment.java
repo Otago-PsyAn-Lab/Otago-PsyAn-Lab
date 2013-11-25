@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
 public class ConfirmDialogFragment extends DialogFragment {
+    public static final String TAG = "ConfirmDialogFragment";
+
     private static final String ARG_NEGATIVE = "arg_negative";
 
     private static final String ARG_NEUTRAL = "arg_neutral";

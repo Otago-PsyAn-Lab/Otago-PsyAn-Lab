@@ -7,7 +7,7 @@ import nz.ac.otago.psyanlab.common.R;
 
 import android.content.Context;
 
-public abstract class Generator implements ExperimentControl {
+public abstract class Generator implements ExperimentObject {
     @Expose
     public int end;
 
@@ -22,7 +22,12 @@ public abstract class Generator implements ExperimentControl {
     }
 
     @Override
-    public String getClassName(Context context) {
+    public String getPrettyName(Context context) {
         return context.getString(R.string.format_generator_class_name, name);
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObjectReference.KIND_GENERATOR;
     }
 }

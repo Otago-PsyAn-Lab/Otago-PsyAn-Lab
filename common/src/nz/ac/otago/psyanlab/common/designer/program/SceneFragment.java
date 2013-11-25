@@ -231,7 +231,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         rule.name = "Rule " + (newRuleId + 1);
         mScene.rules.add(newRuleId);
         mCallbacks.updateScene(mObjectId, mScene);
-        setNextFragment(RuleFragment.newInstance(newRuleId));
+        setNextFragment(RuleFragment.newInstance(newRuleId, mObjectId));
 
         if (mActionMode != null) {
             mActionMode.finish();
@@ -247,7 +247,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
     }
 
     protected void onRuleClick(long id) {
-        setNextFragment(RuleFragment.newInstance(id));
+        setNextFragment(RuleFragment.newInstance(id, mObjectId));
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Scene> {
@@ -305,7 +305,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             if (!TextUtils.equals(newScene.name, oldScene.name)) {
                 name.setText(newScene.name);
             }
-            
+
             if (newScene.orientation == -1) {
                 mViews.editStagePsuedoButton.setText(R.string.action_create);
             } else {

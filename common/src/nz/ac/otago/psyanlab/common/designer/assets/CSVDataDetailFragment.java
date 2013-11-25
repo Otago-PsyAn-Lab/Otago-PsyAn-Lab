@@ -5,6 +5,7 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentUtils;
 import nz.ac.otago.psyanlab.common.designer.util.NumberPickerDialogueFragment;
+import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.asset.Csv;
 
 import android.app.Activity;
@@ -32,12 +33,6 @@ public class CSVDataDetailFragment extends Fragment {
     private static final String DIALOG_EDIT_ROW_START = "dialog_edit_row_start";
 
     private static final String KEY_ASSET_ID = "key_asset_id";
-
-    private static final String REQUEST_NUM_ROWS = "request_num_rows";
-
-    private static final String REQUEST_START_COLUMN = "request_start_column";
-
-    private static final String REQUEST_START_ROW = "request_start_row";
 
     public static CSVDataDetailFragment newInstance(long assetId) {
         CSVDataDetailFragment f = new CSVDataDetailFragment();
@@ -192,16 +187,18 @@ public class CSVDataDetailFragment extends Fragment {
         mViews.setViewValues(mCsv);
         mViews.initViews();
 
-        mCallbacks.registerDialogueResultListener(REQUEST_START_COLUMN,
+        mCallbacks.registerDialogueResultListener(RequestCodes.CSV_START_COLUMN,
                 mOnStartColumnPickedListener);
-        mCallbacks.registerDialogueResultListener(REQUEST_START_ROW, mOnStartRowPickedListener);
-        mCallbacks.registerDialogueResultListener(REQUEST_NUM_ROWS, mOnNumRowsPickedListener);
+        mCallbacks.registerDialogueResultListener(RequestCodes.CSV_START_ROW,
+                mOnStartRowPickedListener);
+        mCallbacks.registerDialogueResultListener(RequestCodes.CSV_NUM_ROWS,
+                mOnNumRowsPickedListener);
     }
 
     private void showEditNumRowsDialogue() {
         NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
                 R.string.title_set_number_of_rows, mCsv.numRows, 1, mCsv.getTotalRows()
-                        - mCsv.rowStart, REQUEST_NUM_ROWS);
+                        - mCsv.rowStart, RequestCodes.CSV_NUM_ROWS);
         dialog.showRange(true);
         dialog.show(getChildFragmentManager(), DIALOG_EDIT_NUM_ROWS);
     }
@@ -210,7 +207,7 @@ public class CSVDataDetailFragment extends Fragment {
         NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
                 R.string.title_set_start_column,
                 ExperimentUtils.zeroBasedToUserValue(mCsv.colStart), 1, mCsv.getTotalCols(),
-                REQUEST_START_COLUMN);
+                RequestCodes.CSV_START_COLUMN);
         dialog.showRange(true);
         dialog.show(getChildFragmentManager(), DIALOG_EDIT_COL_START);
     }
@@ -218,7 +215,7 @@ public class CSVDataDetailFragment extends Fragment {
     private void showEditStartRowDialogue() {
         NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(
                 R.string.title_set_start_row, ExperimentUtils.zeroBasedToUserValue(mCsv.rowStart),
-                1, mCsv.getTotalRows(), REQUEST_START_ROW);
+                1, mCsv.getTotalRows(), RequestCodes.CSV_START_ROW);
         dialog.showRange(true);
         dialog.show(getChildFragmentManager(), DIALOG_EDIT_ROW_START);
     }

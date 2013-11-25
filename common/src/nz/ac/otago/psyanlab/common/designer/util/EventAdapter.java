@@ -5,7 +5,6 @@ import nz.ac.otago.psyanlab.common.model.util.EventMethod;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
-import android.R;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,9 +48,9 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         TextViewHolder holder;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.simple_dropdown_item_1line, parent, false);
+            convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(R.id.text1);
+            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
             holder = (TextViewHolder)convertView.getTag();
@@ -77,9 +76,9 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
     public View getView(int position, View convertView, ViewGroup parent) {
         TextViewHolder holder;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.simple_list_item_1, parent, false);
+            convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(R.id.text1);
+            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
             holder = (TextViewHolder)convertView.getTag();

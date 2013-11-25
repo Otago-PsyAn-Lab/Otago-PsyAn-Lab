@@ -21,16 +21,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 public class PickObjectDialogueFragment extends DialogFragment {
-    public static final int FILTER_EMITS_EVENTS = 0x01;
-
-    public static final int FILTER_HAS_FLOAT_GETTERS = 0x02;
-
-    public static final int FILTER_HAS_INT_GETTERS = 0x03;
-
-    public static final int FILTER_HAS_SETTERS = 0x04;
-
-    public static final int FILTER_HAS_STRING_GETTERS = 0x05;
-
     public static final String RESULT_OBJECT_ID = "result_object_id";
 
     public static final String RESULT_OBJECT_KIND = "result_object_kind";

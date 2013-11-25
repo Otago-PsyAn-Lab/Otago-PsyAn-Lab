@@ -31,6 +31,15 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     public ArrayList<Prop> getPropsArray(long stageId);
 
+    /**
+     * Open UI to pick an Experiment Object.
+     * 
+     * @param sceneId Id of the scene in which the object will be found.
+     * @param filter See {@link ExperimentObjectReference} for types of object
+     *            that can be filtered on.
+     * @param requestCode Request to track which listeners are called when the
+     *            object has been picked.
+     */
     public void pickExperimentObject(long sceneId, int filter, int requestCode);
 
     void addActionDataChangeListener(ActionDataChangeListener listener);

@@ -3,6 +3,10 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
+import nz.ac.otago.psyanlab.common.model.util.EventMethod;
+
+import java.lang.reflect.Method;
+
 public class ExperimentObjectReference {
     /**
      * An object that emits events.
@@ -59,6 +63,16 @@ public class ExperimentObjectReference {
      */
     public static final int KIND_SCENE = 0x06;
 
+    public static ExperimentObjectFilter getFilter(int filter) {
+        switch (filter) {
+            case EMITS_EVENTS:
+                return new EmitsEventsFilter();
+
+            default:
+                throw new RuntimeException("Unknown filter type " + filter);
+        }
+    }
+
     /**
      * The object reference id which is unique within the object kind.
      */
@@ -74,5 +88,79 @@ public class ExperimentObjectReference {
     public ExperimentObjectReference(int kind, long id) {
         this.kind = kind;
         this.id = id;
+    }
+
+    public static class EmitsEventsFilter implements ExperimentObjectFilter {
+        @Override
+        public boolean filter(ExperimentObject object) {
+            Method[] methods = object.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].isAnnotationPresent(EventMethod.class)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static interface ExperimentObjectFilter {
+        /**
+         * Filter an object.
+         * 
+         * @return True if the object passes the filter.
+         */
+        boolean filter(ExperimentObject object);
+    }
+
+    public static class HasFloatGettersFilter implements ExperimentObjectFilter {
+        @Override
+        public boolean filter(ExperimentObject object) {
+            Method[] methods = object.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].getReturnType().equals(Float.TYPE)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static class HasIntGettersFilter implements ExperimentObjectFilter {
+        @Override
+        public boolean filter(ExperimentObject object) {
+            Method[] methods = object.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].getReturnType().equals(Integer.TYPE)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static class HasSettersFilter implements ExperimentObjectFilter {
+        @Override
+        public boolean filter(ExperimentObject object) {
+            Method[] methods = object.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].getReturnType().equals(Void.TYPE)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static class HasStringGettersFilter implements ExperimentObjectFilter {
+        @Override
+        public boolean filter(ExperimentObject object) {
+            Method[] methods = object.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].getReturnType().equals(String.class)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

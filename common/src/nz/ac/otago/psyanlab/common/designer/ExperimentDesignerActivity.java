@@ -47,6 +47,7 @@ import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
+import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference.ExperimentObjectFilter;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Loop;
@@ -606,12 +607,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         switch (section) {
             case 0:
                 return new ExperimentObjectAdapter.Wrapper(ExperimentObjectReference.KIND_PROP,
-                        getPropsAdapter(sceneId));
+                        getPropsAdapter(sceneId, filter));
             case 1:
-                return getExperimentControlsAdapter(sceneId);
+                return getExperimentControlsAdapter(sceneId, filter);
             case 2:
                 return new ExperimentObjectAdapter.Wrapper(ExperimentObjectReference.KIND_ASSET,
-                        getAssetsAdapter());
+                        getAssetsAdapter(filter));
 
             default:
                 return null;
@@ -1159,7 +1160,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         for (SceneDataChangeListener l : mSceneDataChangeListeners) {
             l.onSceneDataChange();
         }
-    };
+    }
 
     /**
      * Restore or create the fragment used to keep the experiment in memory
@@ -1178,7 +1179,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             fm.beginTransaction().add(holder, "experiment_holder").commit();
         }
         return holder;
-    }
+    };
 
     /**
      * Restore experiment from persisted state or create it if necessary.
@@ -1255,6 +1256,21 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         notifySceneDataChangeListeners();
     }
 
+    StickyGridHeadersSimpleAdapter getAssetsAdapter(int filter) {
+        ExperimentObjectFilter objectFilter = ExperimentObjectReference.getFilter(filter);
+
+        LongSparseArray<Asset> filteredAssets = new LongSparseArray<Asset>();
+        for (int i = 0; i < mExperiment.assets.size(); i++) {
+            long key = mExperiment.assets.keyAt(i);
+            Asset asset = mExperiment.assets.get(key);
+            if (objectFilter.filter(asset)) {
+                filteredAssets.put(key, asset);
+            }
+        }
+
+        return new AssetsAdapter(this, filteredAssets);
+    }
+
     Collator getCollater() {
         Locale locale = Locale.getDefault();
         Collator collator = Collator.getInstance(locale);
@@ -1270,7 +1286,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      *            adapter.
      * @return Program flow objects ListAdapter.
      */
-    ExperimentObjectAdapter getExperimentControlsAdapter(long sceneId) {
+    ExperimentObjectAdapter getExperimentControlsAdapter(long sceneId, int filter) {
         SortedSet<Pair<ExperimentObject, Long>> experimentControls = new TreeSet<Pair<ExperimentObject, Long>>(
                 new Comparator<Pair<ExperimentObject, Long>>() {
                     @Override
@@ -1283,13 +1299,19 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                     }
                 });
 
-        experimentControls.add(new Pair<ExperimentObject, Long>(mExperiment.scenes.get(sceneId),
-                sceneId));
+        ExperimentObjectFilter objectFilter = ExperimentObjectReference.getFilter(filter);
+
+        Scene scene = mExperiment.scenes.get(sceneId);
+        if (objectFilter.filter(scene)) {
+            experimentControls.add(new Pair<ExperimentObject, Long>(scene, sceneId));
+        }
 
         for (int i = 0; i < mExperiment.loops.size(); i++) {
-            if (mExperiment.loops.valueAt(i).contains(sceneId)) {
-                experimentControls.add(new Pair<ExperimentObject, Long>(mExperiment.loops
-                        .valueAt(i), (long)i));
+            Loop loop = mExperiment.loops.valueAt(i);
+            if (loop.contains(sceneId)) {
+                if (objectFilter.filter(loop)) {
+                    experimentControls.add(new Pair<ExperimentObject, Long>(loop, (long)i));
+                }
                 break;
             }
         }
@@ -1299,8 +1321,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         // experimentControls.add(mExperiment.records);
 
         for (int i = 0; i < mExperiment.generators.size(); i++) {
-            experimentControls.add(new Pair<ExperimentObject, Long>(mExperiment.generators
-                    .valueAt(i), (long)i));
+            Generator generator = mExperiment.generators.valueAt(i);
+            if (objectFilter.filter(generator)) {
+                experimentControls.add(new Pair<ExperimentObject, Long>(generator, (long)i));
+            }
         }
 
         return new ExperimentControlAdapter(this, new ArrayList<Pair<ExperimentObject, Long>>(
@@ -1318,6 +1342,26 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         for (Long propId : mExperiment.scenes.get(sceneId).props) {
             props.put(propId, mExperiment.props.get(propId));
+        }
+
+        return new LongSparseArrayAdapter<Prop>(this, android.R.layout.simple_list_item_1, props);
+    }
+
+    /**
+     * Get an adapter for all props in the given scene.
+     * 
+     * @param sceneId Id of the scene to gather props for.
+     * @return ListAdapter of all props in the given scene.
+     */
+    ListAdapter getPropsAdapter(long sceneId, int filter) {
+        LongSparseArray<Prop> props = new LongSparseArray<Prop>();
+
+        for (Long propId : mExperiment.scenes.get(sceneId).props) {
+            Prop prop = mExperiment.props.get(propId);
+            ExperimentObjectFilter objectFilter = ExperimentObjectReference.getFilter(filter);
+            if (objectFilter.filter(prop)) {
+                props.put(propId, prop);
+            }
         }
 
         return new LongSparseArrayAdapter<Prop>(this, android.R.layout.simple_list_item_1, props);

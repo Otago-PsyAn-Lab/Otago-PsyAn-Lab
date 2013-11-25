@@ -40,6 +40,11 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
     }
 
     @Override
+    public boolean hasStableIds() {
+        return true;
+    }
+
+    @Override
     public int getCount() {
         return mEvents.length;
     }

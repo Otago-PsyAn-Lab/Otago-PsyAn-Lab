@@ -30,6 +30,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 public class RuleFragment extends BaseProgramFragment implements RuleDataChangeListener {
@@ -339,8 +340,15 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject).getPrettyName(
                     getActivity()));
             triggerEvent.setEnabled(true);
-            triggerEvent.setAdapter(mCallbacks.getEventsAdapter(mCallbacks.getExperimentObject(
-                    rule.triggerObject).getClass()));
+            SpinnerAdapter eventsAdapter = mCallbacks.getEventsAdapter(mCallbacks
+                    .getExperimentObject(rule.triggerObject).getClass());
+            triggerEvent.setAdapter(eventsAdapter);
+            for (int i = 0; i < eventsAdapter.getCount(); i++) {
+                if (((int)eventsAdapter.getItemId(i)) == mRule.triggerEvent) {
+                    triggerEvent.setSelection(i);
+                    break;
+                }
+            }
         }
 
         private void unsetTrigger() {

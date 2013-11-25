@@ -326,8 +326,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                     getActivity()));
             triggerEvent.setEnabled(true);
             try {
-                triggerEvent.setAdapter(mCallbacks.getEventsAdapter(ClassLoader
-                        .getSystemClassLoader().loadClass(rule.triggerObject.clazz)));
+                triggerEvent.setAdapter(mCallbacks.getEventsAdapter(Class
+                        .forName(rule.triggerObject.clazz)));
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }

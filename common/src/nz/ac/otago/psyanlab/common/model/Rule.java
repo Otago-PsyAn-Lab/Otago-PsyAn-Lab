@@ -13,7 +13,7 @@ public class Rule {
     public ExperimentObjectReference triggerObject;
 
     @Expose
-    public String triggerEvent;
+    public int triggerEvent;
 
     @Expose
     public Condition condition;

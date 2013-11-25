@@ -25,6 +25,7 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -150,6 +151,21 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
+    public OnItemSelectedListener mTriggerEventOnItemSelectedListener = new OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            // Only the adapter handles this as a long, it is an int everywhere
+            // else.
+            mRule.triggerEvent = (int)id;
+
+            mCallbacks.updateRule(mObjectId, mRule);
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+        }
+    };
+
     public OnClickListener mTriggerObjectOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -166,11 +182,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         public void onResult(Bundle data) {
             long objectId = data.getLong(PickObjectDialogueFragment.RESULT_OBJECT_ID);
             int objectKind = data.getInt(PickObjectDialogueFragment.RESULT_OBJECT_KIND);
-            String objectClassString = data
-                    .getString(PickObjectDialogueFragment.RESULT_OBJECT_CLASS_STRING);
 
-            mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId,
-                    objectClassString);
+            mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId);
 
             mCallbacks.updateRule(mObjectId, mRule);
         }
@@ -302,13 +315,15 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             actionsList.setDivider(null);
 
             triggerObject.setOnClickListener(mTriggerObjectOnClickListener);
-            triggerEvent.setEnabled(false);
+            triggerEvent.setOnItemSelectedListener(mTriggerEventOnItemSelectedListener);
         }
 
         public void setViewValues(Rule rule) {
             name.setText(rule.name);
             if (rule.triggerObject != null) {
                 setTrigger(rule);
+            } else {
+                unsetTrigger();
             }
         }
 
@@ -318,6 +333,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             }
             if (newRule.triggerObject != null) {
                 setTrigger(newRule);
+            } else {
+                unsetTrigger();
             }
         }
 
@@ -325,12 +342,14 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject).getPrettyName(
                     getActivity()));
             triggerEvent.setEnabled(true);
-            try {
-                triggerEvent.setAdapter(mCallbacks.getEventsAdapter(Class
-                        .forName(rule.triggerObject.clazz)));
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            triggerEvent.setAdapter(mCallbacks.getEventsAdapter(mCallbacks.getExperimentObject(
+                    rule.triggerObject).getClass()));
+        }
+
+        private void unsetTrigger() {
+            triggerObject.setText(null);
+            triggerEvent.setEnabled(false);
+            triggerEvent.setAdapter(null);
         }
     }
 }

@@ -461,18 +461,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         try {
             m = clazz.getMethod("getEventNameFactory", (Class<?>[])null);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
         }
 
         NameResolverFactory factory;
         try {
             factory = (NameResolverFactory)m.invoke(null, (Object[])null);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException("Error getting event name factory for class " + clazz, e);
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
         }
 
         // Toss into a final to enable access in the anon comparator.

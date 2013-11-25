@@ -282,8 +282,6 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         public TextView name;
 
-        public ListView operands;
-
         public Spinner triggerEvent;
 
         public Button triggerObject;

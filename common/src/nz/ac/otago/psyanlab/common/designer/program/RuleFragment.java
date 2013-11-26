@@ -155,11 +155,10 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     public OnItemSelectedListener mTriggerEventOnItemSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            // Only the adapter handles this as a long, it is an int everywhere
-            // else.
-            mRule.triggerEvent = (int)id;
-
-            mCallbacks.updateRule(mObjectId, mRule);
+            if (mRule.triggerEvent != (int)id) {
+                mRule.triggerEvent = (int)id;
+                mCallbacks.updateRule(mObjectId, mRule);
+            }
         }
 
         @Override

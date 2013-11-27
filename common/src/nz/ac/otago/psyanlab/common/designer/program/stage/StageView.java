@@ -167,7 +167,7 @@ public class StageView extends AdapterView<StageAdapter> {
 
     @Override
     public View getSelectedView() {
-        throw new RuntimeException("Unsupport method: View setSelectedView()");
+        throw new RuntimeException("Unsupport method: View getSelectedView()");
     }
 
     @Override

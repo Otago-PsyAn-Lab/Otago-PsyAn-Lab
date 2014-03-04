@@ -3,7 +3,7 @@ package nz.ac.otago.psyanlab.common.model.prop;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Prop;
-import nz.ac.otago.psyanlab.common.model.util.EventMethod;
+import nz.ac.otago.psyanlab.common.model.util.EventId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
@@ -36,11 +36,11 @@ public class Button extends Text {
         super(in);
     }
 
-    @EventMethod(methodId = EVENT_ON_CLICK)
+    @EventId(EVENT_ON_CLICK)
     public void onClickStub() {
     }
 
-    @EventMethod(methodId = EVENT_ON_LONG_CLICK)
+    @EventId(EVENT_ON_LONG_CLICK)
     public void onLongClickStub() {
     }
 

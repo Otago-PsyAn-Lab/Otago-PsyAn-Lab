@@ -213,5 +213,10 @@
     <string name="event_on_click">On Click</string>
     <string name="event_on_long_click">On Long Click</string>
     <string name="method_missing_string">Missing String</string>
+    <string name="method_set_string">Set String</string>
+    <string name="operand_type_float">float</string>
+    <string name="operand_type_integer">integer</string>
+    <string name="operand_type_string">string</string>
+    <string name="operand_type_unknown">unknown type</string>
 
 </resources>

@@ -7,16 +7,22 @@ import java.util.ArrayList;
 
 public class Action {
     @Expose
+    public int actionMethod;
+
+    @Expose
+    public ExperimentObjectReference actionObject;
+
+    @Expose
     public String method;
+
+    @Expose
+    public String name;
 
     @Expose
     public String object;
 
     @Expose
     public ArrayList<Operand> operands;
-
-    @Expose
-    public String name;
 
     public Action() {
         operands = new ArrayList<Operand>();

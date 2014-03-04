@@ -21,27 +21,11 @@ import nz.ac.otago.psyanlab.common.model.Scene;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.widget.ListAdapter;
 import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
 
 public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
-    public ExperimentObject getExperimentObject(ExperimentObjectReference object);
-
-    public ArrayList<Prop> getPropsArray(long stageId);
-
-    /**
-     * Open UI to pick an Experiment Object.
-     * 
-     * @param sceneId Id of the scene in which the object will be found.
-     * @param filter See {@link ExperimentObjectReference} for types of object
-     *            that can be filtered on.
-     * @param requestCode Request to track which listeners are called when the
-     *            object has been picked.
-     */
-    public void pickExperimentObject(long sceneId, int filter, int requestCode);
-
     void addActionDataChangeListener(ActionDataChangeListener listener);
 
     void addGeneratorDataChangeListener(GeneratorDataChangeListener listener);
@@ -80,6 +64,8 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     SpinnerAdapter getEventsAdapter(Class<?> clazz);
 
+    ExperimentObject getExperimentObject(ExperimentObjectReference object);
+
     Generator getGenerator(long id);
 
     ProgramComponentAdapter<Generator> getGeneratorAdapter(long loopId);
@@ -88,11 +74,13 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     ProgramComponentAdapter<Loop> getLoopAdapter();
 
-    ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType);
+    SpinnerAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType);
 
     ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter);
 
     FragmentPagerAdapter getObjectsPagerAdapter(FragmentManager fm, long sceneId, Factory factory);
+
+    ArrayList<Prop> getPropsArray(long stageId);
 
     Rule getRule(long ruleId);
 
@@ -101,6 +89,21 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
     Scene getScene(long sceneId);
 
     ProgramComponentAdapter<Scene> getScenesAdapter(long loopId);
+
+    /**
+     * Open UI to pick an Experiment Object. Result is notified through listener
+     * interface set via
+     * {@link #registerDialogueResultListener(int, nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener)
+     * registerDialogueResultListener} .
+     * 
+     * @param sceneId Id of the scene in which the object will be found.
+     * @param filter See {@link ExperimentObjectReference
+     *            ExperimentObjectReference} for types of object that can be
+     *            filtered on.
+     * @param requestCode Request to track which listeners are called when the
+     *            object has been picked.
+     */
+    void pickExperimentObject(long sceneId, int filter, int requestCode);
 
     void removeActionDataChangeListener(ActionDataChangeListener listener);
 
@@ -121,5 +124,4 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
     void updateRule(long id, Rule rule);
 
     void updateScene(long id, Scene scene);
-
 }

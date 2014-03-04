@@ -3,7 +3,8 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
-import nz.ac.otago.psyanlab.common.model.util.EventMethod;
+import nz.ac.otago.psyanlab.common.model.util.EventId;
+import nz.ac.otago.psyanlab.common.model.util.MethodId;
 
 import java.lang.reflect.Method;
 
@@ -54,19 +55,32 @@ public class ExperimentObjectReference {
     public static final int KIND_LOOP = 0x04;
 
     /**
+     * An object which is a king of operand.
+     */
+    public static final int KIND_OPERAND = 0x05;
+
+    /**
      * An object which is a kind of prop.
      */
-    public static final int KIND_PROP = 0x05;
+    public static final int KIND_PROP = 0x06;
 
     /**
      * An object which is a kind of scene.
      */
-    public static final int KIND_SCENE = 0x06;
+    public static final int KIND_SCENE = 0x07;
 
     public static ExperimentObjectFilter getFilter(int filter) {
         switch (filter) {
             case EMITS_EVENTS:
                 return new EmitsEventsFilter();
+            case HAS_SETTERS:
+                return new HasSettersFilter();
+            case HAS_INT_GETTERS:
+                return new HasIntGettersFilter();
+            case HAS_FLOAT_GETTERS:
+                return new HasFloatGettersFilter();
+            case HAS_STRING_GETTERS:
+                return new HasStringGettersFilter();
 
             default:
                 throw new RuntimeException("Unknown filter type " + filter);
@@ -95,7 +109,8 @@ public class ExperimentObjectReference {
         public boolean filter(ExperimentObject object) {
             Method[] methods = object.getClass().getMethods();
             for (int i = 0; i < methods.length; i++) {
-                if (methods[i].isAnnotationPresent(EventMethod.class)) {
+                Method method = methods[i];
+                if (method.isAnnotationPresent(EventId.class)) {
                     return true;
                 }
             }
@@ -117,7 +132,9 @@ public class ExperimentObjectReference {
         public boolean filter(ExperimentObject object) {
             Method[] methods = object.getClass().getMethods();
             for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getReturnType().equals(Float.TYPE)) {
+                Method method = methods[i];
+                if (method.getReturnType().equals(Float.TYPE)
+                        && method.isAnnotationPresent(MethodId.class)) {
                     return true;
                 }
             }
@@ -130,7 +147,9 @@ public class ExperimentObjectReference {
         public boolean filter(ExperimentObject object) {
             Method[] methods = object.getClass().getMethods();
             for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getReturnType().equals(Integer.TYPE)) {
+                Method method = methods[i];
+                if (method.getReturnType().equals(Integer.TYPE)
+                        && method.isAnnotationPresent(MethodId.class)) {
                     return true;
                 }
             }
@@ -143,7 +162,9 @@ public class ExperimentObjectReference {
         public boolean filter(ExperimentObject object) {
             Method[] methods = object.getClass().getMethods();
             for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getReturnType().equals(Void.TYPE)) {
+                Method method = methods[i];
+                if (method.getReturnType().equals(Void.TYPE)
+                        && method.isAnnotationPresent(MethodId.class)) {
                     return true;
                 }
             }
@@ -156,7 +177,9 @@ public class ExperimentObjectReference {
         public boolean filter(ExperimentObject object) {
             Method[] methods = object.getClass().getMethods();
             for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getReturnType().equals(String.class)) {
+                Method method = methods[i];
+                if (method.getReturnType().equals(String.class)
+                        && method.isAnnotationPresent(MethodId.class)) {
                     return true;
                 }
             }

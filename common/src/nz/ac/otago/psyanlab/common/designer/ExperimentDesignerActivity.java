@@ -42,6 +42,8 @@ import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.EventAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.LongSparseArrayAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
@@ -51,10 +53,13 @@ import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference.ExperimentObj
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Loop;
+import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
-import nz.ac.otago.psyanlab.common.model.util.EventMethod;
+import nz.ac.otago.psyanlab.common.model.util.EventId;
+import nz.ac.otago.psyanlab.common.model.util.MethodId;
+import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
@@ -93,7 +98,6 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -146,6 +150,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     private Pair<Long, ProgramComponentAdapter<Action>> mCurrentActionAdapter;
 
     private Pair<Long, ProgramComponentAdapter<Generator>> mCurrentGeneratorAdapter;
+
+    private Pair<Long, ProgramComponentAdapter<Operand>> mCurrentParameterAdapter;
 
     private Pair<Long, ProgramComponentAdapter<Rule>> mCurrentRuleAdapter;
 
@@ -457,34 +463,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     @Override
     public SpinnerAdapter getEventsAdapter(final Class<?> clazz) {
         // Obtain the name factory to pull the internationalised event names.
-        SortedSet<EventMethod> filteredEvents;
-        Method m;
-        try {
-            m = clazz.getMethod("getEventNameFactory", (Class<?>[])null);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Error getting event name factory for " + clazz, e);
-        }
+        SortedSet<EventId> filteredEvents;
 
-        NameResolverFactory factory;
-        try {
-            factory = (NameResolverFactory)m.invoke(null, (Object[])null);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Error getting event name factory for " + clazz, e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Error getting event name factory for " + clazz, e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Error getting event name factory for " + clazz, e);
-        }
+        final NameResolverFactory nameFactory = ModelUtils.getEventNameFactory(clazz);
 
-        // Toss into a final to enable access in the anon comparator.
-        final NameResolverFactory eventNameFactory = factory;
-
-        filteredEvents = new TreeSet<EventMethod>(new Comparator<EventMethod>() {
+        filteredEvents = new TreeSet<EventId>(new Comparator<EventId>() {
             @Override
-            public int compare(EventMethod lhs, EventMethod rhs) {
+            public int compare(EventId lhs, EventId rhs) {
                 Collator collator = getCollater();
-                return collator.compare(getString(eventNameFactory.getResId(lhs.methodId())),
-                        getString(eventNameFactory.getResId(rhs.methodId())));
+                return collator.compare(getString(nameFactory.getResId(lhs.value())),
+                        getString(nameFactory.getResId(rhs.value())));
             }
         });
 
@@ -492,13 +480,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         // Filter methods for those which register listeners for events.
         for (int i = 0; i < methods.length; i++) {
-            EventMethod annotation = methods[i].getAnnotation(EventMethod.class);
+            EventId annotation = methods[i].getAnnotation(EventId.class);
             if (annotation != null) {
                 filteredEvents.add(annotation);
             }
         }
 
-        return new EventAdapter(this, filteredEvents, eventNameFactory);
+        return new EventAdapter(this, filteredEvents, nameFactory);
     }
 
     @Override
@@ -581,25 +569,55 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      * @return
      */
     @Override
-    public ListAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
-        SortedSet<Method> filteredMethods = new TreeSet<Method>(new Comparator<Method>() {
+    public SpinnerAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
+        // SortedSet<Method> filteredMethods = new TreeSet<Method>(new
+        // Comparator<Method>() {
+        // @Override
+        // public int compare(Method lhs, Method rhs) {
+        // Collator collator = getCollater();
+        // return 0;
+        // // return
+        // // collator.compare(getString(lhs.getAnnotation(Eve.class).value()),
+        // // getString(rhs.getAnnotation(I18nName.class).value()));
+        // }
+        // });
+        //
+        // Method[] methods = clazz.getMethods();
+        // for (int i = 0; i < methods.length; i++) {
+        // if (methods[i].getReturnType().equals(returnType)) {
+        // filteredMethods.add(methods[i]);
+        // }
+        // }
+        // return null;
+
+        // Obtain the name factory to pull the internationalised event names.
+        SortedSet<MethodData> filteredMethods;
+
+        final NameResolverFactory nameFactory = ModelUtils.getMethodNameFactory(clazz);
+
+        filteredMethods = new TreeSet<MethodData>(new Comparator<MethodData>() {
             @Override
-            public int compare(Method lhs, Method rhs) {
+            public int compare(MethodData lhs, MethodData rhs) {
                 Collator collator = getCollater();
-                return 0;
-                // return
-                // collator.compare(getString(lhs.getAnnotation(Eve.class).value()),
-                // getString(rhs.getAnnotation(I18nName.class).value()));
+                return collator.compare(getString(nameFactory.getResId(lhs.id.value())),
+                        getString(nameFactory.getResId(rhs.id.value())));
             }
         });
 
         Method[] methods = clazz.getMethods();
+
+        // Filter methods for those which register listeners for events.
         for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getReturnType().equals(returnType)) {
-                filteredMethods.add(methods[i]);
+            MethodId annotation = methods[i].getAnnotation(MethodId.class);
+            if (annotation != null) {
+                MethodData data = new MethodData();
+                data.id = annotation;
+                data.method = methods[i];
+                filteredMethods.add(data);
             }
         }
-        return null;
+
+        return new MethodAdapter(this, filteredMethods, nameFactory);
     }
 
     @Override
@@ -895,6 +913,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     @Override
     public void updateAction(long id, Action action) {
         mExperiment.actions.put(id, action);
+
+        if (mCurrentParameterAdapter != null && mCurrentGeneratorAdapter.first == id) {
+            notifyParameterAdapter();
+        }
+
         notifyActionDataChangeListeners();
     }
 
@@ -1126,6 +1149,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     }
 
+    private void notifyParameterAdapter() {
+        if (mCurrentParameterAdapter == null) {
+            return;
+        }
+
+        mCurrentParameterAdapter.second.notifyDataSetChanged();
+    }
+
     private void notifyRuleAdapter() {
         if (mCurrentRuleAdapter == null) {
             return;
@@ -1150,7 +1181,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         mCurrentSceneAdapter.second.notifyDataSetChanged();
-    }
+    };
 
     private void notifySceneDataChangeListeners() {
         if (mSceneDataChangeListeners == null) {
@@ -1179,7 +1210,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             fm.beginTransaction().add(holder, "experiment_holder").commit();
         }
         return holder;
-    };
+    }
 
     /**
      * Restore experiment from persisted state or create it if necessary.

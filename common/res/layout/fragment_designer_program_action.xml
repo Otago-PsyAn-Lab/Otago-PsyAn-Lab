@@ -61,91 +61,21 @@
         android:layout_below="@+id/name_container"
         android:background="?android:attr/listDivider" />
 
-    <ScrollView
-        android:id="@+id/column"
+    <ListView
+        android:id="@+id/parameters"
         style="@style/column"
         android:layout_width="0dip"
         android:layout_height="match_parent"
-        android:layout_alignLeft="@+id/name_container"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/name_container"
-        android:layout_below="@+id/divide" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <GridLayout
-                style="@style/card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dip"
-                android:columnCount="2"
-                android:useDefaultMargins="false" >
-
-                <TextView
-                    android:layout_columnSpan="2"
-                    android:layout_gravity="center_vertical"
-                    android:fontFamily="sans-serif-light"
-                    android:text="@string/label_action"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <TextView
-                    android:layout_gravity="center_vertical|start"
-                    android:layout_marginTop="8dip"
-                    android:fontFamily="sans-serif-light"
-                    android:paddingRight="8dip"
-                    android:text="@string/label_action_object"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <Spinner
-                    android:id="@+id/action_object"
-                    android:layout_gravity="fill_horizontal"
-                    android:layout_marginTop="8dip"
-                    android:minHeight="48dip" />
-
-                <TextView
-                    android:layout_gravity="center_vertical|start"
-                    android:layout_marginTop="8dip"
-                    android:fontFamily="sans-serif-light"
-                    android:paddingRight="8dip"
-                    android:text="@string/label_action_method"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <Spinner
-                    android:id="@+id/action_method"
-                    android:layout_gravity="fill_horizontal"
-                    android:layout_marginTop="8dip"
-                    android:minHeight="48dip" />
-            </GridLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dip"
-                android:background="?android:attr/listDivider" />
-
-            <TextView
-                style="@style/card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginTop="16dip"
-                android:fontFamily="sans-serif-light"
-                android:text="@string/label_parameters"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dip"
-                android:background="?android:attr/listDivider" />
-
-            <LinearLayout
-                android:id="@+id/parameters"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </LinearLayout>
-    </ScrollView>
+        android:layout_below="@+id/divide"
+        android:clipToPadding="false"
+        android:drawSelectorOnTop="false"
+        android:listSelector="@drawable/action_list_selector_holo_light"
+        android:paddingBottom="16dip"
+        android:paddingTop="16dip"
+        android:scrollbarStyle="outsideOverlay" />
 
     <View
         android:layout_width="0dip"

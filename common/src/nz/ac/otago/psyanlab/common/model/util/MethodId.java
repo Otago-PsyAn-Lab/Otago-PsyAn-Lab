@@ -26,10 +26,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A method which registers a listener for an event emitted by the class.
+ * Holder for a method id to identify equivalent methods in multiple classes.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EventMethod {
-    int methodId();
+public @interface MethodId {
+    int value();
 }

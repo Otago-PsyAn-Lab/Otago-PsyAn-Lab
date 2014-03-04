@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class ModelUtils {
     private static Gson mGson;
@@ -40,13 +42,55 @@ public class ModelUtils {
         return mGson;
     }
 
-    public static Experiment readFile(File paleFile) throws FileNotFoundException {
-        return ModelUtils.getDataReaderWriter().fromJson(new JsonReader(new FileReader(paleFile)),
-                Experiment.class);
+    public static NameResolverFactory getEventNameFactory(final Class<?> clazz) {
+        Method m;
+        try {
+            m = clazz.getMethod("getEventNameFactory", (Class<?>[])null);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
+        }
+
+        final NameResolverFactory nameFactory;
+        try {
+            nameFactory = (NameResolverFactory)m.invoke(null, (Object[])null);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Error getting event name factory for " + clazz, e);
+        }
+        return nameFactory;
+    }
+
+    public static NameResolverFactory getMethodNameFactory(final Class<?> clazz) {
+        Method m;
+        try {
+            m = clazz.getMethod("getMethodNameFactory", (Class<?>[])null);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Error getting method name factory for " + clazz, e);
+        }
+
+        final NameResolverFactory nameFactory;
+        try {
+            nameFactory = (NameResolverFactory)m.invoke(null, (Object[])null);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error getting method name factory for " + clazz, e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Error getting method name factory for " + clazz, e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Error getting method name factory for " + clazz, e);
+        }
+        return nameFactory;
     }
 
     public static Experiment readDefinition(String paleDefinition) {
         return ModelUtils.getDataReaderWriter().fromJson(
                 new JsonReader(new StringReader(paleDefinition)), Experiment.class);
+    }
+
+    public static Experiment readFile(File paleFile) throws FileNotFoundException {
+        return ModelUtils.getDataReaderWriter().fromJson(new JsonReader(new FileReader(paleFile)),
+                Experiment.class);
     }
 }

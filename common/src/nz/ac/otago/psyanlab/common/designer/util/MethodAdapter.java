@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import nz.ac.otago.psyanlab.common.model.util.EventId;
+import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
@@ -14,39 +14,35 @@ import android.widget.ListAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import java.lang.reflect.Method;
 import java.util.SortedSet;
 
-public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAdapter {
+public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAdapter {
     private Context mContext;
-
-    private EventId[] mEvents;
 
     private LayoutInflater mInflater;
 
+    private MethodData[] mMethods;
+
     private NameResolverFactory mNameFactory;
 
-    public EventAdapter(Context context, SortedSet<EventId> events,
+    public MethodAdapter(Context context, SortedSet<MethodData> methods,
             NameResolverFactory nameFactory) {
         mContext = context;
         mNameFactory = nameFactory;
         mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        mEvents = new EventId[events.size()];
+        mMethods = new MethodData[methods.size()];
         int i = 0;
-        for (EventId event : events) {
-            mEvents[i] = event;
+        for (MethodData method : methods) {
+            mMethods[i] = method;
             i++;
         }
     }
 
     @Override
-    public boolean hasStableIds() {
-        return true;
-    }
-
-    @Override
     public int getCount() {
-        return mEvents.length;
+        return mMethods.length;
     }
 
     @Override
@@ -61,20 +57,20 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
             holder = (TextViewHolder)convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mEvents[position]
+        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mMethods[position].id
                 .value())));
 
         return convertView;
     }
 
     @Override
-    public Object getItem(int position) {
-        return mEvents[position];
+    public MethodData getItem(int position) {
+        return mMethods[position];
     }
 
     @Override
     public long getItemId(int position) {
-        return mEvents[position].value();
+        return mMethods[position].id.value();
     }
 
     @Override
@@ -89,9 +85,20 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
             holder = (TextViewHolder)convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mEvents[position]
+        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mMethods[position].id
                 .value())));
 
         return convertView;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
+    }
+
+    public static class MethodData {
+        public MethodId id;
+
+        public Method method;
     }
 }

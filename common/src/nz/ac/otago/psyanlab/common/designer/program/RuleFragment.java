@@ -169,6 +169,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     public OnClickListener mTriggerObjectOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            // Once the user has picked an experiment object we will be notified
+            // through our listener, mDialogueResultListener.
             mCallbacks.pickExperimentObject(mSceneId, ExperimentObjectReference.EMITS_EVENTS,
                     RequestCodes.RULE_TRIGGER_OBJECT);
         }
@@ -233,6 +235,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         mViews.setViewValues(mRule);
         mViews.initViews();
 
+        // Register a listener for when a rule trigger object has been set.
         mCallbacks.registerDialogueResultListener(RequestCodes.RULE_TRIGGER_OBJECT,
                 mDialogueResultListener);
     }

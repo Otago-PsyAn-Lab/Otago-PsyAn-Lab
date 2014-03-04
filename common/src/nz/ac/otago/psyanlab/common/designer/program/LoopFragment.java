@@ -258,7 +258,10 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
+        View v = inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
+        ListView list = (ListView)v.findViewById(R.id.generators);
+        list.addHeaderView(inflater.inflate(R.layout.loop_header_content, list, false));
+        return v;
     }
 
     @Override
@@ -302,7 +305,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         mViews = new ViewHolder(getResources(), view);
         mViews.setViewValues(mLoop);
         mViews.initViews();
-
     }
 
     @Override
@@ -411,12 +413,13 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             super(view);
             mResources = resources;
 
+            generatorsList = (ListView)view.findViewById(R.id.generators);
+
             iterations = (Button)view.findViewById(R.id.iterations);
             name = (EditText)view.findViewById(R.id.name);
             newGenerator = view.findViewById(R.id.new_generator);
             newScene = view.findViewById(R.id.new_scene);
             scenesList = (ListView)view.findViewById(R.id.scenes);
-            generatorsList = (ListView)view.findViewById(R.id.generators);
         }
 
         public void initViews() {

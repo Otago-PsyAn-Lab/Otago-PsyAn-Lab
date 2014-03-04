@@ -110,7 +110,11 @@
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/name_container"
-        android:layout_below="@+id/divide" >
+        android:layout_below="@+id/divide"
+        android:clipToPadding="false"
+        android:paddingBottom="16dip"
+        android:paddingTop="16dip"
+        android:scrollbarStyle="outsideOverlay" >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -121,7 +125,6 @@
                 style="@style/card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dip"
                 android:columnCount="2"
                 android:useDefaultMargins="false" >
 

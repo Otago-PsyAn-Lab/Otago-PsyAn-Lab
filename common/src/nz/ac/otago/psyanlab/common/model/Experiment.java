@@ -52,6 +52,8 @@ public class Experiment {
 
     private File workingDirectory;
 
+    public LongSparseArray<Operand> operands;
+
     public Experiment() {
         actions = new LongSparseArray<Action>();
         assets = new LongSparseArray<Asset>();

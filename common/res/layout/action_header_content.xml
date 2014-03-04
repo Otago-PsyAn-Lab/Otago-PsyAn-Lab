@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/column"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <GridLayout
+        style="@style/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:useDefaultMargins="false" >
+
+        <TextView
+            android:layout_columnSpan="2"
+            android:layout_gravity="center_vertical"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/label_action"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginTop="8dip"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/label_action_object"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/action_object"
+            style="?android:attr/spinnerStyle"
+            android:layout_gravity="fill_horizontal"
+            android:layout_marginTop="8dip"
+            android:gravity="center_vertical|left"
+            android:minHeight="48dip"
+            android:paddingLeft="12dp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginTop="8dip"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/label_action_method"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/action_method"
+            android:layout_gravity="fill_horizontal"
+            android:layout_marginTop="8dip"
+            android:minHeight="48dip" />
+    </GridLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        style="@style/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="16dip"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/label_parameters"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+</LinearLayout>

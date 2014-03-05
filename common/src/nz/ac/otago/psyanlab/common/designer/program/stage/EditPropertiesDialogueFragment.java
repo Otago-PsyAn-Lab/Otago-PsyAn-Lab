@@ -58,8 +58,8 @@ public class EditPropertiesDialogueFragment extends DialogFragment {
         public void onItemSelected(AdapterView<?> spinner, View view, int position, long id) {
             spinner.postDelayed(
                     new OrientationChange(
-                            position == Scene.ORIENTATION_LANDSCAPE ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                                    : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT), 33);
+                            position == Scene.ORIENTATION_LANDSCAPE ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                                    : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT), 33);
         }
 
         @Override

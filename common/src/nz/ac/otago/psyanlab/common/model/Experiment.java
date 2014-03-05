@@ -15,9 +15,6 @@ public class Experiment {
     public LongSparseArray<Asset> assets;
 
     @Expose
-    public TargetScreen screen;
-
-    @Expose
     public String authors;
 
     @Expose
@@ -39,6 +36,9 @@ public class Experiment {
     public String name;
 
     @Expose
+    public LongSparseArray<Operand> operands;
+
+    @Expose
     public Program program;
 
     @Expose
@@ -51,9 +51,10 @@ public class Experiment {
     public LongSparseArray<Scene> scenes;
 
     @Expose
-    public int version;
+    public TargetScreen screen;
 
-    public LongSparseArray<Operand> operands;
+    @Expose
+    public int version;
 
     private File workingDirectory;
 
@@ -62,6 +63,7 @@ public class Experiment {
         assets = new LongSparseArray<Asset>();
         generators = new LongSparseArray<Generator>();
         loops = new LongSparseArray<Loop>();
+        operands = new LongSparseArray<Operand>();
         props = new LongSparseArray<Prop>();
         rules = new LongSparseArray<Rule>();
         scenes = new LongSparseArray<Scene>();

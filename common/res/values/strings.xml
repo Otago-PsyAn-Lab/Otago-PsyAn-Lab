@@ -218,5 +218,7 @@
     <string name="operand_type_integer">integer</string>
     <string name="operand_type_string">string</string>
     <string name="operand_type_unknown">unknown type</string>
+    <string name="test_method_2">Test Method 2</string>
+    <string name="test_method_3">Test Method 3</string>
 
 </resources>

@@ -16,14 +16,14 @@ public class Rule {
     public int triggerEvent;
 
     @Expose
-    public Condition condition;
+    public Expression condition;
 
     @Expose
     public ArrayList<Long> actions;
 
     public Rule() {
         actions = new ArrayList<Long>();
-        condition = new Condition();
+        condition = new Expression();
         name = "New Rule";
     }
 }

@@ -3,9 +3,11 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
+import nz.ac.otago.psyanlab.common.model.util.OperandHolder;
+
 import java.util.ArrayList;
 
-public class Action {
+public class Action implements OperandHolder {
     @Expose
     public int actionMethod;
 
@@ -22,9 +24,14 @@ public class Action {
     public String object;
 
     @Expose
-    public ArrayList<Operand> operands;
+    public ArrayList<Long> operands;
 
     public Action() {
-        operands = new ArrayList<Operand>();
+        operands = new ArrayList<Long>();
+    }
+
+    @Override
+    public ArrayList<Long> getOperands() {
+        return operands;
     }
 }

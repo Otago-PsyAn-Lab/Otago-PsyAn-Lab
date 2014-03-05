@@ -56,10 +56,12 @@ import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
+import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventId;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.util.OperandHolder;
 import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
@@ -111,6 +113,12 @@ import java.util.TreeSet;
 public class ExperimentDesignerActivity extends FragmentActivity implements MetaFragment.Callbacks,
         SubjectFragment.Callbacks, AssetTabFragmentsCallbacks, ProgramCallbacks,
         DialogueResultCallbacks {
+
+    public static final int OPERAND_ACCESS_SCOPE_ACTION = 0x01;
+
+    public static final int OPERAND_ACCESS_SCOPE_EXPRESSION = 0x03;
+
+    public static final int OPERAND_ACCESS_SCOPE_OPERAND = 0x02;
 
     private static final int MODE_EDIT = 0x02;
 
@@ -209,6 +217,47 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private int mMode;
 
+    private LongSparseArray<LongSparseArray<ProgramComponentAdapter<Operand>>> mOperandAdapters = new LongSparseArray<LongSparseArray<ProgramComponentAdapter<Operand>>>();
+
+    private ArrayList<OperandDataChangeListener> mOperandDataChangeListeners;
+
+    private ViewBinder<Operand> mOperandListItemViewBinder = new ViewBinder<Operand>() {
+        @Override
+        public View bind(Operand operand, View convertView, ViewGroup parent) {
+            TextViewHolder holder;
+            if (convertView == null) {
+                convertView = getLayoutInflater()
+                        .inflate(R.layout.list_item_operand, parent, false);
+                holder = new TextViewHolder(3);
+                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+                holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
+                holder.textViews[2] = (TextView)convertView.findViewById(R.id.type);
+                convertView.setTag(holder);
+            } else {
+                holder = (TextViewHolder)convertView.getTag();
+            }
+
+            if (operand instanceof CallOperand) {
+                CallOperand callOperand = (CallOperand)operand;
+                ExperimentObject experimentObject = getExperimentObject(callOperand
+                        .getActionObject());
+                final NameResolverFactory nameFactory = ModelUtils
+                        .getMethodNameFactory(experimentObject.getClass());
+
+                holder.textViews[1].setVisibility(View.VISIBLE);
+                holder.textViews[1].setText(experimentObject
+                        .getPrettyName(ExperimentDesignerActivity.this));
+                holder.textViews[0].setText(nameFactory.getResId(callOperand.getActionMethod()));
+            } else {
+                holder.textViews[0].setText(operand.name);
+                holder.textViews[1].setVisibility(View.GONE);
+            }
+            holder.textViews[2].setText(Operand.getTypeString(ExperimentDesignerActivity.this,
+                    operand.type()));
+            return convertView;
+        }
+    };
+
     private ArrayList<RuleDataChangeListener> mRuleDataChangeListeners;
 
     private ViewBinder<Rule> mRuleListItemViewBinder = new ViewBinder<Rule>() {
@@ -296,6 +345,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void addOperandDataChangeListener(OperandDataChangeListener listener) {
+        if (mOperandDataChangeListeners == null) {
+            mOperandDataChangeListeners = new ArrayList<OperandDataChangeListener>();
+        }
+        mOperandDataChangeListeners.add(listener);
+    }
+
+    @Override
     public void addRuleDataChangeListener(RuleDataChangeListener listener) {
         if (mRuleDataChangeListeners == null) {
             mRuleDataChangeListeners = new ArrayList<RuleDataChangeListener>();
@@ -334,6 +391,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         mExperiment.program.loops.add(key);
         notifyLoopAdapter();
         notifyLoopDataChangeListeners();
+        return key;
+    }
+
+    @Override
+    public long createOperand(Operand operand) {
+        Long key = findUnusedKey(mExperiment.operands);
+        mExperiment.operands.put(key, operand);
+        notifyOperandDataChangeListeners();
         return key;
     }
 
@@ -382,6 +447,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void deleteOperand(long id) {
+        deleteOperandData(id);
+        notifyOperandDataChangeListeners();
+    }
+
+    @Override
     public void deleteRule(long id) {
         deleteRuleData(id);
         notifyRuleDataChangeListeners();
@@ -391,6 +462,29 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     public void deleteScene(long id) {
         deleteSceneData(id);
         notifySceneDataChangeListeners();
+    }
+
+    @Override
+    public void discardOperandAdapter(ProgramComponentAdapter<Operand> adapter) {
+        for (int i = 0; i < mOperandAdapters.size(); i++) {
+            // Check scope level.
+            long scopeKey = mOperandAdapters.keyAt(i);
+            LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope = mOperandAdapters
+                    .get(scopeKey);
+
+            for (int j = 0; j < operandAdaptersInScope.size(); j++) {
+                // Check adapters currently existing for operand parents.
+                long key = operandAdaptersInScope.keyAt(j);
+                if (operandAdaptersInScope.get(key) == adapter) {
+                    operandAdaptersInScope.remove(key);
+                    if (operandAdaptersInScope.size() == 0) {
+                        mOperandAdapters.remove(scopeKey);
+                    }
+                    return;
+                }
+            }
+
+        }
     }
 
     @Override
@@ -651,6 +745,51 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public Operand getOperand(long id) {
+        return mExperiment.operands.get(id);
+    }
+
+    @Override
+    /**
+     * Fetch adapter per scope and parent id. If not, create any missing data structure.
+     */
+    public ProgramComponentAdapter<Operand> getOperandAdapter(long parentId, int scope) {
+        ProgramComponentAdapter<Operand> adapter;
+        LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope;
+
+        operandAdaptersInScope = mOperandAdapters.get(scope);
+        if (operandAdaptersInScope != null) {
+            adapter = operandAdaptersInScope.get(parentId);
+            if (adapter != null) {
+                return adapter;
+            }
+        } else {
+            operandAdaptersInScope = new LongSparseArray<ProgramComponentAdapter<Operand>>();
+            mOperandAdapters.put(scope, operandAdaptersInScope);
+        }
+
+        // Create adapter for our requested scope and parent id.
+
+        OperandHolder operandHolder;
+        switch (scope) {
+            case OPERAND_ACCESS_SCOPE_ACTION:
+                operandHolder = (OperandHolder)mExperiment.actions.get(parentId);
+                break;
+            case OPERAND_ACCESS_SCOPE_OPERAND:
+                operandHolder = (OperandHolder)mExperiment.operands.get(parentId);
+
+            default:
+                throw new RuntimeException("Unknown operand scope " + scope);
+        }
+
+        adapter = new ProgramComponentAdapter<Operand>(mExperiment.operands,
+                operandHolder.getOperands(), mOperandListItemViewBinder);
+        operandAdaptersInScope.put(parentId, adapter);
+
+        return adapter;
+    }
+
+    @Override
     public ArrayList<Prop> getPropsArray(long stageId) {
         ArrayList<Prop> props = new ArrayList<Prop>();
         for (Long propId : mExperiment.scenes.get(stageId).props) {
@@ -859,6 +998,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void removeOperandDataChangeListener(OperandDataChangeListener listener) {
+        mOperandDataChangeListeners.remove(listener);
+    }
+
+    @Override
     public void removeRuleDataChangeListener(RuleDataChangeListener listener) {
         mRuleDataChangeListeners.remove(listener);
     }
@@ -894,6 +1038,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             notifyParameterAdapter();
         }
 
+        updateOperandAdapterIfExists(id, OPERAND_ACCESS_SCOPE_ACTION, action);
+
         notifyActionDataChangeListeners();
     }
 
@@ -927,6 +1073,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void updateOperand(long id, Operand operand) {
+        mExperiment.operands.put(id, operand);
+
+        if (operand instanceof OperandHolder) {
+            OperandHolder holder = (OperandHolder)operand;
+            updateOperandAdapterIfExists(id, OPERAND_ACCESS_SCOPE_OPERAND, holder);
+        }
+
+        notifyOperandAdapters(id);
+
+        notifyOperandDataChangeListeners();
+    }
+
+    @Override
     public void updateRule(long id, Rule rule) {
         mExperiment.rules.put(id, rule);
         notifyRuleAdapter();
@@ -956,7 +1116,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      * @param experiment Experiment to convert.
      */
     private void convertScreen(Experiment experiment) {
-        
+
     }
 
     private void deleteActionData(Long id) {
@@ -986,6 +1146,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         if (mCurrentSceneAdapter != null && mCurrentSceneAdapter.first == id) {
             mCurrentSceneAdapter = null;
+        }
+    }
+
+    private void deleteOperandData(long id) {
+        Operand operand = mExperiment.operands.get(id);
+
+        if (!(operand instanceof CallOperand)) {
+            mExperiment.operands.remove(id);
+            return;
+        }
+
+        ArrayList<Long> operandIds = ((CallOperand)operand).getOperands();
+        for (Long operandId : operandIds) {
+            deleteOperandData(operandId);
         }
     }
 
@@ -1135,13 +1309,46 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     }
 
+    private void notifyOperandAdapters(long id) {
+        // Check all adapters to see if it references this operand we have
+        // updated so we can notify a data set change.
+        for (int i = 0; i < mOperandAdapters.size(); i++) {
+            // Check scope level.
+            LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope = mOperandAdapters
+                    .get(mOperandAdapters.keyAt(i));
+
+            for (int j = 0; j < operandAdaptersInScope.size(); j++) {
+                // Check adapters currently existing for operand parents.
+                ProgramComponentAdapter<Operand> adapter = operandAdaptersInScope
+                        .get(operandAdaptersInScope.keyAt(j));
+
+                for (Long operandId : adapter.getKeys()) {
+                    if (operandId == id) {
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void notifyOperandDataChangeListeners() {
+        if (mOperandDataChangeListeners == null) {
+            return;
+        }
+
+        for (OperandDataChangeListener listener : mOperandDataChangeListeners) {
+            listener.notify();
+        }
+    }
+
     private void notifyParameterAdapter() {
         if (mCurrentParameterAdapter == null) {
             return;
         }
 
         mCurrentParameterAdapter.second.notifyDataSetChanged();
-    }
+    };
 
     private void notifyRuleAdapter() {
         if (mCurrentRuleAdapter == null) {
@@ -1167,7 +1374,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         mCurrentSceneAdapter.second.notifyDataSetChanged();
-    };
+    }
 
     private void notifySceneDataChangeListeners() {
         if (mSceneDataChangeListeners == null) {
@@ -1240,6 +1447,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 mExperimentDelegate.replace(mExperiment);
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    private void updateOperandAdapterIfExists(long scopeId, int scope, OperandHolder holder) {
+        ProgramComponentAdapter<Operand> adapter;
+        LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope;
+
+        operandAdaptersInScope = mOperandAdapters.get(scope);
+        if (operandAdaptersInScope != null) {
+            adapter = operandAdaptersInScope.get(scopeId);
+            if (adapter != null) {
+                adapter.setKeys(holder.getOperands());
+                return;
             }
         }
     }
@@ -1401,6 +1622,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     public interface LoopDataChangeListener {
         void onLoopDataChange();
+    }
+
+    public interface OperandDataChangeListener {
+        void onOperandDataChange();
     }
 
     public interface RuleDataChangeListener {

@@ -12,6 +12,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortListener {
+    private int mBackgroundResource = -1;
+
     /**
      * A list of asset keys. This is sorted according to the referenced asset.
      */
@@ -20,8 +22,6 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
     private LongSparseArray<T> mMap;
 
     private ViewBinder<T> mViewBinder;
-
-    private int mBackgroundResource = -1;
 
     public ProgramComponentAdapter(LongSparseArray<T> map, ArrayList<Long> keys,
             ViewBinder<T> viewBinder) {
@@ -36,32 +36,41 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public void drop(int from, int to) {
-        Long move = mKeys.remove(from);
-        mKeys.add(to, move);
+        Long move = getKeys().remove(from);
+        getKeys().add(to, move);
+        notifyDataSetChanged();
+    }
+
+    public void fixItemBackground(int resId) {
+        mBackgroundResource = resId;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return mKeys.size();
+        return getKeys().size();
     }
 
     @Override
     public T getItem(int pos) {
-        return mMap.get(mKeys.get(pos));
+        return mMap.get(getKeys().get(pos));
     }
 
     @Override
     public long getItemId(int pos) {
-        if (pos < 0 || mKeys.size() <= pos) {
+        if (pos < 0 || getKeys().size() <= pos) {
             return ListView.INVALID_ROW_ID;
         }
-        return mKeys.get(pos);
+        return getKeys().get(pos);
+    }
+
+    public ArrayList<Long> getKeys() {
+        return mKeys;
     }
 
     @Override
     public View getView(int pos, View convertView, ViewGroup parent) {
-        View view = mViewBinder.bind(mMap.get(mKeys.get(pos)), convertView, parent);
+        View view = mViewBinder.bind(mMap.get(getKeys().get(pos)), convertView, parent);
         if (mBackgroundResource != -1) {
             view.setBackgroundResource(mBackgroundResource);
         }
@@ -75,16 +84,16 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public void remove(int which) {
-        mKeys.remove(which);
+        getKeys().remove(which);
+        notifyDataSetChanged();
+    }
+
+    public void setKeys(ArrayList<Long> keys) {
+        mKeys = keys;
         notifyDataSetChanged();
     }
 
     public interface ViewBinder<T> {
         public View bind(T t, View convertView, ViewGroup parent);
-    }
-
-    public void fixItemBackground(int resId) {
-        mBackgroundResource = resId;
-        notifyDataSetChanged();
     }
 }

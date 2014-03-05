@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.ActionDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.GeneratorDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
@@ -15,6 +16,7 @@ import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Loop;
+import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
@@ -32,6 +34,8 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     void addLoopDataChangeListener(LoopDataChangeListener listener);
 
+    void addOperandDataChangeListener(OperandDataChangeListener listener);
+
     void addRuleDataChangeListener(RuleDataChangeListener listener);
 
     void addSceneDataChangeListener(SceneDataChangeListener listener);
@@ -39,6 +43,8 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
     long createAction(Action action);
 
     long createGenerator(Generator generator);
+
+    long createOperand(Operand operand);
 
     long createLoop(Loop loop);
 
@@ -52,11 +58,20 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     void deleteLoop(long id);
 
+    void deleteOperand(long id);
+
     void deleteRule(long id);
 
     void deleteScene(long id);
 
-    void editStage(long objectId);
+    /**
+     * Clean up an operand adapter that is no longer needed.
+     * 
+     * @param adapter Adapter to clean up.
+     */
+    void discardOperandAdapter(ProgramComponentAdapter<Operand> adapter);
+
+    void editStage(long id);
 
     Action getAction(long id);
 
@@ -79,6 +94,10 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
     ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter);
 
     FragmentPagerAdapter getObjectsPagerAdapter(FragmentManager fm, long sceneId, Factory factory);
+
+    Operand getOperand(long id);
+
+    ProgramComponentAdapter<Operand> getOperandAdapter(long scopeId, int scope);
 
     ArrayList<Prop> getPropsArray(long stageId);
 
@@ -111,6 +130,8 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     void removeLoopDataChangeListener(LoopDataChangeListener listener);
 
+    void removeOperandDataChangeListener(OperandDataChangeListener listener);
+
     void removeRuleDataChangeListener(RuleDataChangeListener listener);
 
     void removeSceneDataChangeListener(SceneDataChangeListener listener);
@@ -120,6 +141,8 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
     void updateGenerator(long id, Generator generator);
 
     void updateLoop(long id, Loop loop);
+
+    void updateOperand(long id, Operand operand);
 
     void updateRule(long id, Rule rule);
 

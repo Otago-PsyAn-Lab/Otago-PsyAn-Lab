@@ -2,29 +2,23 @@
 package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.ActionDataChangeListener;
-import nz.ac.otago.psyanlab.common.designer.OperandAdapter;
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter.ViewBinder;
+import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Action;
-import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.FloatValue;
 import nz.ac.otago.psyanlab.common.model.operand.IntegerValue;
 import nz.ac.otago.psyanlab.common.model.operand.StringValue;
-import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
-import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
-import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
-import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -62,36 +56,33 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
                     Class<?> param = params[i];
                     if (param.isAssignableFrom(float.class)) {
                         if (i < mAction.operands.size()) {
-                            if (mAction.operands.get(i).type() != Operand.OPERAND_TYPE_FLOAT) {
-                                mAction.operands.set(i, new FloatValue());
+                            Long operandId = mAction.operands.get(i);
+                            if (mCallbacks.getOperand(operandId).type() != Operand.OPERAND_TYPE_FLOAT) {
+                                mCallbacks.updateOperand(operandId, new FloatValue());
                             }
                         } else {
-                            mAction.operands.add(new FloatValue());
+                            mAction.operands.add(mCallbacks.createOperand(new FloatValue()));
                         }
                     } else if (param.isAssignableFrom(int.class)) {
                         if (i < mAction.operands.size()) {
-                            if (mAction.operands.get(i).type() != Operand.OPERAND_TYPE_INTEGER) {
-                                mAction.operands.set(i, new IntegerValue());
+                            Long operandId = mAction.operands.get(i);
+                            if (mCallbacks.getOperand(operandId).type() != Operand.OPERAND_TYPE_INTEGER) {
+                                mCallbacks.updateOperand(operandId, new IntegerValue());
                             }
                         } else {
-                            mAction.operands.add(new IntegerValue());
+                            mAction.operands.add(mCallbacks.createOperand(new IntegerValue()));
                         }
                     } else if (param.isAssignableFrom(String.class)) {
                         if (i < mAction.operands.size()) {
-                            if (mAction.operands.get(i).type() != Operand.OPERAND_TYPE_STRING) {
-                                mAction.operands.set(i, new StringValue());
+                            Long operandId = mAction.operands.get(i);
+                            if (mCallbacks.getOperand(operandId).type() != Operand.OPERAND_TYPE_STRING) {
+                                mCallbacks.updateOperand(operandId, new StringValue());
                             }
                         } else {
-                            mAction.operands.add(new StringValue());
+                            mAction.operands.add(mCallbacks.createOperand(new StringValue()));
                         }
                     }
                 }
-
-                String msg = "";
-                for (Operand operand : mAction.operands) {
-                    msg += Operand.getTypeString(getActivity(), operand.type()) + ", ";
-                }
-                Log.d("asdfasdf", msg);
 
                 // Strip any trailing items.
                 while (true) {
@@ -100,8 +91,6 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
                     }
                     mAction.operands.remove(params.length);
                 }
-
-                mParameterAdapter.notifyDataSetChanged();
 
                 mAction.actionMethod = (int)id;
                 mCallbacks.updateAction(mObjectId, mAction);
@@ -142,7 +131,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
 
     public OnItemClickListener mOnParameterItemClickListener;
 
-    public OperandAdapter mParameterAdapter;
+    public ProgramComponentAdapter<Operand> mParameterAdapter;
 
     private Action mAction;
 
@@ -156,41 +145,6 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
             mAction.actionObject = new ExperimentObjectReference(objectKind, objectId);
 
             mCallbacks.updateAction(mObjectId, mAction);
-        }
-    };
-
-    private ViewBinder<Operand> mOperandViewBinder = new ViewBinder<Operand>() {
-
-        @Override
-        public View bind(Operand operand, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.list_item_operand, parent, false);
-                holder = new TextViewHolder(3);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
-                holder.textViews[2] = (TextView)convertView.findViewById(R.id.type);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            if (operand instanceof CallOperand) {
-                CallOperand callOperand = (CallOperand)operand;
-                ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
-                        .getActionObject());
-                final NameResolverFactory nameFactory = ModelUtils
-                        .getMethodNameFactory(experimentObject.getClass());
-
-                holder.textViews[1].setVisibility(View.VISIBLE);
-                holder.textViews[1].setText(experimentObject.getPrettyName(getActivity()));
-                holder.textViews[0].setText(nameFactory.getResId(callOperand.getActionMethod()));
-            } else {
-                holder.textViews[0].setText(operand.name);
-                holder.textViews[1].setVisibility(View.GONE);
-            }
-            holder.textViews[2].setText(Operand.getTypeString(getActivity(), operand.type()));
-            return convertView;
         }
     };
 
@@ -238,8 +192,8 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         mAction = mCallbacks.getAction(mObjectId);
         mCallbacks.addActionDataChangeListener(this);
 
-        mParameterAdapter = new OperandAdapter(getActivity(), R.layout.list_item_operand,
-                mAction.operands, mOperandViewBinder);
+        mParameterAdapter = mCallbacks.getOperandAdapter(mObjectId,
+                ExperimentDesignerActivity.OPERAND_ACCESS_SCOPE_ACTION);
 
         mViews = new ViewHolder(view);
         mViews.setViewValues(mAction);

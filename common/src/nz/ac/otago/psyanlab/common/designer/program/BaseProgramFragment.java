@@ -125,7 +125,7 @@ public abstract class BaseProgramFragment extends Fragment {
         mScrollerPosition = position;
     }
 
-    protected abstract ViewHolder getViewHolder();
+    protected abstract ViewHolder<?> getViewHolder();
 
     /**
      * Ask the manager to hide the next fragment after this one.

@@ -1,7 +1,6 @@
 
 package nz.ac.otago.psyanlab.single;
 
-import nz.ac.otago.psyanlab.common.ScreenValuesI;
 import nz.ac.otago.psyanlab.common.UserDelegateI;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.single.model.ExperimentModel;
@@ -26,6 +25,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class UserDelegate implements UserDelegateI {
+    /**
+     * CREATOR for Parcelable.
+     */
     public static final Creator<UserDelegate> CREATOR = new Creator<UserDelegate>() {
         @Override
         public UserDelegate createFromParcel(Parcel in) {
@@ -39,34 +41,26 @@ public class UserDelegate implements UserDelegateI {
     };
 
     private static final int LOADER_EXPERIMENTS = 0x01;
-
     private static final String[] sExperimentsCols = new String[] {
-            ExperimentModel.namespaced(ExperimentModel.KEY_ID), ExperimentModel.KEY_NAME
+            ExperimentModel.namespaced(ExperimentModel.KEY_ID),
+            ExperimentModel.KEY_NAME
     };
 
     private FragmentActivity mActivity;
-
     private SimpleCursorAdapter mAdapter;
-
-    private ScreenValues mScreenValues;
 
     public UserDelegate() {
     }
 
     public UserDelegate(Parcel in) {
-        mScreenValues = in.readParcelable(ScreenValues.class.getClassLoader());
-    }
-
-    @Override
-    public void addExperiment(Experiment experiment) throws IOException {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public Uri addExperiment(String path) throws JSONException, IOException {
         File paleFile = new File(path);
-        ContentValues values = new ExperimentModel(FileUtils.loadExperimentDefinition(paleFile),
-                paleFile).toValues();
+        ContentValues values = new ExperimentModel(
+                FileUtils.loadExperimentDefinition(paleFile), paleFile)
+                .toValues();
         values.put(Args.FILE_PATH, path);
         ContentResolver contentResolver = mActivity.getContentResolver();
         return contentResolver.insert(DataProvider.URI_EXPERIMENTS, values);
@@ -81,20 +75,16 @@ public class UserDelegate implements UserDelegateI {
     public ListAdapter getExperimentsAdapter(int layout, int[] fields, int[] to) {
         String[] from = convertFields(fields);
         mAdapter = new SimpleCursorAdapter(mActivity, layout, null, from, to, 0);
-        mActivity.getSupportLoaderManager().initLoader(LOADER_EXPERIMENTS, null,
-                new ExperimentsLoaderCallbacks());
+        mActivity.getSupportLoaderManager().initLoader(LOADER_EXPERIMENTS,
+                null, new ExperimentsLoaderCallbacks());
 
         return mAdapter;
     }
 
     @Override
-    public ScreenValuesI getScreenValues() {
-        return mScreenValues;
-    }
-
-    @Override
     public ExperimentDelegate getUserExperimentDelegate(long experimentId) {
-        ExperimentDelegate userExperimentDelegate = new ExperimentDelegate(experimentId);
+        ExperimentDelegate userExperimentDelegate = new ExperimentDelegate(
+                experimentId);
         userExperimentDelegate.init(mActivity);
         return userExperimentDelegate;
     }
@@ -109,13 +99,8 @@ public class UserDelegate implements UserDelegateI {
         mActivity = activity;
     }
 
-    public void setScreen(ScreenValues screenValues) {
-        mScreenValues = screenValues;
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-         dest.writeParcelable(mScreenValues, flags);
     }
 
     private String[] convertFields(int[] fields) {
@@ -152,11 +137,13 @@ public class UserDelegate implements UserDelegateI {
         return Arrays.copyOfRange(cols, 0, numUnderstood);
     }
 
-    private final class ExperimentsLoaderCallbacks implements LoaderCallbacks<Cursor> {
+    private final class ExperimentsLoaderCallbacks implements
+            LoaderCallbacks<Cursor> {
         @Override
         public Loader<Cursor> onCreateLoader(int newLoaderId, final Bundle args) {
-            return new CursorLoader(mActivity, DataProvider.URI_EXPERIMENTS, sExperimentsCols,
-                    null, null, ExperimentModel.KEY_NAME + " ASC");
+            return new CursorLoader(mActivity, DataProvider.URI_EXPERIMENTS,
+                    sExperimentsCols, null, null, ExperimentModel.KEY_NAME
+                            + " ASC");
         }
 
         @Override
@@ -174,5 +161,10 @@ public class UserDelegate implements UserDelegateI {
                 oldCursor.close();
             }
         }
+    }
+
+    @Override
+    public void addExperiment(Experiment experiment) throws IOException {
+        // TODO Auto-generated method stub
     }
 }

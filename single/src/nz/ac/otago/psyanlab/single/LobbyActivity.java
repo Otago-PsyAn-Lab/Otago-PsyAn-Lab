@@ -10,11 +10,7 @@ public class LobbyActivity extends PaleActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        ScreenValues screen = getIntent().getParcelableExtra(
-                nz.ac.otago.psyanlab.single.Args.SCREEN_VALUES);
-        UserDelegate userDelegate = new UserDelegate();
-        userDelegate.setScreen(screen);
-        getIntent().putExtra(Args.USER_DELEGATE, userDelegate);
+        getIntent().putExtra(Args.USER_DELEGATE, new UserDelegate());
         super.onCreate(savedInstanceState);
         getActionBar().setHomeButtonEnabled(false);
     }

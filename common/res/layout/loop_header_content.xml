@@ -29,7 +29,10 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:paddingBottom="20dip"
+            android:paddingLeft="12dp"
+            android:paddingTop="20dip" />
     </LinearLayout>
 
     <View

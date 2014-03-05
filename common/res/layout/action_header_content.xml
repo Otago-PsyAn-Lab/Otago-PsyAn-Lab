@@ -34,7 +34,9 @@
             android:layout_marginTop="8dip"
             android:gravity="center_vertical|left"
             android:minHeight="48dip"
+            android:paddingBottom="20dip"
             android:paddingLeft="12dp"
+            android:paddingTop="20dip"
             android:textSize="18sp" />
 
         <TextView

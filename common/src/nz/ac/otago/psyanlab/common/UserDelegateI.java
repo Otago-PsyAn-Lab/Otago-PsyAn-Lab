@@ -51,11 +51,6 @@ public interface UserDelegateI extends Parcelable {
     ListAdapter getExperimentsAdapter(int layout, int[] fields, int[] ids);
 
     /**
-     * Get the dimensions of the different orientations of the screen.
-     */
-    ScreenValuesI getScreenValues();
-
-    /**
      * Get a delegate for an experiment belonging to this user.
      * 
      * @param experimentId Id of the experiment to get a delegate for.

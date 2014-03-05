@@ -15,6 +15,9 @@ public class Experiment {
     public LongSparseArray<Asset> assets;
 
     @Expose
+    public TargetScreen screen;
+
+    @Expose
     public String authors;
 
     @Expose
@@ -50,9 +53,9 @@ public class Experiment {
     @Expose
     public int version;
 
-    private File workingDirectory;
-
     public LongSparseArray<Operand> operands;
+
+    private File workingDirectory;
 
     public Experiment() {
         actions = new LongSparseArray<Action>();

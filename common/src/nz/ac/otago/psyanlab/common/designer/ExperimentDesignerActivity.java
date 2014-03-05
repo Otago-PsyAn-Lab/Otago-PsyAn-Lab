@@ -23,7 +23,6 @@ package nz.ac.otago.psyanlab.common.designer;
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.ScreenValuesI;
 import nz.ac.otago.psyanlab.common.UserDelegateI;
 import nz.ac.otago.psyanlab.common.UserExperimentDelegateI;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter.ViewBinder;
@@ -71,7 +70,6 @@ import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
@@ -83,7 +81,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.ViewPager;
 import android.text.format.Time;
-import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -775,21 +772,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-
-        } else {
-            throw new RuntimeException("Unsupported orientation.");
-        }
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_designer);
+
+        ActionBar actionBar = getActionBar();
+        initActionBar(actionBar);
+
+        mViewPager = (ViewPager)findViewById(R.id.pager);
 
         Bundle extras = getIntent().getExtras();
         mUserDelegate = extras.getParcelable(Args.USER_DELEGATE);
@@ -797,22 +787,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             mExperimentDelegate = extras.getParcelable(Args.USER_EXPERIMENT_DELEGATE);
         }
 
-        ScreenValuesI screen = mUserDelegate.getScreenValues();
-
-        Log.d("asdf", screen.getLandscapeScreen().getWidth() + " "
-                + screen.getLandscapeScreen().getHeight());
-        Log.d("asdf", screen.getPortraitScreen().getWidth() + " "
-                + screen.getPortraitScreen().getHeight());
-
         mExperimentHolderFragment = restoreExperimentHolder();
         mExperiment = restoreOrCreateExperiment(mExperimentHolderFragment);
-
-        setContentView(R.layout.activity_designer);
-
-        ActionBar actionBar = getActionBar();
-        initActionBar(actionBar);
-
-        mViewPager = (ViewPager)findViewById(R.id.pager);
 
         initTabs(actionBar);
 
@@ -971,6 +947,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             notifyRuleAdapter();
         }
         notifySceneDataChangeListeners();
+    }
+
+    /**
+     * Converts the experiment reference screen to the current device. Changes
+     * are logged and viewable as experiment meta-data.
+     * 
+     * @param experiment Experiment to convert.
+     */
+    private void convertScreen(Experiment experiment) {
+        
     }
 
     private void deleteActionData(Long id) {
@@ -1225,7 +1211,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             if (mExperimentDelegate == null) {
                 // No experiment delegate so we are creating a new experiment.
                 experiment = new Experiment();
-
                 experiment.setWorkingDirectory(Environment.getExternalStorageDirectory());
                 Time time = new Time();
                 time.setToNow();

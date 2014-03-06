@@ -16,6 +16,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.NumberPicker;
 
+/**
+ * A dialogue that allows the user to configure an operand.
+ */
 public class EditOperandDialogFragment extends DialogFragment {
     private static final String ARG_ID = "arg_id";
 

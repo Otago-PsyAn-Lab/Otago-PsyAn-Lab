@@ -2,47 +2,21 @@
 package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-public abstract class BaseProgramFragment extends Fragment {
-    protected static final String ARG_OBJECT_ID = "arg_object_id";
-
-    protected static final long INVALID_ID = -1;
-
+public abstract class BaseProgramFragment extends TonicFragment {
     private static final String ARG_BACKGROUND = "arg_background";
-
-    /**
-     * Perform common initialisation tasks to all base program fragments.
-     * 
-     * @param f Fragment to initialise.
-     * @param objectId Porgram object id the fragment will represent.
-     * @return Initialised fragment.
-     */
-    protected static <T extends BaseProgramFragment> T init(T f, long objectId) {
-        Bundle args = new Bundle();
-        args.putLong(ARG_OBJECT_ID, objectId);
-        f.setArguments(args);
-        return f;
-    }
 
     private ScrollerManager mScrollerManager;
 
     private int mScrollerPosition;
 
     protected int mBackgroundResource;
-
-    protected ProgramCallbacks mCallbacks;
-
-    /**
-     * The id of the program object this fragment instance represents.
-     */
-    protected long mObjectId;
 
     /**
      * Get the position of this fragment in the scroller.
@@ -56,32 +30,19 @@ public abstract class BaseProgramFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (!(activity instanceof ProgramCallbacks)) {
-            throw new RuntimeException("Activity must implement fragment callbacks.");
-        }
-        mCallbacks = (ProgramCallbacks)activity;
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
             mBackgroundResource = savedInstanceState.getInt(ARG_BACKGROUND);
         }
+    }
 
-        Bundle args = getArguments();
-        if (args != null) {
-            mObjectId = args.getLong(ARG_OBJECT_ID, INVALID_ID);
-            if (mObjectId == INVALID_ID) {
-                throw new RuntimeException("Invalid object id for fragment "
-                        + this.getClass().getName());
-                // onCreateNewObject();
-            }
-        }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        outState.putInt(ARG_BACKGROUND, mBackgroundResource);
     }
 
     public void setIsLastInList(boolean isLastInList) {
@@ -96,10 +57,6 @@ public abstract class BaseProgramFragment extends Fragment {
                 getViewHolder().background.setBackgroundResource(mBackgroundResource);
             }
         }
-    }
-
-    protected int getFavouredBackground() {
-        return R.drawable.opal_list_background_flat;
     }
 
     /**
@@ -123,6 +80,10 @@ public abstract class BaseProgramFragment extends Fragment {
      */
     public void setScrollerPos(int position) {
         mScrollerPosition = position;
+    }
+
+    protected int getFavouredBackground() {
+        return R.drawable.opal_list_background_flat;
     }
 
     protected abstract ViewHolder<?> getViewHolder();
@@ -162,13 +123,6 @@ public abstract class BaseProgramFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putInt(ARG_BACKGROUND, mBackgroundResource);
-    }
-
     /**
      * Ask the manager to set the next fragment after this one as the given
      * fragment.
@@ -189,18 +143,19 @@ public abstract class BaseProgramFragment extends Fragment {
         void setNextFragment(BaseProgramFragment requester, BaseProgramFragment f);
     }
 
-    protected abstract class ViewHolder<T> {
+    protected abstract class ViewHolder<T> extends TonicFragment.ViewHolder<T> {
         public View background;
 
         public ViewHolder(View view) {
+            super(view);
             background = view.findViewById(R.id.background);
             if (mBackgroundResource != -1) {
                 background.setBackgroundResource(mBackgroundResource);
             }
         }
 
-        abstract void initViews();
+        public abstract void initViews();
 
-        abstract void setViewValues(T object);
+        public abstract void setViewValues(T object);
     }
 }

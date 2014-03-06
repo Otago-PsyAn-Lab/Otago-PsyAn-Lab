@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.model.Loop;
+import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
 import android.os.Bundle;
 import android.view.ActionMode;
@@ -22,8 +23,8 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 public class LoopsListFragment extends BaseProgramFragment {
-    public static BaseProgramFragment newInstance() {
-        BaseProgramFragment f = new LoopsListFragment();
+    public static TonicFragment newInstance() {
+        TonicFragment f = new LoopsListFragment();
         return f;
     }
 
@@ -197,7 +198,7 @@ public class LoopsListFragment extends BaseProgramFragment {
         }
 
         @Override
-        void setViewValues(Object object) {
+        public void setViewValues(Object object) {
         }
     }
 }

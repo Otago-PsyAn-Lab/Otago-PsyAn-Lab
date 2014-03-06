@@ -33,6 +33,8 @@ public class Args {
 
     public static final String LIST_ITEMS_ACTIVATIBLE = "list_items_activatible";
 
+    public static final String OPERAND_ID = "operand_id";
+
     public static final String PROP_ID = "prop_id";
 
     public static final String SCENE_ID = "scene_id";

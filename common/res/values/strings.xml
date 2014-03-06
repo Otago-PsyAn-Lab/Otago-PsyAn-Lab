@@ -147,7 +147,7 @@
     <string name="title_select_actions">Select Actions</string>
     <string name="title_select_generators">Select Generators</string>
     <string name="title_edit_iterations">Set Number of Cycles</string>
-    <string name="format_property_label">%s:</string>
+    <string name="format_property_label">%s</string>
     <string name="title_new_prop">New Prop</string>
     <string name="title_edit_prop">Edit Prop</string>
     <string name="title_save_changes">Save Changes?</string>
@@ -168,8 +168,8 @@
     <string name="action_new_rule">New Rule</string>
     <string name="action_edit">Edit</string>
     <string name="format_screen_dimensions">%1$d×%2$d</string>
-    <string name="label_orientation">Orientation:</string>
-    <string name="label_dimensions">Dimensions:</string>
+    <string name="label_orientation">Orientation</string>
+    <string name="label_dimensions">Dimensions</string>
     <string name="text_stage_undefined">Stage not created.</string>
     <string name="title_select_prop">Select Prop</string>
     <string name="default_text_prop_name">Text Prop</string>
@@ -223,5 +223,7 @@
     <string name="generator_kind_random">random</string>
     <string name="generator_kind_shuffle">shuffle</string>
     <string name="label_generator_range">Range</string>
+    <string name="label_prop_name">Name</string>
+    <string name="label_prop_kind">Kind</string>
 
 </resources>

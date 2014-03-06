@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/opal_activated_background_arrow"
+    android:fontFamily="sans-serif-light"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-    android:paddingTop="8dip"
     android:paddingBottom="8dip"
-    android:paddingLeft="8dip"
-    android:textAppearance="?android:attr/textAppearanceListItemSmall" />
+    android:paddingLeft="16dip"
+    android:paddingTop="8dip"
+    android:textAppearance="?android:attr/textAppearanceMedium" />

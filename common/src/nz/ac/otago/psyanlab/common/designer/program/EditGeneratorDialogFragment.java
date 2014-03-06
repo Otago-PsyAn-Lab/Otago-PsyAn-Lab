@@ -82,7 +82,7 @@ public class EditGeneratorDialogFragment extends DialogFragment {
             mMode = MODE_EDIT;
         }
 
-        View view = inflater.inflate(R.layout.dialogue_designer_program_generator, null);
+        View view = inflater.inflate(R.layout.dialogue_edit_generator, null);
         mViews = new ViewHolder(view);
         mViews.initViews();
         mViews.setViewValues(mGenerator);

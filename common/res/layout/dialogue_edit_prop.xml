@@ -1,75 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="?android:attr/buttonBarStyle"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
     <ScrollView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-        android:padding="8dip" >
+        android:clipToPadding="false"
+        android:paddingBottom="16dip"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip"
+        android:paddingTop="8dip"
+        android:scrollbarStyle="outsideOverlay" >
 
-        <LinearLayout
+        <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <EditText
-                    android:id="@+id/name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="8dip"
-                    android:layout_weight="1"
-                    android:hint="@string/hint_prop_name"
-                    android:imeOptions="actionNext"
-                    android:inputType="textNoSuggestions"
-                    android:selectAllOnFocus="true"
-                    android:singleLine="true"
-                    android:textSize="24sp" />
-
-                <LinearLayout
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dip"
-                    android:layout_weight="1"
-                    android:orientation="horizontal" >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical|end"
-                        android:layout_marginRight="8dip"
-                        android:text="Kind:" />
-
-                    <Spinner
-                        android:id="@+id/type"
-                        android:layout_width="0dip"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:entries="@array/prop_types"
-                        android:minHeight="48dip" />
-                </LinearLayout>
-            </LinearLayout>
+            android:columnCount="2"
+            android:useDefaultMargins="false" >
 
             <TextView
-                style="@style/sectionHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|start"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/label_prop_name"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/name"
                 android:layout_gravity="fill_horizontal"
+                android:hint="@string/hint_prop_name"
+                android:imeOptions="actionNext"
+                android:inputType="textNoSuggestions"
+                android:minHeight="48dip"
+                android:selectAllOnFocus="true"
+                android:singleLine="true" />
+
+            <TextView
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginTop="8dip"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:text="@string/label_prop_kind"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/type"
+                android:layout_gravity="fill_horizontal"
+                android:layout_marginTop="8dip"
+                android:entries="@array/prop_types"
+                android:minHeight="48dip" />
+
+            <TextView
+                android:layout_columnSpan="2"
+                android:layout_gravity="fill_horizontal"
+                android:fontFamily="sans-serif-light"
                 android:paddingBottom="8dip"
                 android:paddingTop="16dip"
-                android:text="Dimensions" />
+                android:text="Dimensions"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:layout_gravity="fill_horizontal"
                 android:orientation="horizontal" >
 
                 <GridLayout
@@ -84,7 +80,9 @@
 
                     <TextView
                         android:layout_gravity="end"
-                        android:text="X:" />
+                        android:fontFamily="sans-serif-light"
+                        android:text="X"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <EditText
                         android:id="@+id/xPos"
@@ -97,7 +95,9 @@
 
                     <TextView
                         android:layout_gravity="end"
-                        android:text="Width:" />
+                        android:fontFamily="sans-serif-light"
+                        android:text="Width"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <EditText
                         android:id="@+id/width"
@@ -121,7 +121,9 @@
 
                     <TextView
                         android:layout_gravity="end"
-                        android:text="Y:" />
+                        android:fontFamily="sans-serif-light"
+                        android:text="Y"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <EditText
                         android:id="@+id/yPos"
@@ -134,7 +136,9 @@
 
                     <TextView
                         android:layout_gravity="end"
-                        android:text="Height:" />
+                        android:fontFamily="sans-serif-light"
+                        android:text="Height"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <EditText
                         android:id="@+id/height"
@@ -149,19 +153,19 @@
 
             <TextView
                 android:id="@+id/title_properties"
-                style="@style/sectionHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
                 android:layout_gravity="fill_horizontal"
+                android:fontFamily="sans-serif-light"
                 android:paddingBottom="8dip"
                 android:paddingTop="16dip"
-                android:text="Properties" />
+                android:text="Properties"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <FrameLayout
                 android:id="@+id/prop_properties_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+                android:layout_columnSpan="2"
+                android:layout_gravity="fill_horizontal" />
+        </GridLayout>
     </ScrollView>
 
     <include

@@ -1,40 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="?android:attr/buttonBarStyle"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
     <ScrollView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="16dip"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip"
+        android:paddingTop="8dip"
+        android:scrollbarStyle="outsideOverlay" >
 
         <GridLayout
             android:id="@+id/container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:alignmentMode="alignBounds"
             android:columnCount="2"
             android:columnOrderPreserved="false"
-            android:padding="8dip"
             android:useDefaultMargins="true" >
 
             <TextView
-                android:layout_gravity="center_vertical|end"
-                android:text="@string/label_orientation" />
+                android:layout_gravity="center_vertical|start"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_orientation"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Spinner
                 android:id="@+id/orientation"
+                android:layout_gravity="fill_horizontal"
                 android:entries="@array/orientation_options"
                 android:minHeight="48dip" />
 
             <TextView
                 android:layout_column="0"
-                android:layout_gravity="center_vertical|end"
-                android:text="@string/label_dimensions" />
+                android:layout_gravity="start"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_dimensions"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView android:id="@+id/dimensions" />
+            <TextView
+                android:id="@+id/dimensions"
+                android:fontFamily="sans-serif-light"
+                android:paddingLeft="4dip"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
         </GridLayout>
     </ScrollView>
 

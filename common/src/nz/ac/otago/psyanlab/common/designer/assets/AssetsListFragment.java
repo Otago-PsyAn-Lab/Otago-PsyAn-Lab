@@ -99,6 +99,7 @@ public class AssetsListFragment extends Fragment {
             list.setOnItemClickListener(mOnItemClickListener);
             list.setAdapter(mCallbacks.getAssetsAdapter());
             list.setDrawSelectorOnTop(false);
+            list.setAreHeadersSticky(false);
         }
     }
 }

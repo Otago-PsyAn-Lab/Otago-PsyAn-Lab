@@ -90,47 +90,51 @@ public class EditGeneratorDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(
                 (Integer)((mMode == MODE_NEW) ? R.string.title_new_generator
-                        : R.string.title_edit_generator)).setView(view)
-                .setPositiveButton(R.string.action_create, new OnClickListener() {
+                        : R.string.title_edit_generator))
+                .setView(view)
+                .setPositiveButton(
+                        (mMode == MODE_NEW) ? R.string.action_create : R.string.action_confirm,
+                        new OnClickListener() {
 
-                    public void onClick(DialogInterface dialog, int id) {
-                        switch (mViews.type.getSelectedItemPosition()) {
-                            case POS_RANDOM:
-                                mGenerator = new Random();
-                                break;
-                            case POS_SHUFFLE:
-                                mGenerator = new Shuffle();
-                                break;
+                            public void onClick(DialogInterface dialog, int id) {
+                                switch (mViews.type.getSelectedItemPosition()) {
+                                    case POS_RANDOM:
+                                        mGenerator = new Random();
+                                        break;
+                                    case POS_SHUFFLE:
+                                        mGenerator = new Shuffle();
+                                        break;
 
-                            default:
-                                throw new RuntimeException("Unknown kind of generator selected");
-                        }
+                                    default:
+                                        throw new RuntimeException(
+                                                "Unknown kind of generator selected");
+                                }
 
-                        String name = mViews.name.getText().toString();
-                        if (TextUtils.isEmpty(name)) {
-                            name = mViews.name.getHint().toString();
-                        }
+                                String name = mViews.name.getText().toString();
+                                if (TextUtils.isEmpty(name)) {
+                                    name = mViews.name.getHint().toString();
+                                }
 
-                        String start = mViews.start.getText().toString();
-                        if (TextUtils.isEmpty(start)) {
-                            start = mViews.start.getHint().toString();
-                        }
+                                String start = mViews.start.getText().toString();
+                                if (TextUtils.isEmpty(start)) {
+                                    start = mViews.start.getHint().toString();
+                                }
 
-                        String end = mViews.end.getText().toString();
-                        if (TextUtils.isEmpty(end)) {
-                            end = mViews.end.getHint().toString();
-                        }
+                                String end = mViews.end.getText().toString();
+                                if (TextUtils.isEmpty(end)) {
+                                    end = mViews.end.getHint().toString();
+                                }
 
-                        mGenerator.name = name;
-                        mGenerator.start = Integer.parseInt(start);
-                        mGenerator.end = Integer.parseInt(end);
+                                mGenerator.name = name;
+                                mGenerator.start = Integer.parseInt(start);
+                                mGenerator.end = Integer.parseInt(end);
 
-                        mCallbacks.updateGenerator(mId, mGenerator);
-                        if (mMode == MODE_NEW) {
-                            mOnGeneratorCreatedListener.onGeneratorCreated(mId);
-                        }
-                    }
-                }).setNegativeButton(R.string.action_discard, new OnClickListener() {
+                                mCallbacks.updateGenerator(mId, mGenerator);
+                                if (mMode == MODE_NEW) {
+                                    mOnGeneratorCreatedListener.onGeneratorCreated(mId);
+                                }
+                            }
+                        }).setNegativeButton(R.string.action_discard, new OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (mMode == MODE_NEW) {
                             mCallbacks.deleteGenerator(mId);
@@ -202,7 +206,7 @@ public class EditGeneratorDialogFragment extends DialogFragment {
                     R.string.label_shuffle);
 
             ArrayAdapter<GeneratorType> typeAdapter = new ArrayAdapter<GeneratorType>(
-                    getActivity(), android.R.layout.simple_spinner_item, types);
+                    getActivity(), android.R.layout.simple_list_item_1, types);
             typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mViews.type.setAdapter(typeAdapter);
         }

@@ -22,7 +22,7 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
     </style>
-    
+
     <style name="column">
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
@@ -31,8 +31,13 @@
     <style name="group">
         <item name="android:padding">8dip</item>
     </style>
-    
+
     <style name="card">
+        <item name="android:background">@color/card_background</item>
+        <item name="android:padding">16dip</item>
+    </style>
+
+    <style name="cardish">
         <item name="android:background">@color/card_background</item>
         <item name="android:padding">16dip</item>
     </style>

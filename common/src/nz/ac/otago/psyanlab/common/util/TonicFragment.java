@@ -13,7 +13,6 @@ import android.view.View;
  * Provides basic features of data representative fragments in OPAL.
  */
 public class TonicFragment extends Fragment {
-
     protected static final String ARG_OBJECT_ID = "arg_object_id";
 
     protected static final long INVALID_ID = -1;
@@ -52,21 +51,25 @@ public class TonicFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle args = getArguments();
-        if (args != null) {
-            mObjectId = args.getLong(ARG_OBJECT_ID, INVALID_ID);
-            if (mObjectId == INVALID_ID) {
-                throw new RuntimeException("Invalid object id for fragment "
-                        + this.getClass().getName());
+        if (savedInstanceState != null) {
+            mObjectId = savedInstanceState.getLong(ARG_OBJECT_ID, INVALID_ID);
+        } else {
+            Bundle args = getArguments();
+            if (args != null) {
+                mObjectId = args.getLong(ARG_OBJECT_ID, INVALID_ID);
             }
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putLong(ARG_OBJECT_ID, mObjectId);
+    }
+
     protected abstract class ViewHolder<T> {
         public View background;
-
-        public ViewHolder(View view) {
-        }
 
         public abstract void initViews();
 

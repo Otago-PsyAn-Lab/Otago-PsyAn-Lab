@@ -121,7 +121,7 @@
         android:layout_alignRight="@+id/name_container"
         android:layout_below="@+id/divide"
         android:clipToPadding="false"
-        android:drawSelectorOnTop="false"
+        android:drawSelectorOnTop="true"
         android:listSelector="@drawable/loop_list_selector_holo_light"
         android:paddingBottom="16dip"
         android:paddingTop="16dip"

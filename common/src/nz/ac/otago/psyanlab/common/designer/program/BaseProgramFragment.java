@@ -36,6 +36,11 @@ public abstract class BaseProgramFragment extends TonicFragment {
         if (savedInstanceState != null) {
             mBackgroundResource = savedInstanceState.getInt(ARG_BACKGROUND);
         }
+
+        if (mObjectId == INVALID_ID) {
+            throw new RuntimeException("Invalid object id for fragment "
+                    + this.getClass().getName());
+        }
     }
 
     @Override
@@ -147,7 +152,6 @@ public abstract class BaseProgramFragment extends TonicFragment {
         public View background;
 
         public ViewHolder(View view) {
-            super(view);
             background = view.findViewById(R.id.background);
             if (mBackgroundResource != -1) {
                 background.setBackgroundResource(mBackgroundResource);

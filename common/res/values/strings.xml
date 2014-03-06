@@ -129,7 +129,7 @@
     <string name="label_trigger">Trigger</string>
     <string name="label_condition">Condition</string>
     <string name="hint_formula">Conditional formula</string>
-    <string name="label_operands">OPERANDS</string>
+    <string name="label_operands">Operands</string>
     <string name="label_action">Action</string>
     <string name="label_parameters">Parameters</string>
     <string name="label_subject_detail_toggle">Toggle</string>
@@ -220,5 +220,8 @@
     <string name="operand_type_unknown">unknown type</string>
     <string name="test_method_2">Test Method 2</string>
     <string name="test_method_3">Test Method 3</string>
+    <string name="generator_kind_random">random</string>
+    <string name="generator_kind_shuffle">shuffle</string>
+    <string name="label_generator_range">Range</string>
 
 </resources>

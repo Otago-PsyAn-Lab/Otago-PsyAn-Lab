@@ -56,6 +56,8 @@ import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
+import nz.ac.otago.psyanlab.common.model.generator.Random;
+import nz.ac.otago.psyanlab.common.model.generator.Shuffle;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventId;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
@@ -177,17 +179,28 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         public View bind(Generator generator, View convertView, ViewGroup parent) {
             TextViewHolder holder;
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item, parent, false);
-                holder = new TextViewHolder(1);
+                convertView = getLayoutInflater().inflate(R.layout.list_item_generator, parent,
+                        false);
+                holder = new TextViewHolder(3);
                 holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+                holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
+                holder.textViews[2] = (TextView)convertView.findViewById(R.id.type);
                 convertView.setTag(holder);
             } else {
                 holder = (TextViewHolder)convertView.getTag();
             }
 
             holder.textViews[0].setText(generator.name);
+            holder.textViews[1].setText(generator.start + " – " + generator.end);
+
+            if (generator instanceof Random) {
+                holder.textViews[2].setText(R.string.generator_kind_random);
+            } else if (generator instanceof Shuffle) {
+                holder.textViews[2].setText(R.string.generator_kind_shuffle);
+            }
             return convertView;
         }
+
     };
 
     private ArrayList<LandingPageDataChangeListener> mLandingPageDataChangeListeners;
@@ -1057,6 +1070,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         mExperiment.generators.put(id, generator);
         notifyGeneratorDataChangeListeners();
         notifyLoopDataChangeListeners();
+        notifyGeneratorAdapter();
     }
 
     @Override

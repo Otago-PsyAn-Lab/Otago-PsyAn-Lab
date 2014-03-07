@@ -23,6 +23,8 @@ import java.util.ArrayList;
 public class ProgramFragment extends Fragment implements ScrollerManager {
     private static final String KEY_FRAG_IDS = "key_frag_ids";
 
+    private static final String KEY_SCROLL_POSITION = "key_scroll_position";
+
     private ArrayList<BaseProgramFragment> mFragments;
 
     private HorizontalScrollView mScroller;
@@ -57,6 +59,8 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
         }
 
         outState.putIntArray(KEY_FRAG_IDS, ids);
+
+        outState.putInt(KEY_SCROLL_POSITION, mScroller.getScrollX());
     }
 
     @Override
@@ -94,6 +98,9 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
                 t.commit();
                 cfm.executePendingTransactions();
             }
+
+            int position = savedInstanceState.getInt(KEY_SCROLL_POSITION, 0);
+            requestInstantMoveTo(position);
         }
     }
 
@@ -112,6 +119,18 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
             public void run() {
                 if (x > 0) {
                     mScroller.smoothScrollBy(x, 0);
+                }
+            }
+        });
+    }
+
+    private void requestInstantMoveTo(final int x) {
+        getChildFragmentManager().executePendingTransactions();
+        mScroller.post(new Runnable() {
+            @Override
+            public void run() {
+                if (x > 0) {
+                    mScroller.setScrollX(x);
                 }
             }
         });
@@ -141,15 +160,6 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
         }
 
         ft.commit();
-
-        // getChildFragmentManager().executePendingTransactions();
-        //
-        // mScrollView.post(new Runnable() {
-        // @Override
-        // public void run() {
-        // mScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
-        // }
-        // });
     }
 
     private void addFragment(BaseProgramFragment fragment, FragmentTransaction ft) {

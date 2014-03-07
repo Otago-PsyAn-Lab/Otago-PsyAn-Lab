@@ -1186,16 +1186,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         notifySceneDataChangeListeners();
     }
 
-    /**
-     * Converts the experiment reference screen to the current device. Changes
-     * are logged and viewable as experiment meta-data.
-     * 
-     * @param experiment Experiment to convert.
-     */
-    private void convertScreen(Experiment experiment) {
-
-    }
-
     private void deleteActionData(Long id) {
         mExperiment.actions.remove(id);
     }

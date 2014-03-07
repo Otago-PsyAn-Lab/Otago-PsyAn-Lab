@@ -1,4 +1,4 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <style name="PopupTheme" parent="android:Theme.Holo.Light">
         <item name="android:windowFrame">@null</item>
@@ -10,6 +10,16 @@
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
         <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="drawer_item_style">
+        <item name="android:fontFamily" tools:targetApi="16">sans_serif_light</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="drawer_item_style_selected">
+        <item name="android:fontFamily" tools:targetApi="16">sans_serif</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="column">

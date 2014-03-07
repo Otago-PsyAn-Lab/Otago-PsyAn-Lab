@@ -44,7 +44,6 @@
     <string name="message_password_mismatch">Password mismatch.</string>
     <string name="message_password_required">You need to enter a password</string>
     <string name="message_error">An error has occurred.</string>
-    <string name="abs__action_mode_done"></string>
     <string name="text_delete_user_warning">User and all the associated data will be deleted permanently.</string>
     <string name="warning_missing_password">Please set password</string>
     <string name="warning_password_mismatch">Passwords do not match</string>
@@ -83,6 +82,10 @@
     <string name="format_header_record_count">%d records</string>
     <string name="label_experiment">Experiment</string>
     <string name="label_records">Records</string>
+    <string name="label_properties">Properties</string>
+    <string name="label_assets">Assets</string>
+    <string name="label_subject">Subject</string>
+    <string name="label_program">Program</string>
     <string name="title_set_type">Configure</string>
     <string name="label_type_image_asset">Image Asset</string>
     <string name="label_type_audio_asset">Audio Asset</string>
@@ -157,7 +160,13 @@
     <string name="label_trigger_event">Event</string>
     <string name="label_action_method">Method</string>
     <string name="label_action_object">Object</string>
-    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing
+		elit, sed do eiusmod tempor incididunt ut labore et dolore magna
+		aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+		laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+		in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+		pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+		culpa qui officia deserunt mollit anim id est laborum.</string>
     <string name="label_stage_width">Width</string>
     <string name="label_stage_height">Height</string>
     <string name="label_stage_num_props">Number of Props</string>
@@ -225,5 +234,8 @@
     <string name="label_generator_range">Range</string>
     <string name="label_prop_name">Name</string>
     <string name="label_prop_kind">Kind</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="title_new_experiment">New Experiment</string>
 
 </resources>

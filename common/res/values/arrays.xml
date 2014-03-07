@@ -25,5 +25,12 @@
         <item>Landscape</item>
         <item>Portrait</item>
     </string-array>
+    <string-array name="experiment_designer_sections">
+        <item>@string/label_properties</item>
+        <item>@string/label_subject</item>
+        <item>@string/label_assets</item>
+        <item>@string/label_records</item>
+        <item>@string/label_program</item>
+    </string-array>
 
 </resources>

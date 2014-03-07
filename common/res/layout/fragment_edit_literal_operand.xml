@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        style="@style/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1 + 34 + a = c" />
+    </FrameLayout>
+
+    <TextView
+        style="@style/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/label_operands"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <ListView
+        android:id="@+id/operands"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:drawSelectorOnTop="false"
+        android:listSelector="@drawable/action_list_selector_holo_light"
+        android:paddingBottom="16dip"
+        android:paddingLeft="8dip"
+        android:paddingRight="8dip"
+        android:scrollbarStyle="outsideOverlay" />
+
+</LinearLayout>

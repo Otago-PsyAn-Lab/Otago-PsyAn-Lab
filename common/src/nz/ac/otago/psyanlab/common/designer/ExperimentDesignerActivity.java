@@ -25,6 +25,7 @@ import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.UserDelegateI;
 import nz.ac.otago.psyanlab.common.UserExperimentDelegateI;
+import nz.ac.otago.psyanlab.common.designer.EditorSectionManager.EditorSectionItem;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter.ViewBinder;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetTabFragmentsCallbacks;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetsFragment;
@@ -68,23 +69,22 @@ import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
+import android.app.Activity;
 import android.app.Dialog;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.LongSparseArray;
-import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.text.format.Time;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -92,8 +92,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
@@ -121,6 +125,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     public static final int OPERAND_ACCESS_SCOPE_EXPRESSION = 0x03;
 
     public static final int OPERAND_ACCESS_SCOPE_OPERAND = 0x02;
+
+    private static final String ADAPTER_STATE = "adapter_state";
 
     private static final int MODE_EDIT = 0x02;
 
@@ -165,6 +171,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     private Pair<Long, ProgramComponentAdapter<Scene>> mCurrentSceneAdapter;
 
     private SparseArray<DialogueResultListener> mDialogueResultListeners;
+
+    private ListView mDrawerList;
+
+    private CharSequence mDrawerTitle;
+
+    private ActionBarDrawerToggle mDrawerToggle;
 
     private Experiment mExperiment;
 
@@ -229,6 +241,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     };
 
     private int mMode;
+
+    private OnItemClickListener mOnDrawerListItemClickListener = new OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            doSelectSection(position);
+            mDrawerLayout.closeDrawer(mDrawerList);
+        }
+    };
 
     private LongSparseArray<LongSparseArray<ProgramComponentAdapter<Operand>>> mOperandAdapters = new LongSparseArray<LongSparseArray<ProgramComponentAdapter<Operand>>>();
 
@@ -311,11 +332,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     };
 
-    private TabsAdapter mTabsAdapter;
+    private EditorSectionManager mSectionManager;
+
+    private CharSequence mTitle;
 
     private UserDelegateI mUserDelegate;
 
-    private ViewPager mViewPager;
+    protected DrawerLayout mDrawerLayout;
 
     @Override
     public void addActionDataChangeListener(ActionDataChangeListener listener) {
@@ -924,14 +947,34 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_designer);
 
-        ActionBar actionBar = getActionBar();
-        initActionBar(actionBar);
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView)findViewById(R.id.left_drawer);
 
-        mViewPager = (ViewPager)findViewById(R.id.pager);
+        mSectionManager = new EditorSectionManager(this, R.id.content_frame,
+                getSupportFragmentManager());
+
+        Log.d("asdfads", "on create");
+
+        mSectionManager.addSection(R.string.designer_tab_properties, MetaFragment.class, null);
+        mSectionManager.addSection(R.string.designer_tab_subject, SubjectFragment.class, null);
+        mSectionManager.addSection(R.string.designer_tab_assets, AssetsFragment.class, null);
+        mSectionManager.addSection(R.string.designer_tab_program, ProgramFragment.class, null);
+
+        ArrayAdapter<EditorSectionItem> adapter = new SectionAdapter(this,
+                R.layout.list_item_drawer, mSectionManager.getItems());
+
+        mDrawerList.setAdapter(adapter);
+        mDrawerList.setOnItemClickListener(mOnDrawerListItemClickListener);
 
         Bundle extras = getIntent().getExtras();
         mUserDelegate = extras.getParcelable(Args.USER_DELEGATE);
@@ -942,10 +985,23 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         mExperimentHolderFragment = restoreExperimentHolder();
         mExperiment = restoreOrCreateExperiment(mExperimentHolderFragment);
 
-        initTabs(actionBar);
-
         mAssetsAdapter = new AssetsAdapter(this, mExperiment.assets);
 
+        setTitle(R.string.title_new_experiment);
+        mDrawerTitle = mTitle;
+
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mDrawerToggle = new DrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
+                R.string.drawer_open, R.string.drawer_close);
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
+
+        if (savedInstanceState == null) {
+            selectSection(0);
+        }
     }
 
     @Override
@@ -962,11 +1018,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        // Pass the event to ActionBarDrawerToggle, if it returns
+        // true, then it has handled the app icon touch event
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -974,7 +1031,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         // ExperimentUtils.convertToScreen(this, mExperiment);
-    }
+    };
 
     @Override
     public void pickExperimentObject(long sceneId, int filter, int requestCode) {
@@ -1023,6 +1080,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     @Override
     public void removeSceneDataChangeListener(SceneDataChangeListener listener) {
         mSceneDataChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void setTitle(int title) {
+        mTitle = getText(title);
+        getActionBar().setTitle(mTitle);
     }
 
     @Override
@@ -1209,6 +1272,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     }
 
+    private void doSelectSection(int position) {
+        mSectionManager.selectSection(position);
+        mDrawerList.setItemChecked(position, true);
+        setTitle(mSectionManager.getTitle(position));
+    }
+
     private Long findUnusedKey(LongSparseArray<?> map) {
         Long currKey = 0l;
         while (true) {
@@ -1229,24 +1298,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             throw new RuntimeException(e);
         }
         return experiment;
-    }
-
-    private void initActionBar(ActionBar actionBar) {
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setTitle("New Experiment");
-    }
-
-    private void initTabs(ActionBar actionBar) {
-        mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.designer_tab_properties),
-                MetaFragment.class, null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.designer_tab_subject),
-                SubjectFragment.class, null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.designer_tab_assets),
-                AssetsFragment.class, null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.designer_tab_program),
-                ProgramFragment.class, null);
     }
 
     private void notifyActionAdapter() {
@@ -1362,7 +1413,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         mCurrentParameterAdapter.second.notifyDataSetChanged();
-    };
+    }
 
     private void notifyRuleAdapter() {
         if (mCurrentRuleAdapter == null) {
@@ -1447,6 +1498,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return experiment;
+    };
+
+    private void selectSection(int section) {
+        mDrawerList.setSelection(section);
+        doSelectSection(section);
     }
 
     private void storeExperiment() {
@@ -1505,6 +1561,29 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         notifySceneDataChangeListeners();
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        mSectionManager.restoreState(savedInstanceState.getParcelable(ADAPTER_STATE),
+                getClassLoader());
+
+        selectSection(mSectionManager.getCurrentPosition());
+    }
+
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable(ADAPTER_STATE, mSectionManager.saveState());
     }
 
     StickyGridHeadersSimpleAdapter getAssetsAdapter(int filter) {
@@ -1650,85 +1729,27 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         void onSceneDataChange();
     }
 
-    public static class TabsAdapter extends FragmentStatePagerAdapter implements
-            ActionBar.TabListener, ViewPager.OnPageChangeListener {
-        private final ActionBar mActionBar;
-
-        private final Context mContext;
-
-        private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
-
-        private final ViewPager mViewPager;
-
-        public TabsAdapter(FragmentActivity activity, ViewPager pager) {
-            super(activity.getSupportFragmentManager());
-            mContext = activity;
-            mActionBar = activity.getActionBar();
-            mViewPager = pager;
-            mViewPager.setAdapter(this);
-            mViewPager.setOnPageChangeListener(this);
+    final class DrawerToggle extends ActionBarDrawerToggle {
+        private DrawerToggle(Activity activity, DrawerLayout drawerLayout, int drawerImageRes,
+                int openDrawerContentDescRes, int closeDrawerContentDescRes) {
+            super(activity, drawerLayout, drawerImageRes, openDrawerContentDescRes,
+                    closeDrawerContentDescRes);
         }
 
-        public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
-            TabInfo info = new TabInfo(clss, args);
-            tab.setTag(info);
-            tab.setTabListener(this);
-            mTabs.add(info);
-            mActionBar.addTab(tab);
-            notifyDataSetChanged();
+        /** Called when a drawer has settled in a completely closed state. */
+        public void onDrawerClosed(View view) {
+            super.onDrawerClosed(view);
+            getActionBar().setTitle(mTitle);
+            invalidateOptionsMenu(); // creates call to
+                                     // onPrepareOptionsMenu()
         }
 
-        @Override
-        public int getCount() {
-            return mTabs.size();
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            TabInfo info = mTabs.get(position);
-            return Fragment.instantiate(mContext, info.clss.getName(), info.args);
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-        }
-
-        @Override
-        public void onPageSelected(int position) {
-            mActionBar.setSelectedNavigationItem(position);
-        }
-
-        @Override
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        }
-
-        @Override
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
-            Object tag = tab.getTag();
-            for (int i = 0; i < mTabs.size(); i++) {
-                if (mTabs.get(i) == tag) {
-                    mViewPager.setCurrentItem(i);
-                }
-            }
-        }
-
-        @Override
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-        }
-
-        static final class TabInfo {
-            private final Bundle args;
-
-            private final Class<?> clss;
-
-            TabInfo(Class<?> _class, Bundle _args) {
-                clss = _class;
-                args = _args;
-            }
+        /** Called when a drawer has settled in a completely open state. */
+        public void onDrawerOpened(View drawerView) {
+            super.onDrawerOpened(drawerView);
+            getActionBar().setTitle(mDrawerTitle);
+            invalidateOptionsMenu(); // creates call to
+                                     // onPrepareOptionsMenu()
         }
     }
 
@@ -1782,5 +1803,36 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             return convertView;
         }
 
+    }
+
+    class SectionAdapter extends ArrayAdapter<EditorSectionItem> {
+        private LayoutInflater mInflater;
+
+        private int mResourceId;
+
+        public SectionAdapter(Context context, int resourceId, List<EditorSectionItem> objects) {
+            super(context, resourceId, objects);
+            mResourceId = resourceId;
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextViewHolder holder;
+            if (convertView == null) {
+                convertView = mInflater.inflate(mResourceId, parent, false);
+                holder = new TextViewHolder(2);
+                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+                holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
+                convertView.setTag(holder);
+            } else {
+                holder = (TextViewHolder)convertView.getTag();
+            }
+
+            holder.textViews[0].setText(getItem(position).titleId);
+            holder.textViews[1].setText(getItem(position).titleId);
+
+            return convertView;
+        }
     }
 }

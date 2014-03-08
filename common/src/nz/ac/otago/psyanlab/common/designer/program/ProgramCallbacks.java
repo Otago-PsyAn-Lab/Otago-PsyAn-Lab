@@ -44,9 +44,9 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar {
 
     long createGenerator(Generator generator);
 
-    long createOperand(Operand operand);
-
     long createLoop(Loop loop);
+
+    long createOperand(Operand operand);
 
     long createRule(Rule rule);
 

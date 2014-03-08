@@ -1,7 +1,6 @@
 
 package nz.ac.otago.psyanlab.common.util;
 
-import nz.ac.otago.psyanlab.common.designer.program.BaseProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 
 import android.app.Activity;
@@ -24,7 +23,7 @@ public class TonicFragment extends Fragment {
      * @param objectId Object id the fragment will represent.
      * @return Initialised fragment.
      */
-    protected static <T extends BaseProgramFragment> T init(T f, long objectId) {
+    public static <T extends TonicFragment> T init(T f, long objectId) {
         Bundle args = new Bundle();
         args.putLong(ARG_OBJECT_ID, objectId);
         f.setArguments(args);

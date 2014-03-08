@@ -9,7 +9,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortListener {
     private int mBackgroundResource = -1;
@@ -17,17 +18,22 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
     /**
      * A list of asset keys. This is sorted according to the referenced asset.
      */
-    private ArrayList<Long> mKeys;
+    private List<Long> mKeys;
 
     private LongSparseArray<T> mMap;
 
     private ViewBinder<T> mViewBinder;
 
-    public ProgramComponentAdapter(LongSparseArray<T> map, ArrayList<Long> keys,
-            ViewBinder<T> viewBinder) {
+    public ProgramComponentAdapter(LongSparseArray<T> map, List<Long> keys, ViewBinder<T> viewBinder) {
         mMap = map;
         mViewBinder = viewBinder;
         mKeys = keys;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+
     }
 
     @Override
@@ -36,8 +42,8 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public void drop(int from, int to) {
-        Long move = getKeys().remove(from);
-        getKeys().add(to, move);
+        Long move = mKeys.remove(from);
+        mKeys.add(to, move);
         notifyDataSetChanged();
     }
 
@@ -48,29 +54,29 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public int getCount() {
-        return getKeys().size();
+        return mKeys.size();
     }
 
     @Override
     public T getItem(int pos) {
-        return mMap.get(getKeys().get(pos));
+        return mMap.get(mKeys.get(pos));
     }
 
     @Override
     public long getItemId(int pos) {
-        if (pos < 0 || getKeys().size() <= pos) {
+        if (pos < 0 || mKeys.size() <= pos) {
             return ListView.INVALID_ROW_ID;
         }
-        return getKeys().get(pos);
+        return mKeys.get(pos);
     }
 
-    public ArrayList<Long> getKeys() {
+    public Collection<Long> getKeys() {
         return mKeys;
     }
 
     @Override
     public View getView(int pos, View convertView, ViewGroup parent) {
-        View view = mViewBinder.bind(mMap.get(getKeys().get(pos)), convertView, parent);
+        View view = mViewBinder.bind(mMap.get(mKeys.get(pos)), convertView, parent);
         if (mBackgroundResource != -1) {
             view.setBackgroundResource(mBackgroundResource);
         }
@@ -84,11 +90,11 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public void remove(int which) {
-        getKeys().remove(which);
+        mKeys.remove(which);
         notifyDataSetChanged();
     }
 
-    public void setKeys(ArrayList<Long> keys) {
+    public void setKeys(List<Long> keys) {
         mKeys = keys;
         notifyDataSetChanged();
     }

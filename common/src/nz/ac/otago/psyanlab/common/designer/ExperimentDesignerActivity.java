@@ -283,7 +283,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                         .getPrettyName(ExperimentDesignerActivity.this));
                 holder.textViews[0].setText(nameFactory.getResId(callOperand.getActionMethod()));
             } else {
-                holder.textViews[0].setText(operand.name);
+                holder.textViews[0].setText(operand.getName());
                 holder.textViews[1].setVisibility(View.GONE);
             }
             holder.textViews[2].setText(Operand.getTypeString(ExperimentDesignerActivity.this,

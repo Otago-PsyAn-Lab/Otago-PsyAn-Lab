@@ -23,7 +23,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 /**
- * A dialogue that allows the user to configure an operand.
+ * A dialogue that allows the user to configure an operand. Use copy on write so
+ * it is easy to roll back changes.
  */
 public class EditOperandDialogFragment extends DialogFragment {
     private static final String ARG_ID = "arg_id";
@@ -47,7 +48,7 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     private ViewHolder mViews;
 
-    protected Operand mOperand;
+    protected Operand mBackupOperand;
 
     @Override
     public void onAttach(Activity activity) {
@@ -71,24 +72,15 @@ public class EditOperandDialogFragment extends DialogFragment {
             throw new RuntimeException("Invalid loop id given.");
         }
 
-        mOperand = mCallbacks.getOperand(mId);
-
         View view = inflater.inflate(R.layout.dialogue_number_picker, null);
         mViews = new ViewHolder(view);
         mViews.initViews();
-        mViews.setViewValues(mOperand);
 
         // Build dialogue.
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.title_edit_iterations).setView(view)
-                .setPositiveButton(R.string.action_create, new OnClickListener() {
+        builder.setTitle(R.string.title_edit_operand).setView(view)
+                .setPositiveButton(R.string.action_done, new OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mLoop.iterations = mViews.iterations.getValue();
-                        mCallbacks.updateLoop(mId, mLoop);
-                    }
-                }).setNegativeButton(R.string.action_discard, new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        getDialog().cancel();
                     }
                 });
 
@@ -117,13 +109,14 @@ public class EditOperandDialogFragment extends DialogFragment {
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return EditLiteralOperandFragment.newInstance(mOperand);
+                        return EditLiteralOperandFragment.init(new EditLiteralOperandFragment(),
+                                mId);
                     case 1:
-                        return EditCallOperandFragment.newInstance(mOperand);
+                        return EditCallOperandFragment.init(new EditCallOperandFragment(), mId);
                     case 2:
-                        return EditAssetOperandFragment.newInstance(mOperand);
+                        return EditAssetOperandFragment.init(new EditAssetOperandFragment(), mId);
                     default:
-                        throw new RuntimeException("Fragment position " + position + " invalid.");
+                        throw new RuntimeException("Invalid fragment position " + position);
                 }
             }
         };
@@ -134,14 +127,8 @@ public class EditOperandDialogFragment extends DialogFragment {
             cancel = (Button)view.findViewById(R.id.action_cancel);
         }
 
-        public void setViewValues(Operand operand) {
-            // Determine kind of operand
-        }
-
         public void initViews() {
             pager.setAdapter(mPagerAdapter);
-
-            cancel.setOnClickListener(mOnCancelListener);
 
             // Bind the widget to the adapter
             tabs.setViewPager(pager);

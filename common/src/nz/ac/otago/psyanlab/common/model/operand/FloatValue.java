@@ -13,4 +13,9 @@ public class FloatValue extends Operand implements LiteralOperand {
     public FloatValue() {
         type = TYPE_FLOAT;
     }
+
+    @Override
+    public String getValue() {
+        return String.valueOf(value);
+    }
 }

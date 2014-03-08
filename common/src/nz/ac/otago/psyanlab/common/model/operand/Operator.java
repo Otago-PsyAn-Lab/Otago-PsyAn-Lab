@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+ * Copyright (c) 2012, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
  * 
  * Otago PsyAn Lab is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,17 +18,28 @@
  * all legal notices and author attributions must be preserved.
  */
 
-package nz.ac.otago.psyanlab.common.proposition;
+package nz.ac.otago.psyanlab.common.model.operand;
 
-/**
- * Operation that implements number subtraction.
- */
-public class NumberSubtractionOp implements Operator<Float> {
-    public Operator<Float> left;
-    public Operator<Float> right;
-    
-    @Override
-    public Float eval() {
-        return left.eval() - right.eval();
-    }
+import nz.ac.otago.psyanlab.common.model.Operand;
+
+import java.util.ArrayList;
+
+public class Operator extends Operand {
+    public static final int ASSOCIATIVE_LEFT = 0x01;
+
+    public static final int ASSOCIATIVE_RIGHT = 0x02;
+
+    /**
+     * Arity; 1 = unary, 2 = binary, and so forth.
+     */
+    public int arity;
+
+    /**
+     * Left or right.
+     */
+    public int associativity;
+
+    public ArrayList<Operand> operands;
+
+    public int precendence;
 }

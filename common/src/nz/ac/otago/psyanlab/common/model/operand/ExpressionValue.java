@@ -24,6 +24,11 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     }
 
     @Override
+    public String getValue() {
+        return expression;
+    }
+
+    @Override
     public String getName() {
         return expression;
     }

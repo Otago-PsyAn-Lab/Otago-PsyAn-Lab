@@ -17,4 +17,9 @@ public class LiteralValue extends Operand implements LiteralOperand {
     public int type() {
         return type;
     }
+
+    @Override
+    public String getValue() {
+        return valueString;
+    }
 }

@@ -32,6 +32,11 @@ public abstract class Operand {
 
     public static final int TYPE_VIDEO = 0x20;
 
+    public static final int TYPE_NON_ASSETS = TYPE_BOOLEAN | TYPE_FLOAT | TYPE_INTEGER
+            | TYPE_STRING;
+
+    public static final int TYPE_NUMBER = TYPE_FLOAT | TYPE_INTEGER;
+
     public static CharSequence getTypeString(Context context, int type) {
         if (type == TYPE_INTEGER) {
             return context.getString(R.string.operand_type_integer);
@@ -47,9 +52,9 @@ public abstract class Operand {
             return context.getString(R.string.operand_type_sound);
         } else if (type == TYPE_VIDEO) {
             return context.getString(R.string.operand_type_video);
-        } else if (type == (TYPE_FLOAT | TYPE_INTEGER)) {
+        } else if (type == TYPE_NUMBER) {
             return context.getString(R.string.operand_type_number);
-        } else if (type == (TYPE_FLOAT | TYPE_INTEGER | TYPE_BOOLEAN | TYPE_STRING)) {
+        } else if (type == TYPE_NON_ASSETS) {
             return context.getString(R.string.operand_type_any_except_asset);
         } else {
             return context.getString(R.string.operand_type_unknown);
@@ -59,7 +64,16 @@ public abstract class Operand {
     @Expose
     public String name = "Unset";
 
-    public abstract int type();
+    @Expose
+    public int type;
+
+    public int type() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public class OperandGsonAdapter implements JsonSerializer<Operand>, JsonDeserializer<Operand> {
 

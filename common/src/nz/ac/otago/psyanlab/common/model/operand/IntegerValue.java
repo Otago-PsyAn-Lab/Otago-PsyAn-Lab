@@ -11,10 +11,6 @@ public class IntegerValue extends Operand implements LiteralOperand {
     public int value;
 
     public IntegerValue() {
-    }
-
-    @Override
-    public int type() {
-        return TYPE_INTEGER;
+        type = TYPE_INTEGER;
     }
 }

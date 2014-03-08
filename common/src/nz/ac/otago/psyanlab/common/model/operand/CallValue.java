@@ -19,9 +19,6 @@ public class CallValue extends Operand implements CallOperand {
     @Expose
     public ArrayList<Long> operands;
 
-    @Expose
-    public int type;
-
     public CallValue() {
         operands = new ArrayList<Long>();
     }

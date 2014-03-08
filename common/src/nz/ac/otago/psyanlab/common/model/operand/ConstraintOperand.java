@@ -1,7 +1,6 @@
 
 package nz.ac.otago.psyanlab.common.model.operand;
 
-import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.model.Operand;
 
@@ -9,9 +8,6 @@ import nz.ac.otago.psyanlab.common.model.Operand;
  * A kind of operand that has no value but encodes multiple type potentials.
  */
 public class ConstraintOperand extends Operand {
-    @Expose
-    public int type;
-
     public ConstraintOperand() {
     }
 

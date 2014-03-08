@@ -1,8 +1,10 @@
 
 package nz.ac.otago.psyanlab.common.model.operand.kind;
 
-import java.util.HashMap;
+import nz.ac.otago.psyanlab.common.model.util.OperandHolder;
 
-public interface ExpressionOperand {
-    HashMap<String, Long> getOperands();
+import java.util.List;
+
+public interface ExpressionOperand extends OperandHolder {
+    List<Long> getOperands();
 }

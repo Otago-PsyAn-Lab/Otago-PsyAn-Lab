@@ -6,20 +6,21 @@ import com.google.gson.annotations.Expose;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExpressionValue extends Operand implements ExpressionOperand {
     @Expose
     public String expression;
 
     @Expose
-    public HashMap<String, Long> operands;
+    public ArrayList<Long> operands;
 
     @Expose
     public int operandType;
 
     public ExpressionValue() {
-        operands = new HashMap<String, Long>();
+        operands = new ArrayList<Long>();
     }
 
     @Override
@@ -28,7 +29,7 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     }
 
     @Override
-    public HashMap<String, Long> getOperands() {
+    public List<Long> getOperands() {
         return operands;
     }
 

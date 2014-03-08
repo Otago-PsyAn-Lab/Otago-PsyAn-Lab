@@ -11,10 +11,6 @@ public class BooleanValue extends Operand implements LiteralOperand {
     public boolean value;
 
     public BooleanValue() {
-    }
-
-    @Override
-    public int type() {
-        return TYPE_BOOLEAN;
+        type = TYPE_BOOLEAN;
     }
 }

@@ -10,9 +10,6 @@ public class LiteralValue extends Operand implements LiteralOperand {
     @Expose
     public String valueString;
 
-    @Expose
-    int type;
-
     public LiteralValue() {
     }
 

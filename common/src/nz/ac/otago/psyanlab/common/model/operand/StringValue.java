@@ -11,10 +11,6 @@ public class StringValue extends Operand implements LiteralOperand {
     public String value;
 
     public StringValue() {
-    }
-
-    @Override
-    public int type() {
-        return TYPE_STRING;
+        type = TYPE_STRING;
     }
 }

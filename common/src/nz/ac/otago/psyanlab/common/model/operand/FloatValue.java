@@ -11,10 +11,6 @@ public class FloatValue extends Operand implements LiteralOperand {
     public float value;
 
     public FloatValue() {
-    }
-
-    @Override
-    public int type() {
-        return TYPE_FLOAT;
+        type = TYPE_FLOAT;
     }
 }

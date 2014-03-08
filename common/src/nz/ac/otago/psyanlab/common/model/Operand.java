@@ -18,11 +18,43 @@ import android.content.Context;
 import java.lang.reflect.Type;
 
 public abstract class Operand {
-    public static final int OPERAND_TYPE_FLOAT = 0x02;
+    public static final int TYPE_BOOLEAN = 0x01;
 
-    public static final int OPERAND_TYPE_INTEGER = 0x01;
+    public static final int TYPE_FLOAT = 0x02;
 
-    public static final int OPERAND_TYPE_STRING = 0x03;
+    public static final int TYPE_IMAGE = 0x10;
+
+    public static final int TYPE_INTEGER = 0x04;
+
+    public static final int TYPE_SOUND = 0x40;
+
+    public static final int TYPE_STRING = 0x08;
+
+    public static final int TYPE_VIDEO = 0x20;
+
+    public static CharSequence getTypeString(Context context, int type) {
+        if (type == TYPE_INTEGER) {
+            return context.getString(R.string.operand_type_integer);
+        } else if (type == TYPE_FLOAT) {
+            return context.getString(R.string.operand_type_float);
+        } else if (type == TYPE_STRING) {
+            return context.getString(R.string.operand_type_string);
+        } else if (type == TYPE_BOOLEAN) {
+            return context.getString(R.string.operand_type_boolean);
+        } else if (type == TYPE_IMAGE) {
+            return context.getString(R.string.operand_type_image);
+        } else if (type == TYPE_SOUND) {
+            return context.getString(R.string.operand_type_sound);
+        } else if (type == TYPE_VIDEO) {
+            return context.getString(R.string.operand_type_video);
+        } else if (type == (TYPE_FLOAT | TYPE_INTEGER)) {
+            return context.getString(R.string.operand_type_number);
+        } else if (type == (TYPE_FLOAT | TYPE_INTEGER | TYPE_BOOLEAN | TYPE_STRING)) {
+            return context.getString(R.string.operand_type_any_except_asset);
+        } else {
+            return context.getString(R.string.operand_type_unknown);
+        }
+    }
 
     @Expose
     public String name = "Unset";
@@ -54,20 +86,6 @@ public abstract class Operand {
             r.add("type", new JsonPrimitive(src.getClass().getSimpleName()));
             r.add("properties", jctx.serialize(src, src.getClass()));
             return r;
-        }
-    }
-
-    public static CharSequence getTypeString(Context context, int type) {
-        switch (type) {
-            case OPERAND_TYPE_INTEGER:
-                return context.getString(R.string.operand_type_integer);
-            case OPERAND_TYPE_FLOAT:
-                return context.getString(R.string.operand_type_float);
-            case OPERAND_TYPE_STRING:
-                return context.getString(R.string.operand_type_string);
-
-            default:
-                return context.getString(R.string.operand_type_unknown);
         }
     }
 }

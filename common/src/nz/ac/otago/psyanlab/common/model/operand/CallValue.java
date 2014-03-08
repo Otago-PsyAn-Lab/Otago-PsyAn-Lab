@@ -4,12 +4,12 @@ package nz.ac.otago.psyanlab.common.model.operand;
 import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
+import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
-import nz.ac.otago.psyanlab.common.model.operand.kind.IntegerOperand;
 
 import java.util.ArrayList;
 
-public class IntegerCallValue extends IntegerOperand implements CallOperand {
+public class CallValue extends Operand implements CallOperand {
     @Expose
     public int actionMethod;
 
@@ -19,7 +19,10 @@ public class IntegerCallValue extends IntegerOperand implements CallOperand {
     @Expose
     public ArrayList<Long> operands;
 
-    public IntegerCallValue() {
+    @Expose
+    public int type;
+
+    public CallValue() {
         operands = new ArrayList<Long>();
     }
 
@@ -36,5 +39,10 @@ public class IntegerCallValue extends IntegerOperand implements CallOperand {
     @Override
     public ArrayList<Long> getOperands() {
         return operands;
+    }
+
+    @Override
+    public int type() {
+        return type;
     }
 }

@@ -1,5 +1,5 @@
 
-package nz.ac.otago.psyanlab.common.designer.program;
+package nz.ac.otago.psyanlab.common.designer.program.operand;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Operand;

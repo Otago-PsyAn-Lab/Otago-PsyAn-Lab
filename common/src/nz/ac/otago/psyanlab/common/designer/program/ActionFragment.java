@@ -5,6 +5,8 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.ActionDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
+import nz.ac.otago.psyanlab.common.designer.program.operand.EditOperandDialogFragment;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
@@ -129,7 +131,21 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         }
     };
 
-    public OnItemClickListener mOnParameterItemClickListener;
+    public OnItemClickListener mOnParameterItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            showEditOperandDialogue(id);
+        }
+    };
+
+    protected void showEditOperandDialogue(long id) {
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id);
+
+        // Dirty hack to stop horizontal scroller from jumping around too much.
+        // mViews.name.requestFocus();
+        // mViews.name.clearFocus();
+        dialog.show(getChildFragmentManager(), "dialog_edit_operand");
+    }
 
     public ProgramComponentAdapter<Operand> mParameterAdapter;
 

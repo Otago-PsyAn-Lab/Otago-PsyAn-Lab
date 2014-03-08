@@ -1,6 +1,7 @@
 
-package nz.ac.otago.psyanlab.common.designer.program;
+package nz.ac.otago.psyanlab.common.designer.program.object;
 
+import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 
 import android.app.Activity;

@@ -1,7 +1,8 @@
 
-package nz.ac.otago.psyanlab.common.designer.program;
+package nz.ac.otago.psyanlab.common.designer.program.generator;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.generator.Random;
 import nz.ac.otago.psyanlab.common.model.generator.Shuffle;

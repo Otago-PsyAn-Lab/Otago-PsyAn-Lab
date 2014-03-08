@@ -1,9 +1,10 @@
 
-package nz.ac.otago.psyanlab.common.designer.program;
+package nz.ac.otago.psyanlab.common.designer.program.object;
 
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
 

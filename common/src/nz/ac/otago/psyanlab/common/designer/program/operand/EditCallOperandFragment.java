@@ -1,5 +1,5 @@
 
-package nz.ac.otago.psyanlab.common.designer.program;
+package nz.ac.otago.psyanlab.common.designer.program.operand;
 
 import android.support.v4.app.Fragment;
 

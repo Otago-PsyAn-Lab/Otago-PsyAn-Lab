@@ -1,8 +1,11 @@
 
-package nz.ac.otago.psyanlab.common.designer.program;
+package nz.ac.otago.psyanlab.common.designer.program.operand;
+
+import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.model.Loop;
+import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
+import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,10 +14,13 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.NumberPicker;
+import android.widget.Button;
 
 /**
  * A dialogue that allows the user to configure an operand.
@@ -37,11 +43,11 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     private ProgramCallbacks mCallbacks;
 
-    private long mId;
-
-    private Loop mLoop;
+    protected long mId;
 
     private ViewHolder mViews;
+
+    protected Operand mOperand;
 
     @Override
     public void onAttach(Activity activity) {
@@ -65,12 +71,12 @@ public class EditOperandDialogFragment extends DialogFragment {
             throw new RuntimeException("Invalid loop id given.");
         }
 
-        mLoop = mCallbacks.getLoop(mId);
+        mOperand = mCallbacks.getOperand(mId);
 
         View view = inflater.inflate(R.layout.dialogue_number_picker, null);
         mViews = new ViewHolder(view);
         mViews.initViews();
-        mViews.setViewValues(mLoop);
+        mViews.setViewValues(mOperand);
 
         // Build dialogue.
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -93,21 +99,53 @@ public class EditOperandDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public class ViewHolder {
-        public NumberPicker iterations;
+    class ViewHolder {
+        Button cancel;
+
+        ViewPager pager;
+
+        PagerSlidingTabStrip tabs;
+
+        private FragmentStatePagerAdapter mPagerAdapter = new FragmentStatePagerAdapter(
+                getChildFragmentManager()) {
+            @Override
+            public int getCount() {
+                return 0;
+            }
+
+            @Override
+            public Fragment getItem(int position) {
+                switch (position) {
+                    case 0:
+                        return EditLiteralOperandFragment.newInstance(mOperand);
+                    case 1:
+                        return EditCallOperandFragment.newInstance(mOperand);
+                    case 2:
+                        return EditAssetOperandFragment.newInstance(mOperand);
+                    default:
+                        throw new RuntimeException("Fragment position " + position + " invalid.");
+                }
+            }
+        };
 
         public ViewHolder(View view) {
-            iterations = (NumberPicker)view.findViewById(R.id.iterations);
+            pager = (ViewPager)view.findViewById(R.id.pager);
+            tabs = (PagerSlidingTabStrip)view.findViewById(R.id.tabs);
+            cancel = (Button)view.findViewById(R.id.action_cancel);
+        }
+
+        public void setViewValues(Operand operand) {
+            // Determine kind of operand
         }
 
         public void initViews() {
-            iterations.setMinValue(1);
-            iterations.setMaxValue(Integer.MAX_VALUE);
-            iterations.setWrapSelectorWheel(false);
+            pager.setAdapter(mPagerAdapter);
+
+            cancel.setOnClickListener(mOnCancelListener);
+
+            // Bind the widget to the adapter
+            tabs.setViewPager(pager);
         }
 
-        public void setViewValues(Loop loop) {
-            iterations.setValue(loop.iterations);
-        }
     }
 }

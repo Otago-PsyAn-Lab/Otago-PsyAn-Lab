@@ -287,7 +287,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 holder.textViews[1].setVisibility(View.GONE);
             }
             holder.textViews[2].setText(Operand.getTypeString(ExperimentDesignerActivity.this,
-                    operand.type()));
+                    operand.getType()));
             return convertView;
         }
     };
@@ -984,6 +984,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         mExperimentHolderFragment = restoreExperimentHolder();
         mExperiment = restoreOrCreateExperiment(mExperimentHolderFragment);
+
+        if (mExperiment == null) {
+            throw new RuntimeException("Missing experiment");
+        }
 
         mAssetsAdapter = new AssetsAdapter(this, mExperiment.assets);
 

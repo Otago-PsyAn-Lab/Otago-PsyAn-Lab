@@ -39,7 +39,7 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     }
 
     @Override
-    public int type() {
+    public int getType() {
         return operandType;
     }
 }

@@ -59,7 +59,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
                     if (param.isAssignableFrom(float.class)) {
                         if (i < mAction.operands.size()) {
                             Long operandId = mAction.operands.get(i);
-                            if (mCallbacks.getOperand(operandId).type() != Operand.TYPE_FLOAT) {
+                            if (mCallbacks.getOperand(operandId).getType() != Operand.TYPE_FLOAT) {
                                 mCallbacks.updateOperand(operandId, new FloatValue());
                             }
                         } else {
@@ -68,7 +68,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
                     } else if (param.isAssignableFrom(int.class)) {
                         if (i < mAction.operands.size()) {
                             Long operandId = mAction.operands.get(i);
-                            if (mCallbacks.getOperand(operandId).type() != Operand.TYPE_INTEGER) {
+                            if (mCallbacks.getOperand(operandId).getType() != Operand.TYPE_INTEGER) {
                                 mCallbacks.updateOperand(operandId, new IntegerValue());
                             }
                         } else {
@@ -77,7 +77,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
                     } else if (param.isAssignableFrom(String.class)) {
                         if (i < mAction.operands.size()) {
                             Long operandId = mAction.operands.get(i);
-                            if (mCallbacks.getOperand(operandId).type() != Operand.TYPE_STRING) {
+                            if (mCallbacks.getOperand(operandId).getType() != Operand.TYPE_STRING) {
                                 mCallbacks.updateOperand(operandId, new StringValue());
                             }
                         } else {

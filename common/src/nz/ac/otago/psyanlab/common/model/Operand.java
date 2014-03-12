@@ -18,6 +18,7 @@ import android.content.Context;
 import java.lang.reflect.Type;
 
 public abstract class Operand {
+
     public static final int TYPE_BOOLEAN = 0x01;
 
     public static final int TYPE_FLOAT = 0x02;
@@ -32,10 +33,11 @@ public abstract class Operand {
 
     public static final int TYPE_VIDEO = 0x20;
 
-    public static final int TYPE_NON_ASSETS = TYPE_BOOLEAN | TYPE_FLOAT | TYPE_INTEGER
-            | TYPE_STRING;
-
     public static final int TYPE_NUMBER = TYPE_FLOAT | TYPE_INTEGER;
+
+    public static final int TYPE_NON_ASSETS = TYPE_BOOLEAN | TYPE_NUMBER | TYPE_STRING;
+
+    public static final int TYPE_ANY = TYPE_NON_ASSETS | TYPE_IMAGE | TYPE_SOUND | TYPE_VIDEO;
 
     public static CharSequence getTypeString(Context context, int type) {
         if (type == TYPE_INTEGER) {
@@ -67,12 +69,22 @@ public abstract class Operand {
     @Expose
     public int type;
 
-    public int type() {
-        return type;
+    /**
+     * Attempt to refine the type of the operand.
+     * 
+     * @param type Types this operand is wished to be one of.
+     * @return True if restriction successful.
+     */
+    public boolean attemptRestrictType(int type) {
+        return false;
     }
 
     public String getName() {
         return name;
+    }
+
+    public int getType() {
+        return type;
     }
 
     public class OperandGsonAdapter implements JsonSerializer<Operand>, JsonDeserializer<Operand> {

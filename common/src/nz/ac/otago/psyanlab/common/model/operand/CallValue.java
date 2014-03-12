@@ -39,7 +39,7 @@ public class CallValue extends Operand implements CallOperand {
     }
 
     @Override
-    public int type() {
+    public int getType() {
         return type;
     }
 }

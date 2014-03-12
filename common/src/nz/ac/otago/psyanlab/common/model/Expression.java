@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Expression {
     @Expose
     public String formula;
-
+    
     @Expose
     public ArrayList<Long> operands;
 

@@ -54,6 +54,7 @@ class ExpressionParser {
         if (mWasError) {
             return;
         }
+
         Node node = Node.newNode(token, mLastGeneratedNode);
         mLastGeneratedNode = node;
         int instruction = node.getInstruction();
@@ -86,6 +87,16 @@ class ExpressionParser {
         }
     }
 
+    public void completeTree() {
+        while (!mStack.empty()) {
+            if (addNodeToTree(mStack.pop()) == Node.NODE_ERROR) {
+                break;
+            }
+        }
+
+        mRoot.assertComplete();
+    }
+
     public HashMap<String, Long> getOperandIds() {
         return mOperandIds;
     }
@@ -94,13 +105,84 @@ class ExpressionParser {
         return mRoot;
     }
 
+    /**
+     * Add a node to the tree.
+     * 
+     * @param node
+     * @return
+     */
     private boolean addNode(Node node) {
         if (mRoot == null) {
             mRoot = node;
             return false;
         }
 
+        if (!mStack.empty()) {
+            // Add node to first held node.
+            int addResult = mStack.peek().addNodeRight(node);
+            if (addResult == Node.NODE_ERROR) {
+                return true;
+            } else if (addResult == Node.NODE_NOT_ADDED) {
+                // Node not consumed in add, this tells us the currently held
+                // node on top of the stack is actually complete. We just
+                // continue to hold it because this node may go on the stack
+                // first.
+                if (node.getAssociativity() == Node.ASSOCIATIVITY_RIGHT) {
+                    // This node is right associative so we hold it till it is
+                    // completed.
+                    mStack.push(node);
+                } else {
+                    // Node is left associative, but we need to add the top node
+                    // on the stack to the tree first.
+                    Node heldNode = mStack.pop();
+                    if (addNodeToTree(heldNode) == Node.NODE_ERROR) {
+                        return true;
+                    }
+
+                    // Now that the held node has been added to the tree, we can
+                    // add the node we started with.
+                    if (addNodeToTree(node) == Node.NODE_ERROR) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            if (node.getAssociativity() == Node.ASSOCIATIVITY_RIGHT) {
+                // This node is right associative so we hold it till it is
+                // completed.
+                mStack.push(node);
+            } else {
+                if (addNodeToTree(node) == Node.NODE_ERROR) {
+                    return true;
+                }
+            }
+        }
+
         return false;
+    }
+
+    private int addNodeToTree(Node node) {
+        int addResult = mRoot.addNodeRight(node);
+        if (addResult == Node.NODE_ERROR) {
+            return addResult;
+        }
+
+        if (addResult == Node.NODE_NOT_ADDED) {
+            int rootAddResult = node.addNodeLeft(mRoot);
+            if (rootAddResult == Node.NODE_ERROR) {
+                return rootAddResult;
+            }
+
+            if (rootAddResult == Node.NODE_NOT_ADDED) {
+                // Something went wrong.
+                throw new RuntimeException(
+                        "Something went wrong building the expression graph. Expected root to become child of node but got result 'node_not_added'.");
+            }
+
+            mRoot = node;
+        }
+
+        return Node.NODE_ADDED;
     }
 
     static class AndNode extends BinaryOperator {
@@ -169,6 +251,10 @@ class ExpressionParser {
         }
 
         @Override
+        public void assertComplete() {
+        }
+
+        @Override
         public int getInstruction() {
             return PARSER_BEGIN_BLOCK;
         }
@@ -188,6 +274,10 @@ class ExpressionParser {
 
         public BeginSubstringInstruction(Token token) {
             super(token, 0);
+        }
+
+        @Override
+        public void assertComplete() {
         }
 
         @Override
@@ -253,6 +343,20 @@ class ExpressionParser {
         }
 
         @Override
+        public void assertComplete() {
+            if (mLeft == null) {
+                mToken.markError("Missing left term.");
+            } else {
+                mLeft.assertComplete();
+            }
+            if (mRight == null) {
+                mToken.markError("Missing right term.");
+            } else {
+                mLeft.assertComplete();
+            }
+        }
+
+        @Override
         public boolean assertType(int type) {
             boolean r = (type & getBaseType()) != 0;
 
@@ -308,6 +412,10 @@ class ExpressionParser {
         }
 
         @Override
+        public void assertComplete() {
+        }
+
+        @Override
         public int getInstruction() {
             return PARSER_END_BLOCK;
         }
@@ -327,6 +435,10 @@ class ExpressionParser {
 
         public EndSubstringInstruction(Token token) {
             super(token, 0);
+        }
+
+        @Override
+        public void assertComplete() {
         }
 
         @Override
@@ -456,6 +568,10 @@ class ExpressionParser {
         }
 
         @Override
+        public void assertComplete() {
+        }
+
+        @Override
         public int getType() {
             if ((mToken.getType() & ExpressionCompiler.TOKEN_NUMBER) != 0) {
                 return mType;
@@ -478,6 +594,10 @@ class ExpressionParser {
 
         public MiddleSubstringInstruction(Token token) {
             super(token, 0);
+        }
+
+        @Override
+        public void assertComplete() {
         }
 
         @Override
@@ -614,6 +734,15 @@ class ExpressionParser {
         }
 
         @Override
+        public void assertComplete() {
+            if (mChild == null) {
+                mToken.markError("Missing term.");
+            } else {
+                mChild.assertComplete();
+            }
+        }
+
+        @Override
         public String toString() {
             return SYMBOL;
         }
@@ -713,6 +842,8 @@ class ExpressionParser {
             return NODE_NOT_ADDED;
         }
 
+        public abstract void assertComplete();
+
         public boolean assertType(int type) {
             return (type & getType()) != 0;
         }
@@ -742,7 +873,7 @@ class ExpressionParser {
             mOperand = operand;
         }
 
-        abstract public String toString();
+        public abstract String toString();
 
         protected int getAssociativity() {
             return ASSOCIATIVITY_LEFT;
@@ -824,6 +955,15 @@ class ExpressionParser {
         @Override
         public int addNodeRight(Node node) {
             return addNodeLeft(node);
+        }
+
+        @Override
+        public void assertComplete() {
+            if (mChild == null) {
+                mToken.markError("Missing term.");
+            } else {
+                mChild.assertComplete();
+            }
         }
 
         @Override
@@ -956,6 +1096,20 @@ class ExpressionParser {
             node.markError("Expected number type.");
             return NODE_ADDED;
 
+        }
+
+        @Override
+        public void assertComplete() {
+            if (mLeft == null) {
+                mToken.markError("Missing left term.");
+            } else {
+                mLeft.assertComplete();
+            }
+            if (mRight == null) {
+                mToken.markError("Missing right term.");
+            } else {
+                mRight.assertComplete();
+            }
         }
 
         @Override
@@ -1134,6 +1288,15 @@ class ExpressionParser {
         }
 
         @Override
+        public void assertComplete() {
+            if (mChild == null) {
+                mToken.markError("Missing term.");
+            } else {
+                mChild.assertComplete();
+            }
+        }
+
+        @Override
         public boolean assertType(int type) {
             if (mChild != null) {
                 return mChild.assertType(type);
@@ -1307,6 +1470,23 @@ class ExpressionParser {
         }
 
         @Override
+        public void assertComplete() {
+            if (mLeft == null) {
+                mToken.markError("Missing left term.");
+            } else {
+                mLeft.assertComplete();
+            }
+            if (mStartIndex == null) {
+                mToken.markError("Missing index term.");
+            } else {
+                mStartIndex.assertComplete();
+            }
+            if (mLength != null) {
+                mLength.assertComplete();
+            }
+        }
+
+        @Override
         public boolean assertType(int type) {
             return (type & Operand.TYPE_STRING) != 0;
         }
@@ -1340,6 +1520,10 @@ class ExpressionParser {
         public VariableNode(Token token) {
             super(token, 0);
             mName = token.getString();
+        }
+
+        @Override
+        public void assertComplete() {
         }
 
         @Override

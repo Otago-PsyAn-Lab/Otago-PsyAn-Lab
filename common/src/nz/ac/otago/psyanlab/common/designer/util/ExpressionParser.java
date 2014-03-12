@@ -31,7 +31,7 @@ class ExpressionParser {
 
     private ExpressionParser mInnerBlock;
 
-    private Token mLastToken;
+    private Node mLastGeneratedNode;
 
     private int mMode = MODE_NORMAL;
 
@@ -39,16 +39,23 @@ class ExpressionParser {
 
     private Node mRoot;
 
-    private Stack<Node> stack;
+    private Stack<Node> mStack;
+
+    private boolean mWasError;
 
     public ExpressionParser(OperandCallbacks callbacks, HashMap<String, Long> operandIds) {
         mCallbacks = callbacks;
         mOperandIds = operandIds;
+        mWasError = false;
+        mStack = new Stack<Node>();
     }
 
     public void addToken(Token token) {
-        Node node = Node.newNode(token, mLastToken);
-        mLastToken = token;
+        if (mWasError) {
+            return;
+        }
+        Node node = Node.newNode(token, mLastGeneratedNode);
+        mLastGeneratedNode = node;
         int instruction = node.getInstruction();
         if ((instruction & PARSER_BEGIN_BLOCK) != 0) {
             // Open a new inner block.
@@ -57,6 +64,8 @@ class ExpressionParser {
         } else if ((instruction & PARSER_END_BLOCK) != 0) {
             if (mMode != MODE_INNER_BLOCK) {
                 token.markError("Unexpected end of grouping.");
+                mWasError = true;
+                return;
             }
             // Close inner block and use its tree as our node.
             mMode = MODE_NORMAL;
@@ -71,9 +80,9 @@ class ExpressionParser {
         }
 
         if (mMode == MODE_INNER_BLOCK) {
-            mInnerBlock.addNode(node);
+            mWasError = mInnerBlock.addNode(node);
         } else {
-            addNode(node);
+            mWasError = addNode(node);
         }
     }
 
@@ -85,11 +94,13 @@ class ExpressionParser {
         return mRoot;
     }
 
-    private void addNode(Node node) {
+    private boolean addNode(Node node) {
         if (mRoot == null) {
             mRoot = node;
-            return;
+            return false;
         }
+
+        return false;
     }
 
     static class AndNode extends BinaryOperator {
@@ -556,16 +567,26 @@ class ExpressionParser {
         }
     }
 
-    static class NegativeNode extends Node {
+    static class NegativeSignNode extends Node {
         private static final String SYMBOL = "-";
 
-        public static boolean kindOf(Token token) {
+        public static boolean matches(Token token, Node lastGeneratedNode) {
+            if (lastGeneratedNode == null) {
+                // No last node so we must be unary right associative.
+                return TextUtils.equals(SYMBOL, token.getString());
+            } else if (lastGeneratedNode instanceof VariableNode
+                    || lastGeneratedNode instanceof LiteralNode
+                    || lastGeneratedNode instanceof EndSubBlockInstruction) {
+                // a + ?, 1 + ?, ) + ?.
+                return false;
+            }
+            // Last node was an operator so we must be unary right associative.
             return TextUtils.equals(SYMBOL, token.getString());
         }
 
         private Node mChild;
 
-        public NegativeNode(Token token) {
+        public NegativeSignNode(Token token) {
             super(token, 2);
         }
 
@@ -604,7 +625,9 @@ class ExpressionParser {
     }
 
     /**
-     * Nodes are not necessarily complete in meaning.
+     * Construction blocks used to build an expression graph, though not
+     * strictly so. Nodes are not necessarily complete in meaning and may be
+     * used as a state message passing mechanism.
      */
     static abstract class Node {
         protected static final int ASSOCIATIVITY_LEFT = 1;
@@ -617,7 +640,7 @@ class ExpressionParser {
 
         protected static final int NODE_NOT_ADDED = 0;
 
-        public static Node newNode(Token token, Token lastToken) {
+        public static Node newNode(Token token, Node lastGeneratedNode) {
             Node node;
             if (AndNode.kindOf(token)) {
                 node = new AndNode(token);
@@ -635,12 +658,13 @@ class ExpressionParser {
                 node = new EqualsNode(token);
             } else if (NotEqualsNode.kindOf(token)) {
                 node = new NotEqualsNode(token);
-            } else if ((lastToken == null || PositiveNode.kindOf(lastToken))
-                    && PositiveNode.kindOf(token)) {
-                node = new PositiveNode(token);
-            } else if ((lastToken == null || PositiveNode.kindOf(lastToken))
-                    && PositiveNode.kindOf(token)) {
-                node = new PositiveNode(token);
+            } else if (NegativeSignNode.matches(token, lastGeneratedNode)) {
+                node = new NegativeSignNode(token);
+            } else if (PositiveSignNode.matches(token, lastGeneratedNode)) {
+                // We know when we are a sign operator when we haven't already
+                // seen a token or when that token was not a literal, identity,
+                // or block.
+                node = new PositiveSignNode(token);
             } else if (PlusNode.kindOf(token)) {
                 node = new PlusNode(token);
             } else if (MinusNode.kindOf(token)) {
@@ -856,6 +880,10 @@ class ExpressionParser {
         }
     }
 
+    /**
+     * A node which encapsulates the properties of the concatenation operator
+     * and the addition operator.
+     */
     static class PlusNode extends Node {
         private static final int OPERATOR_ADDITION = 1;
 
@@ -1059,16 +1087,26 @@ class ExpressionParser {
         }
     }
 
-    static class PositiveNode extends Node {
+    static class PositiveSignNode extends Node {
         private static final String SYMBOL = "+";
 
-        public static boolean kindOf(Token token) {
+        public static boolean matches(Token token, Node lastGeneratedNode) {
+            if (lastGeneratedNode == null) {
+                // No last node so we must be unary right associative.
+                return TextUtils.equals(SYMBOL, token.getString());
+            } else if (lastGeneratedNode instanceof VariableNode
+                    || lastGeneratedNode instanceof LiteralNode
+                    || lastGeneratedNode instanceof EndSubBlockInstruction) {
+                // a + ?, 1 + ?, ) + ?.
+                return false;
+            }
+            // Last node was an operator so we must be unary right associative.
             return TextUtils.equals(SYMBOL, token.getString());
         }
 
         private Node mChild;
 
-        public PositiveNode(Token token) {
+        public PositiveSignNode(Token token) {
             super(token, 2);
         }
 
@@ -1207,7 +1245,7 @@ class ExpressionParser {
         private int mState;
 
         public SubstringNode(Token token) {
-            super(token, 2);
+            super(token, 5);
         }
 
         @Override

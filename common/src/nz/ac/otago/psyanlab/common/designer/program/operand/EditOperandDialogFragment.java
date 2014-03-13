@@ -4,7 +4,8 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
+import nz.ac.otago.psyanlab.common.designer.program.util.ActionCallbacks;
+import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.app.Activity;
@@ -42,7 +43,7 @@ public class EditOperandDialogFragment extends DialogFragment {
         return f;
     }
 
-    private ProgramCallbacks mCallbacks;
+    private ActionCallbacks mCallbacks;
 
     protected long mId;
 
@@ -56,7 +57,7 @@ public class EditOperandDialogFragment extends DialogFragment {
         if (!(activity instanceof ProgramCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (ProgramCallbacks)activity;
+        mCallbacks = (ActionCallbacks)activity;
     }
 
     @Override

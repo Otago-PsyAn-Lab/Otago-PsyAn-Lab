@@ -1,12 +1,12 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
+import nz.ac.otago.psyanlab.common.designer.program.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.IdentityToken;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.NumberToken;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.OperatorToken;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.StringToken;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.UnknownToken;
-import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.text.TextUtils;
 
@@ -40,10 +40,6 @@ public class ExpressionCompiler {
         ExpressionParser parser = new ExpressionParser(mCallbacks, operandIds);
         Lexer lexer = new Lexer(parser);
         lexer.lex(expression);
-    }
-
-    public interface OperandCallbacks {
-        long createOperand(Operand operand);
     }
 
     static class Lexer {

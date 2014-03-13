@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.OperandCallbacks;
+import nz.ac.otago.psyanlab.common.designer.program.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Token;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;

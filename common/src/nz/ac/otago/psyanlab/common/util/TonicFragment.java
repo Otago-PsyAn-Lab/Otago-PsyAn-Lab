@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.util;
 
-import nz.ac.otago.psyanlab.common.designer.program.ProgramCallbacks;
+import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
 
 import android.app.Activity;
 import android.os.Bundle;

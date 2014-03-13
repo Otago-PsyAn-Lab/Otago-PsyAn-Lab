@@ -12,6 +12,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ListIterator;
 
 public class ExpressionCompiler {
     public static final int TOKEN_DECIMAL = 0x01;
@@ -32,14 +33,35 @@ public class ExpressionCompiler {
 
     private OperandCallbacks mCallbacks;
 
+    private Lexer mLexer;
+
     public ExpressionCompiler(OperandCallbacks callbacks) {
         mCallbacks = callbacks;
     }
 
     public void compile(String expression, HashMap<String, Long> operandIds) {
         ExpressionParser parser = new ExpressionParser(mCallbacks, operandIds);
-        Lexer lexer = new Lexer(parser);
-        lexer.lex(expression);
+        mLexer = new Lexer(parser);
+        mLexer.lex(expression);
+    }
+
+    public String formatExpression() {
+        return mLexer.formatExpression();
+    }
+
+    public TokenError getError() {
+        return mLexer.getError();
+    }
+
+    public static class TokenError {
+        public TokenError(int i, String error) {
+            tokenIndex = i;
+            errorString = error;
+        }
+
+        public int tokenIndex;
+
+        public String errorString;
     }
 
     static class Lexer {
@@ -55,6 +77,25 @@ public class ExpressionCompiler {
 
         public Lexer(ExpressionParser parser) {
             mParser = parser;
+        }
+
+        public String formatExpression() {
+            StringBuilder sb = new StringBuilder();
+            for (Token token : mTokens) {
+                sb.append(token.toString());
+            }
+            return sb.toString();
+        }
+
+        public TokenError getError() {
+            for (ListIterator<Token> iterator = mTokens.listIterator(); iterator.hasNext();) {
+                Token token = iterator.next();
+                if (token.hasError()) {
+                    return new TokenError(iterator.nextIndex() - 1, token.getError());
+                }
+            }
+
+            return null;
         }
 
         public ArrayList<Token> getTokens() {
@@ -74,7 +115,6 @@ public class ExpressionCompiler {
         }
 
         private void processCodepoint(final int codepoint) {
-
             if (mCurrentToken == null) {
                 mCurrentToken = Token.newToken(codepoint);
             } else {

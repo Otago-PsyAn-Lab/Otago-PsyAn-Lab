@@ -4,8 +4,8 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.program.util.ActionCallbacks;
 import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.ActionCallbacks;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.app.Activity;

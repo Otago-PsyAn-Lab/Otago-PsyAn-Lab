@@ -4,8 +4,6 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler;
-import nz.ac.otago.psyanlab.common.designer.util.OldExpressionParser;
-import nz.ac.otago.psyanlab.common.designer.util.OldExpressionParser.Result;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
@@ -90,16 +88,17 @@ public class EditLiteralOperandFragment extends TonicFragment {
 
     protected void handleExpressionChange(Editable s) {
         int caretPosition = mViews.expression.getSelectionStart();
-        ExpressionCompiler expression = new ExpressionCompiler();
-        expression.compile(s.toString());
-        Result r = OldExpressionParser.process(s.toString(), mOperand, caretPosition);
-
-        mOperand = r.operand;
+        ExpressionCompiler expression = new ExpressionCompiler(mCallbacks);
+        // expression.compile(s.toString());
+        // Result r = OldExpressionParser.process(s.toString(), mOperand,
+        // caretPosition);
+        //
+        // mOperand = r.operand;
         mCallbacks.updateOperand(mObjectId, mOperand);
 
         mViews.updateViews((LiteralOperand)mOperand);
         // Update caret position to equivalent after any formatting.
-        mViews.expression.setSelection(r.caretPosition);
+        // mViews.expression.setSelection(r.caretPosition);
     }
 
     protected void showEditOperandDialogue(long id) {

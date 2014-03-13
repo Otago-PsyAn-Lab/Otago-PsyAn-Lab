@@ -14,9 +14,11 @@ import java.util.Stack;
  * Parse takes tokens and builds a tree of the expression.
  */
 class ExpressionParser {
-    private static final int MODE_INNER_BLOCK = 0x01;
+    private static final int MODE_INNER_BLOCK = 1;
 
-    private static final int MODE_NORMAL = 0x00;
+    private static final int MODE_INNER_BLOCK_IMMINENT = 2;
+
+    private static final int MODE_NORMAL = 0;
 
     protected static final int PARSER_BEGIN_BLOCK = 0X01;
 
@@ -60,7 +62,7 @@ class ExpressionParser {
         if ((instruction & PARSER_BEGIN_BLOCK) != 0) {
             // Open a new inner block.
             mInnerBlock = new ExpressionParser(mCallbacks, mOperandIds);
-            mMode = MODE_INNER_BLOCK;
+            mMode = MODE_INNER_BLOCK_IMMINENT;
         } else if ((instruction & PARSER_END_BLOCK) != 0) {
             if (mMode != MODE_INNER_BLOCK) {
                 token.markError("Unexpected end of grouping.");
@@ -69,6 +71,7 @@ class ExpressionParser {
             }
             // Close inner block and use its tree as our node.
             mMode = MODE_NORMAL;
+            mInnerBlock.completeTree();
             node = mInnerBlock.getRoot();
             mInnerBlock = null;
         } else if ((instruction & PARSER_GENERATE_OPERAND) != 0) {
@@ -79,7 +82,9 @@ class ExpressionParser {
             mOperandIds.put(node.toString(), operandId);
         }
 
-        if (mMode == MODE_INNER_BLOCK) {
+        if (mMode == MODE_INNER_BLOCK_IMMINENT) {
+            mMode = MODE_INNER_BLOCK;
+        } else if (mMode == MODE_INNER_BLOCK) {
             mWasError = mInnerBlock.addNode(node);
         } else {
             mWasError = addNode(node);
@@ -102,6 +107,29 @@ class ExpressionParser {
 
     public Node getRoot() {
         return mRoot;
+    }
+
+    public String printState() {
+        String s = "";
+        if (mRoot != null) {
+            s += mRoot.printTree();
+        } else {
+            s += "null";
+        }
+
+        s += "      stack";
+        for (int i = 0; i < mStack.size(); i++) {
+            s += " :: ";
+            s += mStack.get(i).printTree();
+        }
+
+        if (mInnerBlock != null) {
+            s += "     inner(";
+            s += mInnerBlock.printState();
+            s += ")";
+        }
+
+        return s;
     }
 
     /**
@@ -783,6 +811,14 @@ class ExpressionParser {
         }
 
         @Override
+        public int getType() {
+            if (mChild != null) {
+                return mChild.getType();
+            }
+            return Operand.TYPE_NUMBER;
+        }
+
+        @Override
         public String printTree() {
             return "(" + toString() + ((mChild == null) ? "" : mChild.printTree()) + ")";
         }
@@ -1300,7 +1336,6 @@ class ExpressionParser {
     }
 
     static class PositiveSignNode extends Node {
-
         private static final String SYMBOL = "+";
 
         public static boolean matches(Token token, Node lastGeneratedNode) {
@@ -1631,26 +1666,5 @@ class ExpressionParser {
         protected int getAssociativity() {
             return 0;
         }
-    }
-
-    public String printState() {
-        String s = "";
-        if (mRoot != null) {
-            s += mRoot.printTree();
-        }
-
-        s += "      stack";
-        for (int i = 0; i < mStack.size(); i++) {
-            s += " :: ";
-            s += mStack.get(i).printTree();
-        }
-
-        if (mInnerBlock != null) {
-            s += "     inner (";
-            s += mInnerBlock.printState();
-            s += ")";
-        }
-
-        return s;
     }
 }

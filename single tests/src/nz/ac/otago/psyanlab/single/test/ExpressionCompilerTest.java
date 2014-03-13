@@ -9,8 +9,10 @@ import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.support.v4.util.LongSparseArray;
+import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import junit.framework.TestCase;
@@ -92,7 +94,7 @@ public class ExpressionCompilerTest extends TestCase {
         mOperands = new LongSparseArray<Operand>();
         ExpressionCompiler compiler = new ExpressionCompiler(mOperandCallbacks);
         HashMap<String, Long> operandIds = new HashMap<String, Long>();
-        compiler.compile("a  ++(+b)=3<=3", operandIds);
+        compiler.compile("a  +\"a string\"=b<=a and 3 = myInteger", operandIds);
 
         TokenError error = compiler.getError();
 
@@ -102,7 +104,35 @@ public class ExpressionCompilerTest extends TestCase {
             Log.d("DEBUG USER ERROR", error.tokenIndex + " " + error.errorString);
         }
 
-        assertEquals(mOperands.size(), 2);
+        for (int i = 0; i < mOperands.size(); i++) {
+            Log.d("DEBUG OPERAND TYPE", typeToString(mOperands.get(mOperands.keyAt(i)).type));
+        }
+    }
 
+    private String typeToString(int type) {
+        ArrayList<String> types = new ArrayList<String>();
+        if ((type & Operand.TYPE_BOOLEAN) != 0) {
+            types.add("boolean");
+        }
+        if ((type & Operand.TYPE_FLOAT) != 0) {
+            types.add("float");
+        }
+        if ((type & Operand.TYPE_IMAGE) != 0) {
+            types.add("image");
+        }
+        if ((type & Operand.TYPE_INTEGER) != 0) {
+            types.add("integer");
+        }
+        if ((type & Operand.TYPE_SOUND) != 0) {
+            types.add("sound");
+        }
+        if ((type & Operand.TYPE_STRING) != 0) {
+            types.add("string");
+        }
+        if ((type & Operand.TYPE_VIDEO) != 0) {
+            types.add("video asset");
+        }
+
+        return TextUtils.join(", ", types);
     }
 }

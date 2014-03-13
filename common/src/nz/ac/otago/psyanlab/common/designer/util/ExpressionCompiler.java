@@ -335,10 +335,9 @@ public class ExpressionCompiler {
 
         private String mErrorString;
 
-        protected StringBuilder mStringRepresentation;
+        protected StringBuilder mStringRepresentation = new StringBuilder();
 
         public Token(int codepoint) {
-            mStringRepresentation = new StringBuilder();
             mStringRepresentation.appendCodePoint(codepoint);
         }
 

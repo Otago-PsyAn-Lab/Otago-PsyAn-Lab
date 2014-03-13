@@ -7,6 +7,7 @@ import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -77,8 +78,14 @@ class ExpressionParser {
             mInnerBlock = null;
         } else if ((instruction & PARSER_GENERATE_OPERAND) != 0) {
             // Create and store operand.
-            Operand operand = new StubOperand(node.toString());
-            long operandId = mCallbacks.createOperand(operand);
+            Long operandId = mOperandIds.get(node.toString());
+            Operand operand;
+            if (operandId == null) {
+                operand = new StubOperand(node.toString());
+                operandId = mCallbacks.createOperand(operand);
+            } else {
+                operand = mCallbacks.getOperand(operandId);
+            }
             node.setOperand(operandId, operand);
             mOperandIds.put(node.toString(), operandId);
         }
@@ -93,6 +100,10 @@ class ExpressionParser {
     }
 
     public void completeTree() {
+        if (mWasError) {
+            return;
+        }
+
         while (!mHeldStack.empty()) {
             if (addNodeToTree(mHeldStack.pop()) == Node.NODE_ERROR) {
                 break;
@@ -265,6 +276,16 @@ class ExpressionParser {
         protected String getExpectedTypeErrorString() {
             return "Expected boolean type.";
         }
+
+        @Override
+        public int addNodeLeft(Node node) {
+            return super.addNodeLeft(node);
+        }
+
+        @Override
+        public int addNodeRight(Node node) {
+            return super.addNodeRight(node);
+        }
     }
 
     static class AsterixNode extends BinaryOperator {
@@ -359,7 +380,7 @@ class ExpressionParser {
         public int addNodeLeft(Node node) {
             if (getAssociativity() == ASSOCIATIVITY_RIGHT && isLowerPrecedence(node)) {
                 return NODE_NOT_ADDED;
-            } else if (!isHigherPrecedence(node)) {
+            } else if (isLowerPrecedence(node)) {
                 return NODE_NOT_ADDED;
             }
 
@@ -391,7 +412,7 @@ class ExpressionParser {
                     // Must be rewriting the tree.
                     int result = node.addNodeLeft(mRight);
                     if (result == NODE_ADDED) {
-                        if (node.assertType(getBaseType())) {
+                        if (node.assertType(getNodeType())) {
                             mRight = node;
                             return result;
                         }
@@ -403,12 +424,16 @@ class ExpressionParser {
                 return rightAddResult;
             }
 
-            if (node.assertType(getBaseType())) {
+            if (node.assertType(getNodeType())) {
                 mRight = node;
                 return NODE_ADDED;
             }
             node.markError(getExpectedTypeErrorString());
-            return NODE_ADDED;
+            return NODE_ERROR;
+        }
+
+        public int getNodeType() {
+            return getBaseType();
         }
 
         @Override
@@ -462,13 +487,11 @@ class ExpressionParser {
          * @return Or'ed types.
          */
         protected int orOperandTypes() {
-            if (mRight == null) {
-                if (mLeft == null) {
-                    return getBaseType();
-                }
+            if (mRight == null && mLeft == null) {
+                return getBaseType();
+            } else if (mLeft == null) {
                 return mRight.getType();
-            }
-            if (mLeft == null) {
+            } else if (mRight == null) {
                 return mLeft.getType();
             }
             return mLeft.getType() | mRight.getType();
@@ -500,6 +523,7 @@ class ExpressionParser {
             if (node instanceof ComparisonOperator) {
                 return NODE_INSERT_AND;
             }
+
             return super.addNodeRight(node);
         }
 
@@ -511,6 +535,18 @@ class ExpressionParser {
         @Override
         public boolean assertType(int type) {
             return (type & Operand.TYPE_BOOLEAN) != 0;
+        }
+
+        @Override
+        public int getNodeType() {
+            if (mLeft != null) {
+                int leftType = mLeft.getType();
+                if ((leftType & Operand.TYPE_NUMBER) != 0) {
+                    leftType |= Operand.TYPE_NUMBER;
+                }
+                return leftType;
+            }
+            return getBaseType();
         }
     }
 
@@ -688,8 +724,35 @@ class ExpressionParser {
 
         @Override
         protected String getExpectedTypeErrorString() {
-            return "Expected non asset type.";
+            return "Expected " + typeToString(getType()) + " type.";
         }
+    }
+
+    static String typeToString(int type) {
+        ArrayList<String> types = new ArrayList<String>();
+        if ((type & Operand.TYPE_BOOLEAN) != 0) {
+            types.add("boolean");
+        }
+        if ((type & Operand.TYPE_FLOAT) != 0) {
+            types.add("float");
+        }
+        if ((type & Operand.TYPE_IMAGE) != 0) {
+            types.add("image");
+        }
+        if ((type & Operand.TYPE_INTEGER) != 0) {
+            types.add("integer");
+        }
+        if ((type & Operand.TYPE_SOUND) != 0) {
+            types.add("sound");
+        }
+        if ((type & Operand.TYPE_STRING) != 0) {
+            types.add("string");
+        }
+        if ((type & Operand.TYPE_VIDEO) != 0) {
+            types.add("video asset");
+        }
+
+        return TextUtils.join(", ", types);
     }
 
     static class ErrorNode extends VariableNode {
@@ -1453,25 +1516,25 @@ class ExpressionParser {
                     int result = node.addNodeLeft(mRight);
                     if (result == NODE_ADDED) {
                         if (makeTypeAssertion(node)) {
-                            updateOperatorKind(node);
                             mRight = node;
                             return result;
                         }
-                        node.markError("Expected number type.");
+                        node.markError("Expected number or string.");
                         return NODE_ERROR;
                     }
                     return result;
+                } else if (rightAddResult == NODE_ADDED) {
+                    updateOperatorKind(node);
                 }
                 return rightAddResult;
             }
 
-            if (node.assertType(Operand.TYPE_NUMBER)) {
-                updateOperatorKind(node);
+            if (makeTypeAssertion(node)) {
                 mRight = node;
                 return NODE_ADDED;
             }
-            node.markError("Expected number type.");
-            return NODE_ADDED;
+            node.markError("Expected number or string.");
+            return NODE_ERROR;
 
         }
 
@@ -1587,6 +1650,10 @@ class ExpressionParser {
             } else {
                 mOperator = OPERATOR_UNDEFINED;
             }
+
+            if (mLeft != null) {
+                makeTypeAssertion(mLeft);
+            }
         }
 
         @Override
@@ -1625,7 +1692,22 @@ class ExpressionParser {
             }
 
             if (mChild != null) {
-                return NODE_NOT_ADDED;
+                int addRightResult = mChild.addNodeRight(node);
+                if (addRightResult == NODE_NOT_ADDED) {
+                    // Try rewriting tree.
+                    int result = node.addNodeLeft(mChild);
+                    if (result == NODE_ADDED) {
+                        if (node.assertType(Operand.TYPE_NUMBER)) {
+                            mChild = node;
+                            return result;
+                        }
+                        node.markError("Expected number or string.");
+                        return NODE_ERROR;
+                    }
+                    return result;
+
+                }
+                return addRightResult;
             }
 
             if (node.assertType(Operand.TYPE_NUMBER)) {

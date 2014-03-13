@@ -1,5 +1,5 @@
 
-package nz.ac.otago.psyanlab.common.designer.program.util;
+package nz.ac.otago.psyanlab.common.designer.util;
 
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.GeneratorDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;

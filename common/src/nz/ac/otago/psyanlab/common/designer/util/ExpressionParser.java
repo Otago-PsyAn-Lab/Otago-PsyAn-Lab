@@ -1,7 +1,6 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import nz.ac.otago.psyanlab.common.designer.program.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Token;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
@@ -260,6 +259,11 @@ class ExpressionParser {
         }
 
         @Override
+        public String printTree() {
+            return toString();
+        }
+
+        @Override
         public String toString() {
             return SYMBOL;
         }
@@ -278,6 +282,11 @@ class ExpressionParser {
 
         @Override
         public void assertComplete() {
+        }
+
+        @Override
+        public String printTree() {
+            return toString();
         }
 
         @Override
@@ -376,6 +385,12 @@ class ExpressionParser {
             return orOperandTypes();
         }
 
+        @Override
+        public String printTree() {
+            return "(" + ((mLeft == null) ? "" : mLeft.printTree()) + " " + toString() + " "
+                    + ((mRight == null) ? "" : mRight.printTree()) + ")";
+        }
+
         protected abstract int getBaseType();
 
         protected abstract String getExpectedTypeErrorString();
@@ -421,6 +436,11 @@ class ExpressionParser {
         }
 
         @Override
+        public String printTree() {
+            return toString();
+        }
+
+        @Override
         public String toString() {
             return SYMBOL;
         }
@@ -439,6 +459,11 @@ class ExpressionParser {
 
         @Override
         public void assertComplete() {
+        }
+
+        @Override
+        public String printTree() {
+            return toString();
         }
 
         @Override
@@ -564,6 +589,8 @@ class ExpressionParser {
                 } catch (NumberFormatException e) {
                     mType = Operand.TYPE_FLOAT;
                 }
+            } else {
+                mType = Operand.TYPE_STRING;
             }
         }
 
@@ -577,6 +604,14 @@ class ExpressionParser {
                 return mType;
             }
             return Operand.TYPE_STRING;
+        }
+
+        @Override
+        public String printTree() {
+            if (mType == Operand.TYPE_STRING) {
+                return "\"" + toString() + "\"";
+            }
+            return toString();
         }
 
         @Override
@@ -598,6 +633,11 @@ class ExpressionParser {
 
         @Override
         public void assertComplete() {
+        }
+
+        @Override
+        public String printTree() {
+            return toString();
         }
 
         @Override
@@ -743,6 +783,11 @@ class ExpressionParser {
         }
 
         @Override
+        public String printTree() {
+            return "(" + toString() + ((mChild == null) ? "" : mChild.printTree()) + ")";
+        }
+
+        @Override
         public String toString() {
             return SYMBOL;
         }
@@ -864,6 +909,8 @@ class ExpressionParser {
             mToken.markError(string);
         }
 
+        public abstract String printTree();
+
         public void refresh() {
 
         }
@@ -980,6 +1027,11 @@ class ExpressionParser {
                 return mChild.getType();
             }
             return Operand.TYPE_BOOLEAN;
+        }
+
+        @Override
+        public String printTree() {
+            return "(" + toString() + ((mChild == null) ? "" : mChild.printTree()) + ")";
         }
 
         @Override
@@ -1155,6 +1207,12 @@ class ExpressionParser {
         }
 
         @Override
+        public String printTree() {
+            return "(" + ((mLeft == null) ? "" : mLeft.printTree()) + " " + toString() + " "
+                    + ((mRight == null) ? "" : mRight.printTree()) + ")";
+        }
+
+        @Override
         public void refresh() {
             mLeft.refresh();
             mRight.refresh();
@@ -1242,6 +1300,7 @@ class ExpressionParser {
     }
 
     static class PositiveSignNode extends Node {
+
         private static final String SYMBOL = "+";
 
         public static boolean matches(Token token, Node lastGeneratedNode) {
@@ -1310,6 +1369,11 @@ class ExpressionParser {
                 return mChild.getType();
             }
             return Operand.TYPE_NUMBER;
+        }
+
+        @Override
+        public String printTree() {
+            return "(" + toString() + ((mChild == null) ? "" : mChild.printTree()) + ")";
         }
 
         @Override
@@ -1497,6 +1561,13 @@ class ExpressionParser {
         }
 
         @Override
+        public String printTree() {
+            return "(" + ((mLeft == null) ? "" : mLeft.printTree()) + " ["
+                    + ((mStartIndex == null) ? "" : mStartIndex.printTree())
+                    + ((mLength == null) ? "]" : ", " + mLength.printTree() + "]") + ")";
+        }
+
+        @Override
         public String toString() {
             return SYMBOL
                     + mStartIndex
@@ -1547,6 +1618,11 @@ class ExpressionParser {
         }
 
         @Override
+        public String printTree() {
+            return toString();
+        }
+
+        @Override
         public String toString() {
             return mName;
         }
@@ -1555,5 +1631,26 @@ class ExpressionParser {
         protected int getAssociativity() {
             return 0;
         }
+    }
+
+    public String printState() {
+        String s = "";
+        if (mRoot != null) {
+            s += mRoot.printTree();
+        }
+
+        s += "      stack";
+        for (int i = 0; i < mStack.size(); i++) {
+            s += " :: ";
+            s += mStack.get(i).printTree();
+        }
+
+        if (mInnerBlock != null) {
+            s += "     inner (";
+            s += mInnerBlock.printState();
+            s += ")";
+        }
+
+        return s;
     }
 }

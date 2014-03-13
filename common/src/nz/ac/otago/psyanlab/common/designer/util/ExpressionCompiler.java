@@ -1,7 +1,6 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import nz.ac.otago.psyanlab.common.designer.program.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.IdentityToken;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.NumberToken;
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.OperatorToken;
@@ -9,6 +8,7 @@ import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.String
 import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.Lexer.UnknownToken;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,16 +69,19 @@ public class ExpressionCompiler {
                 processCodepoint(codepoint);
                 offset += Character.charCount(codepoint);
             }
+            mParser.completeTree();
+            Log.d("DEBUG TREE", mParser.printState());
         }
 
         private void processCodepoint(final int codepoint) {
+
             if (mCurrentToken == null) {
                 mCurrentToken = Token.newToken(codepoint);
             } else {
                 int result = mCurrentToken.eat(codepoint);
-                if ((result & RESULT_TERMINAL_REACHED) == RESULT_TERMINAL_REACHED) {
+                if ((result & RESULT_TERMINAL_REACHED) != 0) {
                     storeToken();
-                    if ((result & RESULT_CHAR_CONSUMED) != RESULT_CHAR_CONSUMED) {
+                    if ((result & RESULT_CHAR_CONSUMED) == 0) {
                         mCurrentToken = Token.newToken(codepoint);
                     }
                 }
@@ -86,7 +89,9 @@ public class ExpressionCompiler {
         }
 
         private void storeToken() {
+            Log.d("DEBUG TOKEN", mCurrentToken.toString());
             mParser.addToken(mCurrentToken);
+            Log.d("DEBUG TREE", mParser.printState());
             mTokens.add(mCurrentToken);
         }
 
@@ -282,9 +287,14 @@ public class ExpressionCompiler {
 
         protected StringBuilder mStringRepresentation;
 
+        @Override
+        public String toString() {
+            return mStringRepresentation.toString();
+        }
+
         public Token(int codepoint) {
             mStringRepresentation = new StringBuilder();
-            mStringRepresentation.append(codepoint);
+            mStringRepresentation.appendCodePoint(codepoint);
         }
 
         protected Token() {

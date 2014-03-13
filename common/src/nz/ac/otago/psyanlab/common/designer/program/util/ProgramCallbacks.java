@@ -2,8 +2,14 @@
 package nz.ac.otago.psyanlab.common.designer.program.util;
 
 import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter.Factory;
+import nz.ac.otago.psyanlab.common.designer.util.ActionCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.GeneratorCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.LoopCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.RuleCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.SceneCallbacks;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Prop;

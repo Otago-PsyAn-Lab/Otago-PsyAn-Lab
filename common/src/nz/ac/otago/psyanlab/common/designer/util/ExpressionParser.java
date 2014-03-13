@@ -40,7 +40,7 @@ class ExpressionParser {
 
     private Node mRoot;
 
-    private Stack<Node> mStack;
+    private Stack<Node> mHeldStack;
 
     private boolean mWasError;
 
@@ -48,7 +48,7 @@ class ExpressionParser {
         mCallbacks = callbacks;
         mOperandIds = operandIds;
         mWasError = false;
-        mStack = new Stack<Node>();
+        mHeldStack = new Stack<Node>();
     }
 
     public void addToken(Token token) {
@@ -73,6 +73,7 @@ class ExpressionParser {
             mMode = MODE_NORMAL;
             mInnerBlock.completeTree();
             node = mInnerBlock.getRoot();
+            node.setParenthesised(true);
             mInnerBlock = null;
         } else if ((instruction & PARSER_GENERATE_OPERAND) != 0) {
             // Create and store operand.
@@ -92,13 +93,17 @@ class ExpressionParser {
     }
 
     public void completeTree() {
-        while (!mStack.empty()) {
-            if (addNodeToTree(mStack.pop()) == Node.NODE_ERROR) {
+        while (!mHeldStack.empty()) {
+            if (addNodeToTree(mHeldStack.pop()) == Node.NODE_ERROR) {
                 break;
             }
         }
 
         mRoot.assertComplete();
+    }
+
+    public String formatExpression() {
+        return mRoot.prettyPrint();
     }
 
     public HashMap<String, Long> getOperandIds() {
@@ -118,9 +123,9 @@ class ExpressionParser {
         }
 
         s += "      stack";
-        for (int i = 0; i < mStack.size(); i++) {
+        for (int i = 0; i < mHeldStack.size(); i++) {
             s += " :: ";
-            s += mStack.get(i).printTree();
+            s += mHeldStack.get(i).printTree();
         }
 
         if (mInnerBlock != null) {
@@ -144,9 +149,9 @@ class ExpressionParser {
             return false;
         }
 
-        if (!mStack.empty()) {
+        if (!mHeldStack.empty()) {
             // Add node to first held node.
-            int addResult = mStack.peek().addNodeRight(node);
+            int addResult = mHeldStack.peek().addNodeRight(node);
             if (addResult == Node.NODE_ERROR) {
                 return true;
             } else if (addResult == Node.NODE_NOT_ADDED) {
@@ -157,11 +162,11 @@ class ExpressionParser {
                 if (node.getAssociativity() == Node.ASSOCIATIVITY_RIGHT) {
                     // This node is right associative so we hold it till it is
                     // completed.
-                    mStack.push(node);
+                    mHeldStack.push(node);
                 } else {
                     // Node is left associative, but we need to add the top node
                     // on the stack to the tree first.
-                    Node heldNode = mStack.pop();
+                    Node heldNode = mHeldStack.pop();
                     if (addNodeToTree(heldNode) == Node.NODE_ERROR) {
                         return true;
                     }
@@ -177,9 +182,16 @@ class ExpressionParser {
             if (node.getAssociativity() == Node.ASSOCIATIVITY_RIGHT) {
                 // This node is right associative so we hold it till it is
                 // completed.
-                mStack.push(node);
+                mHeldStack.push(node);
             } else {
-                if (addNodeToTree(node) == Node.NODE_ERROR) {
+                int result = addNodeToTree(node);
+                if (result == Node.NODE_INSERT_AND) {
+                    Node and = new AndNode(null);
+                    and.addNodeLeft(mRoot);
+                    and.addNodeRight(node);
+                    mRoot = and;
+                }
+                if (result == Node.NODE_ERROR) {
                     return true;
                 }
             }
@@ -206,7 +218,23 @@ class ExpressionParser {
                         "Something went wrong building the expression graph. Expected root to become child of node but got result 'node_not_added'.");
             }
 
+            if (rootAddResult == Node.NODE_INSERT_AND) {
+                Node and = new AndNode(null);
+                and.addNodeLeft(mRoot);
+                Node virt = mRoot.getRightNodeLink();
+                node.addNodeLeft(virt);
+                and.addNodeRight(node);
+                node = and;
+            }
+
             mRoot = node;
+        } else if (addResult == Node.NODE_INSERT_AND) {
+            Node and = new AndNode(null);
+            and.addNodeLeft(mRoot);
+            Node virt = mRoot.getRightNodeLink();
+            node.addNodeLeft(virt);
+            and.addNodeRight(node);
+            mRoot = and;
         }
 
         return Node.NODE_ADDED;
@@ -313,11 +341,6 @@ class ExpressionParser {
         }
 
         @Override
-        public String printTree() {
-            return toString();
-        }
-
-        @Override
         public String toString() {
             return SYMBOL;
         }
@@ -334,7 +357,9 @@ class ExpressionParser {
 
         @Override
         public int addNodeLeft(Node node) {
-            if (isLowerPrecedence(node)) {
+            if (getAssociativity() == ASSOCIATIVITY_RIGHT && isLowerPrecedence(node)) {
+                return NODE_NOT_ADDED;
+            } else if (!isHigherPrecedence(node)) {
                 return NODE_NOT_ADDED;
             }
 
@@ -353,22 +378,29 @@ class ExpressionParser {
 
         @Override
         public int addNodeRight(Node node) {
-            if (isLowerPrecedence(node)) {
+            if (getAssociativity() == ASSOCIATIVITY_RIGHT && isLowerPrecedence(node)) {
+                return NODE_NOT_ADDED;
+            } else if (!isHigherPrecedence(node)) {
                 return NODE_NOT_ADDED;
             }
 
             if (mRight != null) {
-                // Must be rewriting the tree.
-                int result = node.addNodeLeft(mRight);
-                if (result == NODE_ADDED) {
-                    if (node.assertType(getBaseType())) {
-                        mRight = node;
-                        return result;
+
+                int rightAddResult = mRight.addNodeRight(node);
+                if (rightAddResult == NODE_NOT_ADDED) {
+                    // Must be rewriting the tree.
+                    int result = node.addNodeLeft(mRight);
+                    if (result == NODE_ADDED) {
+                        if (node.assertType(getBaseType())) {
+                            mRight = node;
+                            return result;
+                        }
+                        node.markError(getExpectedTypeErrorString());
+                        return NODE_ERROR;
                     }
-                    node.markError(getExpectedTypeErrorString());
-                    return NODE_ERROR;
+                    return result;
                 }
-                return result;
+                return rightAddResult;
             }
 
             if (node.assertType(getBaseType())) {
@@ -382,14 +414,14 @@ class ExpressionParser {
         @Override
         public void assertComplete() {
             if (mLeft == null) {
-                mToken.markError("Missing left term.");
+                markError("Missing left term.");
             } else {
                 mLeft.assertComplete();
             }
             if (mRight == null) {
-                mToken.markError("Missing right term.");
+                markError("Missing right term.");
             } else {
-                mLeft.assertComplete();
+                mRight.assertComplete();
             }
         }
 
@@ -441,6 +473,149 @@ class ExpressionParser {
             }
             return mLeft.getType() | mRight.getType();
         }
+
+        @Override
+        protected String pretty() {
+            return ((mLeft == null) ? "" : mLeft.prettyPrint())
+                    + ((mVirtual) ? "" : " " + toString() + " ")
+                    + ((mRight == null) ? "" : mRight.prettyPrint());
+        }
+    }
+
+    static abstract class ComparisonOperator extends BinaryOperator {
+        public ComparisonOperator(Token token) {
+            super(token, 5);
+        }
+
+        @Override
+        public int addNodeLeft(Node node) {
+            if (node instanceof ComparisonOperator) {
+                return NODE_INSERT_AND;
+            }
+            return super.addNodeLeft(node);
+        }
+
+        @Override
+        public int addNodeRight(Node node) {
+            if (node instanceof ComparisonOperator) {
+                return NODE_INSERT_AND;
+            }
+            return super.addNodeRight(node);
+        }
+
+        @Override
+        public Node getRightNodeLink() {
+            return new LinkNode(mRight);
+        }
+
+        @Override
+        public boolean assertType(int type) {
+            return (type & Operand.TYPE_BOOLEAN) != 0;
+        }
+    }
+
+    static class LinkNode extends Node {
+
+        private Node mLinked;
+
+        public LinkNode(Node linked) {
+            super(null, 0);
+            mLinked = linked;
+        }
+
+        @Override
+        public int getPrecedence() {
+            return mLinked.getPrecedence();
+        }
+
+        @Override
+        public Node getRightNodeLink() {
+            return mLinked.getRightNodeLink();
+        }
+
+        @Override
+        public int addNodeLeft(Node node) {
+            return mLinked.addNodeLeft(node);
+        }
+
+        @Override
+        public int addNodeRight(Node node) {
+            return mLinked.addNodeRight(node);
+        }
+
+        @Override
+        public void assertComplete() {
+        }
+
+        @Override
+        public boolean assertType(int type) {
+            return mLinked.assertType(type);
+        }
+
+        @Override
+        public int getInstruction() {
+            return mLinked.getInstruction();
+        }
+
+        @Override
+        public int getType() {
+            return mLinked.getType();
+        }
+
+        @Override
+        public void markError(String string) {
+            mLinked.markError(string);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "";
+        }
+
+        @Override
+        public String printTree() {
+            return "{" + mLinked.printTree() + "}";
+        }
+
+        @Override
+        public void refresh() {
+        }
+
+        @Override
+        public void setOperand(long operandId, Operand operand) {
+            mLinked.setOperand(operandId, operand);
+        }
+
+        @Override
+        public void setParenthesised(boolean parenthesised) {
+            mLinked.setParenthesised(parenthesised);
+        }
+
+        @Override
+        public String toString() {
+            return null;
+        }
+
+        @Override
+        protected int getAssociativity() {
+            return mLinked.getAssociativity();
+        }
+
+        @Override
+        protected boolean isHigherPrecedence(Node node) {
+            return mLinked.isHigherPrecedence(node);
+        }
+
+        @Override
+        protected boolean isLowerPrecedence(Node node) {
+            return mLinked.isLowerPrecedence(node);
+        }
+
+        @Override
+        protected String pretty() {
+            return "";
+        }
+
     }
 
     static class EndSubBlockInstruction extends Node {
@@ -461,11 +636,6 @@ class ExpressionParser {
         @Override
         public int getInstruction() {
             return PARSER_END_BLOCK;
-        }
-
-        @Override
-        public String printTree() {
-            return toString();
         }
 
         @Override
@@ -490,17 +660,12 @@ class ExpressionParser {
         }
 
         @Override
-        public String printTree() {
-            return toString();
-        }
-
-        @Override
         public String toString() {
             return SYMBOL;
         }
     }
 
-    static class EqualsNode extends BinaryOperator {
+    static class EqualsNode extends ComparisonOperator {
         private static final String SYMBOL = "=";
 
         static public boolean kindOf(Token token) {
@@ -508,7 +673,7 @@ class ExpressionParser {
         }
 
         public EqualsNode(Token token) {
-            super(token, 5);
+            super(token);
         }
 
         @Override
@@ -518,12 +683,12 @@ class ExpressionParser {
 
         @Override
         protected int getBaseType() {
-            return Operand.TYPE_BOOLEAN;
+            return Operand.TYPE_NON_ASSETS;
         }
 
         @Override
         protected String getExpectedTypeErrorString() {
-            return "Expected boolean type.";
+            return "Expected non asset type.";
         }
     }
 
@@ -571,7 +736,7 @@ class ExpressionParser {
         }
     }
 
-    static class LessThanNode extends BinaryOperator {
+    static class LessThanNode extends ComparisonOperator {
         private static final String SYMBOL = "<";
 
         static public boolean kindOf(Token token) {
@@ -579,7 +744,7 @@ class ExpressionParser {
         }
 
         public LessThanNode(Token token) {
-            super(token, 5);
+            super(token);
         }
 
         @Override
@@ -589,12 +754,39 @@ class ExpressionParser {
 
         @Override
         protected int getBaseType() {
-            return Operand.TYPE_BOOLEAN;
+            return Operand.TYPE_NON_ASSETS;
         }
 
         @Override
         protected String getExpectedTypeErrorString() {
-            return "Expected boolean type.";
+            return "Expected non asset type.";
+        }
+    }
+
+    static class LessThanOrEqualsNode extends ComparisonOperator {
+        private static final String SYMBOL = "<=";
+
+        static public boolean kindOf(Token token) {
+            return TextUtils.equals(SYMBOL, token.getString());
+        }
+
+        public LessThanOrEqualsNode(Token token) {
+            super(token);
+        }
+
+        @Override
+        public String toString() {
+            return SYMBOL;
+        }
+
+        @Override
+        protected int getBaseType() {
+            return Operand.TYPE_NON_ASSETS;
+        }
+
+        @Override
+        protected String getExpectedTypeErrorString() {
+            return "Expected non asset type.";
         }
     }
 
@@ -636,15 +828,20 @@ class ExpressionParser {
 
         @Override
         public String printTree() {
-            if (mType == Operand.TYPE_STRING) {
-                return "\"" + toString() + "\"";
-            }
-            return toString();
+            return prettyPrint();
         }
 
         @Override
         public String toString() {
             return mValue;
+        }
+
+        @Override
+        protected String pretty() {
+            if (mType == Operand.TYPE_STRING) {
+                return "\"" + toString() + "\"";
+            }
+            return toString();
         }
     }
 
@@ -661,11 +858,6 @@ class ExpressionParser {
 
         @Override
         public void assertComplete() {
-        }
-
-        @Override
-        public String printTree() {
-            return toString();
         }
 
         @Override
@@ -728,7 +920,7 @@ class ExpressionParser {
         }
     }
 
-    static class MoreThanNode extends BinaryOperator {
+    static class MoreThanNode extends ComparisonOperator {
         private static final String SYMBOL = ">";
 
         static public boolean kindOf(Token token) {
@@ -736,7 +928,7 @@ class ExpressionParser {
         }
 
         public MoreThanNode(Token token) {
-            super(token, 5);
+            super(token);
         }
 
         @Override
@@ -746,12 +938,39 @@ class ExpressionParser {
 
         @Override
         protected int getBaseType() {
-            return Operand.TYPE_BOOLEAN;
+            return Operand.TYPE_NON_ASSETS;
         }
 
         @Override
         protected String getExpectedTypeErrorString() {
-            return "Expected boolean type.";
+            return "Expected non asset type.";
+        }
+    }
+
+    static class MoreThanOrEqualsNode extends ComparisonOperator {
+        private static final String SYMBOL = ">=";
+
+        static public boolean kindOf(Token token) {
+            return TextUtils.equals(SYMBOL, token.getString());
+        }
+
+        public MoreThanOrEqualsNode(Token token) {
+            super(token);
+        }
+
+        @Override
+        public String toString() {
+            return SYMBOL;
+        }
+
+        @Override
+        protected int getBaseType() {
+            return Operand.TYPE_NON_ASSETS;
+        }
+
+        @Override
+        protected String getExpectedTypeErrorString() {
+            return "Expected non asset type.";
         }
     }
 
@@ -804,7 +1023,7 @@ class ExpressionParser {
         @Override
         public void assertComplete() {
             if (mChild == null) {
-                mToken.markError("Missing term.");
+                markError("Missing term.");
             } else {
                 mChild.assertComplete();
             }
@@ -832,6 +1051,11 @@ class ExpressionParser {
         protected int getAssociativity() {
             return ASSOCIATIVITY_RIGHT;
         }
+
+        @Override
+        protected String pretty() {
+            return toString() + ((mChild == null) ? "" : mChild.prettyPrint());
+        }
     }
 
     /**
@@ -847,6 +1071,8 @@ class ExpressionParser {
         protected static final int NODE_ADDED = 1;
 
         protected static final int NODE_ERROR = 2;
+
+        protected static final int NODE_INSERT_AND = 3;
 
         protected static final int NODE_NOT_ADDED = 0;
 
@@ -864,6 +1090,10 @@ class ExpressionParser {
                 node = new LessThanNode(token);
             } else if (MoreThanNode.kindOf(token)) {
                 node = new MoreThanNode(token);
+            } else if (LessThanOrEqualsNode.kindOf(token)) {
+                node = new LessThanOrEqualsNode(token);
+            } else if (MoreThanOrEqualsNode.kindOf(token)) {
+                node = new MoreThanOrEqualsNode(token);
             } else if (EqualsNode.kindOf(token)) {
                 node = new EqualsNode(token);
             } else if (NotEqualsNode.kindOf(token)) {
@@ -902,6 +1132,12 @@ class ExpressionParser {
             return node;
         }
 
+        public Node getRightNodeLink() {
+            return null;
+        }
+
+        private boolean mParenthesised;
+
         protected Operand mOperand;
 
         protected long mOperandId;
@@ -910,8 +1146,13 @@ class ExpressionParser {
 
         protected Token mToken;
 
+        protected boolean mVirtual;
+
         public Node(Token token, int precedence) {
             mToken = token;
+            if (mToken == null) {
+                mVirtual = true;
+            }
             mPrecedence = precedence;
         }
 
@@ -942,10 +1183,21 @@ class ExpressionParser {
         }
 
         public void markError(String string) {
-            mToken.markError(string);
+            if (!mVirtual) {
+                mToken.markError(string);
+            }
         }
 
-        public abstract String printTree();
+        public String prettyPrint() {
+            if (mParenthesised) {
+                return "(" + pretty() + ")";
+            }
+            return pretty();
+        }
+
+        public String printTree() {
+            return toString();
+        }
 
         public void refresh() {
 
@@ -954,6 +1206,10 @@ class ExpressionParser {
         public void setOperand(long operandId, Operand operand) {
             mOperandId = operandId;
             mOperand = operand;
+        }
+
+        public void setParenthesised(boolean parenthesised) {
+            mParenthesised = parenthesised;
         }
 
         public abstract String toString();
@@ -975,9 +1231,16 @@ class ExpressionParser {
             // hide it all.
             return node.getPrecedence() > mPrecedence;
         }
+
+        protected String pretty() {
+            if (mVirtual) {
+                return "";
+            }
+            return toString();
+        }
     }
 
-    static class NotEqualsNode extends BinaryOperator {
+    static class NotEqualsNode extends ComparisonOperator {
         private static final String SYMBOL = "<>";
 
         static public boolean kindOf(Token token) {
@@ -985,7 +1248,7 @@ class ExpressionParser {
         }
 
         public NotEqualsNode(Token token) {
-            super(token, 5);
+            super(token);
         }
 
         @Override
@@ -995,12 +1258,12 @@ class ExpressionParser {
 
         @Override
         protected int getBaseType() {
-            return Operand.TYPE_BOOLEAN;
+            return Operand.TYPE_NON_ASSETS;
         }
 
         @Override
         protected String getExpectedTypeErrorString() {
-            return "Expected boolean type.";
+            return "Expected non asset type.";
         }
     }
 
@@ -1017,8 +1280,7 @@ class ExpressionParser {
             super(token, 6);
         }
 
-        @Override
-        public int addNodeLeft(Node node) {
+        public int addNode(Node node) {
             if (isLowerPrecedence(node)) {
                 return NODE_NOT_ADDED;
             }
@@ -1028,11 +1290,33 @@ class ExpressionParser {
             }
 
             if (node.assertType(Operand.TYPE_BOOLEAN)) {
-                mChild = node;
-                return NODE_ADDED;
+                if (mChild == null) {
+                    mChild = node;
+                    return NODE_ADDED;
+                }
+                int result = mChild.addNodeRight(node);
+                if (result == NODE_NOT_ADDED) {
+                    // Must be rewriting the tree.
+                    int rewriteResult = node.addNodeRight(mChild);
+                    if (rewriteResult == NODE_ADDED) {
+                        if (node.assertType(Operand.TYPE_BOOLEAN)) {
+                            mChild = node;
+                            return rewriteResult;
+                        }
+                        node.markError("Expected boolean.");
+                        return NODE_ERROR;
+                    }
+                    return rewriteResult;
+                }
+                return result;
             }
-            node.markError("Expected a number.");
+            node.markError("Expected boolean.");
             return NODE_ERROR;
+        }
+
+        @Override
+        public int addNodeLeft(Node node) {
+            return addNode(node);
         }
 
         @Override
@@ -1043,7 +1327,7 @@ class ExpressionParser {
         @Override
         public void assertComplete() {
             if (mChild == null) {
-                mToken.markError("Missing term.");
+                markError("Missing term.");
             } else {
                 mChild.assertComplete();
             }
@@ -1079,6 +1363,11 @@ class ExpressionParser {
         protected int getAssociativity() {
             return ASSOCIATIVITY_RIGHT;
         }
+
+        @Override
+        protected String pretty() {
+            return toString() + ((mChild == null) ? "" : mChild.prettyPrint());
+        }
     }
 
     static class OrNode extends BinaryOperator {
@@ -1112,7 +1401,7 @@ class ExpressionParser {
      * A node which encapsulates the properties of the concatenation operator
      * and the addition operator.
      */
-    static class PlusNode extends Node {
+    static class PlusNode extends BinaryOperator {
         private static final int OPERATOR_ADDITION = 1;
 
         private static final int OPERATOR_CONCATENATION = 2;
@@ -1125,11 +1414,7 @@ class ExpressionParser {
             return TextUtils.equals(SYMBOL, token.getString());
         }
 
-        private Node mLeft;
-
         private int mOperator;
-
-        private Node mRight;
 
         public PlusNode(Token token) {
             super(token, 4);
@@ -1137,7 +1422,7 @@ class ExpressionParser {
 
         @Override
         public int addNodeLeft(Node node) {
-            if (isLowerPrecedence(node)) {
+            if (!isHigherPrecedence(node)) {
                 return NODE_NOT_ADDED;
             }
 
@@ -1157,23 +1442,27 @@ class ExpressionParser {
 
         @Override
         public int addNodeRight(Node node) {
-            if (isLowerPrecedence(node)) {
+            if (!isHigherPrecedence(node)) {
                 return NODE_NOT_ADDED;
             }
 
             if (mRight != null) {
-                // Must be rewriting the tree.
-                int result = node.addNodeLeft(mRight);
-                if (result == NODE_ADDED) {
-                    if (makeTypeAssertion(node)) {
-                        updateOperatorKind(node);
-                        mRight = node;
-                        return result;
+                int rightAddResult = mRight.addNodeRight(node);
+                if (rightAddResult == NODE_NOT_ADDED) {
+                    // Must be rewriting the tree.
+                    int result = node.addNodeLeft(mRight);
+                    if (result == NODE_ADDED) {
+                        if (makeTypeAssertion(node)) {
+                            updateOperatorKind(node);
+                            mRight = node;
+                            return result;
+                        }
+                        node.markError("Expected number type.");
+                        return NODE_ERROR;
                     }
-                    node.markError("Expected number type.");
-                    return NODE_ERROR;
+                    return result;
                 }
-                return result;
+                return rightAddResult;
             }
 
             if (node.assertType(Operand.TYPE_NUMBER)) {
@@ -1184,20 +1473,6 @@ class ExpressionParser {
             node.markError("Expected number type.");
             return NODE_ADDED;
 
-        }
-
-        @Override
-        public void assertComplete() {
-            if (mLeft == null) {
-                mToken.markError("Missing left term.");
-            } else {
-                mLeft.assertComplete();
-            }
-            if (mRight == null) {
-                mToken.markError("Missing right term.");
-            } else {
-                mRight.assertComplete();
-            }
         }
 
         @Override
@@ -1240,12 +1515,6 @@ class ExpressionParser {
                 // this operator should be integer addition.
                 return operandTypes;
             }
-        }
-
-        @Override
-        public String printTree() {
-            return "(" + ((mLeft == null) ? "" : mLeft.printTree()) + " " + toString() + " "
-                    + ((mRight == null) ? "" : mRight.printTree()) + ")";
         }
 
         @Override
@@ -1305,23 +1574,9 @@ class ExpressionParser {
             return r;
         }
 
-        /**
-         * Or the left and right operands types together. Handle the cases where
-         * some may be null.
-         * 
-         * @return Or'ed types.
-         */
-        private int orOperandTypes() {
-            if (mRight == null) {
-                if (mLeft == null) {
-                    return Operand.TYPE_NUMBER | Operand.TYPE_STRING;
-                }
-                return mRight.getType();
-            }
-            if (mLeft == null) {
-                return mLeft.getType();
-            }
-            return mLeft.getType() | mRight.getType();
+        @Override
+        protected int getBaseType() {
+            return Operand.TYPE_NUMBER | Operand.TYPE_STRING;
         }
 
         private void updateOperatorKind(Node node) {
@@ -1332,6 +1587,11 @@ class ExpressionParser {
             } else {
                 mOperator = OPERATOR_UNDEFINED;
             }
+        }
+
+        @Override
+        protected String getExpectedTypeErrorString() {
+            return "Expected string or number.";
         }
     }
 
@@ -1384,7 +1644,7 @@ class ExpressionParser {
         @Override
         public void assertComplete() {
             if (mChild == null) {
-                mToken.markError("Missing term.");
+                markError("Missing term.");
             } else {
                 mChild.assertComplete();
             }
@@ -1419,6 +1679,11 @@ class ExpressionParser {
         @Override
         protected int getAssociativity() {
             return ASSOCIATIVITY_RIGHT;
+        }
+
+        @Override
+        protected String pretty() {
+            return toString() + ((mChild == null) ? "" : mChild.prettyPrint());
         }
     }
 
@@ -1512,7 +1777,7 @@ class ExpressionParser {
 
         @Override
         public int addNodeLeft(Node node) {
-            if (isLowerPrecedence(node)) {
+            if (!isHigherPrecedence(node)) {
                 return NODE_NOT_ADDED;
             }
 
@@ -1555,13 +1820,43 @@ class ExpressionParser {
                     mStartIndex = node;
                     mState = STATE_WAITING_FOR_SEPARATOR;
                     return NODE_ADDED;
+                } else if (mState == STATE_WAITING_FOR_SEPARATOR) {
+                    int result = mStartIndex.addNodeRight(node);
+                    if (result == NODE_NOT_ADDED) {
+                        // Must be rewriting the tree.
+                        int addStartResult = node.addNodeLeft(mStartIndex);
+                        if (addStartResult == NODE_ADDED) {
+                            if (node.assertType(Operand.TYPE_INTEGER)) {
+                                mStartIndex = node;
+                                return addStartResult;
+                            }
+                            node.markError("Expected integer.");
+                            return NODE_ERROR;
+                        }
+                        return addStartResult;
+                    }
                 } else if (mState == STATE_WAITING_FOR_SECOND) {
                     mLength = node;
                     mState = STATE_WAITING_FOR_END;
                     return NODE_ADDED;
+                } else if (mState == STATE_WAITING_FOR_END) {
+                    int result = mLength.addNodeRight(node);
+                    if (result == NODE_NOT_ADDED) {
+                        // Must be rewriting the tree.
+                        int addLengthResult = node.addNodeRight(mLength);
+                        if (addLengthResult == NODE_ADDED) {
+                            if (node.assertType(Operand.TYPE_INTEGER)) {
+                                mLength = node;
+                                return addLengthResult;
+                            }
+                            node.markError("Expected integer.");
+                            return NODE_ERROR;
+                        }
+                        return addLengthResult;
+                    }
+                    node.markError("Unexpected token.");
+                    return NODE_ERROR;
                 }
-                node.markError("Unexpected additional integer term.");
-                return NODE_ERROR;
             }
 
             node.markError("Expected integer.");
@@ -1571,12 +1866,12 @@ class ExpressionParser {
         @Override
         public void assertComplete() {
             if (mLeft == null) {
-                mToken.markError("Missing left term.");
+                markError("Missing left term.");
             } else {
                 mLeft.assertComplete();
             }
             if (mStartIndex == null) {
-                mToken.markError("Missing index term.");
+                markError("Missing index term.");
             } else {
                 mStartIndex.assertComplete();
             }
@@ -1613,6 +1908,13 @@ class ExpressionParser {
         @Override
         protected int getAssociativity() {
             return ASSOCIATIVITY_RIGHT;
+        }
+
+        @Override
+        protected String pretty() {
+            return ((mLeft == null) ? "" : mLeft.prettyPrint()) + " ["
+                    + ((mStartIndex == null) ? "" : mStartIndex.prettyPrint())
+                    + ((mLength == null) ? "]" : ", " + mLength.prettyPrint() + "]");
         }
     }
 

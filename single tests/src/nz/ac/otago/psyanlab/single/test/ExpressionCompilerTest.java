@@ -92,14 +92,14 @@ public class ExpressionCompilerTest extends TestCase {
         mOperands = new LongSparseArray<Operand>();
         ExpressionCompiler compiler = new ExpressionCompiler(mOperandCallbacks);
         HashMap<String, Long> operandIds = new HashMap<String, Long>();
-        compiler.compile("a  ++(+b)=3", operandIds);
+        compiler.compile("a  ++(+b)=3<=3", operandIds);
 
         TokenError error = compiler.getError();
 
-        Log.d("DEBUG", compiler.formatExpression());
+        Log.d("DEBUG PRETTY PRINT", compiler.formatExpression());
 
         if (error != null) {
-            Log.d("DEBUG", error.tokenIndex + " " + error.errorString);
+            Log.d("DEBUG USER ERROR", error.tokenIndex + " " + error.errorString);
         }
 
         assertEquals(mOperands.size(), 2);

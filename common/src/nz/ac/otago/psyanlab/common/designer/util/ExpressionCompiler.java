@@ -54,14 +54,14 @@ public class ExpressionCompiler {
     }
 
     public static class TokenError {
+        public String errorString;
+
+        public int tokenIndex;
+
         public TokenError(int i, String error) {
             tokenIndex = i;
             errorString = error;
         }
-
-        public int tokenIndex;
-
-        public String errorString;
     }
 
     static class Lexer {
@@ -80,11 +80,12 @@ public class ExpressionCompiler {
         }
 
         public String formatExpression() {
-            StringBuilder sb = new StringBuilder();
-            for (Token token : mTokens) {
-                sb.append(token.toString());
-            }
-            return sb.toString();
+            return mParser.formatExpression();
+            // StringBuilder sb = new StringBuilder();
+            // for (Token token : mTokens) {
+            // sb.append(token.toString());
+            // }
+            // return sb.toString();
         }
 
         public TokenError getError() {
@@ -110,11 +111,19 @@ public class ExpressionCompiler {
                 processCodepoint(codepoint);
                 offset += Character.charCount(codepoint);
             }
+            finish();
+        }
+
+        private void finish() {
+            if (mCurrentToken != null) {
+                storeToken();
+            }
             mParser.completeTree();
             Log.d("DEBUG TREE", mParser.printState());
         }
 
         private void processCodepoint(final int codepoint) {
+            Log.d("DEBUG CODEPOINT", "" + (char)codepoint);
             if (mCurrentToken == null) {
                 mCurrentToken = Token.newToken(codepoint);
             } else {
@@ -133,6 +142,7 @@ public class ExpressionCompiler {
             mParser.addToken(mCurrentToken);
             Log.d("DEBUG TREE", mParser.printState());
             mTokens.add(mCurrentToken);
+            mCurrentToken = null;
         }
 
         static class IdentityToken extends Token {
@@ -327,11 +337,6 @@ public class ExpressionCompiler {
 
         protected StringBuilder mStringRepresentation;
 
-        @Override
-        public String toString() {
-            return mStringRepresentation.toString();
-        }
-
         public Token(int codepoint) {
             mStringRepresentation = new StringBuilder();
             mStringRepresentation.appendCodePoint(codepoint);
@@ -357,6 +362,11 @@ public class ExpressionCompiler {
         public void markError(String error) {
             mError = true;
             mErrorString = error;
+        }
+
+        @Override
+        public String toString() {
+            return mStringRepresentation.toString();
         }
 
         abstract int getType();

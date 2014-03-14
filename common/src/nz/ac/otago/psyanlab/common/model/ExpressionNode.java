@@ -7,6 +7,7 @@ import nz.ac.otago.psyanlab.common.model.node.DivisionNode;
 import nz.ac.otago.psyanlab.common.model.node.EndSubstringInstruction;
 import nz.ac.otago.psyanlab.common.model.node.EqualityNode;
 import nz.ac.otago.psyanlab.common.model.node.ErrorNode;
+import nz.ac.otago.psyanlab.common.model.node.FalseNode;
 import nz.ac.otago.psyanlab.common.model.node.InEqualityNode;
 import nz.ac.otago.psyanlab.common.model.node.LessThanNode;
 import nz.ac.otago.psyanlab.common.model.node.LessThanOrEqualToNode;
@@ -22,6 +23,7 @@ import nz.ac.otago.psyanlab.common.model.node.PositiveNode;
 import nz.ac.otago.psyanlab.common.model.node.SeparatorInstruction;
 import nz.ac.otago.psyanlab.common.model.node.SubstringNode;
 import nz.ac.otago.psyanlab.common.model.node.SubtractionNode;
+import nz.ac.otago.psyanlab.common.model.node.TrueNode;
 import nz.ac.otago.psyanlab.common.model.node.VariableNode;
 import nz.ac.otago.psyanlab.common.model.node.XorNode;
 
@@ -44,6 +46,10 @@ public abstract class ExpressionNode {
             node = new OrNode();
         } else if (NotNode.kindOf(token)) {
             node = new NotNode();
+        } else if (TrueNode.kindOf(token)) {
+            node = new TrueNode();
+        } else if (FalseNode.kindOf(token)) {
+            node = new FalseNode();
         } else if (LiteralNode.kindOf(token)) {
             node = new LiteralNode(token);
         } else if (LessThanNode.kindOf(token)) {

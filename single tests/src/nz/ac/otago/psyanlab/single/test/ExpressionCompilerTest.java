@@ -45,19 +45,6 @@ public class ExpressionCompilerTest extends TestCase {
 
     protected LongSparseArray<Operand> mOperands;
 
-    /**
-     * Test the error checking of the parser. Check;
-     * <ul>
-     * <li>The parser annotates the token associated with the error correctly.</li>
-     * <li>Formatted expression (with errors) displays in the expected manner.</li>
-     * <li>Cursor position is correctly maintained in formatted expression
-     * (including trailing whitespace).</li>
-     * <li>Operands states are preserved.</li>
-     * </ul>
-     */
-    public final void testErrors() {
-    }
-
     public final void testExpression() {
         mOperands = new LongSparseArray<Operand>();
         Log.d("TEST SECTION", "Unary precedence");
@@ -125,25 +112,6 @@ public class ExpressionCompilerTest extends TestCase {
         test("a=b=c", "a = b = c", "((a = b) and (b = c))", "a = b = c", Operand.TYPE_BOOLEAN);
         test("1 <= a >= c", "1 <= a >= c", "((1 <= a) and (a >= c))", "1 <= a >= c",
                 Operand.TYPE_BOOLEAN);
-    }
-
-    /**
-     * Test each node kind in as simple an expression as possible. Check;
-     * <ul>
-     * <li>The string parsed with no errors.</li>
-     * <li>Graph nodes refine to the expected types.</li>
-     * <li>The parsed expression gives the correct result when evaluated.</li>
-     * <li>Formatted expression displays in the expected manner.</li>
-     * </ul>
-     */
-    public final void testIndividualOperators() {
-        // Variable
-        // Literals
-        // Integer Operators
-        // Float Operators
-        // Number Operators
-        // String Operators
-        // Boolean Operators
     }
 
     private void test(String expression, String print, String hierarchy, String type,

@@ -18,6 +18,13 @@ public class InfixExpression extends OperatorExpression implements Expression {
         mRight = right;
     }
 
+    public InfixExpression(Expression left, TokenType operator, Expression right, int precedence,
+            int associativity, boolean isVirtual) {
+        super(operator, precedence, associativity, isVirtual);
+        mLeft = left;
+        mRight = right;
+    }
+
     @Override
     public void accept(ExpressionVisitor visitor) {
         visitor.visit(this);

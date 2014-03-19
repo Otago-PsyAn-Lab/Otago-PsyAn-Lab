@@ -23,15 +23,17 @@ public class Precedence {
 
     public static final int SUM = 7;
 
-    public static final int PRODUCT = 8;
+    public static final int SUBSTRING = 8;
 
-    public static final int EXPONENT = 9;
+    public static final int PRODUCT = 9;
 
-    public static final int PREFIX = 10;
+    public static final int EXPONENT = 10;
 
-    public static final int POSTFIX = 11;
+    public static final int PREFIX = 11;
 
-    public static final int CALL = 12;
+    public static final int POSTFIX = 12;
 
-    public static final int IDENTITY = 13;
+    public static final int CALL = 13;
+
+    public static final int IDENTITY = 14;
 }

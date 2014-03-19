@@ -2,7 +2,34 @@
 package nz.ac.otago.psyanlab.common.expression;
 
 public enum TokenType {
-    AND, ASTERISK, BANG, CARET, COLON, COMMA, EOF, EQUALS, FLOAT, INTEGER, LEFT_PAREN, LESS_THAN, LESS_THAN_OR_EQUAL_TO, MINUS, MORE_THAN, MORE_THAN_OR_EQUAL_TO, NAME, OR, PLUS, QUESTION, RIGHT_PAREN, SLASH, STRING, TILDE, XOR, PERCENT;
+    AND,
+    ASTERISK,
+    BANG,
+    CARET,
+    COLON,
+    COMMA,
+    EOF,
+    EQUALS,
+    FLOAT,
+    INTEGER,
+    LEFT_BRACKET,
+    LEFT_PAREN,
+    LESS_THAN,
+    LESS_THAN_OR_EQUAL_TO,
+    MINUS,
+    MORE_THAN,
+    MORE_THAN_OR_EQUAL_TO,
+    NAME,
+    OR,
+    PERCENT,
+    PLUS,
+    QUESTION,
+    RIGHT_BRACKET,
+    RIGHT_PAREN,
+    SLASH,
+    STRING,
+    TILDE,
+    XOR;
 
     public static final int LONGEST_PUNCTUATOR_LENGTH = 3;
 
@@ -26,6 +53,10 @@ public enum TokenType {
                 return "(";
             case RIGHT_PAREN:
                 return ")";
+            case LEFT_BRACKET:
+                return "[";
+            case RIGHT_BRACKET:
+                return "]";
             case COMMA:
                 return ",";
             case EQUALS:

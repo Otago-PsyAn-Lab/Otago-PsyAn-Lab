@@ -9,11 +9,13 @@ import nz.ac.otago.psyanlab.common.expression.expressions.ExpressionVisitor;
 import nz.ac.otago.psyanlab.common.expression.expressions.FloatExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.InfixExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.IntegerExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.LinkExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.NameExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.OperatorExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.PostfixExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.PrefixExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.StringExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.SubstringExpression;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 
@@ -85,7 +87,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         boolean sawOnlyFloat = false;
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = getOperatorChildType(expression);
+        mTypeMask = expression.getOperatorChildType();
         expression.getLeft().accept(this);
         if (allowMixedNumbers(expression) && (mTypeMask & Operand.TYPE_NUMBER) != 0) {
             if ((mTypeMask & Operand.TYPE_NUMBER) == Operand.TYPE_FLOAT) {
@@ -98,17 +100,18 @@ public class RefineTypeVisitor implements ExpressionVisitor {
             mTypeMask = Operand.TYPE_FLOAT;
         }
 
-        mTypeMask = getOperatorResultType(expression, mTypeMask);
+        mTypeMask = expression.getOperatorResultType(mTypeMask);
         mTypeMask = doIntersectionOrError(expression, parentTypeMask, mTypeMask);
-    }
-
-    private int getOperatorChildType(InfixExpression expression, int parentTypeMask) {
-        return getOperatorChildType(expression) & parentTypeMask;
     }
 
     @Override
     public void visit(IntegerExpression expression) {
         mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_NUMBER);
+    }
+
+    @Override
+    public void visit(LinkExpression expression) {
+        expression.getChild().accept(this);
     }
 
     @Override
@@ -134,10 +137,10 @@ public class RefineTypeVisitor implements ExpressionVisitor {
     public void visit(PostfixExpression expression) {
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = getOperatorChildType(expression);
+        mTypeMask = expression.getOperatorChildType();
         expression.getLeft().accept(this);
 
-        mTypeMask = getOperatorResultType(expression, mTypeMask);
+        mTypeMask = expression.getOperatorResultType(mTypeMask);
         mTypeMask = doIntersectionOrError(expression, parentTypeMask, mTypeMask);
     }
 
@@ -145,16 +148,32 @@ public class RefineTypeVisitor implements ExpressionVisitor {
     public void visit(PrefixExpression expression) {
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = getOperatorChildType(expression);
+        mTypeMask = expression.getOperatorChildType();
         expression.getRight().accept(this);
 
-        mTypeMask = getOperatorResultType(expression, mTypeMask);
+        mTypeMask = expression.getOperatorResultType(mTypeMask);
         mTypeMask = doIntersectionOrError(expression, parentTypeMask, mTypeMask);
     }
 
     @Override
     public void visit(StringExpression expression) {
         mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_STRING);
+    }
+
+    @Override
+    public void visit(SubstringExpression expression) {
+        final int parentTypeMask = mTypeMask;
+
+        mTypeMask = Operand.TYPE_STRING;
+        expression.getString().accept(this);
+
+        mTypeMask = Operand.TYPE_INTEGER;
+        expression.getLow().accept(this);
+
+        mTypeMask = Operand.TYPE_INTEGER;
+        expression.getHigh().accept(this);
+
+        mTypeMask = doIntersectionOrError(expression, parentTypeMask, Operand.TYPE_STRING);
     }
 
     private boolean allowMixedNumbers(OperatorExpression expression) {
@@ -184,62 +203,6 @@ public class RefineTypeVisitor implements ExpressionVisitor {
             throw new TypeException(errorMessage);
         }
         return intersection;
-    }
-
-    private int getOperatorChildType(OperatorExpression expression) {
-        switch (expression.getOperator()) {
-            case AND:
-            case OR:
-            case XOR:
-            case BANG:
-                return Operand.TYPE_BOOLEAN;
-            case PLUS:
-                return Operand.TYPE_NUMBER | Operand.TYPE_STRING;
-            case ASTERISK:
-            case CARET:
-            case MINUS:
-            case PERCENT:
-            case SLASH:
-
-            case LESS_THAN:
-            case LESS_THAN_OR_EQUAL_TO:
-            case MORE_THAN:
-            case MORE_THAN_OR_EQUAL_TO:
-                return Operand.TYPE_NUMBER;
-            case EQUALS:
-                return Operand.TYPE_NON_ASSETS;
-
-            default:
-                return 0;
-        }
-    }
-
-    private int getOperatorResultType(OperatorExpression expression, int typeMask) {
-        switch (expression.getOperator()) {
-            case AND:
-            case OR:
-            case XOR:
-            case BANG:
-                return Operand.TYPE_BOOLEAN;
-            case PLUS:
-                return (Operand.TYPE_NUMBER | Operand.TYPE_STRING) & typeMask;
-            case ASTERISK:
-            case CARET:
-            case MINUS:
-            case PERCENT:
-            case SLASH:
-                return Operand.TYPE_NUMBER & typeMask;
-
-            case LESS_THAN:
-            case LESS_THAN_OR_EQUAL_TO:
-            case MORE_THAN:
-            case MORE_THAN_OR_EQUAL_TO:
-            case EQUALS:
-                return Operand.TYPE_BOOLEAN;
-
-            default:
-                return 0;
-        }
     }
 
     protected String formatTypeError(List<String> expected, List<String> got) {

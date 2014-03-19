@@ -60,11 +60,11 @@ public class ExpressionCompilerTest extends TestCase {
 
     public final void testExpression() {
         mOperands = new LongSparseArray<Operand>();
-        // Unary precedence.
+        Log.d("TEST SECTION", "Unary precedence");
         test("! a", "!a", "(!a)", "!a", Operand.TYPE_BOOLEAN);
         test("- + a", "-+a", "(-(+a))", "-+a", Operand.TYPE_NUMBER);
 
-        // Unary and binary precedence.
+        Log.d("TEST SECTION", "Unary and binary precedence");
         test("-a*b", "-a * b", "((-a) * b)", "-a * b", Operand.TYPE_NUMBER);
         test("a*-b", "a * -b", "(a * (-b))", "a * -b", Operand.TYPE_NUMBER);
         test("!a and b", "!a and b", "((!a) and b)", "!a and b", Operand.TYPE_BOOLEAN);
@@ -74,17 +74,16 @@ public class ExpressionCompilerTest extends TestCase {
         test("a and !b or c", "a and !b or c", "((a and (!b)) or c)", "a and !b or c",
                 Operand.TYPE_BOOLEAN);
 
-        // Binary precedence.
+        Log.d("TEST SECTION", "Binary precedence");
         test("b+c*d^e-f/g", "b + c * d ^ e - f / g", "((b + (c * (d ^ e))) - (f / g))",
                 "b + c * d ^ e - f / g", Operand.TYPE_NUMBER);
 
-        // Binary associativity.
-        test("a=b=c", "a = b = c", "((a = b) = c)", "a = b = c", Operand.TYPE_BOOLEAN);
+        Log.d("TEST SECTION", "Binary associativity");
         test("a+b-c", "a + b - c", "((a + b) - c)", "a + b - c", Operand.TYPE_NUMBER);
         test("a*b/c", "a * b / c", "((a * b) / c)", "a * b / c", Operand.TYPE_NUMBER);
         test("a^b^c", "a ^ b ^ c", "(a ^ (b ^ c))", "a ^ b ^ c", Operand.TYPE_NUMBER);
 
-        // Conditional operator.
+        Log.d("TEST SECTION", "Conditional operator");
         test("a?b:c?d:e", "a ? b : c ? d : e", "(a ? b : (c ? d : e))", "a ? b : c ? d : e",
                 Operand.TYPE_BOOLEAN);
         test("a ? b ? c : d : e", "a ? b ? c : d : e", "(a ? (b ? c : d) : e)",
@@ -92,14 +91,14 @@ public class ExpressionCompilerTest extends TestCase {
         test("a and b ? c * d : e / f", "a and b ? c * d : e / f",
                 "((a and b) ? (c * d) : (e / f))", "a and b ? c * d : e / f", Operand.TYPE_NUMBER);
 
-        // Grouping.
+        Log.d("TEST SECTION", "Grouping");
         test("a + (b + c) + d", "a + (b + c) + d", "((a + (b + c)) + d)", "a + (b + c) + d",
                 Operand.TYPE_NUMBER);
         test("a ^ (b + c)", "a ^ (b + c)", "(a ^ (b + c))", "a ^ (b + c)", Operand.TYPE_NUMBER);
         test("a ^ (d ? b + c: a + b)", "a ^ (d ? b + c : a + b)", "(a ^ (d ? (b + c) : (a + b)))",
                 "a ^ (d ? b + c : a + b)", Operand.TYPE_NUMBER);
 
-        // Literal detection and coercion
+        Log.d("TEST SECTION", "Literal detection and coercion");
         test("1", "1", "1", "1", Operand.TYPE_NUMBER);
         test("1", "1", "1", "1", Operand.TYPE_INTEGER);
         test("1", "1", "1", "1", Operand.TYPE_FLOAT);
@@ -107,39 +106,25 @@ public class ExpressionCompilerTest extends TestCase {
         test("1.1", "1.1", "1.1", "1.1", Operand.TYPE_FLOAT);
         test("\"a string\"", "\"a string\"", "\"a string\"", "\"a string\"", Operand.TYPE_STRING);
 
-        // Type assertion
+        Log.d("TEST SECTION", "Substring");
+        test("\"my \" + \"a string\"[2,8]", "\"my \" + \"a string\"[2, 8]",
+                "(\"my \" + (\"a string\"[2, 8]))", "\"my \" + \"a string\"[2, 8]",
+                Operand.TYPE_STRING);
+
+        Log.d("TEST SECTION", "Type assertion");
         test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_NUMBER);
         test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_INTEGER);
         test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_FLOAT);
 
-        // Concatenation operator.
+        Log.d("TEST SECTION", "Concatenation operator");
         test("\"a string\" + \"another string\"", "\"a string\" + \"another string\"",
                 "(\"a string\" + \"another string\")", "\"a string\" + \"another string\"",
                 Operand.TYPE_STRING);
-    }
 
-    private void test(String expression, String print, String hierarchy, String type,
-            int expressionType) {
-        Log.d("TEST", "EXPRESSION: " + expression);
-        testHierarchy(expression, hierarchy);
-        testPrint(expression, print);
-        testTypeDetection(expression, expressionType);
-        testType(expression, type, expressionType);
-    }
-
-    private void testTypeDetection(String expression, int expectedType) {
-        ContextlessRefineTypeVisitor refineTypeVisitor = new ContextlessRefineTypeVisitor(null,
-                mOperandCallbacks, new HashMap<String, Long>(), Operand.TYPE_ANY);
-        Expression e = parse(expression);
-        try {
-            e.accept(refineTypeVisitor);
-        } catch (TypeException error) {
-        }
-        PrintErrorVisitor printErrorVisitor = new PrintErrorVisitor(refineTypeVisitor.getError());
-        e.accept(printErrorVisitor);
-        Log.d("TEST",
-                "EXPRESSION: " + expression + "  TYPE FROM ANY: " + refineTypeVisitor.toString());
-        assertEquals(true, (refineTypeVisitor.getType() & expectedType) != 0);
+        Log.d("TEST SECTION", "Chained inequalities (virtual boolean operators)");
+        test("a=b=c", "a = b = c", "((a = b) and (b = c))", "a = b = c", Operand.TYPE_BOOLEAN);
+        test("1 <= a >= c", "1 <= a >= c", "((1 <= a) and (a >= c))", "1 <= a >= c",
+                Operand.TYPE_BOOLEAN);
     }
 
     /**
@@ -159,6 +144,34 @@ public class ExpressionCompilerTest extends TestCase {
         // Number Operators
         // String Operators
         // Boolean Operators
+    }
+
+    private void test(String expression, String print, String hierarchy, String type,
+            int expressionType) {
+        Log.d("TEST", "EXPRESSION: " + expression);
+        testHierarchy(expression, hierarchy);
+        testPrint(expression, print);
+        testTypeDetection(expression, expressionType);
+        testType(expression, type, expressionType);
+    }
+
+    private void testHierarchy(String expression, String printOutput) {
+        PrintHierarchyVisitor printHierarchyVisitor = new PrintHierarchyVisitor();
+
+        Expression e = parse(expression);
+        e.accept(printHierarchyVisitor);
+        Log.d("TEST",
+                "EXPRESSION: " + expression + "  HIERARCHY: " + printHierarchyVisitor.toString());
+        assertEquals(printOutput, printHierarchyVisitor.toString());
+    }
+
+    private void testPrint(String expression, String printOutput) {
+        PrintVisitor printVisitor = new PrintVisitor();
+
+        Expression e = parse(expression);
+        e.accept(printVisitor);
+        Log.d("TEST", "EXPRESSION: " + expression + "  PRINT: " + printVisitor.toString());
+        assertEquals(printOutput, printVisitor.toString());
     }
 
     private void testType(String expression, String printOutput, int expressionType) {
@@ -181,23 +194,19 @@ public class ExpressionCompilerTest extends TestCase {
         assertEquals(true, (refineTypeVisitor.getType() & expressionType) != 0);
     }
 
-    private void testPrint(String expression, String printOutput) {
-        PrintVisitor printVisitor = new PrintVisitor();
-
+    private void testTypeDetection(String expression, int expectedType) {
+        ContextlessRefineTypeVisitor refineTypeVisitor = new ContextlessRefineTypeVisitor(null,
+                mOperandCallbacks, new HashMap<String, Long>(), Operand.TYPE_ANY);
         Expression e = parse(expression);
-        e.accept(printVisitor);
-        Log.d("TEST", "EXPRESSION: " + expression + "  PRINT: " + printVisitor.toString());
-        assertEquals(printOutput, printVisitor.toString());
-    }
-
-    private void testHierarchy(String expression, String printOutput) {
-        PrintHierarchyVisitor printHierarchyVisitor = new PrintHierarchyVisitor();
-
-        Expression e = parse(expression);
-        e.accept(printHierarchyVisitor);
+        try {
+            e.accept(refineTypeVisitor);
+        } catch (TypeException error) {
+        }
+        PrintErrorVisitor printErrorVisitor = new PrintErrorVisitor(refineTypeVisitor.getError());
+        e.accept(printErrorVisitor);
         Log.d("TEST",
-                "EXPRESSION: " + expression + "  HIERARCHY: " + printHierarchyVisitor.toString());
-        assertEquals(printOutput, printHierarchyVisitor.toString());
+                "EXPRESSION: " + expression + "  TYPE FROM ANY: " + refineTypeVisitor.toString());
+        assertEquals(true, (refineTypeVisitor.getType() & expectedType) != 0);
     }
 
     protected Long findUnusedKey(LongSparseArray<?> map) {
@@ -270,16 +279,16 @@ public class ExpressionCompilerTest extends TestCase {
             mError = error;
         }
 
-        @Override
-        public String toString() {
-            return super.toString();
-        }
-
         public String getErrorMessage() {
             if (mError == null) {
                 return "";
             }
             return mError.getErrorMessage();
+        }
+
+        @Override
+        public String toString() {
+            return super.toString();
         }
 
         @Override

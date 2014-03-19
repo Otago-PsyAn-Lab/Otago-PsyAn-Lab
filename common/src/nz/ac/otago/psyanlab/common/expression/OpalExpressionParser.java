@@ -2,6 +2,7 @@
 package nz.ac.otago.psyanlab.common.expression;
 
 import nz.ac.otago.psyanlab.common.expression.parselets.BinaryOperatorParselet;
+import nz.ac.otago.psyanlab.common.expression.parselets.ComparisonParselet;
 import nz.ac.otago.psyanlab.common.expression.parselets.ConditionalParselet;
 import nz.ac.otago.psyanlab.common.expression.parselets.FloatParselet;
 import nz.ac.otago.psyanlab.common.expression.parselets.GroupParselet;
@@ -10,6 +11,7 @@ import nz.ac.otago.psyanlab.common.expression.parselets.NameParselet;
 import nz.ac.otago.psyanlab.common.expression.parselets.PostfixOperatorParselet;
 import nz.ac.otago.psyanlab.common.expression.parselets.PrefixOperatorParselet;
 import nz.ac.otago.psyanlab.common.expression.parselets.StringParselet;
+import nz.ac.otago.psyanlab.common.expression.parselets.SubstringParselet;
 
 /**
  * Extends the generic Parser class with support for parsing the actual Bantam
@@ -23,7 +25,13 @@ public class OpalExpressionParser extends Parser {
 
         // Register the ones that need special parselets.
         register(TokenType.NAME, new NameParselet());
+        register(TokenType.EQUALS, new ComparisonParselet());
+        register(TokenType.MORE_THAN, new ComparisonParselet());
+        register(TokenType.MORE_THAN_OR_EQUAL_TO, new ComparisonParselet());
+        register(TokenType.LESS_THAN, new ComparisonParselet());
+        register(TokenType.LESS_THAN_OR_EQUAL_TO, new ComparisonParselet());
         register(TokenType.QUESTION, new ConditionalParselet());
+        register(TokenType.LEFT_BRACKET, new SubstringParselet());
         register(TokenType.INTEGER, new IntegerParselet());
         register(TokenType.FLOAT, new FloatParselet());
         register(TokenType.STRING, new StringParselet());
@@ -37,11 +45,6 @@ public class OpalExpressionParser extends Parser {
         infixLeft(TokenType.AND, Precedence.AND);
         infixLeft(TokenType.XOR, Precedence.XOR);
         infixLeft(TokenType.OR, Precedence.OR);
-        infixLeft(TokenType.MORE_THAN, Precedence.COMPARISON);
-        infixLeft(TokenType.MORE_THAN_OR_EQUAL_TO, Precedence.COMPARISON);
-        infixLeft(TokenType.LESS_THAN_OR_EQUAL_TO, Precedence.COMPARISON);
-        infixLeft(TokenType.LESS_THAN_OR_EQUAL_TO, Precedence.COMPARISON);
-        infixLeft(TokenType.EQUALS, Precedence.COMPARISON);
         infixLeft(TokenType.PLUS, Precedence.SUM);
         infixLeft(TokenType.MINUS, Precedence.SUM);
         infixLeft(TokenType.PERCENT, Precedence.PRODUCT);

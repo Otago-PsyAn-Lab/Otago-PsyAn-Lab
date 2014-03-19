@@ -13,9 +13,18 @@ import nz.ac.otago.psyanlab.common.expression.expressions.OperatorExpression;
  * we can use a single parselet class for all of those.
  */
 public class BinaryOperatorParselet implements InfixParselet {
+    private final boolean mIsRight;
+
+    private final int mPrecedence;
+
     public BinaryOperatorParselet(int precedence, boolean isRight) {
         mPrecedence = precedence;
         mIsRight = isRight;
+    }
+
+    @Override
+    public int getPrecedence() {
+        return mPrecedence;
     }
 
     @Override
@@ -31,13 +40,4 @@ public class BinaryOperatorParselet implements InfixParselet {
                 mIsRight ? OperatorExpression.ASSOCIATIVE_RIGHT
                         : OperatorExpression.ASSOCIATIVE_LEFT);
     }
-
-    @Override
-    public int getPrecedence() {
-        return mPrecedence;
-    }
-
-    private final int mPrecedence;
-
-    private final boolean mIsRight;
 }

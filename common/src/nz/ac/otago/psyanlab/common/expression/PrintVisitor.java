@@ -6,11 +6,13 @@ import nz.ac.otago.psyanlab.common.expression.expressions.ExpressionVisitor;
 import nz.ac.otago.psyanlab.common.expression.expressions.FloatExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.InfixExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.IntegerExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.LinkExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.NameExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.OperatorExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.PostfixExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.PrefixExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.StringExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.SubstringExpression;
 
 public class PrintVisitor implements ExpressionVisitor {
     private int mPrecedence;
@@ -70,7 +72,9 @@ public class PrintVisitor implements ExpressionVisitor {
         mPrecedence = precedence;
         expression.getLeft().accept(this);
 
-        mBuilder.append(" " + expression.getOperator() + " ");
+        if (!expression.isVirtual()) {
+            mBuilder.append(" " + expression.getOperator() + " ");
+        }
 
         mPrecedence = precedence;
         if (expression.getAssociativity() == OperatorExpression.ASSOCIATIVE_LEFT) {
@@ -86,6 +90,11 @@ public class PrintVisitor implements ExpressionVisitor {
     @Override
     public void visit(IntegerExpression expression) {
         mBuilder.append(expression.getValueString());
+    }
+
+    @Override
+    public void visit(LinkExpression expression) {
+        // Do nothing because this link will be printed elsewhere.
     }
 
     @Override
@@ -132,5 +141,34 @@ public class PrintVisitor implements ExpressionVisitor {
     @Override
     public void visit(StringExpression expression) {
         mBuilder.append(expression.getString());
+    }
+
+    @Override
+    public void visit(SubstringExpression expression) {
+        final int parentPrecedence = mPrecedence;
+        final int precedence = expression.getPrecedence();
+        final boolean groupedExpression = parentPrecedence > precedence;
+        if (groupedExpression) {
+            mBuilder.append("(");
+        }
+
+        mPrecedence = precedence;
+        expression.getString().accept(this);
+
+        mBuilder.append("[");
+
+        mPrecedence = precedence;
+        expression.getLow().accept(this);
+
+        mBuilder.append(", ");
+
+        mPrecedence = precedence;
+        expression.getHigh().accept(this);
+
+        mBuilder.append("]");
+
+        if (groupedExpression) {
+            mBuilder.append(")");
+        }
     }
 }

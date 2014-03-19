@@ -3,7 +3,6 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
-import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
@@ -88,7 +87,7 @@ public class EditLiteralOperandFragment extends TonicFragment {
 
     protected void handleExpressionChange(Editable s) {
         int caretPosition = mViews.expression.getSelectionStart();
-        ExpressionCompiler expression = new ExpressionCompiler(mCallbacks);
+//        ExpressionCompiler expression = new ExpressionCompiler(mCallbacks);
         // expression.compile(s.toString());
         // Result r = OldExpressionParser.process(s.toString(), mOperand,
         // caretPosition);

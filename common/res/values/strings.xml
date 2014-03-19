@@ -244,5 +244,13 @@
     <string name="operand_type_number">number</string>
     <string name="operand_type_boolean">boolean</string>
     <string name="operand_type_any_except_asset">any</string>
+    <plurals name="expected_type">
+        <item quantity="one">Expected type %s</item>
+        <item quantity="other">Expected types %s</item>
+    </plurals>
+    <plurals name="got_type">
+        <item quantity="one">got type %s</item>
+        <item quantity="other">got types %s</item>
+    </plurals>
 
 </resources>

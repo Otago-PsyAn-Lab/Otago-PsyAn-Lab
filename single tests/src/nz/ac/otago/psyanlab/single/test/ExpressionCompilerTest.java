@@ -3,65 +3,202 @@ package nz.ac.otago.psyanlab.single.test;
 
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
-import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler;
-import nz.ac.otago.psyanlab.common.designer.util.ExpressionCompiler.TokenError;
 import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
+import nz.ac.otago.psyanlab.common.expression.Lexer;
+import nz.ac.otago.psyanlab.common.expression.OpalExpressionParser;
+import nz.ac.otago.psyanlab.common.expression.Parser;
+import nz.ac.otago.psyanlab.common.expression.PrintHierarchyVisitor;
+import nz.ac.otago.psyanlab.common.expression.PrintVisitor;
+import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor;
+import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor.TypeError;
+import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor.TypeException;
+import nz.ac.otago.psyanlab.common.expression.expressions.ConditionalExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.Expression;
+import nz.ac.otago.psyanlab.common.expression.expressions.FloatExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.InfixExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.IntegerExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.NameExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.PostfixExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.PrefixExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.StringExpression;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
+import android.content.Context;
 import android.support.v4.util.LongSparseArray;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 public class ExpressionCompilerTest extends TestCase {
-    private final class OperandCallbacksImplementation implements OperandCallbacks {
-        @Override
-        public void updateOperand(long id, Operand operand) {
-            mOperands.put(id, operand);
-        }
-
-        @Override
-        public void removeOperandDataChangeListener(OperandDataChangeListener listener) {
-        }
-
-        @Override
-        public ProgramComponentAdapter<Operand> getOperandAdapter(long scopeId, int scope) {
-            return null;
-        }
-
-        @Override
-        public Operand getOperand(long id) {
-            return mOperands.get(id);
-        }
-
-        @Override
-        public void discardOperandAdapter(ProgramComponentAdapter<Operand> adapter) {
-        }
-
-        @Override
-        public void deleteOperand(long id) {
-            mOperands.remove(id);
-        }
-
-        @Override
-        public long createOperand(Operand operand) {
-            long id = findUnusedKey(mOperands);
-            mOperands.put(id, operand);
-            return id;
-        }
-
-        @Override
-        public void addOperandDataChangeListener(OperandDataChangeListener listener) {
-        }
+    public static Expression parse(String source) {
+        Lexer lexer = new Lexer(source);
+        Parser parser = new OpalExpressionParser(lexer);
+        return parser.parseExpression();
     }
+
+    private OperandCallbacks mOperandCallbacks;
 
     protected LongSparseArray<Operand> mOperands;
 
-    private OperandCallbacks mOperandCallbacks;
+    /**
+     * Test the error checking of the parser. Check;
+     * <ul>
+     * <li>The parser annotates the token associated with the error correctly.</li>
+     * <li>Formatted expression (with errors) displays in the expected manner.</li>
+     * <li>Cursor position is correctly maintained in formatted expression
+     * (including trailing whitespace).</li>
+     * <li>Operands states are preserved.</li>
+     * </ul>
+     */
+    public final void testErrors() {
+    }
+
+    public final void testExpression() {
+        mOperands = new LongSparseArray<Operand>();
+        // Unary precedence.
+        test("! a", "!a", "(!a)", "!a", Operand.TYPE_BOOLEAN);
+        test("- + a", "-+a", "(-(+a))", "-+a", Operand.TYPE_NUMBER);
+
+        // Unary and binary precedence.
+        test("-a*b", "-a * b", "((-a) * b)", "-a * b", Operand.TYPE_NUMBER);
+        test("a*-b", "a * -b", "(a * (-b))", "a * -b", Operand.TYPE_NUMBER);
+        test("!a and b", "!a and b", "((!a) and b)", "!a and b", Operand.TYPE_BOOLEAN);
+        test("!a or b and c", "!a or b and c", "((!a) or (b and c))", "!a or b and c",
+                Operand.TYPE_BOOLEAN);
+        test("a and !b", "a and !b", "(a and (!b))", "a and !b", Operand.TYPE_BOOLEAN);
+        test("a and !b or c", "a and !b or c", "((a and (!b)) or c)", "a and !b or c",
+                Operand.TYPE_BOOLEAN);
+
+        // Binary precedence.
+        test("b+c*d^e-f/g", "b + c * d ^ e - f / g", "((b + (c * (d ^ e))) - (f / g))",
+                "b + c * d ^ e - f / g", Operand.TYPE_NUMBER);
+
+        // Binary associativity.
+        test("a=b=c", "a = b = c", "((a = b) = c)", "a = b = c", Operand.TYPE_BOOLEAN);
+        test("a+b-c", "a + b - c", "((a + b) - c)", "a + b - c", Operand.TYPE_NUMBER);
+        test("a*b/c", "a * b / c", "((a * b) / c)", "a * b / c", Operand.TYPE_NUMBER);
+        test("a^b^c", "a ^ b ^ c", "(a ^ (b ^ c))", "a ^ b ^ c", Operand.TYPE_NUMBER);
+
+        // Conditional operator.
+        test("a?b:c?d:e", "a ? b : c ? d : e", "(a ? b : (c ? d : e))", "a ? b : c ? d : e",
+                Operand.TYPE_BOOLEAN);
+        test("a ? b ? c : d : e", "a ? b ? c : d : e", "(a ? (b ? c : d) : e)",
+                "a ? b ? c : d : e", Operand.TYPE_BOOLEAN);
+        test("a and b ? c * d : e / f", "a and b ? c * d : e / f",
+                "((a and b) ? (c * d) : (e / f))", "a and b ? c * d : e / f", Operand.TYPE_NUMBER);
+
+        // Grouping.
+        test("a + (b + c) + d", "a + (b + c) + d", "((a + (b + c)) + d)", "a + (b + c) + d",
+                Operand.TYPE_NUMBER);
+        test("a ^ (b + c)", "a ^ (b + c)", "(a ^ (b + c))", "a ^ (b + c)", Operand.TYPE_NUMBER);
+        test("a ^ (d ? b + c: a + b)", "a ^ (d ? b + c : a + b)", "(a ^ (d ? (b + c) : (a + b)))",
+                "a ^ (d ? b + c : a + b)", Operand.TYPE_NUMBER);
+
+        // Literal detection and coercion
+        test("1", "1", "1", "1", Operand.TYPE_NUMBER);
+        test("1", "1", "1", "1", Operand.TYPE_INTEGER);
+        test("1", "1", "1", "1", Operand.TYPE_FLOAT);
+        test("1.1", "1.1", "1.1", "1.1", Operand.TYPE_NUMBER);
+        test("1.1", "1.1", "1.1", "1.1", Operand.TYPE_FLOAT);
+        test("\"a string\"", "\"a string\"", "\"a string\"", "\"a string\"", Operand.TYPE_STRING);
+
+        // Type assertion
+        test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_NUMBER);
+        test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_INTEGER);
+        test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_FLOAT);
+
+        // Concatenation operator.
+        test("\"a string\" + \"another string\"", "\"a string\" + \"another string\"",
+                "(\"a string\" + \"another string\")", "\"a string\" + \"another string\"",
+                Operand.TYPE_STRING);
+    }
+
+    private void test(String expression, String print, String hierarchy, String type,
+            int expressionType) {
+        Log.d("TEST", "EXPRESSION: " + expression);
+        testHierarchy(expression, hierarchy);
+        testPrint(expression, print);
+        testTypeDetection(expression, expressionType);
+        testType(expression, type, expressionType);
+    }
+
+    private void testTypeDetection(String expression, int expectedType) {
+        ContextlessRefineTypeVisitor refineTypeVisitor = new ContextlessRefineTypeVisitor(null,
+                mOperandCallbacks, new HashMap<String, Long>(), Operand.TYPE_ANY);
+        Expression e = parse(expression);
+        try {
+            e.accept(refineTypeVisitor);
+        } catch (TypeException error) {
+        }
+        PrintErrorVisitor printErrorVisitor = new PrintErrorVisitor(refineTypeVisitor.getError());
+        e.accept(printErrorVisitor);
+        Log.d("TEST",
+                "EXPRESSION: " + expression + "  TYPE FROM ANY: " + refineTypeVisitor.toString());
+        assertEquals(true, (refineTypeVisitor.getType() & expectedType) != 0);
+    }
+
+    /**
+     * Test each node kind in as simple an expression as possible. Check;
+     * <ul>
+     * <li>The string parsed with no errors.</li>
+     * <li>Graph nodes refine to the expected types.</li>
+     * <li>The parsed expression gives the correct result when evaluated.</li>
+     * <li>Formatted expression displays in the expected manner.</li>
+     * </ul>
+     */
+    public final void testIndividualOperators() {
+        // Variable
+        // Literals
+        // Integer Operators
+        // Float Operators
+        // Number Operators
+        // String Operators
+        // Boolean Operators
+    }
+
+    private void testType(String expression, String printOutput, int expressionType) {
+        ContextlessRefineTypeVisitor refineTypeVisitor = new ContextlessRefineTypeVisitor(null,
+                mOperandCallbacks, new HashMap<String, Long>(), expressionType);
+        Expression e = parse(expression);
+        boolean wasError = false;
+        try {
+            e.accept(refineTypeVisitor);
+        } catch (TypeException error) {
+            wasError = true;
+        }
+        PrintErrorVisitor printErrorVisitor = new PrintErrorVisitor(refineTypeVisitor.getError());
+        e.accept(printErrorVisitor);
+        Log.d("TEST", "EXPRESSION: " + expression + "  TYPE: " + refineTypeVisitor.toString());
+        if (wasError) {
+            Log.d("TEST", "ERROR MESSAGE: " + printErrorVisitor.getErrorMessage());
+        }
+        assertEquals(printOutput, printErrorVisitor.toString());
+        assertEquals(true, (refineTypeVisitor.getType() & expressionType) != 0);
+    }
+
+    private void testPrint(String expression, String printOutput) {
+        PrintVisitor printVisitor = new PrintVisitor();
+
+        Expression e = parse(expression);
+        e.accept(printVisitor);
+        Log.d("TEST", "EXPRESSION: " + expression + "  PRINT: " + printVisitor.toString());
+        assertEquals(printOutput, printVisitor.toString());
+    }
+
+    private void testHierarchy(String expression, String printOutput) {
+        PrintHierarchyVisitor printHierarchyVisitor = new PrintHierarchyVisitor();
+
+        Expression e = parse(expression);
+        e.accept(printHierarchyVisitor);
+        Log.d("TEST",
+                "EXPRESSION: " + expression + "  HIERARCHY: " + printHierarchyVisitor.toString());
+        assertEquals(printOutput, printHierarchyVisitor.toString());
+    }
 
     protected Long findUnusedKey(LongSparseArray<?> map) {
         Long currKey = 0l;
@@ -74,15 +211,10 @@ public class ExpressionCompilerTest extends TestCase {
         return currKey;
     }
 
-    public ExpressionCompilerTest(String name) {
-        super(name);
-
-        mOperandCallbacks = new OperandCallbacksImplementation();
-    }
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        mOperandCallbacks = new OperandCallbacksImplementation();
     }
 
     @Override
@@ -90,49 +222,194 @@ public class ExpressionCompilerTest extends TestCase {
         super.tearDown();
     }
 
-    public final void testExpression() {
-        mOperands = new LongSparseArray<Operand>();
-        ExpressionCompiler compiler = new ExpressionCompiler(mOperandCallbacks);
-        HashMap<String, Long> operandIds = new HashMap<String, Long>();
-        compiler.compile("a  +\"a string\"=b<=a and 3 = myInteger", operandIds);
-
-        TokenError error = compiler.getError();
-
-        Log.d("DEBUG PRETTY PRINT", compiler.formatExpression());
-
-        if (error != null) {
-            Log.d("DEBUG USER ERROR", error.tokenIndex + " " + error.errorString);
+    public class ContextlessRefineTypeVisitor extends RefineTypeVisitor {
+        public ContextlessRefineTypeVisitor(Context context, OperandCallbacks callbacks,
+                HashMap<String, Long> operandMap, int rootType) {
+            super(context, callbacks, operandMap, rootType);
         }
 
-        for (int i = 0; i < mOperands.size(); i++) {
-            Log.d("DEBUG OPERAND TYPE", typeToString(mOperands.get(mOperands.keyAt(i)).type));
+        @Override
+        protected String formatTypeError(List<String> expected, List<String> got) {
+            return "Expected type [" + TextUtils.join(", ", expected) + "], but got type ["
+                    + TextUtils.join(", ", got) + "].";
+        }
+
+        @Override
+        protected List<String> typeToStringArray(int type) {
+            ArrayList<String> types = new ArrayList<String>();
+            if ((type & Operand.TYPE_BOOLEAN) != 0) {
+                types.add("boolean");
+            }
+            if ((type & Operand.TYPE_FLOAT) != 0) {
+                types.add("float");
+            }
+            if ((type & Operand.TYPE_IMAGE) != 0) {
+                types.add("image");
+            }
+            if ((type & Operand.TYPE_INTEGER) != 0) {
+                types.add("integer");
+            }
+            if ((type & Operand.TYPE_SOUND) != 0) {
+                types.add("sound");
+            }
+            if ((type & Operand.TYPE_STRING) != 0) {
+                types.add("string");
+            }
+            if ((type & Operand.TYPE_VIDEO) != 0) {
+                types.add("video");
+            }
+
+            return types;
         }
     }
 
-    private String typeToString(int type) {
-        ArrayList<String> types = new ArrayList<String>();
-        if ((type & Operand.TYPE_BOOLEAN) != 0) {
-            types.add("boolean");
-        }
-        if ((type & Operand.TYPE_FLOAT) != 0) {
-            types.add("float");
-        }
-        if ((type & Operand.TYPE_IMAGE) != 0) {
-            types.add("image");
-        }
-        if ((type & Operand.TYPE_INTEGER) != 0) {
-            types.add("integer");
-        }
-        if ((type & Operand.TYPE_SOUND) != 0) {
-            types.add("sound");
-        }
-        if ((type & Operand.TYPE_STRING) != 0) {
-            types.add("string");
-        }
-        if ((type & Operand.TYPE_VIDEO) != 0) {
-            types.add("video asset");
+    public class PrintErrorVisitor extends PrintVisitor {
+        private TypeError mError;
+
+        public PrintErrorVisitor(TypeError error) {
+            mError = error;
         }
 
-        return TextUtils.join(", ", types);
+        @Override
+        public String toString() {
+            return super.toString();
+        }
+
+        public String getErrorMessage() {
+            if (mError == null) {
+                return "";
+            }
+            return mError.getErrorMessage();
+        }
+
+        @Override
+        public void visit(ConditionalExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+        @Override
+        public void visit(FloatExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+        @Override
+        public void visit(InfixExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+        @Override
+        public void visit(IntegerExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+        @Override
+        public void visit(NameExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+        @Override
+        public void visit(PostfixExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+        @Override
+        public void visit(PrefixExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+        @Override
+        public void visit(StringExpression expression) {
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("«");
+            }
+            super.visit(expression);
+            if (mError != null && expression == mError.getExpression()) {
+                mBuilder.append("»");
+            }
+        }
+
+    }
+
+    private final class OperandCallbacksImplementation implements OperandCallbacks {
+        @Override
+        public void addOperandDataChangeListener(OperandDataChangeListener listener) {
+        }
+
+        @Override
+        public long createOperand(Operand operand) {
+            long id = findUnusedKey(mOperands);
+            mOperands.put(id, operand);
+            return id;
+        }
+
+        @Override
+        public void deleteOperand(long id) {
+            mOperands.remove(id);
+        }
+
+        @Override
+        public void discardOperandAdapter(ProgramComponentAdapter<Operand> adapter) {
+        }
+
+        @Override
+        public Operand getOperand(long id) {
+            return mOperands.get(id);
+        }
+
+        @Override
+        public ProgramComponentAdapter<Operand> getOperandAdapter(long scopeId, int scope) {
+            return null;
+        }
+
+        @Override
+        public void removeOperandDataChangeListener(OperandDataChangeListener listener) {
+        }
+
+        @Override
+        public void updateOperand(long id, Operand operand) {
+            mOperands.put(id, operand);
+        }
     }
 }

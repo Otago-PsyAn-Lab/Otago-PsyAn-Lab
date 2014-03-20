@@ -252,5 +252,6 @@
         <item quantity="one">got type %s</item>
         <item quantity="other">got types %s</item>
     </plurals>
+        <string name="hint_expression_input">Expression or literal</string>
 
 </resources>

@@ -43,8 +43,7 @@ public class Parser {
     public Token consume(TokenType expected) {
         Token token = lookAhead(0);
         if (token.getType() != expected) {
-            throw new RuntimeException("Expected token " + expected + " and found "
-                    + token.getType());
+            throw new ParseException("Expected token " + expected + ".");
         }
 
         return consume();
@@ -56,6 +55,9 @@ public class Parser {
      * @return Last token read.
      */
     public Token getLastUnparsed() {
+        if (mRead.size() == 0) {
+            return new Token(TokenType.EOF, "");
+        }
         return mRead.get(0);
     }
 
@@ -78,6 +80,9 @@ public class Parser {
         PrefixParselet prefix = mPrefixParselets.get(token.getType());
 
         if (prefix == null) {
+            if (token.getText().equals("")) {
+                throw new ParseException("Expected identity.");
+            }
             throw new ParseException("Could not parse \"" + token.getText() + "\".");
         }
 

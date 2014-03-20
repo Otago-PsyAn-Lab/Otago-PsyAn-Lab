@@ -809,10 +809,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         OperandHolder operandHolder;
         switch (scope) {
             case OPERAND_ACCESS_SCOPE_ACTION:
-                operandHolder = (OperandHolder)mExperiment.actions.get(parentId);
+                operandHolder = mExperiment.actions.get(parentId);
                 break;
             case OPERAND_ACCESS_SCOPE_OPERAND:
                 operandHolder = (OperandHolder)mExperiment.operands.get(parentId);
+                break;
 
             default:
                 throw new RuntimeException("Unknown operand scope " + scope);
@@ -1017,7 +1018,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public void onDialogueResult(int requestCode, Bundle data) {
-        ((DialogueResultListener)mDialogueResultListeners.get(requestCode)).onResult(data);
+        mDialogueResultListeners.get(requestCode).onResult(data);
     }
 
     @Override
@@ -1574,6 +1575,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         selectSection(mSectionManager.getCurrentPosition());
     }
 
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -1731,6 +1733,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         /** Called when a drawer has settled in a completely closed state. */
+        @Override
         public void onDrawerClosed(View view) {
             super.onDrawerClosed(view);
             getActionBar().setTitle(mTitle);
@@ -1739,6 +1742,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         /** Called when a drawer has settled in a completely open state. */
+        @Override
         public void onDrawerOpened(View drawerView) {
             super.onDrawerOpened(drawerView);
             getActionBar().setTitle(mDrawerTitle);

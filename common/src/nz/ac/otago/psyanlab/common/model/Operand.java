@@ -18,7 +18,6 @@ import android.content.Context;
 import java.lang.reflect.Type;
 
 public abstract class Operand {
-
     public static final int TYPE_BOOLEAN = 0x01;
 
     public static final int TYPE_FLOAT = 0x02;

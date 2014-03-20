@@ -134,12 +134,13 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     public OnItemClickListener mOnParameterItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            showEditOperandDialogue(id);
+            Operand operand = mCallbacks.getOperand(id);
+            showEditOperandDialogue(id, operand.getType());
         }
     };
 
-    protected void showEditOperandDialogue(long id) {
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id);
+    protected void showEditOperandDialogue(long id, int type) {
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id, type);
 
         // Dirty hack to stop horizontal scroller from jumping around too much.
         // mViews.name.requestFocus();
@@ -249,6 +250,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
             parametersList = (ListView)view.findViewById(R.id.parameters);
         }
 
+        @Override
         public void initViews() {
             name.addTextChangedListener(mNameWatcher);
 
@@ -260,6 +262,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
             parametersList.setDivider(null);
         }
 
+        @Override
         public void setViewValues(Action action) {
             name.setText(action.name);
             if (action.actionObject != null) {
@@ -288,7 +291,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
                     .getExperimentObject(action.actionObject).getClass(), Void.TYPE);
             actionMethod.setAdapter(methodsAdapter);
             for (int i = 0; i < methodsAdapter.getCount(); i++) {
-                if (((int)methodsAdapter.getItemId(i)) == mAction.actionMethod) {
+                if ((int)methodsAdapter.getItemId(i) == mAction.actionMethod) {
                     actionMethod.setSelection(i);
                     break;
                 }

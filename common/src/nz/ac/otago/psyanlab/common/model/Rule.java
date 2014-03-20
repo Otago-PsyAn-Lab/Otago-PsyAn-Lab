@@ -7,23 +7,27 @@ import java.util.ArrayList;
 
 public class Rule {
     @Expose
-    public String name;
+    public ArrayList<Long> actions;
+
+    /**
+     * The condition which must evaluate to true for this rule to execute.
+     * Really an operand object id.
+     */
+    @Expose
+    public long conditionId;
 
     @Expose
-    public ExperimentObjectReference triggerObject;
+    public String name;
 
     @Expose
     public int triggerEvent;
 
     @Expose
-    public Expression condition;
-
-    @Expose
-    public ArrayList<Long> actions;
+    public ExperimentObjectReference triggerObject;
 
     public Rule() {
         actions = new ArrayList<Long>();
-        condition = new Expression();
         name = "New Rule";
+        conditionId = -1;
     }
 }

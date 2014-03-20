@@ -6,8 +6,10 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneData
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.stage.PropAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView;
+import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
+import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -35,58 +37,16 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         return init(new SceneFragment(), id);
     }
 
-    public OnClickListener mEditStageClickListener = new OnClickListener() {
+    protected ActionMode mActionMode;
+
+    protected final OnClickListener mEditStageClickListener = new OnClickListener() {
+        @Override
         public void onClick(View v) {
             mCallbacks.editStage(mObjectId);
         }
     };
 
-    public OnItemClickListener mOnRuleItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
-                mViews.rulesList.setItemChecked(position, true);
-            } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
-                onRuleClick(id);
-            }
-        }
-    };
-
-    private TextWatcher mNameWatcher = new TextWatcher() {
-        @Override
-        public void afterTextChanged(Editable s) {
-            String newName = s.toString();
-            if (!TextUtils.equals(mScene.name, newName)) {
-                mScene.name = newName;
-                mCallbacks.updateScene(mObjectId, mScene);
-            }
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-    };
-
-    private OnClickListener mNewRuleClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            onNewRule();
-        }
-    };
-
-    private ProgramComponentAdapter<Rule> mRulesAdapter;
-
-    private Scene mScene;
-
-    private ViewHolder mViews;
-
-    protected ActionMode mActionMode;
-
-    protected OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
+    protected final OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
             if (mActionMode != null) {
@@ -100,7 +60,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
-    protected MultiChoiceModeListener mMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
+    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
@@ -168,7 +128,50 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
-    private PropAdapter mPropAdapter;
+    protected final TextWatcher mNameWatcher = new TextWatcher() {
+        @Override
+        public void afterTextChanged(Editable s) {
+            String newName = s.toString();
+            if (!TextUtils.equals(mScene.name, newName)) {
+                mScene.name = newName;
+                mCallbacks.updateScene(mObjectId, mScene);
+            }
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+    };
+
+    protected final OnClickListener mNewRuleClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onNewRule();
+        }
+    };
+
+    protected final OnItemClickListener mOnRuleItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
+                mViews.rulesList.setItemChecked(position, true);
+            } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
+                onRuleClick(id);
+            }
+        }
+    };
+
+    protected PropAdapter mPropAdapter;
+
+    protected ProgramComponentAdapter<Rule> mRulesAdapter;
+
+    protected Scene mScene;
+
+    protected ViewHolder mViews;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -229,6 +232,9 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         Rule rule = new Rule();
         final long newRuleId = mCallbacks.createRule(rule);
         rule.name = "Rule " + (newRuleId + 1);
+        Operand condition = new StubOperand("Condition");
+        rule.conditionId = mCallbacks.createOperand(condition);
+
         mScene.rules.add(newRuleId);
         mCallbacks.updateScene(mObjectId, mScene);
         setNextFragment(RuleFragment.newInstance(newRuleId, mObjectId));
@@ -276,6 +282,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             editStagePsuedoButton = (TextView)view.findViewById(R.id.edit_stage_psudeo_button);
         }
 
+        @Override
         public void initViews() {
             name.addTextChangedListener(mNameWatcher);
 
@@ -293,6 +300,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             rulesList.setDivider(null);
         }
 
+        @Override
         public void setViewValues(Scene scene) {
             name.setText(scene.name);
             if (scene.orientation == -1) {

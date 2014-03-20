@@ -4,16 +4,31 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <FrameLayout
+    <LinearLayout
         style="@style/card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
         <EditText
+            android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1 + 34 + a = c" />
-    </FrameLayout>
+            android:hint="@string/hint_expression_input"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/parsed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         style="@style/card"

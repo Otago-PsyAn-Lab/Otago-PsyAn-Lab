@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.expression;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -66,6 +68,15 @@ public class Lexer implements Iterator<Token> {
     }
 
     /**
+     * Gets the text that has been tokenised.
+     * 
+     * @return Tokenised component of text.
+     */
+    public String getTextLexed() {
+        return mText.substring(0, mOffset);
+    }
+
+    /**
      * Gets the rest of the text that has not yet been tokenised.
      * 
      * @return Remaining untokenised text.
@@ -76,6 +87,7 @@ public class Lexer implements Iterator<Token> {
 
     @Override
     public Token next() {
+        Log.d("LEXER NEXT", "" + mOffset);
         while (mOffset < mText.length()) {
             final int codePoint = mText.codePointAt(mOffset);
             mOffset += Character.charCount(codePoint);

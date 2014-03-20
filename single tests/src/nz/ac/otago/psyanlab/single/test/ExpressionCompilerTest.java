@@ -6,21 +6,14 @@ import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.expression.Lexer;
 import nz.ac.otago.psyanlab.common.expression.OpalExpressionParser;
+import nz.ac.otago.psyanlab.common.expression.ParseException;
 import nz.ac.otago.psyanlab.common.expression.Parser;
 import nz.ac.otago.psyanlab.common.expression.PrintHierarchyVisitor;
 import nz.ac.otago.psyanlab.common.expression.PrintVisitor;
 import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor;
-import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor.TypeError;
 import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor.TypeException;
-import nz.ac.otago.psyanlab.common.expression.expressions.ConditionalExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.Expression;
-import nz.ac.otago.psyanlab.common.expression.expressions.FloatExpression;
-import nz.ac.otago.psyanlab.common.expression.expressions.InfixExpression;
-import nz.ac.otago.psyanlab.common.expression.expressions.IntegerExpression;
-import nz.ac.otago.psyanlab.common.expression.expressions.NameExpression;
-import nz.ac.otago.psyanlab.common.expression.expressions.PostfixExpression;
-import nz.ac.otago.psyanlab.common.expression.expressions.PrefixExpression;
-import nz.ac.otago.psyanlab.common.expression.expressions.StringExpression;
+import nz.ac.otago.psyanlab.common.expression.expressions.ExpressionVisitor;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.content.Context;
@@ -138,6 +131,16 @@ public class ExpressionCompilerTest extends TestCase {
         assertEquals(false, parser.areUnparsedTokens());
     }
 
+    public final void testInputScenario() {
+        testInput("(");
+        testInput("(1");
+        testInput("(1)");
+        testInput("(1)+");
+        testInput("(1)+2");
+        testInput("(1)+2)");
+        testInput("((1)+2)");
+    }
+
     private void test(String expression, String print, String hierarchy, String type,
             int expressionType) {
         Log.d("TEST", "EXPRESSION: " + expression);
@@ -155,6 +158,20 @@ public class ExpressionCompilerTest extends TestCase {
         Log.d("TEST",
                 "EXPRESSION: " + expression + "  HIERARCHY: " + printHierarchyVisitor.toString());
         assertEquals(printOutput, printHierarchyVisitor.toString());
+    }
+
+    private void testInput(String text) {
+        Lexer lexer = new Lexer(text);
+        Parser parser = new OpalExpressionParser(lexer);
+        ExpressionVisitor v = new PrintVisitor();
+        Log.d("TEST", "EXPRESSION :" + text);
+        try {
+            Expression e = parser.parseExpression();
+            e.accept(v);
+            Log.d("TEST", "OUTPUT: " + v.toString());
+        } catch (ParseException e) {
+            Log.d("TEST", "ERROR: " + e.getMessage());
+        }
     }
 
     private void testPrint(String expression, String printOutput) {
@@ -262,115 +279,6 @@ public class ExpressionCompilerTest extends TestCase {
 
             return types;
         }
-    }
-
-    public class PrintErrorVisitor extends PrintVisitor {
-        private TypeError mError;
-
-        public PrintErrorVisitor(TypeError error) {
-            mError = error;
-        }
-
-        public String getErrorMessage() {
-            if (mError == null) {
-                return "";
-            }
-            return mError.getErrorMessage();
-        }
-
-        @Override
-        public String toString() {
-            return super.toString();
-        }
-
-        @Override
-        public void visit(ConditionalExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
-        @Override
-        public void visit(FloatExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
-        @Override
-        public void visit(InfixExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
-        @Override
-        public void visit(IntegerExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
-        @Override
-        public void visit(NameExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
-        @Override
-        public void visit(PostfixExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
-        @Override
-        public void visit(PrefixExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
-        @Override
-        public void visit(StringExpression expression) {
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("«");
-            }
-            super.visit(expression);
-            if (mError != null && expression == mError.getExpression()) {
-                mBuilder.append("»");
-            }
-        }
-
     }
 
     private final class OperandCallbacksImplementation implements OperandCallbacks {

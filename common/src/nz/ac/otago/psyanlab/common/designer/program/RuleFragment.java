@@ -5,10 +5,12 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
+import nz.ac.otago.psyanlab.common.designer.program.operand.EditOperandDialogFragment;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
+import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Rule;
 
 import android.os.Bundle;
@@ -45,7 +47,18 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         return fragment;
     }
 
-    public OnItemLongClickListener mActionItemLongClickListener = new OnItemLongClickListener() {
+    protected final OnItemClickListener mActionItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (mViews.actionsList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
+                mViews.actionsList.setItemChecked(position, true);
+            } else if (mViews.actionsList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
+                onActionClick(id);
+            }
+        }
+    };
+
+    protected final OnItemLongClickListener mActionItemLongClickListener = new OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
             if (mActionMode != null) {
@@ -59,15 +72,30 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    public ProgramComponentAdapter<Action> mActionsAdapter;
+    protected ActionMode mActionMode;
 
-    public OnClickListener mConditionClickListener = new OnClickListener() {
+    protected ProgramComponentAdapter<Action> mActionsAdapter;
+
+    protected final OnClickListener mConditionClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            showEditOperandDialogue();
         }
     };
 
-    public MultiChoiceModeListener mMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
+    protected final DialogueResultListener mDialogueResultListener = new DialogueResultListener() {
+        @Override
+        public void onResult(Bundle data) {
+            long objectId = data.getLong(PickObjectDialogueFragment.RESULT_OBJECT_ID);
+            int objectKind = data.getInt(PickObjectDialogueFragment.RESULT_OBJECT_KIND);
+
+            mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId);
+
+            mCallbacks.updateRule(mObjectId, mRule);
+        }
+    };
+
+    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
@@ -135,25 +163,18 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    public OnClickListener mNewActionClickListener = new OnClickListener() {
+    protected final OnClickListener mNewActionClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             onNewAction();
         }
     };
 
-    public OnItemClickListener mOnActionItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (mViews.actionsList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
-                mViews.actionsList.setItemChecked(position, true);
-            } else if (mViews.actionsList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
-                onActionClick(id);
-            }
-        }
-    };
+    protected Rule mRule;
 
-    public OnItemSelectedListener mTriggerEventOnItemSelectedListener = new OnItemSelectedListener() {
+    protected long mSceneId;
+
+    protected final OnItemSelectedListener mTriggerEventItemSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             if (mRule.triggerEvent != (int)id) {
@@ -167,7 +188,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    public OnClickListener mTriggerObjectOnClickListener = new OnClickListener() {
+    protected final OnClickListener mTriggerObjectClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             // Once the user has picked an experiment object we will be notified
@@ -177,25 +198,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    private ActionMode mActionMode;
-
-    private DialogueResultListener mDialogueResultListener = new DialogueResultListener() {
-        @Override
-        public void onResult(Bundle data) {
-            long objectId = data.getLong(PickObjectDialogueFragment.RESULT_OBJECT_ID);
-            int objectKind = data.getInt(PickObjectDialogueFragment.RESULT_OBJECT_KIND);
-
-            mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId);
-
-            mCallbacks.updateRule(mObjectId, mRule);
-        }
-    };
-
-    private Rule mRule;
-
-    private ViewHolder mViews;
-
-    protected long mSceneId;
+    protected ViewHolder mViews;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -241,10 +244,6 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 mDialogueResultListener);
     }
 
-    private void saveChanges() {
-        mCallbacks.updateRule(mObjectId, mRule);
-    }
-
     @Override
     protected int getFavouredBackground() {
         return R.drawable.rule_background_flat;
@@ -280,6 +279,20 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     }
 
+    protected void showEditOperandDialogue() {
+        if (mActionMode != null) {
+            mActionMode.finish();
+        }
+
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mRule.conditionId,
+                Operand.TYPE_BOOLEAN);
+        dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
+    }
+
+    private void saveChanges() {
+        mCallbacks.updateRule(mObjectId, mRule);
+    }
+
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Rule> {
         public View condition;
 
@@ -303,6 +316,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             newAction = view.findViewById(R.id.new_action);
         }
 
+        @Override
         public void initViews() {
             condition.setOnClickListener(mConditionClickListener);
 
@@ -311,14 +325,15 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             actionsList.setAdapter(mActionsAdapter);
             actionsList.setMultiChoiceModeListener(mMultiChoiceModeCallbacks);
             actionsList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            actionsList.setOnItemClickListener(mOnActionItemClickListener);
+            actionsList.setOnItemClickListener(mActionItemClickListener);
             actionsList.setOnItemLongClickListener(mActionItemLongClickListener);
             actionsList.setDivider(null);
 
-            triggerObject.setOnClickListener(mTriggerObjectOnClickListener);
-            triggerEvent.setOnItemSelectedListener(mTriggerEventOnItemSelectedListener);
+            triggerObject.setOnClickListener(mTriggerObjectClickListener);
+            triggerEvent.setOnItemSelectedListener(mTriggerEventItemSelectedListener);
         }
 
+        @Override
         public void setViewValues(Rule rule) {
             name.setText(rule.name);
             if (rule.triggerObject != null) {
@@ -347,7 +362,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                     .getExperimentObject(rule.triggerObject).getClass());
             triggerEvent.setAdapter(eventsAdapter);
             for (int i = 0; i < eventsAdapter.getCount(); i++) {
-                if (((int)eventsAdapter.getItemId(i)) == mRule.triggerEvent) {
+                if ((int)eventsAdapter.getItemId(i) == mRule.triggerEvent) {
                     triggerEvent.setSelection(i);
                     break;
                 }

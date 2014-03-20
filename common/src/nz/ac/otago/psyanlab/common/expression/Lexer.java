@@ -65,6 +65,15 @@ public class Lexer implements Iterator<Token> {
         return true;
     }
 
+    /**
+     * Gets the rest of the text that has not yet been tokenised.
+     * 
+     * @return Remaining untokenised text.
+     */
+    public String getTextRemainder() {
+        return mText.substring(mOffset);
+    }
+
     @Override
     public Token next() {
         while (mOffset < mText.length()) {

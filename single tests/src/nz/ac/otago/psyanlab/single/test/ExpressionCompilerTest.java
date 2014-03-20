@@ -114,6 +114,30 @@ public class ExpressionCompilerTest extends TestCase {
                 Operand.TYPE_BOOLEAN);
     }
 
+    public final void testIncompleteParseDetection() {
+        String text = "a + b c asd  aadsf adfad";
+        Lexer lexer = new Lexer(text);
+        Parser parser = new OpalExpressionParser(lexer);
+        Expression e = parser.parseExpression();
+        PrintVisitor print = new PrintVisitor();
+        e.accept(print);
+        if (parser.areUnparsedTokens()) {
+            Log.d("TEST", "EXPRESSION: " + text + "  INCOMPLETE DETECTION: " + print.toString()
+                    + " «" + parser.getLastUnparsed() + "» " + lexer.getTextRemainder());
+            Log.d("TEST", "ERROR MESSAGE: Expected operator.");
+        }
+        assertEquals(true, parser.areUnparsedTokens());
+
+        text = "a + b * 1.4";
+        lexer = new Lexer(text);
+        parser = new OpalExpressionParser(lexer);
+        e = parser.parseExpression();
+        print = new PrintVisitor();
+        e.accept(print);
+        Log.d("TEST", "EXPRESSION: " + text + "  INCOMPLETE DETECTION: " + print.toString());
+        assertEquals(false, parser.areUnparsedTokens());
+    }
+
     private void test(String expression, String print, String hierarchy, String type,
             int expressionType) {
         Log.d("TEST", "EXPRESSION: " + expression);

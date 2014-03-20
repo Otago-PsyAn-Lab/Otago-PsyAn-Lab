@@ -24,6 +24,15 @@ public class Parser {
         mTokens = tokens;
     }
 
+    /**
+     * Check if parser completed reading all tokens available in the stream.
+     * 
+     * @return True if EOF was not reached.
+     */
+    public boolean areUnparsedTokens() {
+        return mRead.get(0).getType() != TokenType.EOF;
+    }
+
     public Token consume() {
         // Make sure we've read the token.
         lookAhead(0);
@@ -39,6 +48,15 @@ public class Parser {
         }
 
         return consume();
+    }
+
+    /**
+     * Get the last token read in from the stream.
+     * 
+     * @return Last token read.
+     */
+    public Token getLastUnparsed() {
+        return mRead.get(0);
     }
 
     public boolean match(TokenType expected) {

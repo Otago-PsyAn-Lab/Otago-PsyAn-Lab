@@ -2,6 +2,7 @@
 package nz.ac.otago.psyanlab.common.expression;
 
 import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor.TypeError;
+import nz.ac.otago.psyanlab.common.expression.expressions.BooleanExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ConditionalExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.FloatExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.InfixExpression;
@@ -40,6 +41,17 @@ public class PrintTypeErrorVisitor extends PrintVisitor {
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    @Override
+    public void visit(BooleanExpression expression) {
+        if (mError != null && expression == mError.getExpression()) {
+            mErrorStart = mBuilder.length();
+        }
+        super.visit(expression);
+        if (mError != null && expression == mError.getExpression()) {
+            mErrorEnd = mBuilder.length();
+        }
     }
 
     @Override

@@ -2,6 +2,8 @@
 package nz.ac.otago.psyanlab.common.expression.expressions;
 
 public interface ExpressionVisitor {
+    void visit(BooleanExpression booleanExpression);
+
     void visit(ConditionalExpression expression);
 
     void visit(FloatExpression expression);

@@ -3,6 +3,7 @@ package nz.ac.otago.psyanlab.common.expression;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
+import nz.ac.otago.psyanlab.common.expression.expressions.BooleanExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ConditionalExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.Expression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ExpressionVisitor;
@@ -61,6 +62,11 @@ public class RefineTypeVisitor implements ExpressionVisitor {
     @Override
     public String toString() {
         return TextUtils.join(",  ", typeToStringArray(mTypeMask));
+    }
+
+    @Override
+    public void visit(BooleanExpression expression) {
+        mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_BOOLEAN);
     }
 
     @Override

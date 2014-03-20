@@ -1,6 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.expression;
 
+import nz.ac.otago.psyanlab.common.expression.expressions.BooleanExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ConditionalExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ExpressionVisitor;
 import nz.ac.otago.psyanlab.common.expression.expressions.FloatExpression;
@@ -20,6 +21,12 @@ import android.util.Log;
  * Print an expression tree while maintaining a relative caret position.
  */
 public class PrintWithCaretVisitor implements ExpressionVisitor {
+    private int mCaretPosition;
+
+    private boolean mFoundCaret;
+
+    private int mOffset;
+
     private int mOldCaretPosition;
 
     private String mOriginalString;
@@ -28,21 +35,27 @@ public class PrintWithCaretVisitor implements ExpressionVisitor {
 
     protected StringBuilder mBuilder;
 
-    private int mOffset;
-
-    private boolean mFoundCaret;
-
-    private int mCaretPosition;
-
     public PrintWithCaretVisitor(int oldCaretPosition, String originalString) {
         mOldCaretPosition = oldCaretPosition;
         mOriginalString = originalString;
         mBuilder = new StringBuilder();
     }
 
+    public int getCaretPosition() {
+        if (!mFoundCaret) {
+            return mBuilder.length();
+        }
+        return mCaretPosition;
+    }
+
     @Override
     public String toString() {
         return mBuilder.toString();
+    }
+
+    @Override
+    public void visit(BooleanExpression expression) {
+        addString(expression.getValueString());
     }
 
     @Override
@@ -194,13 +207,6 @@ public class PrintWithCaretVisitor implements ExpressionVisitor {
         if (groupedExpression) {
             addString(")");
         }
-    }
-
-    public int getCaretPosition() {
-        if (!mFoundCaret) {
-            return mBuilder.length();
-        }
-        return mCaretPosition;
     }
 
     private void addString(String s) {

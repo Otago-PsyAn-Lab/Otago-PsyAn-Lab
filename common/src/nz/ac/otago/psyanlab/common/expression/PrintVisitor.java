@@ -1,6 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.expression;
 
+import nz.ac.otago.psyanlab.common.expression.expressions.BooleanExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ConditionalExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ExpressionVisitor;
 import nz.ac.otago.psyanlab.common.expression.expressions.FloatExpression;
@@ -26,6 +27,11 @@ public class PrintVisitor implements ExpressionVisitor {
     @Override
     public String toString() {
         return mBuilder.toString();
+    }
+
+    @Override
+    public void visit(BooleanExpression expression) {
+        mBuilder.append(expression.getValueString());
     }
 
     @Override

@@ -108,6 +108,10 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         mViews.hideParsed();
         mViews.hideError();
 
+        if (TextUtils.isEmpty(s)) {
+            return;
+        }
+
         String inputString = s.toString();
         Lexer lexer = new Lexer(inputString);
         Parser parser = new OpalExpressionParser(lexer);

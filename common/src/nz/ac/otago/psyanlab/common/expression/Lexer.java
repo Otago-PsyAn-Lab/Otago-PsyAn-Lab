@@ -221,7 +221,9 @@ public class Lexer implements Iterator<Token> {
     }
 
     /**
-     * Reads until it reaches the terminal character for a string literal.
+     * Reads until it reaches the terminal character for a string literal, or we
+     * run out of characters, incidentally this means a string can be indicated
+     * with just a starting '"'.
      * 
      * @return Matched token.
      */

@@ -55,6 +55,8 @@ import java.util.HashMap;
  * operand.
  */
 public class EditLiteralOperandFragment extends AbsOperandFragment {
+    private static final String ARG_OPERAND_MAP = "arg_operand_map";
+
     public TextWatcher mExpressionChangedListener = new TextWatcher() {
 
         @Override
@@ -85,13 +87,13 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
 
     private final BackgroundColorSpan mErrorSpan = new BackgroundColorSpan(0xFFFF0000);
 
-    private LiteralOperand mOperand;
-
-    private ViewHolder mViews;
-
     private ExpressionValue mExpression;
 
+    private LiteralOperand mOperand;
+
     private HashMap<String, Long> mOperandMap;
+
+    private ViewHolder mViews;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,16 +103,13 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             throw new RuntimeException("Invalid operand id given.");
         }
 
-        Operand operand = mCallbacks.getOperand(mObjectId);
-        if (operand instanceof ExpressionValue) {
-            mExpression = (ExpressionValue)operand;
+        if (savedInstanceState != null) {
+            Bundle operandMap = savedInstanceState.getBundle(ARG_OPERAND_MAP);
+            String[] keys = operandMap.keySet().toArray(new String[operandMap.size()]);
             mOperandMap = new HashMap<String, Long>();
-            for (Long operandId : mExpression.operands) {
-                mOperandMap.put(mCallbacks.getOperand(operandId).getName(), operandId);
+            for (int i = 0; i < operandMap.size(); i++) {
+                mOperandMap.put(keys[i], operandMap.getLong(keys[i]));
             }
-            mOperand = (LiteralOperand)operand;
-        } else if (operand instanceof LiteralOperand) {
-            mOperand = (LiteralOperand)operand;
         }
     }
 
@@ -125,12 +124,101 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle operandMap = new Bundle();
+        String[] keys = mOperandMap.keySet().toArray(new String[mOperandMap.size()]);
+        for (int i = 0; i < mOperandMap.size(); i++) {
+            String key = keys[i];
+            operandMap.putLong(key, mOperandMap.get(key));
+        }
+
+        outState.putBundle(ARG_OPERAND_MAP, operandMap);
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Operand operand = mCallbacks.getOperand(mObjectId);
+        if (operand instanceof ExpressionValue) {
+            mExpression = (ExpressionValue)operand;
+            mOperandMap = new HashMap<String, Long>();
+            for (Long operandId : mExpression.operands) {
+                mOperandMap.put(mCallbacks.getOperand(operandId).getName(), operandId);
+            }
+            mOperand = (LiteralOperand)operand;
+        } else if (operand instanceof LiteralOperand) {
+            mOperand = (LiteralOperand)operand;
+        }
 
         mViews = new ViewHolder(view);
         mViews.initViews();
         mViews.setViewValues(mOperand);
+    }
+
+    private boolean handleLiteral(Expression expression) {
+        if (expression instanceof StringExpression) {
+            StringValue value = new StringValue();
+            value.value = ((StringExpression)expression).getRawString();
+            saveOperand(value);
+            return true;
+        } else if (expression instanceof IntegerExpression) {
+            IntegerValue value = new IntegerValue();
+            value.value = Integer.parseInt(((IntegerExpression)expression).getValueString());
+            saveOperand(value);
+            return true;
+        } else if (expression instanceof FloatExpression) {
+            FloatValue value = new FloatValue();
+            value.value = Float.parseFloat(((FloatExpression)expression).getValueString());
+            saveOperand(value);
+            return true;
+        } else if (expression instanceof BooleanExpression) {
+            BooleanValue value = new BooleanValue();
+            value.value = Boolean.parseBoolean(((BooleanExpression)expression).getValueString());
+            saveOperand(value);
+            return true;
+        }
+        return false;
+    }
+
+    private void handleParseException(String inputString, Lexer lexer, Parser parser,
+            ParseException e) {
+        int length = parser.getLastUnparsed().toString().length();
+        Log.d("exception", length + "");
+        int start = lexer.getTextLexed().length() + length;
+        Log.d("exception", start + "");
+        int end = start + (length == 0 ? 1 : length);
+        Log.d("exception", end + "");
+
+        SpannableString text = new SpannableString(inputString + (length == 0 ? " " : ""));
+        text.setSpan(mErrorSpan, start, end, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        mViews.setParsed(text);
+        mViews.setError(e.getMessage());
+        mViews.hideOperands();
+        return;
+    }
+
+    private void handlePartialParse(Lexer lexer, Parser parser, String prettyExpression) {
+        String lastToken = parser.getLastUnparsed().toString();
+        Log.d("", lastToken);
+        SpannableString text = new SpannableString(prettyExpression + " " + lastToken
+                + lexer.getTextRemainder());
+        text.setSpan(mErrorSpan, prettyExpression.length() + 1, prettyExpression.length()
+                + lastToken.length() + 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        mViews.setParsed(text);
+        mViews.setError(getActivity().getString(R.string.error_expected_operator));
+        mViews.hideOperands();
+    }
+
+    private void handleTypeError(String prettyExpression, PrintTypeErrorVisitor findError) {
+        SpannableString text = new SpannableString(prettyExpression);
+        text.setSpan(mErrorSpan, findError.getErrorStart(), findError.getErrorEnd(),
+                Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        mViews.setParsed(text);
+        mViews.setError(findError.getErrorMessage());
+        mViews.hideOperands();
     }
 
     private void saveOperand(LiteralOperand value) {
@@ -212,69 +300,6 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         saveOperand(mExpression);
     }
 
-    private void handleTypeError(String prettyExpression, PrintTypeErrorVisitor findError) {
-        SpannableString text = new SpannableString(prettyExpression);
-        text.setSpan(mErrorSpan, findError.getErrorStart(), findError.getErrorEnd(),
-                Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        mViews.setParsed(text);
-        mViews.setError(findError.getErrorMessage());
-        mViews.hideOperands();
-    }
-
-    private void handlePartialParse(Lexer lexer, Parser parser, String prettyExpression) {
-        String lastToken = parser.getLastUnparsed().toString();
-        Log.d("", lastToken);
-        SpannableString text = new SpannableString(prettyExpression + " " + lastToken
-                + lexer.getTextRemainder());
-        text.setSpan(mErrorSpan, prettyExpression.length() + 1, prettyExpression.length()
-                + lastToken.length() + 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        mViews.setParsed(text);
-        mViews.setError(getActivity().getString(R.string.error_expected_operator));
-        mViews.hideOperands();
-    }
-
-    private boolean handleLiteral(Expression expression) {
-        if (expression instanceof StringExpression) {
-            StringValue value = new StringValue();
-            value.value = ((StringExpression)expression).getRawString();
-            saveOperand(value);
-            return true;
-        } else if (expression instanceof IntegerExpression) {
-            IntegerValue value = new IntegerValue();
-            value.value = Integer.parseInt(((IntegerExpression)expression).getValueString());
-            saveOperand(value);
-            return true;
-        } else if (expression instanceof FloatExpression) {
-            FloatValue value = new FloatValue();
-            value.value = Float.parseFloat(((FloatExpression)expression).getValueString());
-            saveOperand(value);
-            return true;
-        } else if (expression instanceof BooleanExpression) {
-            BooleanValue value = new BooleanValue();
-            value.value = Boolean.parseBoolean(((BooleanExpression)expression).getValueString());
-            saveOperand(value);
-            return true;
-        }
-        return false;
-    }
-
-    private void handleParseException(String inputString, Lexer lexer, Parser parser,
-            ParseException e) {
-        int length = parser.getLastUnparsed().toString().length();
-        Log.d("exception", length + "");
-        int start = lexer.getTextLexed().length() + length;
-        Log.d("exception", start + "");
-        int end = start + (length == 0 ? 1 : length);
-        Log.d("exception", end + "");
-
-        SpannableString text = new SpannableString(inputString + (length == 0 ? " " : ""));
-        text.setSpan(mErrorSpan, start, end, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        mViews.setParsed(text);
-        mViews.setError(e.getMessage());
-        mViews.hideOperands();
-        return;
-    }
-
     protected void showEditOperandDialogue(long id, int type, String title) {
         EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id, type, title);
         dialog.show(getChildFragmentManager(), "dialog_edit_operand");
@@ -285,13 +310,13 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
 
         public EditText expression;
 
+        private ProgramComponentAdapter<Operand> mAdapter;
+
         private ListView operands;
 
         private View operandsTitle;
 
         private TextView parsed;
-
-        private ProgramComponentAdapter<Operand> mAdapter;
 
         public ViewHolder(View view) {
             expression = (EditText)view.findViewById(R.id.text);
@@ -311,18 +336,6 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
                 mExpression.operands.clear();
                 mAdapter.notifyDataSetChanged();
             }
-        }
-
-        private ProgramComponentAdapter<?> getOperandAdapterFromList() {
-            ListAdapter listAdapter = operands.getAdapter();
-            ProgramComponentAdapter<?> adapter;
-            if (listAdapter instanceof ProgramComponentAdapter<?>) {
-                adapter = (ProgramComponentAdapter<?>)listAdapter;
-            } else {
-                HeaderViewListAdapter wrapper = (HeaderViewListAdapter)listAdapter;
-                adapter = (ProgramComponentAdapter<?>)wrapper.getWrappedAdapter();
-            }
-            return adapter;
         }
 
         public void hideParsed() {
@@ -401,6 +414,18 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             } else {
                 hideOperands();
             }
+        }
+
+        private ProgramComponentAdapter<?> getOperandAdapterFromList() {
+            ListAdapter listAdapter = operands.getAdapter();
+            ProgramComponentAdapter<?> adapter;
+            if (listAdapter instanceof ProgramComponentAdapter<?>) {
+                adapter = (ProgramComponentAdapter<?>)listAdapter;
+            } else {
+                HeaderViewListAdapter wrapper = (HeaderViewListAdapter)listAdapter;
+                adapter = (ProgramComponentAdapter<?>)wrapper.getWrappedAdapter();
+            }
+            return adapter;
         }
     }
 }

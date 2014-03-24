@@ -150,21 +150,21 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         String inputString = s.toString();
         Lexer lexer = new Lexer(inputString);
         Parser parser = new OpalExpressionParser(lexer);
-        Expression expression;
+        Expression input;
 
         try {
-            expression = parser.parseExpression();
+            input = parser.parseExpression();
         } catch (ParseException e) {
             handleParseException(inputString, lexer, parser, e);
             return;
         }
 
-        if (handleLiteral(expression)) {
+        if (handleLiteral(input)) {
             return;
         }
 
         PrintVisitor prettyPrint = new PrintVisitor();
-        expression.accept(prettyPrint);
+        input.accept(prettyPrint);
         String prettyExpression = prettyPrint.toString();
 
         if (parser.areUnparsedTokens()) {
@@ -180,19 +180,20 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
                 mOperandType);
         boolean wasError = false;
         try {
-            expression.accept(typeCheck);
+            input.accept(typeCheck);
         } catch (TypeException error) {
             wasError = true;
         }
 
+        mOperandMap = typeCheck.getOperandMap();
         PrintTypeErrorVisitor findError = new PrintTypeErrorVisitor(typeCheck.getError());
-        expression.accept(findError);
+        input.accept(findError);
         if (wasError) {
             handleTypeError(prettyExpression, findError);
             return;
         }
 
-        HashMap<String, Long> operandMap = typeCheck.getOperandMap();
+        HashMap<String, Long> operandMap = typeCheck.getOperandsMentioned();
         if (mExpression == null) {
             mExpression = new ExpressionValue();
         }

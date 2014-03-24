@@ -43,6 +43,8 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     private HashMap<String, Long> mOperandMap;
 
+    private HashMap<String, Long> mOperandsMentioned;
+
     private int mTypeMask;
 
     public RefineTypeVisitor(Context context, OperandCallbacks callbacks,
@@ -50,6 +52,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         mContext = context;
         mCallbacks = callbacks;
         mOperandMap = operandMap;
+        mOperandsMentioned = new HashMap<String, Long>();
         mTypeMask = rootType;
     }
 
@@ -59,6 +62,10 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     public HashMap<String, Long> getOperandMap() {
         return mOperandMap;
+    }
+
+    public HashMap<String, Long> getOperandsMentioned() {
+        return mOperandsMentioned;
     }
 
     public int getType() {
@@ -168,6 +175,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
         // Try to assert the requested type.
         op.attemptRestrictType(mTypeMask);
+        mOperandsMentioned.put(name, operandId);
         mTypeMask = doIntersectionOrError(expression, mTypeMask, op.getType());
     }
 

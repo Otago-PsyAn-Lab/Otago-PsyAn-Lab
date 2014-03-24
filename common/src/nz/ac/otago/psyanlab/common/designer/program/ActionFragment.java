@@ -140,11 +140,8 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     };
 
     protected void showEditOperandDialogue(long id, int type) {
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id, type);
-
-        // Dirty hack to stop horizontal scroller from jumping around too much.
-        // mViews.name.requestFocus();
-        // mViews.name.clearFocus();
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id, type,
+                getString(R.string.title_edit_operand, Operand.getTypeString(getActivity(), type)));
         dialog.show(getChildFragmentManager(), "dialog_edit_operand");
     }
 

@@ -22,6 +22,10 @@ public class StringExpression implements Expression {
         return "\"" + mName + "\"";
     }
 
+    public String getRawString() {
+        return mName;
+    }
+
     @Override
     public int getPrecedence() {
         return Precedence.IDENTITY;

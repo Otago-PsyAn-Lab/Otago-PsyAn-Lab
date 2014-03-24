@@ -28,6 +28,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Process an expression tree and resolve, as best as possible, the types of the
+ * expressions inside. Also generates operands for name expressions and asserts
+ * their types as best as possible. As more operands are assigned values, with
+ * repeated processing by this visitor, the final type of the root expression is
+ * further refined to a single potential type.
+ */
 public class RefineTypeVisitor implements ExpressionVisitor {
     private OperandCallbacks mCallbacks;
 
@@ -49,6 +56,10 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     public TypeError getError() {
         return mError;
+    }
+
+    public HashMap<String, Long> getOperandMap() {
+        return mOperandMap;
     }
 
     public int getType() {

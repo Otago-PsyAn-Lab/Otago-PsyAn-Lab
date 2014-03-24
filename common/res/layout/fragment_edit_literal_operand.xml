@@ -31,12 +31,13 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/operands_title"
         style="@style/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:fontFamily="sans-serif-light"
-        android:text="@string/label_operands"
+        android:text="@string/label_variables"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ListView

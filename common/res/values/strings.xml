@@ -223,10 +223,6 @@
     <string name="event_on_long_click">On Long Click</string>
     <string name="method_missing_string">Missing String</string>
     <string name="method_set_string">Set String</string>
-    <string name="operand_type_float">float</string>
-    <string name="operand_type_integer">integer</string>
-    <string name="operand_type_string">string</string>
-    <string name="operand_type_unknown">unknown type</string>
     <string name="test_method_2">Test Method 2</string>
     <string name="test_method_3">Test Method 3</string>
     <string name="generator_kind_random">random</string>
@@ -238,12 +234,19 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="title_new_experiment">New Experiment</string>
     <string name="title_edit_operand">Edit Operand</string>
-    <string name="operand_type_image">image asset</string>
-    <string name="operand_type_sound">sound asset</string>
-    <string name="operand_type_video">video asset</string>
-    <string name="operand_type_number">number</string>
     <string name="operand_type_boolean">boolean</string>
+    <string name="operand_type_image">image asset</string>
+    <string name="operand_type_integer">integer</string>
+    <string name="operand_type_float">float</string>
+    <string name="operand_type_number">number</string>
+    <string name="operand_type_sound">sound asset</string>
+    <string name="operand_type_string">string</string>
+    <string name="operand_type_unknown">unknown type</string>
+    <string name="operand_type_video">video asset</string>
     <string name="operand_type_any_except_asset">any</string>
+    <string name="title_edit_operand">Input %s</string>
+    <string name="hint_expression_input">Expression or literal</string>
+
     <plurals name="expected_type">
         <item quantity="one">Expected type %s</item>
         <item quantity="other">Expected types %s</item>
@@ -252,6 +255,7 @@
         <item quantity="one">got type %s</item>
         <item quantity="other">got types %s</item>
     </plurals>
-        <string name="hint_expression_input">Expression or literal</string>
+        <string name="title_edit_condition">Edit Condition</string>
+        <string name="label_variables">Variables</string>
 
 </resources>

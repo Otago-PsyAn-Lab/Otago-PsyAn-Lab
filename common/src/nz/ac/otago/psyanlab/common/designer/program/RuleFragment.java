@@ -79,7 +79,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     protected final OnClickListener mConditionClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            showEditOperandDialogue();
+            showEditConditionDialogue();
         }
     };
 
@@ -244,6 +244,10 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 mDialogueResultListener);
     }
 
+    private void saveChanges() {
+        mCallbacks.updateRule(mObjectId, mRule);
+    }
+
     @Override
     protected int getFavouredBackground() {
         return R.drawable.rule_background_flat;
@@ -279,18 +283,14 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     }
 
-    protected void showEditOperandDialogue() {
+    protected void showEditConditionDialogue() {
         if (mActionMode != null) {
             mActionMode.finish();
         }
 
         EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mRule.conditionId,
-                Operand.TYPE_BOOLEAN);
+                Operand.TYPE_BOOLEAN, getActivity().getString(R.string.title_edit_condition));
         dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
-    }
-
-    private void saveChanges() {
-        mCallbacks.updateRule(mObjectId, mRule);
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Rule> {

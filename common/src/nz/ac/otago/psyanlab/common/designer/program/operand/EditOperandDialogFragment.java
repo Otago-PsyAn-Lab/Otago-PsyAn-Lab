@@ -29,6 +29,8 @@ import android.widget.Button;
 public class EditOperandDialogFragment extends DialogFragment {
     private static final String ARG_ID = "arg_id";
 
+    private static final String ARG_TITLE = "arg_title";
+
     private static final String ARG_TYPE = "arg_type";
 
     private static final long INVALID_ID = -1;
@@ -37,13 +39,15 @@ public class EditOperandDialogFragment extends DialogFragment {
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      * 
      * @param id Operand id of operand to edit.
+     * @param title
      * @param typeBoolean type the operand should match.
      */
-    public static EditOperandDialogFragment newDialog(long id, int type) {
+    public static EditOperandDialogFragment newDialog(long id, int type, String title) {
         EditOperandDialogFragment f = new EditOperandDialogFragment();
         Bundle args = new Bundle();
         args.putLong(ARG_ID, id);
         args.putInt(ARG_TYPE, type);
+        args.putString(ARG_TITLE, title);
         f.setArguments(args);
         return f;
     }
@@ -61,6 +65,8 @@ public class EditOperandDialogFragment extends DialogFragment {
     };
 
     private ActionCallbacks mCallbacks;
+
+    private String mTitle;
 
     private ViewHolder mViews;
 
@@ -88,20 +94,21 @@ public class EditOperandDialogFragment extends DialogFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Dialog dialog = getDialog();
-        dialog.setTitle(R.string.title_dialogue_pick_object);
-        dialog.getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
         Bundle args = getArguments();
         if (args != null) {
             mId = args.getLong(ARG_ID, INVALID_ID);
             mOperandType = args.getInt(ARG_TYPE);
+            mTitle = args.getString(ARG_TITLE);
         }
 
         if (mId == INVALID_ID) {
             throw new RuntimeException("Invalid operand id given.");
         }
+
+        Dialog dialog = getDialog();
+        dialog.setTitle(mTitle);
+        dialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         mViews = new ViewHolder(view);
         mViews.initViews();

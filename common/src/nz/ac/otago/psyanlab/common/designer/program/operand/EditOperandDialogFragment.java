@@ -52,13 +52,7 @@ public class EditOperandDialogFragment extends DialogFragment {
         return f;
     }
 
-    public OnClickListener mOnConfirmClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-        }
-    };
-
-    public OnClickListener mOnDiscardClickListener = new OnClickListener() {
+    public OnClickListener mOnDoneClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
         }
@@ -115,9 +109,7 @@ public class EditOperandDialogFragment extends DialogFragment {
     }
 
     class ViewHolder {
-        private Button confirm;
-
-        private Button discard;
+        private Button done;
 
         private FragmentStatePagerAdapter mPagerAdapter = new FragmentStatePagerAdapter(
                 getChildFragmentManager()) {
@@ -169,8 +161,7 @@ public class EditOperandDialogFragment extends DialogFragment {
         public ViewHolder(View view) {
             pager = (ViewPager)view.findViewById(R.id.pager);
             tabs = (PagerSlidingTabStrip)view.findViewById(R.id.tabs);
-            discard = (Button)view.findViewById(R.id.discard);
-            confirm = (Button)view.findViewById(R.id.confirm);
+            done = (Button)view.findViewById(R.id.done);
         }
 
         public void initViews() {
@@ -179,9 +170,7 @@ public class EditOperandDialogFragment extends DialogFragment {
             // Bind the widget to the adapter
             tabs.setViewPager(pager);
 
-            confirm.setOnClickListener(mOnConfirmClickListener);
-            discard.setOnClickListener(mOnDiscardClickListener);
+            done.setOnClickListener(mOnDoneClickListener);
         }
-
     }
 }

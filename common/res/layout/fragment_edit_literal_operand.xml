@@ -4,52 +4,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <LinearLayout
-        style="@style/card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <EditText
-            android:id="@+id/text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/hint_expression_input"
-            android:inputType="text" />
-
-        <TextView
-            android:id="@+id/parsed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/operands_title"
-        style="@style/card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:fontFamily="sans-serif-light"
-        android:text="@string/label_variables"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <View
-        android:layout_width="0dip"
-        android:layout_height="1dip"
-        android:background="?android:attr/listDivider" />
-
     <ListView
         android:id="@+id/operands"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipToPadding="false"
+        android:descendantFocusability="afterDescendants"
         android:drawSelectorOnTop="false"
         android:listSelector="@drawable/rule_list_selector_holo_light"
         android:scrollbarStyle="outsideOverlay" />

@@ -185,7 +185,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         View v = inflater.inflate(R.layout.fragment_designer_program_action, container, false);
         ListView list = (ListView)v.findViewById(R.id.parameters);
         list.addHeaderView(inflater.inflate(R.layout.action_header_content, list, false));
-        list.addFooterView(inflater.inflate(R.layout.action_footer_content, list, false));
+        list.addFooterView(inflater.inflate(R.layout.separator, list, false));
         return v;
     }
 

@@ -26,20 +26,12 @@
         android:showDividers="middle" >
 
         <Button
-            android:id="@+id/discard"
+            android:id="@+id/done"
             style="?android:buttonBarButtonStyle"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Discard" />
-
-        <Button
-            android:id="@+id/confirm"
-            style="?android:buttonBarButtonStyle"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Confirm" />
+            android:text="@string/action_done" />
     </LinearLayout>
 
 </LinearLayout>

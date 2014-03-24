@@ -9,8 +9,9 @@ public class StubOperand extends Operand {
         type = TYPE_ANY;
     }
 
+    @Override
     public boolean attemptRestrictType(int type) {
-        this.type &= type;
+        this.type = type;
         return true;
     }
 }

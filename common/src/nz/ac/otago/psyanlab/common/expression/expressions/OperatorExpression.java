@@ -47,7 +47,11 @@ public class OperatorExpression {
             case BANG:
                 return Operand.TYPE_BOOLEAN;
             case PLUS:
-                return (Operand.TYPE_NUMBER | Operand.TYPE_STRING) & typeMask;
+                int r = (Operand.TYPE_NUMBER | Operand.TYPE_STRING) & typeMask;
+                if (r == 0) {
+                    return Operand.TYPE_NUMBER | Operand.TYPE_STRING;
+                }
+                return r;
             case ASTERISK:
             case CARET:
             case MINUS:

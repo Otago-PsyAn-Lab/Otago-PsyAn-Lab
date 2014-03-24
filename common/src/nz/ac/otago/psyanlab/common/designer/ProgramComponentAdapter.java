@@ -24,16 +24,27 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     private ViewBinder<T> mViewBinder;
 
+    private boolean mHideItems;
+
     public ProgramComponentAdapter(LongSparseArray<T> map, List<Long> keys, ViewBinder<T> viewBinder) {
         mMap = map;
         mViewBinder = viewBinder;
         mKeys = keys;
+        mHideItems = false;
     }
 
-    @Override
-    public void notifyDataSetChanged() {
-        super.notifyDataSetChanged();
+    public void hideItems() {
+        if (!mHideItems) {
+            mHideItems = true;
+            notifyDataSetChanged();
+        }
+    }
 
+    public void showItems() {
+        if (mHideItems) {
+            mHideItems = false;
+            notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -54,6 +65,9 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public int getCount() {
+        if (mHideItems) {
+            return 0;
+        }
         return mKeys.size();
     }
 

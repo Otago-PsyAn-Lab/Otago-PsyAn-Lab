@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        style="@style/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_expression_input"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/parsed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/operands_title"
+        style="@style/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/label_variables"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <View
+        android:id="@+id/operands_separator"
+        android:layout_width="0dip"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
+
+</LinearLayout>

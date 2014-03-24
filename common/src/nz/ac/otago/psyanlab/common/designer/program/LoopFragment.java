@@ -262,7 +262,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         View v = inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
         ListView list = (ListView)v.findViewById(R.id.generators);
         list.addHeaderView(inflater.inflate(R.layout.loop_header_content, list, false));
-        list.addFooterView(inflater.inflate(R.layout.action_footer_content, list, false));
+        list.addFooterView(inflater.inflate(R.layout.separator, list, false));
         return v;
     }
 

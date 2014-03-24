@@ -257,5 +257,6 @@
     </plurals>
         <string name="title_edit_condition">Edit Condition</string>
         <string name="label_variables">Variables</string>
+        <string name="error_expected_operator">Expected operator.</string>
 
 </resources>

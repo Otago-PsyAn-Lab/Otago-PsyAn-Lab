@@ -150,6 +150,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             text.setSpan(mErrorSpan, start, end, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             mViews.setParsed(text);
             mViews.setError(e.getMessage());
+            mViews.hideOperands();
             return;
         }
 
@@ -189,6 +190,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
                     + lastToken.length() + 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             mViews.setParsed(text);
             mViews.setError("Expected operator.");
+            mViews.hideOperands();
             return;
         }
 

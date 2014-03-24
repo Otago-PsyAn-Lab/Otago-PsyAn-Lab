@@ -103,17 +103,39 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         boolean sawOnlyFloat = false;
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = expression.getOperatorChildType();
+        mTypeMask = expression.getOperatorChildType(mTypeMask);
+
         expression.getLeft().accept(this);
-        if (allowMixedNumbers(expression) && (mTypeMask & Operand.TYPE_NUMBER) != 0) {
-            if ((mTypeMask & Operand.TYPE_NUMBER) == Operand.TYPE_FLOAT) {
+        if (allowMixedNumbers(expression)) {
+            if (mTypeMask == Operand.TYPE_FLOAT) {
                 sawOnlyFloat = true;
             }
-            mTypeMask |= Operand.TYPE_NUMBER;
         }
+        final int leftMask = mTypeMask;
+
+        mTypeMask = expression.getOperatorChildType(mTypeMask);
+
         expression.getRight().accept(this);
         if (allowMixedNumbers(expression) && (mTypeMask & Operand.TYPE_NUMBER) != 0 && sawOnlyFloat) {
             mTypeMask = Operand.TYPE_FLOAT;
+        }
+        final int rightMask = mTypeMask;
+
+        if (rightMask != leftMask) {
+            mTypeMask = rightMask & leftMask;
+
+            expression.getLeft().accept(this);
+            if (allowMixedNumbers(expression)) {
+                if (mTypeMask == Operand.TYPE_FLOAT) {
+                    sawOnlyFloat = true;
+                }
+            }
+
+            expression.getRight().accept(this);
+            if (allowMixedNumbers(expression) && (mTypeMask & Operand.TYPE_NUMBER) != 0
+                    && sawOnlyFloat) {
+                mTypeMask = Operand.TYPE_FLOAT;
+            }
         }
 
         mTypeMask = expression.getOperatorResultType(mTypeMask);
@@ -122,7 +144,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     @Override
     public void visit(IntegerExpression expression) {
-        mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_NUMBER);
+        mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_INTEGER);
     }
 
     @Override
@@ -153,7 +175,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
     public void visit(PostfixExpression expression) {
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = expression.getOperatorChildType();
+        mTypeMask = expression.getOperatorChildType(mTypeMask);
         expression.getLeft().accept(this);
 
         mTypeMask = expression.getOperatorResultType(mTypeMask);
@@ -164,7 +186,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
     public void visit(PrefixExpression expression) {
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = expression.getOperatorChildType();
+        mTypeMask = expression.getOperatorChildType(mTypeMask);
         expression.getRight().accept(this);
 
         mTypeMask = expression.getOperatorResultType(mTypeMask);

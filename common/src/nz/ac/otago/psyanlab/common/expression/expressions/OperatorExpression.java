@@ -39,7 +39,7 @@ public class OperatorExpression {
         return mOperator;
     }
 
-    public int getOperatorChildType() {
+    public int getOperatorChildType(int typeMask) {
         switch (getOperator()) {
             case AND:
             case OR:
@@ -47,7 +47,7 @@ public class OperatorExpression {
             case BANG:
                 return Operand.TYPE_BOOLEAN;
             case PLUS:
-                return Operand.TYPE_NUMBER | Operand.TYPE_STRING;
+                return (Operand.TYPE_NUMBER | Operand.TYPE_STRING) & typeMask;
             case ASTERISK:
             case CARET:
             case MINUS:
@@ -66,6 +66,31 @@ public class OperatorExpression {
                 return 0;
         }
     }
+
+    // public boolean reprocess(int leftMask, int rightMask) {
+    // switch (getOperator()) {
+    // case AND:
+    // case OR:
+    // case XOR:
+    // case BANG:
+    // case PLUS:
+    // case ASTERISK:
+    // case CARET:
+    // case MINUS:
+    // case PERCENT:
+    // case SLASH:
+    // case LESS_THAN:
+    // case LESS_THAN_OR_EQUAL_TO:
+    // case MORE_THAN:
+    // case MORE_THAN_OR_EQUAL_TO:
+    // case EQUALS:
+    // // Not same, but have intersection.
+    // return leftMask != rightMask && (leftMask & rightMask) != 0;
+    //
+    // default:
+    // return false;
+    // }
+    // }
 
     public int getOperatorResultType(int typeMask) {
         switch (getOperator()) {

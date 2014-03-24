@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
@@ -40,16 +40,18 @@
         android:text="@string/label_variables"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <View
+        android:layout_width="0dip"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
+
     <ListView
         android:id="@+id/operands"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:drawSelectorOnTop="false"
-        android:listSelector="@drawable/action_list_selector_holo_light"
-        android:paddingBottom="16dip"
-        android:paddingLeft="8dip"
-        android:paddingRight="8dip"
+        android:listSelector="@drawable/rule_list_selector_holo_light"
         android:scrollbarStyle="outsideOverlay" />
 
 </LinearLayout>

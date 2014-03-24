@@ -83,6 +83,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.widget.DrawerLayout;
+import android.text.TextUtils;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Pair;
@@ -286,8 +287,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 holder.textViews[0].setText(operand.getName());
                 holder.textViews[1].setVisibility(View.GONE);
             }
-            holder.textViews[2].setText(Operand.getTypeString(ExperimentDesignerActivity.this,
-                    operand.getType()));
+            holder.textViews[2].setText(TextUtils.join("\n",
+                    Operand.typeToStringArray(ExperimentDesignerActivity.this, operand.getType())));
             return convertView;
         }
     };

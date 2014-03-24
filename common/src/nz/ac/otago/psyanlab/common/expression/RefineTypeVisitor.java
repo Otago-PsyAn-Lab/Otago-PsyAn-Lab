@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -72,7 +71,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     @Override
     public String toString() {
-        return TextUtils.join(",  ", typeToStringArray(mTypeMask));
+        return TextUtils.join(",  ", Operand.typeToStringArray(mContext, mTypeMask));
     }
 
     @Override
@@ -214,8 +213,8 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         int intersection = got & expected;
         if (intersection == 0) {
             // No intersection, so store error and break out of type refining.
-            String errorMessage = formatTypeError(typeToStringArray(expected),
-                    typeToStringArray(got));
+            String errorMessage = formatTypeError(Operand.typeToStringArray(mContext, expected),
+                    Operand.typeToStringArray(mContext, got));
             mError = new TypeError(expression, errorMessage);
             throw new TypeException(errorMessage);
         }
@@ -229,33 +228,6 @@ public class RefineTypeVisitor implements ExpressionVisitor {
                 + ", but "
                 + res.getQuantityString(R.plurals.got_type, got.size(), TextUtils.join(", ", got))
                 + ".";
-    }
-
-    protected List<String> typeToStringArray(int type) {
-        ArrayList<String> types = new ArrayList<String>();
-        if ((type & Operand.TYPE_BOOLEAN) != 0) {
-            types.add((String)Operand.getTypeString(mContext, Operand.TYPE_BOOLEAN));
-        }
-        if ((type & Operand.TYPE_FLOAT) != 0) {
-            types.add((String)Operand.getTypeString(mContext, Operand.TYPE_FLOAT));
-        }
-        if ((type & Operand.TYPE_IMAGE) != 0) {
-            types.add((String)Operand.getTypeString(mContext, Operand.TYPE_IMAGE));
-        }
-        if ((type & Operand.TYPE_INTEGER) != 0) {
-            types.add((String)Operand.getTypeString(mContext, Operand.TYPE_INTEGER));
-        }
-        if ((type & Operand.TYPE_SOUND) != 0) {
-            types.add((String)Operand.getTypeString(mContext, Operand.TYPE_SOUND));
-        }
-        if ((type & Operand.TYPE_STRING) != 0) {
-            types.add((String)Operand.getTypeString(mContext, Operand.TYPE_STRING));
-        }
-        if ((type & Operand.TYPE_VIDEO) != 0) {
-            types.add((String)Operand.getTypeString(mContext, Operand.TYPE_VIDEO));
-        }
-
-        return types;
     }
 
     public class TypeError {

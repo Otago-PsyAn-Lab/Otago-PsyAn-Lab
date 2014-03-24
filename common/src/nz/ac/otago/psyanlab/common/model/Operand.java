@@ -16,6 +16,8 @@ import nz.ac.otago.psyanlab.common.R;
 import android.content.Context;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Operand {
     public static final int TYPE_BOOLEAN = 0x01;
@@ -60,6 +62,33 @@ public abstract class Operand {
         } else {
             return context.getString(R.string.operand_type_unknown);
         }
+    }
+
+    public static List<String> typeToStringArray(Context context, int type) {
+        ArrayList<String> types = new ArrayList<String>();
+        if ((type & Operand.TYPE_BOOLEAN) != 0) {
+            types.add((String)Operand.getTypeString(context, Operand.TYPE_BOOLEAN));
+        }
+        if ((type & Operand.TYPE_FLOAT) != 0) {
+            types.add((String)Operand.getTypeString(context, Operand.TYPE_FLOAT));
+        }
+        if ((type & Operand.TYPE_IMAGE) != 0) {
+            types.add((String)Operand.getTypeString(context, Operand.TYPE_IMAGE));
+        }
+        if ((type & Operand.TYPE_INTEGER) != 0) {
+            types.add((String)Operand.getTypeString(context, Operand.TYPE_INTEGER));
+        }
+        if ((type & Operand.TYPE_SOUND) != 0) {
+            types.add((String)Operand.getTypeString(context, Operand.TYPE_SOUND));
+        }
+        if ((type & Operand.TYPE_STRING) != 0) {
+            types.add((String)Operand.getTypeString(context, Operand.TYPE_STRING));
+        }
+        if ((type & Operand.TYPE_VIDEO) != 0) {
+            types.add((String)Operand.getTypeString(context, Operand.TYPE_VIDEO));
+        }
+
+        return types;
     }
 
     @Expose

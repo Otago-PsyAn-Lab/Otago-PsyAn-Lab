@@ -55,6 +55,7 @@ public class EditOperandDialogFragment extends DialogFragment {
     public OnClickListener mOnDoneClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            getDialog().dismiss();
         }
     };
 

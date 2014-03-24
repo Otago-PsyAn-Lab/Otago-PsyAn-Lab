@@ -247,10 +247,6 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             return;
         }
 
-        if (handleLiteral(input)) {
-            return;
-        }
-
         PrintVisitor prettyPrint = new PrintVisitor();
         input.accept(prettyPrint);
         String prettyExpression = prettyPrint.toString();
@@ -278,6 +274,10 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         input.accept(findError);
         if (wasError) {
             handleTypeError(prettyExpression, findError);
+            return;
+        }
+
+        if (handleLiteral(input)) {
             return;
         }
 

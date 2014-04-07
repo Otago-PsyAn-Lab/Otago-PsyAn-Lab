@@ -91,6 +91,14 @@ public abstract class Operand {
         return types;
     }
 
+    public Operand(Operand operand) {
+        name = operand.name;
+        type = operand.type;
+    }
+
+    public Operand() {
+    }
+
     @Expose
     public String name = "Unset";
 

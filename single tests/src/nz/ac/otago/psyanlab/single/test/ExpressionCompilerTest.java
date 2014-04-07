@@ -21,7 +21,6 @@ import android.support.v4.util.LongSparseArray;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -250,34 +249,6 @@ public class ExpressionCompilerTest extends TestCase {
         protected String formatTypeError(List<String> expected, List<String> got) {
             return "Expected type [" + TextUtils.join(", ", expected) + "], but got type ["
                     + TextUtils.join(", ", got) + "].";
-        }
-
-        @Override
-        protected List<String> typeToStringArray(int type) {
-            ArrayList<String> types = new ArrayList<String>();
-            if ((type & Operand.TYPE_BOOLEAN) != 0) {
-                types.add("boolean");
-            }
-            if ((type & Operand.TYPE_FLOAT) != 0) {
-                types.add("float");
-            }
-            if ((type & Operand.TYPE_IMAGE) != 0) {
-                types.add("image");
-            }
-            if ((type & Operand.TYPE_INTEGER) != 0) {
-                types.add("integer");
-            }
-            if ((type & Operand.TYPE_SOUND) != 0) {
-                types.add("sound");
-            }
-            if ((type & Operand.TYPE_STRING) != 0) {
-                types.add("string");
-            }
-            if ((type & Operand.TYPE_VIDEO) != 0) {
-                types.add("video");
-            }
-
-            return types;
         }
     }
 

@@ -148,7 +148,7 @@ public abstract class BaseProgramFragment extends TonicFragment {
         void setNextFragment(BaseProgramFragment requester, BaseProgramFragment f);
     }
 
-    protected abstract class ViewHolder<T> extends TonicFragment.ViewHolder<T> {
+    public abstract class ViewHolder<T> extends TonicFragment.ViewHolder<T> {
         public View background;
 
         public ViewHolder(View view) {
@@ -158,8 +158,10 @@ public abstract class BaseProgramFragment extends TonicFragment {
             }
         }
 
+        @Override
         public abstract void initViews();
 
+        @Override
         public abstract void setViewValues(T object);
     }
 }

@@ -14,6 +14,11 @@ public class BooleanValue extends Operand implements LiteralOperand {
         type = TYPE_BOOLEAN;
     }
 
+    public BooleanValue(Operand operand) {
+        super(operand);
+        type = TYPE_BOOLEAN;
+    }
+
     @Override
     public String getValue() {
         return String.valueOf(value);

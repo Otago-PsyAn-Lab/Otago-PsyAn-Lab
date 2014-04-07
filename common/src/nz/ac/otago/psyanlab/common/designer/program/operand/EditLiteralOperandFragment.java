@@ -23,6 +23,7 @@ import nz.ac.otago.psyanlab.common.model.operand.ExpressionValue;
 import nz.ac.otago.psyanlab.common.model.operand.FloatValue;
 import nz.ac.otago.psyanlab.common.model.operand.IntegerValue;
 import nz.ac.otago.psyanlab.common.model.operand.StringValue;
+import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
@@ -87,11 +88,9 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
 
     private final BackgroundColorSpan mErrorSpan = new BackgroundColorSpan(0xFFFF0000);
 
-    private ExpressionValue mExpression;
-
     private LiteralOperand mOperand;
 
-    private HashMap<String, Long> mOperandMap;
+    private HashMap<String, Long> mOperandMap = new HashMap<String, Long>();
 
     private ViewHolder mViews;
 
@@ -143,14 +142,19 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
 
         Operand operand = mCallbacks.getOperand(mObjectId);
         if (operand instanceof ExpressionValue) {
-            mExpression = (ExpressionValue)operand;
+            mOperand = (ExpressionValue)operand;
+            final ExpressionValue expression = (ExpressionValue)operand;
             mOperandMap = new HashMap<String, Long>();
-            for (Long operandId : mExpression.operands) {
+            for (Long operandId : expression.operands) {
                 mOperandMap.put(mCallbacks.getOperand(operandId).getName(), operandId);
             }
-            mOperand = (LiteralOperand)operand;
         } else if (operand instanceof LiteralOperand) {
             mOperand = (LiteralOperand)operand;
+        } else if (operand instanceof StubOperand) {
+            mOperand = new ExpressionValue(operand);
+            mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
+        } else {
+            throw new RuntimeException("Expected operand.");
         }
 
         mViews = new ViewHolder(view);
@@ -158,24 +162,30 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         mViews.setViewValues(mOperand);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
+    }
+
     private boolean handleLiteral(Expression expression) {
         if (expression instanceof StringExpression) {
-            StringValue value = new StringValue();
+            StringValue value = new StringValue((Operand)mOperand);
             value.value = ((StringExpression)expression).getRawString();
             saveOperand(value);
             return true;
         } else if (expression instanceof IntegerExpression) {
-            IntegerValue value = new IntegerValue();
+            IntegerValue value = new IntegerValue((Operand)mOperand);
             value.value = Integer.parseInt(((IntegerExpression)expression).getValueString());
             saveOperand(value);
             return true;
         } else if (expression instanceof FloatExpression) {
-            FloatValue value = new FloatValue();
+            FloatValue value = new FloatValue((Operand)mOperand);
             value.value = Float.parseFloat(((FloatExpression)expression).getValueString());
             saveOperand(value);
             return true;
         } else if (expression instanceof BooleanExpression) {
-            BooleanValue value = new BooleanValue();
+            BooleanValue value = new BooleanValue((Operand)mOperand);
             value.value = Boolean.parseBoolean(((BooleanExpression)expression).getValueString());
             saveOperand(value);
             return true;
@@ -222,9 +232,8 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
     }
 
     private void saveOperand(LiteralOperand value) {
-        mOperand = value;
-        mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
-        mViews.updateViews(mOperand);
+        mCallbacks.updateOperand(mObjectId, (Operand)value);
+        mViews.updateViews(value);
     }
 
     protected void handleExpressionChange(Editable s) {
@@ -256,10 +265,6 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             return;
         }
 
-        if (mOperandMap == null) {
-            mOperandMap = new HashMap<String, Long>();
-        }
-
         RefineTypeVisitor typeCheck = new RefineTypeVisitor(getActivity(), mCallbacks, mOperandMap,
                 mOperandType);
         boolean wasError = false;
@@ -282,12 +287,13 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         }
 
         HashMap<String, Long> operandMap = typeCheck.getOperandsMentioned();
-        if (mExpression == null) {
-            mExpression = new ExpressionValue();
+        if (mOperand == null) {
+            mOperand = new ExpressionValue((Operand)mOperand);
         }
-        mExpression.operands.clear();
-        mExpression.operands.addAll(operandMap.values());
-        Collections.sort(mExpression.operands, new Comparator<Long>() {
+        final ExpressionValue expressionValue = (ExpressionValue)mOperand;
+        expressionValue.operands.clear();
+        expressionValue.operands.addAll(operandMap.values());
+        Collections.sort(expressionValue.operands, new Comparator<Long>() {
             @Override
             public int compare(Long lhs, Long rhs) {
                 return mCallbacks.getOperand(lhs).getName()
@@ -296,8 +302,8 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         });
 
         mViews.setParsed(prettyExpression);
-        mExpression.expression = prettyPrint.toString();
-        saveOperand(mExpression);
+        expressionValue.expression = prettyPrint.toString();
+        saveOperand(mOperand);
     }
 
     protected void showEditOperandDialogue(long id, int type, String title) {
@@ -332,8 +338,9 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
 
         public void hideOperands() {
             operandsTitle.setVisibility(View.GONE);
-            if (mExpression != null) {
-                mExpression.operands.clear();
+            if (mOperand instanceof ExpressionValue) {
+                final ExpressionValue expression = (ExpressionValue)mOperand;
+                expression.operands.clear();
                 mAdapter.notifyDataSetChanged();
             }
         }

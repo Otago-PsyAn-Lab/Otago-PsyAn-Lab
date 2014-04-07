@@ -16,10 +16,12 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     @Expose
     public ArrayList<Long> operands;
 
-    @Expose
-    public int operandType;
-
     public ExpressionValue() {
+        operands = new ArrayList<Long>();
+    }
+
+    public ExpressionValue(Operand operand) {
+        super(operand);
         operands = new ArrayList<Long>();
     }
 
@@ -29,17 +31,7 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     }
 
     @Override
-    public String getName() {
-        return expression;
-    }
-
-    @Override
     public List<Long> getOperands() {
         return operands;
-    }
-
-    @Override
-    public int getType() {
-        return operandType;
     }
 }

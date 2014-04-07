@@ -13,7 +13,12 @@ public class IntegerValue extends Operand implements LiteralOperand {
     public IntegerValue() {
         type = TYPE_INTEGER;
     }
-    
+
+    public IntegerValue(Operand operand) {
+        super(operand);
+        type = TYPE_INTEGER;
+    }
+
     @Override
     public String getValue() {
         return String.valueOf(value);

@@ -13,6 +13,10 @@ public class LiteralValue extends Operand implements LiteralOperand {
     public LiteralValue() {
     }
 
+    public LiteralValue(Operand operand) {
+        super(operand);
+    }
+
     @Override
     public int getType() {
         return type;

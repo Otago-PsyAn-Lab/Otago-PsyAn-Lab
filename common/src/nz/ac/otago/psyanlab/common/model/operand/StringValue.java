@@ -14,6 +14,11 @@ public class StringValue extends Operand implements LiteralOperand {
         type = TYPE_STRING;
     }
 
+    public StringValue(Operand operand) {
+        super(operand);
+        type = TYPE_STRING;
+    }
+
     @Override
     public String getValue() {
         return value;

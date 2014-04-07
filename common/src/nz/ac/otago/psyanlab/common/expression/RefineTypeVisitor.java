@@ -174,7 +174,9 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         }
 
         // Try to assert the requested type.
-        op.attemptRestrictType(mTypeMask);
+        if (op.attemptRestrictType(mTypeMask)) {
+            mCallbacks.updateOperand(operandId, op);
+        }
         mOperandsMentioned.put(name, operandId);
         mTypeMask = doIntersectionOrError(expression, mTypeMask, op.getType());
     }

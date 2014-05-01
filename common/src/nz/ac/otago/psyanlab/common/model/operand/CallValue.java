@@ -17,10 +17,13 @@ public class CallValue extends Operand implements CallOperand {
     public ExperimentObjectReference actionObject;
 
     @Expose
-    public ArrayList<Long> operands;
+    public ArrayList<Long> operands = new ArrayList<Long>();
 
     public CallValue() {
-        operands = new ArrayList<Long>();
+    }
+
+    public CallValue(Operand operand) {
+        super(operand);
     }
 
     @Override

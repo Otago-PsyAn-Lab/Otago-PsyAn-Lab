@@ -1,8 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.designer.program.util;
 
-import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter.Factory;
 import nz.ac.otago.psyanlab.common.designer.util.ActionCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter.Factory;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.GeneratorCallbacks;
@@ -54,5 +54,4 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar, Opera
      *            object has been picked.
      */
     void pickExperimentObject(long sceneId, int filter, int requestCode);
-
 }

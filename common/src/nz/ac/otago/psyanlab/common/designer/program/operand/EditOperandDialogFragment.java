@@ -24,7 +24,7 @@ import android.widget.Button;
  * it is easy to roll back changes.
  */
 public class EditOperandDialogFragment extends DialogFragment {
-    private static final String ARG_ID = "arg_id";
+    private static final String ARG_OPERAND_ID = "arg_operand_id";
 
     private static final String ARG_TITLE = "arg_title";
 
@@ -32,17 +32,22 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     private static final long INVALID_ID = -1;
 
+    private static final String ARG_SCENE_ID = "arg_scene_id";
+
     /**
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      * 
-     * @param id Operand id of operand to edit.
+     * @param sceneId Scene id of scene operand being edited belongs to.
+     * @param operandId Operand id of operand to edit.
      * @param title
      * @param typeBoolean type the operand should match.
      */
-    public static EditOperandDialogFragment newDialog(long id, int type, String title) {
+    public static EditOperandDialogFragment newDialog(long sceneId, long operandId, int type,
+            String title) {
         EditOperandDialogFragment f = new EditOperandDialogFragment();
         Bundle args = new Bundle();
-        args.putLong(ARG_ID, id);
+        args.putLong(ARG_SCENE_ID, sceneId);
+        args.putLong(ARG_OPERAND_ID, operandId);
         args.putInt(ARG_TYPE, type);
         args.putString(ARG_TITLE, title);
         f.setArguments(args);
@@ -52,6 +57,7 @@ public class EditOperandDialogFragment extends DialogFragment {
     public OnClickListener mOnDoneClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            mViews.saveOperand();
             getDialog().dismiss();
         }
     };
@@ -62,10 +68,11 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     protected Operand mBackupOperand;
 
-    protected long mId;
+    protected long mOperandId;
 
     protected int mOperandType;
 
+    protected long mSceneId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,12 +85,26 @@ public class EditOperandDialogFragment extends DialogFragment {
 
         Bundle args = getArguments();
         if (args != null) {
-            mId = args.getLong(ARG_ID, INVALID_ID);
+            if (!args.containsKey(ARG_TITLE)) {
+                throw new RuntimeException("Expected dialogue title.");
+            }
+            if (!args.containsKey(ARG_TYPE)) {
+                throw new RuntimeException("Expected operand type request.");
+            }
+            if (!args.containsKey(ARG_SCENE_ID)) {
+                throw new RuntimeException("Expected scene id.");
+            }
+            if (!args.containsKey(ARG_OPERAND_ID)) {
+                throw new RuntimeException("Expected operand id.");
+            }
+
+            mSceneId = args.getLong(ARG_SCENE_ID, INVALID_ID);
+            mOperandId = args.getLong(ARG_OPERAND_ID, INVALID_ID);
             mOperandType = args.getInt(ARG_TYPE);
             mTitle = args.getString(ARG_TITLE);
         }
 
-        if (mId == INVALID_ID) {
+        if (mOperandId == INVALID_ID) {
             throw new RuntimeException("Invalid operand id given.");
         }
 
@@ -103,7 +124,7 @@ public class EditOperandDialogFragment extends DialogFragment {
                 getChildFragmentManager()) {
             @Override
             public int getCount() {
-                return 1;
+                return 2;
             }
 
             @Override
@@ -111,17 +132,13 @@ public class EditOperandDialogFragment extends DialogFragment {
                 switch (position) {
                     case 0:
                         return EditLiteralOperandFragment.init(new EditLiteralOperandFragment(),
-                                mId, mOperandType);
+                                mSceneId, mOperandId, mOperandType);
                     case 1:
-                        return EditLiteralOperandFragment.init(new EditLiteralOperandFragment(),
-                                mId, mOperandType);
-                        // return EditCallOperandFragment.init(new
-                        // EditCallOperandFragment(), mId, mOperandType);
+                        return EditCallOperandFragment.init(new EditCallOperandFragment(),
+                                mSceneId, mOperandId, mOperandType);
                     case 2:
-                        return EditLiteralOperandFragment.init(new EditLiteralOperandFragment(),
-                                mId, mOperandType);
-                        // return EditAssetOperandFragment.init(new
-                        // EditAssetOperandFragment(), mId, mOperandType);
+                        return EditAssetOperandFragment.init(new EditAssetOperandFragment(),
+                                mSceneId, mOperandId, mOperandType);
                     default:
                         throw new RuntimeException("Invalid fragment position " + position);
                 }
@@ -131,7 +148,7 @@ public class EditOperandDialogFragment extends DialogFragment {
             public CharSequence getPageTitle(int position) {
                 switch (position) {
                     case 0:
-                        return "Literal";
+                        return "Expression";
                     case 1:
                         return "Call";
                     case 2:
@@ -150,6 +167,11 @@ public class EditOperandDialogFragment extends DialogFragment {
             pager = (ViewPager)view.findViewById(R.id.pager);
             tabs = (PagerSlidingTabStrip)view.findViewById(R.id.tabs);
             done = (Button)view.findViewById(R.id.done);
+        }
+
+        public void saveOperand() {
+            ((AbsOperandFragment)mPagerAdapter.instantiateItem(pager, pager.getCurrentItem()))
+                    .saveOperand();
         }
 
         public void initViews() {

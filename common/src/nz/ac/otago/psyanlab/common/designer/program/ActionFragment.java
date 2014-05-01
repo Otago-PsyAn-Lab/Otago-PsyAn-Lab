@@ -4,11 +4,11 @@ package nz.ac.otago.psyanlab.common.designer.program;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.ActionDataChangeListener;
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.operand.EditOperandDialogFragment;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
+import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
@@ -46,7 +46,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         return fragment;
     }
 
-    public OnItemSelectedListener mActionMethodOnItemSelectedListener = new OnItemSelectedListener() {
+    protected OnItemSelectedListener mActionMethodOnItemSelectedListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             if (mAction.actionMethod != (int)id) {
@@ -108,7 +108,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         @Override
         public void onClick(View v) {
             mCallbacks.pickExperimentObject(mSceneId, ExperimentObjectReference.HAS_SETTERS,
-                    RequestCodes.ACTION_TRIGGER_OBJECT);
+                    RequestCodes.OPERAND_ACTION_OBJECT);
         }
     };
 
@@ -131,7 +131,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         }
     };
 
-    public OnItemClickListener mOnParameterItemClickListener = new OnItemClickListener() {
+    protected OnItemClickListener mOnParameterItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Operand operand = mCallbacks.getOperand(id);
@@ -140,7 +140,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     };
 
     protected void showEditOperandDialogue(long id, int type) {
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id, type,
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mSceneId, id, type,
                 getString(R.string.title_edit_operand, Operand.getTypeString(getActivity(), type)));
         dialog.show(getChildFragmentManager(), "dialog_edit_operand");
     }
@@ -213,7 +213,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         mViews.setViewValues(mAction);
         mViews.initViews();
 
-        mCallbacks.registerDialogueResultListener(RequestCodes.ACTION_TRIGGER_OBJECT,
+        mCallbacks.registerDialogueResultListener(RequestCodes.OPERAND_ACTION_OBJECT,
                 mActionObjectDialogueResultListener);
     }
 

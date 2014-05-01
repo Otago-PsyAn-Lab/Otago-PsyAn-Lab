@@ -12,5 +12,5 @@ public class RequestCodes {
 
     public static final int RULE_TRIGGER_OBJECT = 0x05;
 
-    public static final int ACTION_TRIGGER_OBJECT = 0x06;
+    public static final int OPERAND_ACTION_OBJECT = 0x06;
 }

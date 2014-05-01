@@ -6,17 +6,22 @@ import nz.ac.otago.psyanlab.common.util.TonicFragment;
 import android.os.Bundle;
 
 public abstract class AbsOperandFragment extends TonicFragment {
-    private static final String ARG_TYPE = "arg_type";
+    protected static final String ARG_TYPE = "arg_type";
 
-    public static <T extends TonicFragment> T init(T f, long objectId, int type) {
+    protected static final String ARG_SCENE_ID = "arg_scene_id";
+
+    public static <T extends TonicFragment> T init(T f, long sceneId, long objectId, int type) {
         f = TonicFragment.init(f, objectId);
         Bundle args = f.getArguments();
         args.putInt(ARG_TYPE, type);
+        args.putLong(ARG_SCENE_ID, sceneId);
         f.setArguments(args);
         return f;
     }
 
     protected int mOperandType;
+
+    protected long mSceneId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,7 +32,14 @@ public abstract class AbsOperandFragment extends TonicFragment {
         } else {
             Bundle args = getArguments();
             if (args != null) {
+                if (!args.containsKey(ARG_TYPE)) {
+                    throw new RuntimeException("Expected operand type requirement.");
+                }
+                if (!args.containsKey(ARG_SCENE_ID)) {
+                    throw new RuntimeException("Expected scene id.");
+                }
                 mOperandType = args.getInt(ARG_TYPE);
+                mSceneId = args.getLong(ARG_SCENE_ID);
             }
         }
     }
@@ -38,4 +50,6 @@ public abstract class AbsOperandFragment extends TonicFragment {
 
         outState.putInt(ARG_TYPE, mOperandType);
     }
+
+    abstract public void saveOperand();
 }

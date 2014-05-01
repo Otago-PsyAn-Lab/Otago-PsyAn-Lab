@@ -2,8 +2,9 @@
 package nz.ac.otago.psyanlab.common.designer.util;
 
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.model.Operand;
+
+import android.support.v4.util.LongSparseArray;
 
 public interface OperandCallbacks {
     long createOperand(Operand operand);
@@ -26,4 +27,6 @@ public interface OperandCallbacks {
     void removeOperandDataChangeListener(OperandDataChangeListener listener);
 
     void updateOperand(long id, Operand operand);
+
+    LongSparseArray<Operand> getOperands();
 }

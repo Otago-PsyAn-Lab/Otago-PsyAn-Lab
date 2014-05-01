@@ -3,10 +3,10 @@ package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.operand.EditOperandDialogFragment;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
+import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
@@ -288,8 +288,9 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             mActionMode.finish();
         }
 
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mRule.conditionId,
-                Operand.TYPE_BOOLEAN, getActivity().getString(R.string.title_edit_condition));
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mSceneId,
+                mRule.conditionId, Operand.TYPE_BOOLEAN,
+                getActivity().getString(R.string.title_edit_condition));
         dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
     }
 

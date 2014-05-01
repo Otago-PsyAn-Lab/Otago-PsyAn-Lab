@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer;
 
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter.ViewBinder;
+import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter.ViewBinder;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.content.Context;

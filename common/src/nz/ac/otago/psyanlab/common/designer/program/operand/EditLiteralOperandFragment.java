@@ -2,8 +2,9 @@
 package nz.ac.otago.psyanlab.common.designer.program.operand;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
+import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.expression.Lexer;
 import nz.ac.otago.psyanlab.common.expression.OpalExpressionParser;
 import nz.ac.otago.psyanlab.common.expression.ParseException;
@@ -23,7 +24,6 @@ import nz.ac.otago.psyanlab.common.model.operand.ExpressionValue;
 import nz.ac.otago.psyanlab.common.model.operand.FloatValue;
 import nz.ac.otago.psyanlab.common.model.operand.IntegerValue;
 import nz.ac.otago.psyanlab.common.model.operand.StringValue;
-import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
@@ -42,8 +42,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
-import android.widget.HeaderViewListAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,10 +53,19 @@ import java.util.HashMap;
  * A fragment that provides a UI to input a literal value or expression as an
  * operand.
  */
-public class EditLiteralOperandFragment extends AbsOperandFragment {
+public class EditLiteralOperandFragment extends AbsOperandFragment implements
+        OperandDataChangeListener {
     private static final String ARG_OPERAND_MAP = "arg_operand_map";
 
-    public TextWatcher mExpressionChangedListener = new TextWatcher() {
+    private final BackgroundColorSpan mErrorSpan = new BackgroundColorSpan(0xFFFF0000);
+
+    private LiteralOperand mOperand;
+
+    private HashMap<String, Long> mOperandMap = new HashMap<String, Long>();
+
+    private ViewHolder mViews;
+
+    protected TextWatcher mExpressionChangedListener = new TextWatcher() {
 
         @Override
         public void afterTextChanged(Editable s) {
@@ -74,7 +81,9 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         }
     };
 
-    public OnItemClickListener mOperandItemClickListener = new OnItemClickListener() {
+    protected ProgramComponentAdapter<Operand> mOperandAdapter;
+
+    protected OnItemClickListener mOperandItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Operand operand = mCallbacks.getOperand(id);
@@ -85,14 +94,6 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
                             Operand.getTypeString(getActivity(), operand.getType())));
         }
     };
-
-    private final BackgroundColorSpan mErrorSpan = new BackgroundColorSpan(0xFFFF0000);
-
-    private LiteralOperand mOperand;
-
-    private HashMap<String, Long> mOperandMap = new HashMap<String, Long>();
-
-    private ViewHolder mViews;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -118,8 +119,19 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         ListView list = (ListView)view.findViewById(R.id.operands);
         list.addHeaderView(inflater.inflate(R.layout.edit_literal_operand_header_content, list,
                 false));
-        list.addFooterView(inflater.inflate(R.layout.separator, list, false));
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mCallbacks.removeOperandDataChangeListener(this);
+    }
+
+    @Override
+    public void onOperandDataChange() {
+        mOperandAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -150,12 +162,11 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             }
         } else if (operand instanceof LiteralOperand) {
             mOperand = (LiteralOperand)operand;
-        } else if (operand instanceof StubOperand) {
-            mOperand = new ExpressionValue(operand);
-            mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
         } else {
-            throw new RuntimeException("Expected operand.");
+            mOperand = new ExpressionValue(operand);
         }
+
+        mCallbacks.addOperandDataChangeListener(this);
 
         mViews = new ViewHolder(view);
         mViews.initViews();
@@ -163,8 +174,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void saveOperand() {
         mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
     }
 
@@ -172,22 +182,22 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         if (expression instanceof StringExpression) {
             StringValue value = new StringValue((Operand)mOperand);
             value.value = ((StringExpression)expression).getRawString();
-            saveOperand(value);
+            mViews.updateViews(value);
             return true;
         } else if (expression instanceof IntegerExpression) {
             IntegerValue value = new IntegerValue((Operand)mOperand);
             value.value = Integer.parseInt(((IntegerExpression)expression).getValueString());
-            saveOperand(value);
+            mViews.updateViews(value);
             return true;
         } else if (expression instanceof FloatExpression) {
             FloatValue value = new FloatValue((Operand)mOperand);
             value.value = Float.parseFloat(((FloatExpression)expression).getValueString());
-            saveOperand(value);
+            mViews.updateViews(value);
             return true;
         } else if (expression instanceof BooleanExpression) {
             BooleanValue value = new BooleanValue((Operand)mOperand);
             value.value = Boolean.parseBoolean(((BooleanExpression)expression).getValueString());
-            saveOperand(value);
+            mViews.updateViews(value);
             return true;
         }
         return false;
@@ -229,11 +239,6 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         mViews.setParsed(text);
         mViews.setError(findError.getErrorMessage());
         mViews.hideOperands();
-    }
-
-    private void saveOperand(LiteralOperand value) {
-        mCallbacks.updateOperand(mObjectId, (Operand)value);
-        mViews.updateViews(value);
     }
 
     protected void handleExpressionChange(Editable s) {
@@ -303,11 +308,12 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
 
         mViews.setParsed(prettyExpression);
         expressionValue.expression = prettyPrint.toString();
-        saveOperand(mOperand);
+        mViews.updateViews(mOperand);
     }
 
     protected void showEditOperandDialogue(long id, int type, String title) {
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(id, type, title);
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mSceneId, id, type,
+                title);
         dialog.show(getChildFragmentManager(), "dialog_edit_operand");
     }
 
@@ -315,8 +321,6 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         public TextView error;
 
         public EditText expression;
-
-        private ProgramComponentAdapter<Operand> mAdapter;
 
         private ListView operands;
 
@@ -341,7 +345,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             if (mOperand instanceof ExpressionValue) {
                 final ExpressionValue expression = (ExpressionValue)mOperand;
                 expression.operands.clear();
-                mAdapter.notifyDataSetChanged();
+                mOperandAdapter.notifyDataSetChanged();
             }
         }
 
@@ -354,7 +358,9 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
             expression.addTextChangedListener(mExpressionChangedListener);
             operands.setOnItemClickListener(mOperandItemClickListener);
             operands.setDivider(null);
-            operands.setAdapter(null);
+            mOperandAdapter = new ProgramComponentAdapter<Operand>(mCallbacks.getOperands(), null,
+                    new OperandListItemViewBinder(getActivity(), mCallbacks));
+            operands.setAdapter(mOperandAdapter);
         }
 
         public void setError(Spannable errorMessage) {
@@ -412,27 +418,12 @@ public class EditLiteralOperandFragment extends AbsOperandFragment {
         public void updateViews(LiteralOperand operand) {
             if (operand instanceof ExpressionOperand) {
                 showOperands();
-                if (mAdapter == null) {
-                    mAdapter = mCallbacks.getOperandAdapter(mObjectId,
-                            ExperimentDesignerActivity.OPERAND_ACCESS_SCOPE_OPERAND);
-                    operands.setAdapter(mAdapter);
-                }
+                mOperandAdapter.setKeys(((ExpressionOperand)mOperand).getOperands());
+                operands.setAdapter(mOperandAdapter);
                 mViews.error.setVisibility(View.GONE);
             } else {
                 hideOperands();
             }
-        }
-
-        private ProgramComponentAdapter<?> getOperandAdapterFromList() {
-            ListAdapter listAdapter = operands.getAdapter();
-            ProgramComponentAdapter<?> adapter;
-            if (listAdapter instanceof ProgramComponentAdapter<?>) {
-                adapter = (ProgramComponentAdapter<?>)listAdapter;
-            } else {
-                HeaderViewListAdapter wrapper = (HeaderViewListAdapter)listAdapter;
-                adapter = (ProgramComponentAdapter<?>)wrapper.getWrappedAdapter();
-            }
-            return adapter;
         }
     }
 }

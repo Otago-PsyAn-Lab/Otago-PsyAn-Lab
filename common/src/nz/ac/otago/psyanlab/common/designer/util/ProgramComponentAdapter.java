@@ -1,5 +1,5 @@
 
-package nz.ac.otago.psyanlab.common.designer;
+package nz.ac.otago.psyanlab.common.designer.util;
 
 import com.mobeta.android.dslv.DragSortListView.DragSortListener;
 
@@ -15,6 +15,8 @@ import java.util.List;
 public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortListener {
     private int mBackgroundResource = -1;
 
+    private boolean mHideItems;
+
     /**
      * A list of asset keys. This is sorted according to the referenced asset.
      */
@@ -24,27 +26,11 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     private ViewBinder<T> mViewBinder;
 
-    private boolean mHideItems;
-
     public ProgramComponentAdapter(LongSparseArray<T> map, List<Long> keys, ViewBinder<T> viewBinder) {
         mMap = map;
         mViewBinder = viewBinder;
         mKeys = keys;
         mHideItems = false;
-    }
-
-    public void hideItems() {
-        if (!mHideItems) {
-            mHideItems = true;
-            notifyDataSetChanged();
-        }
-    }
-
-    public void showItems() {
-        if (mHideItems) {
-            mHideItems = false;
-            notifyDataSetChanged();
-        }
     }
 
     @Override
@@ -53,6 +39,10 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public void drop(int from, int to) {
+        if (mKeys == null) {
+            return;
+        }
+
         Long move = mKeys.remove(from);
         mKeys.add(to, move);
         notifyDataSetChanged();
@@ -65,7 +55,7 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public int getCount() {
-        if (mHideItems) {
+        if (mKeys == null || mHideItems) {
             return 0;
         }
         return mKeys.size();
@@ -73,12 +63,16 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     @Override
     public T getItem(int pos) {
+        if (mKeys == null) {
+            return null;
+        }
+
         return mMap.get(mKeys.get(pos));
     }
 
     @Override
     public long getItemId(int pos) {
-        if (pos < 0 || mKeys.size() <= pos) {
+        if (mKeys == null || pos < 0 || mKeys.size() <= pos) {
             return ListView.INVALID_ROW_ID;
         }
         return mKeys.get(pos);
@@ -102,8 +96,19 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
         return true;
     }
 
+    public void hideItems() {
+        if (!mHideItems) {
+            mHideItems = true;
+            notifyDataSetChanged();
+        }
+    }
+
     @Override
     public void remove(int which) {
+        if (mKeys == null) {
+            return;
+        }
+
         mKeys.remove(which);
         notifyDataSetChanged();
     }
@@ -111,6 +116,13 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
     public void setKeys(List<Long> keys) {
         mKeys = keys;
         notifyDataSetChanged();
+    }
+
+    public void showItems() {
+        if (mHideItems) {
+            mHideItems = false;
+            notifyDataSetChanged();
+        }
     }
 
     public interface ViewBinder<T> {

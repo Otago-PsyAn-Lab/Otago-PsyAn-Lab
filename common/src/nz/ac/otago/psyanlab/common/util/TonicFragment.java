@@ -55,6 +55,9 @@ public class TonicFragment extends Fragment {
         } else {
             Bundle args = getArguments();
             if (args != null) {
+                if (!args.containsKey(ARG_OBJECT_ID)) {
+                    throw new RuntimeException("Expected object id.");
+                }
                 mObjectId = args.getLong(ARG_OBJECT_ID, INVALID_ID);
             }
         }
@@ -67,7 +70,7 @@ public class TonicFragment extends Fragment {
         outState.putLong(ARG_OBJECT_ID, mObjectId);
     }
 
-    protected abstract class ViewHolder<T> {
+    public abstract class ViewHolder<T> {
         public View background;
 
         public abstract void initViews();

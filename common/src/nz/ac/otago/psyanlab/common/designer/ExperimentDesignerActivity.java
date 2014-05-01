@@ -26,7 +26,6 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.UserDelegateI;
 import nz.ac.otago.psyanlab.common.UserExperimentDelegateI;
 import nz.ac.otago.psyanlab.common.designer.EditorSectionManager.EditorSectionItem;
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter.ViewBinder;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetTabFragmentsCallbacks;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetsFragment;
 import nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity;
@@ -37,13 +36,20 @@ import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFra
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
+import nz.ac.otago.psyanlab.common.designer.util.ActionListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.EventAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.GeneratorListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.LongSparseArrayAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.LoopListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
+import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
+import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.RuleListItemViewBinder;
+import nz.ac.otago.psyanlab.common.designer.util.SceneListItemViewBinder;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
@@ -57,8 +63,6 @@ import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
-import nz.ac.otago.psyanlab.common.model.generator.Random;
-import nz.ac.otago.psyanlab.common.model.generator.Shuffle;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventId;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
@@ -83,7 +87,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.widget.DrawerLayout;
-import android.text.TextUtils;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Pair;
@@ -139,24 +142,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private ArrayList<ActionDataChangeListener> mActionDataChangeListeners;
 
-    private ViewBinder<Action> mActionListItemViewBinder = new ViewBinder<Action>() {
-        @Override
-        public View bind(Action action, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item_action, parent, false);
-                holder = new TextViewHolder(1);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            holder.textViews[0].setText(action.name);
-            return convertView;
-        }
-    };
-
     private ArrayList<AssetDataChangeListener> mAssetDataChangeListeners;
 
     private AssetsAdapter mAssetsAdapter;
@@ -187,59 +172,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private ArrayList<GeneratorDataChangeListener> mGeneratorDataChangeListeners;
 
-    private ViewBinder<Generator> mGeneratorListItemViewBinder = new ViewBinder<Generator>() {
-        @Override
-        public View bind(Generator generator, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item_generator, parent,
-                        false);
-                holder = new TextViewHolder(3);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
-                holder.textViews[2] = (TextView)convertView.findViewById(R.id.type);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            holder.textViews[0].setText(generator.name);
-            holder.textViews[1].setText(generator.start + " – " + generator.end);
-
-            if (generator instanceof Random) {
-                holder.textViews[2].setText(R.string.generator_kind_random);
-            } else if (generator instanceof Shuffle) {
-                holder.textViews[2].setText(R.string.generator_kind_shuffle);
-            }
-            return convertView;
-        }
-
-    };
-
     private ArrayList<LandingPageDataChangeListener> mLandingPageDataChangeListeners;
 
     private ProgramComponentAdapter<Loop> mLoopAdapter;
 
     private ArrayList<LoopDataChangeListener> mLoopDataChangeListeners;
-
-    private ViewBinder<Loop> mLoopListItemViewBinder = new ViewBinder<Loop>() {
-        @Override
-        public View bind(Loop loop, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item_loop, parent, false);
-                holder = new TextViewHolder(1);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            holder.textViews[0].setText(loop.name);
-
-            return convertView;
-        }
-    };
 
     private int mMode;
 
@@ -256,82 +193,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private ArrayList<OperandDataChangeListener> mOperandDataChangeListeners;
 
-    private ViewBinder<Operand> mOperandListItemViewBinder = new ViewBinder<Operand>() {
-        @Override
-        public View bind(Operand operand, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = getLayoutInflater()
-                        .inflate(R.layout.list_item_operand, parent, false);
-                holder = new TextViewHolder(3);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
-                holder.textViews[2] = (TextView)convertView.findViewById(R.id.type);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            if (operand instanceof CallOperand) {
-                CallOperand callOperand = (CallOperand)operand;
-                ExperimentObject experimentObject = getExperimentObject(callOperand
-                        .getActionObject());
-                final NameResolverFactory nameFactory = ModelUtils
-                        .getMethodNameFactory(experimentObject.getClass());
-
-                holder.textViews[1].setVisibility(View.VISIBLE);
-                holder.textViews[1].setText(experimentObject
-                        .getPrettyName(ExperimentDesignerActivity.this));
-                holder.textViews[0].setText(nameFactory.getResId(callOperand.getActionMethod()));
-            } else {
-                holder.textViews[0].setText(operand.getName());
-                holder.textViews[1].setVisibility(View.GONE);
-            }
-            holder.textViews[2].setText(TextUtils.join("\n",
-                    Operand.typeToStringArray(ExperimentDesignerActivity.this, operand.getType())));
-            return convertView;
-        }
-    };
-
     private ArrayList<RuleDataChangeListener> mRuleDataChangeListeners;
 
-    private ViewBinder<Rule> mRuleListItemViewBinder = new ViewBinder<Rule>() {
-        @Override
-        public View bind(Rule rule, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item_rule, parent, false);
-                holder = new TextViewHolder(1);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            holder.textViews[0].setText(rule.name);
-            return convertView;
-        }
-    };
-
     private ArrayList<SceneDataChangeListener> mSceneDataChangeListeners;
-
-    private ViewBinder<Scene> mSceneListItemViewBinder = new ViewBinder<Scene>() {
-        @Override
-        public View bind(Scene scene, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item_scene, parent, false);
-                holder = new TextViewHolder(1);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            holder.textViews[0].setText(scene.name);
-            return convertView;
-        }
-    };
 
     private EditorSectionManager mSectionManager;
 
@@ -403,6 +267,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             mSceneDataChangeListeners = new ArrayList<SceneDataChangeListener>();
         }
         mSceneDataChangeListeners.add(listener);
+    }
+
+    @Override
+    public void clearDialogueResultListener(int requestCode) {
+        if (mDialogueResultListeners != null) {
+            mDialogueResultListeners.remove(requestCode);
+        }
     }
 
     @Override
@@ -565,7 +436,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         ProgramComponentAdapter<Action> adapter = new ProgramComponentAdapter<Action>(
                 mExperiment.actions, mExperiment.rules.get(ruleId).actions,
-                mActionListItemViewBinder);
+                new ActionListItemViewBinder(this, this));
         mCurrentActionAdapter = new Pair<Long, ProgramComponentAdapter<Action>>(ruleId, adapter);
 
         return adapter;
@@ -659,7 +530,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         ProgramComponentAdapter<Generator> adapter = new ProgramComponentAdapter<Generator>(
                 mExperiment.generators, mExperiment.loops.get(loopId).generators,
-                mGeneratorListItemViewBinder);
+                new GeneratorListItemViewBinder(this, this));
         mCurrentGeneratorAdapter = new Pair<Long, ProgramComponentAdapter<Generator>>(loopId,
                 adapter);
 
@@ -683,7 +554,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         mLoopAdapter = new ProgramComponentAdapter<Loop>(mExperiment.loops,
-                mExperiment.program.loops, mLoopListItemViewBinder);
+                mExperiment.program.loops, new LoopListItemViewBinder(this, this));
 
         return mLoopAdapter;
     }
@@ -821,10 +692,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         adapter = new ProgramComponentAdapter<Operand>(mExperiment.operands,
-                operandHolder.getOperands(), mOperandListItemViewBinder);
+                operandHolder.getOperands(), new OperandListItemViewBinder(this, this));
         operandAdaptersInScope.put(parentId, adapter);
 
         return adapter;
+    }
+
+    @Override
+    public LongSparseArray<Operand> getOperands() {
+        return mExperiment.operands;
     }
 
     @Override
@@ -849,7 +725,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         // FIXME: NPE
         ProgramComponentAdapter<Rule> adapter = new ProgramComponentAdapter<Rule>(
-                mExperiment.rules, mExperiment.scenes.get(sceneId).rules, mRuleListItemViewBinder);
+                mExperiment.rules, mExperiment.scenes.get(sceneId).rules,
+                new RuleListItemViewBinder(this, this));
 
         mCurrentRuleAdapter = new Pair<Long, ProgramComponentAdapter<Rule>>(sceneId, adapter);
 
@@ -868,7 +745,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         ProgramComponentAdapter<Scene> adapter = new ProgramComponentAdapter<Scene>(
-                mExperiment.scenes, mExperiment.loops.get(loopId).scenes, mSceneListItemViewBinder);
+                mExperiment.scenes, mExperiment.loops.get(loopId).scenes,
+                new SceneListItemViewBinder(this, this));
         mCurrentSceneAdapter = new Pair<Long, ProgramComponentAdapter<Scene>>(loopId, adapter);
 
         return adapter;
@@ -1020,7 +898,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     @Override
     public void onDialogueResult(int requestCode, Bundle data) {
         mDialogueResultListeners.get(requestCode).onResult(data);
-    }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -1037,7 +915,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         // ExperimentUtils.convertToScreen(this, mExperiment);
-    };
+    }
 
     @Override
     public void pickExperimentObject(long sceneId, int filter, int requestCode) {
@@ -1399,7 +1277,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         for (OperandDataChangeListener listener : mOperandDataChangeListeners) {
-            listener.notify();
+            listener.onOperandDataChange();
         }
     }
 
@@ -1464,7 +1342,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             fm.beginTransaction().add(holder, "experiment_holder").commit();
         }
         return holder;
-    }
+    };
 
     /**
      * Restore experiment from persisted state or create it if necessary.
@@ -1494,7 +1372,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return experiment;
-    };
+    }
 
     private void selectSection(int section) {
         mDrawerList.setSelection(section);

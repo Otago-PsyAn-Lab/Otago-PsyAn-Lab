@@ -183,21 +183,25 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
             StringValue value = new StringValue((Operand)mOperand);
             value.value = ((StringExpression)expression).getRawString();
             mViews.updateViews(value);
+            mOperand = value;
             return true;
         } else if (expression instanceof IntegerExpression) {
             IntegerValue value = new IntegerValue((Operand)mOperand);
             value.value = Integer.parseInt(((IntegerExpression)expression).getValueString());
             mViews.updateViews(value);
+            mOperand = value;
             return true;
         } else if (expression instanceof FloatExpression) {
             FloatValue value = new FloatValue((Operand)mOperand);
             value.value = Float.parseFloat(((FloatExpression)expression).getValueString());
             mViews.updateViews(value);
+            mOperand = value;
             return true;
         } else if (expression instanceof BooleanExpression) {
             BooleanValue value = new BooleanValue((Operand)mOperand);
             value.value = Boolean.parseBoolean(((BooleanExpression)expression).getValueString());
             mViews.updateViews(value);
+            mOperand = value;
             return true;
         }
         return false;
@@ -292,9 +296,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         }
 
         HashMap<String, Long> operandMap = typeCheck.getOperandsMentioned();
-        if (mOperand == null) {
-            mOperand = new ExpressionValue((Operand)mOperand);
-        }
+        mOperand = new ExpressionValue((Operand)mOperand);
         final ExpressionValue expressionValue = (ExpressionValue)mOperand;
         expressionValue.operands.clear();
         expressionValue.operands.addAll(operandMap.values());

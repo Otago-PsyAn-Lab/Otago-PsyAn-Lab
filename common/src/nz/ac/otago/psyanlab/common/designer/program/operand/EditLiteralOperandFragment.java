@@ -3,6 +3,8 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.program.operand.ClearOperandDialogueFragment.OnClearListener;
+import nz.ac.otago.psyanlab.common.designer.program.operand.EditOperandDialogFragment.OnDoneListener;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.expression.Lexer;
@@ -28,6 +30,7 @@ import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
@@ -41,6 +44,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -54,7 +58,7 @@ import java.util.HashMap;
  * operand.
  */
 public class EditLiteralOperandFragment extends AbsOperandFragment implements
-        OperandDataChangeListener {
+        OperandDataChangeListener, OnDoneListener, OnClearListener {
     private static final String ARG_OPERAND_MAP = "arg_operand_map";
 
     private final BackgroundColorSpan mErrorSpan = new BackgroundColorSpan(0xFFFF0000);
@@ -64,6 +68,10 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
     private HashMap<String, Long> mOperandMap = new HashMap<String, Long>();
 
     private ViewHolder mViews;
+
+    protected OnClickListener mClearVariableLsitener;
+
+    protected OnClickListener mDontClearVariableListener;
 
     protected TextWatcher mExpressionChangedListener = new TextWatcher() {
 
@@ -94,6 +102,19 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
                             Operand.getTypeString(getActivity(), operand.getType())));
         }
     };
+
+    protected OnItemLongClickListener mOperandItemLongClickListener = new OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            showClearOperandDialogue(id);
+            return true;
+        }
+    };
+
+    @Override
+    public void OnClearOperand() {
+        handleExpressionChange(mViews.expression.getText());
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -127,6 +148,11 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         super.onDestroy();
 
         mCallbacks.removeOperandDataChangeListener(this);
+    }
+
+    @Override
+    public void OnEditOperandDialogueDone() {
+        handleExpressionChange(mViews.expression.getText());
     }
 
     @Override
@@ -313,10 +339,18 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         mViews.updateViews(mOperand);
     }
 
+    protected void showClearOperandDialogue(long id) {
+        ClearOperandDialogueFragment dialogue = ClearOperandDialogueFragment.newDialog(
+                R.string.title_clear_variable, id);
+        dialogue.setOnClearListener(this);
+        dialogue.show(getChildFragmentManager(), "dialogue_clear_operand");
+    }
+
     protected void showEditOperandDialogue(long id, int type, String title) {
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mSceneId, id, type,
-                title);
-        dialog.show(getChildFragmentManager(), "dialog_edit_operand");
+        EditOperandDialogFragment dialogue = EditOperandDialogFragment.newDialog(mSceneId, id,
+                type, title);
+        dialogue.setOnDoneListener(this);
+        dialogue.show(getChildFragmentManager(), "dialogue_edit_operand");
     }
 
     public class ViewHolder extends TonicFragment.ViewHolder<LiteralOperand> {
@@ -359,6 +393,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         public void initViews() {
             expression.addTextChangedListener(mExpressionChangedListener);
             operands.setOnItemClickListener(mOperandItemClickListener);
+            operands.setOnItemLongClickListener(mOperandItemLongClickListener);
             operands.setDivider(null);
             mOperandAdapter = new ProgramComponentAdapter<Operand>(mCallbacks.getOperands(), null,
                     new OperandListItemViewBinder(getActivity(), mCallbacks));

@@ -258,5 +258,8 @@
         <string name="title_edit_condition">Edit Condition</string>
         <string name="label_variables">Variables</string>
         <string name="error_expected_operator">Expected operator.</string>
+        <string name="message_clear_operand">Clear value for \'%s\'?</string>
+        <string name="action_clear">Clear</string>
+        <string name="title_clear_variable">Clear variable %s</string>
 
 </resources>

@@ -58,6 +58,7 @@ public class EditOperandDialogFragment extends DialogFragment {
         @Override
         public void onClick(View v) {
             mViews.saveOperand();
+            mOnDoneListener.OnEditOperandDialogueDone();
             getDialog().dismiss();
         }
     };
@@ -73,6 +74,14 @@ public class EditOperandDialogFragment extends DialogFragment {
     protected int mOperandType;
 
     protected long mSceneId;
+
+    private static final OnDoneListener sOnDoneDummyListener = new OnDoneListener() {
+        @Override
+        public void OnEditOperandDialogueDone() {
+        }
+    };
+
+    protected OnDoneListener mOnDoneListener = sOnDoneDummyListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -182,5 +191,13 @@ public class EditOperandDialogFragment extends DialogFragment {
 
             done.setOnClickListener(mOnDoneClickListener);
         }
+    }
+
+    public void setOnDoneListener(OnDoneListener listener) {
+        mOnDoneListener = listener;
+    }
+
+    public interface OnDoneListener {
+        void OnEditOperandDialogueDone();
     }
 }

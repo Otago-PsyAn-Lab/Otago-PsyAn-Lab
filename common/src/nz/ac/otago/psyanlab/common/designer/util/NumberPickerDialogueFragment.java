@@ -33,6 +33,14 @@ public class NumberPickerDialogueFragment extends DialogFragment {
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
     public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
+            int minValue, int requestCode) {
+        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
+    }
+
+    /**
+     * Create a new dialogue to edit the number of iterations a loop undergoes.
+     */
+    public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
             int minValue, int maxValue, int requestCode) {
         NumberPickerDialogueFragment f = new NumberPickerDialogueFragment();
         Bundle args = new Bundle();
@@ -43,14 +51,6 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         args.putInt(ARG_REQUEST_CODE, requestCode);
         f.setArguments(args);
         return f;
-    }
-
-    /**
-     * Create a new dialogue to edit the number of iterations a loop undergoes.
-     */
-    public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
-            int minValue, int requestCode) {
-        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
     }
 
     private DialogueResultCallbacks mCallbacks;

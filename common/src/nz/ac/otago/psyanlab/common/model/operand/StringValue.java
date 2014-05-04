@@ -21,6 +21,6 @@ public class StringValue extends Operand implements LiteralOperand {
 
     @Override
     public String getValue() {
-        return value;
+        return '"' + value + '"';
     }
 }

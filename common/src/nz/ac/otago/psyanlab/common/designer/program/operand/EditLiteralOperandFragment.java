@@ -421,7 +421,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
             if (operand instanceof ExpressionOperand) {
                 showOperands();
                 mOperandAdapter.setKeys(((ExpressionOperand)mOperand).getOperands());
-                operands.setAdapter(mOperandAdapter);
+                mOperandAdapter.notifyDataSetChanged();
                 mViews.error.setVisibility(View.GONE);
             } else {
                 hideOperands();

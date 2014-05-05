@@ -12,27 +12,12 @@ public class ExperimentObjectReference {
     /**
      * An object that emits events.
      */
-    public static final int EMITS_EVENTS = 0x01;
-
-    /**
-     * An object that has methods that return floating point numbers.
-     */
-    public static final int HAS_FLOAT_GETTERS = 0x02;
-
-    /**
-     * An object that has methods that return integers.
-     */
-    public static final int HAS_INT_GETTERS = 0x03;
+    public static final int EMITS_EVENTS = -0x01;
 
     /**
      * An object that has methods which set a value (void return type).
      */
-    public static final int HAS_SETTERS = 0x04;
-
-    /**
-     * An object that has methods that return strings.
-     */
-    public static final int HAS_STRING_GETTERS = 0x05;
+    public static final int HAS_SETTERS = 0x00;
 
     /**
      * An object which is a kind of asset.
@@ -71,19 +56,14 @@ public class ExperimentObjectReference {
 
     public static ExperimentObjectFilter getFilter(int filter) {
         switch (filter) {
-            case EMITS_EVENTS:
-                return new EmitsEventsFilter();
             case HAS_SETTERS:
                 return new HasSettersFilter();
-            case HAS_INT_GETTERS:
-                return new HasIntGettersFilter();
-            case HAS_FLOAT_GETTERS:
-                return new HasFloatGettersFilter();
-            case HAS_STRING_GETTERS:
-                return new HasStringGettersFilter();
+            case EMITS_EVENTS:
+                return new EmitsEventsFilter();
 
             default:
-                throw new RuntimeException("Unknown filter type " + filter);
+                return new ReturnTypeFilter(filter);
+                // throw new RuntimeException("Unknown filter type " + filter);
         }
     }
 
@@ -125,6 +105,41 @@ public class ExperimentObjectReference {
          * @return True if the object passes the filter.
          */
         boolean filter(ExperimentObject object);
+    }
+
+    public static class ReturnTypeFilter implements ExperimentObjectFilter {
+        private int mFilter;
+
+        public ReturnTypeFilter(int filter) {
+            mFilter = filter;
+        }
+
+        @Override
+        public boolean filter(ExperimentObject object) {
+            Method[] methods = object.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                Method method = methods[i];
+                if (method.isAnnotationPresent(MethodId.class)) {
+                    if ((mFilter & Operand.TYPE_BOOLEAN) != 0
+                            && method.getReturnType().equals(Boolean.TYPE)) {
+                        return true;
+                    }
+                    if ((mFilter & Operand.TYPE_STRING) != 0
+                            && method.getReturnType().equals(String.class)) {
+                        return true;
+                    }
+                    if ((mFilter & Operand.TYPE_INTEGER) != 0
+                            && method.getReturnType().equals(Integer.TYPE)) {
+                        return true;
+                    }
+                    if ((mFilter & Operand.TYPE_FLOAT) != 0
+                            && method.getReturnType().equals(Float.TYPE)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 
     public static class HasFloatGettersFilter implements ExperimentObjectFilter {

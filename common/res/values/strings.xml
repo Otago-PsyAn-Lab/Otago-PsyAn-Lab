@@ -261,5 +261,6 @@
         <string name="message_clear_operand">Clear value for \'%s\'?</string>
         <string name="action_clear">Clear</string>
         <string name="title_clear_variable">Clear variable %s</string>
+        <string name="test_method_get_text">Get Text</string>
 
 </resources>

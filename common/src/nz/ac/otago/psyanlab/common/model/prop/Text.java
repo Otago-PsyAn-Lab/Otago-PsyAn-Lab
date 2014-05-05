@@ -19,6 +19,8 @@ public class Text extends Prop {
 
     private static final int METHOD_SET_TEXT3 = 0x03;
 
+    private static final int METHOD_GET_TEXT = 0x04;
+
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
     }
@@ -86,6 +88,11 @@ public class Text extends Prop {
         this.text = text;
     }
 
+    @MethodId(METHOD_GET_TEXT)
+    public String setText3() {
+        return text;
+    }
+
     protected static class EventNameFactory extends Prop.EventNameFactory {
         @Override
         public int getResId(int lookup) {
@@ -106,6 +113,8 @@ public class Text extends Prop {
                     return R.string.test_method_2;
                 case METHOD_SET_TEXT3:
                     return R.string.test_method_3;
+                case METHOD_GET_TEXT:
+                    return R.string.test_method_get_text;
                 default:
                     return super.getResId(lookup);
             }

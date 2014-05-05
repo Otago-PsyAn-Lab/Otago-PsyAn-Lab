@@ -568,7 +568,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
      * @return
      */
     @Override
-    public SpinnerAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType) {
+    public SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes) {
         // SortedSet<Method> filteredMethods = new TreeSet<Method>(new
         // Comparator<Method>() {
         // @Override
@@ -607,16 +607,46 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         // Filter methods for those which register listeners for events.
         for (int i = 0; i < methods.length; i++) {
-            MethodId annotation = methods[i].getAnnotation(MethodId.class);
-            if (annotation != null) {
+            Method method = methods[i];
+            MethodId annotation = method.getAnnotation(MethodId.class);
+            if (annotation != null && returnTypeIntersects(method, returnTypes)) {
                 MethodData data = new MethodData();
                 data.id = annotation;
-                data.method = methods[i];
+                data.method = method;
                 filteredMethods.add(data);
             }
         }
 
         return new MethodAdapter(this, filteredMethods, nameFactory);
+    }
+
+    /**
+     * Checks to see the given ored set of return types intersects with the
+     * given method's return type.
+     * 
+     * @param method Method to test.
+     * @param returnTypes Ored set of return types.
+     * @return True if intersection.
+     */
+    private boolean returnTypeIntersects(Method method, int returnTypes) {
+        if ((returnTypes & Operand.TYPE_BOOLEAN) != 0
+                && method.getReturnType().equals(Boolean.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Operand.TYPE_INTEGER) != 0
+                && method.getReturnType().equals(Integer.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Operand.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Operand.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
+            return true;
+        }
+        if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

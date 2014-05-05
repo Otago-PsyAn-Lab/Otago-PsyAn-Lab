@@ -26,13 +26,19 @@ import android.widget.Button;
 public class EditOperandDialogFragment extends DialogFragment {
     private static final String ARG_OPERAND_ID = "arg_operand_id";
 
+    private static final String ARG_SCENE_ID = "arg_scene_id";
+
     private static final String ARG_TITLE = "arg_title";
 
     private static final String ARG_TYPE = "arg_type";
 
     private static final long INVALID_ID = -1;
 
-    private static final String ARG_SCENE_ID = "arg_scene_id";
+    private static final OnDoneListener sOnDoneDummyListener = new OnDoneListener() {
+        @Override
+        public void OnEditOperandDialogueDone() {
+        }
+    };
 
     /**
      * Create a new dialogue to edit the number of iterations a loop undergoes.
@@ -69,19 +75,13 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     protected Operand mBackupOperand;
 
+    protected OnDoneListener mOnDoneListener = sOnDoneDummyListener;
+
     protected long mOperandId;
 
     protected int mOperandType;
 
     protected long mSceneId;
-
-    private static final OnDoneListener sOnDoneDummyListener = new OnDoneListener() {
-        @Override
-        public void OnEditOperandDialogueDone() {
-        }
-    };
-
-    protected OnDoneListener mOnDoneListener = sOnDoneDummyListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -124,6 +124,14 @@ public class EditOperandDialogFragment extends DialogFragment {
 
         mViews = new ViewHolder(view);
         mViews.initViews();
+    }
+
+    public void setOnDoneListener(OnDoneListener listener) {
+        mOnDoneListener = listener;
+    }
+
+    public interface OnDoneListener {
+        void OnEditOperandDialogueDone();
     }
 
     class ViewHolder {
@@ -178,11 +186,6 @@ public class EditOperandDialogFragment extends DialogFragment {
             done = (Button)view.findViewById(R.id.done);
         }
 
-        public void saveOperand() {
-            ((AbsOperandFragment)mPagerAdapter.instantiateItem(pager, pager.getCurrentItem()))
-                    .saveOperand();
-        }
-
         public void initViews() {
             pager.setAdapter(mPagerAdapter);
 
@@ -191,13 +194,10 @@ public class EditOperandDialogFragment extends DialogFragment {
 
             done.setOnClickListener(mOnDoneClickListener);
         }
-    }
 
-    public void setOnDoneListener(OnDoneListener listener) {
-        mOnDoneListener = listener;
-    }
-
-    public interface OnDoneListener {
-        void OnEditOperandDialogueDone();
+        public void saveOperand() {
+            ((AbsOperandFragment)mPagerAdapter.instantiateItem(pager, pager.getCurrentItem()))
+                    .saveOperand();
+        }
     }
 }

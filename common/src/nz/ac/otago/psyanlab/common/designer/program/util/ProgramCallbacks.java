@@ -32,7 +32,7 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar, Opera
 
     ExperimentObject getExperimentObject(ExperimentObjectReference object);
 
-    SpinnerAdapter getMethodsAdapter(Class<?> clazz, Class<?> returnType);
+    SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes);
 
     ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter);
 

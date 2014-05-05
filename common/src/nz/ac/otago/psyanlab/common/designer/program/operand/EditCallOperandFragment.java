@@ -231,8 +231,9 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                     .getPrettyName(getActivity()));
             actionMethod.setEnabled(true);
             SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(mCallbacks
-                    .getExperimentObject(operand.getActionObject()).getClass(), Void.TYPE);
+                    .getExperimentObject(operand.getActionObject()).getClass(), mOperandType);
             actionMethod.setAdapter(methodsAdapter);
+
             for (int i = 0; i < methodsAdapter.getCount(); i++) {
                 if ((int)methodsAdapter.getItemId(i) == operand.getActionMethod()) {
                     actionMethod.setSelection(i);

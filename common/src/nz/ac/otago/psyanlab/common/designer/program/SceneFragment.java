@@ -233,6 +233,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         final long newRuleId = mCallbacks.createRule(rule);
         rule.name = "Rule " + (newRuleId + 1);
         Operand condition = new StubOperand("Condition");
+        condition.attemptRestrictType(Operand.TYPE_BOOLEAN);
         rule.conditionId = mCallbacks.createOperand(condition);
 
         mScene.rules.add(newRuleId);

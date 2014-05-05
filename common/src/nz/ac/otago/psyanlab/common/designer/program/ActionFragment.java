@@ -285,7 +285,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
                     getActivity()));
             actionMethod.setEnabled(true);
             SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(mCallbacks
-                    .getExperimentObject(action.actionObject).getClass(), Void.TYPE);
+                    .getExperimentObject(action.actionObject).getClass(), 0);
             actionMethod.setAdapter(methodsAdapter);
             for (int i = 0; i < methodsAdapter.getCount(); i++) {
                 if ((int)methodsAdapter.getItemId(i) == mAction.actionMethod) {

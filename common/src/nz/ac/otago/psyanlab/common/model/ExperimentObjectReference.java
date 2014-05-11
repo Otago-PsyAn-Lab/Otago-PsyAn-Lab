@@ -8,6 +8,12 @@ import nz.ac.otago.psyanlab.common.model.util.MethodId;
 
 import java.lang.reflect.Method;
 
+/**
+ * An internal pointer to objects stored in the experiment. This reference
+ * stores the kind and id of an object so we know what kind of object we are
+ * dealing with and can pull it from the experiment data using its id. Note, the
+ * id is only unique within its kind.
+ */
 public class ExperimentObjectReference {
     /**
      * An object that emits events.
@@ -74,7 +80,8 @@ public class ExperimentObjectReference {
     public long id;
 
     /**
-     * The kind of the object.
+     * The kind of the object. Use this to select which call to make in order to
+     * pull the object from the experiment.
      */
     @Expose
     public int kind;

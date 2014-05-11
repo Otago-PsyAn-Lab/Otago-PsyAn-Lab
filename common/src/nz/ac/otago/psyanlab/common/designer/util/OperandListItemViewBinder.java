@@ -46,8 +46,10 @@ final public class OperandListItemViewBinder extends AbsViewBinder implements Vi
                     .getMethodNameFactory(experimentObject.getClass());
 
             holder.textViews[1].setVisibility(View.VISIBLE);
-            holder.textViews[1].setText(experimentObject.getPrettyName(mActivity));
-            holder.textViews[0].setText(nameFactory.getResId(callOperand.getActionMethod()));
+            holder.textViews[1].setText(mActivity.getString(R.string.format_call_operand_value,
+                    experimentObject.getPrettyName(mActivity),
+                    mActivity.getString(nameFactory.getResId(callOperand.getActionMethod()))));
+            holder.textViews[0].setText(operand.getName());
         } else {
             holder.textViews[0].setText(operand.getName());
             if (operand instanceof LiteralOperand) {

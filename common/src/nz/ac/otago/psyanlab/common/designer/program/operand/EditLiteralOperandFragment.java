@@ -106,6 +106,11 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
     protected OnItemLongClickListener mOperandItemLongClickListener = new OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            int viewType = parent.getAdapter().getItemViewType(position);
+            if (viewType == ListView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) {
+                return false;
+            }
+
             showClearOperandDialogue(id);
             return true;
         }

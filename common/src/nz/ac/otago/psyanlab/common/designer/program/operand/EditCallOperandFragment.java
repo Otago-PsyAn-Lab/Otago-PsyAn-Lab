@@ -9,13 +9,15 @@ import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
-import nz.ac.otago.psyanlab.common.model.operand.FloatValue;
-import nz.ac.otago.psyanlab.common.model.operand.IntegerValue;
-import nz.ac.otago.psyanlab.common.model.operand.StringValue;
+import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
+import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
+import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.util.ParameterId;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
 import android.os.Bundle;
@@ -31,6 +33,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import java.lang.annotation.Annotation;
+
 /**
  * A fragment that provides a UI to input a call value as an operand.
  */
@@ -40,41 +44,56 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
 
     protected OnItemSelectedListener mActionMethodOnItemSelectedListener = new OnItemSelectedListener() {
         @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            if (mCallValue.actionMethod != (int)id) {
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long methodId) {
+            if (mCallValue.actionMethod != (int)methodId) {
                 // Update operands for newly selected method.
                 MethodData data = (MethodData)parent.getAdapter().getItem(position);
                 Class<?>[] params = data.method.getParameterTypes();
 
-                for (int i = 0; i < params.length; i++) {
-                    Class<?> param = params[i];
-                    if (param.isAssignableFrom(float.class)) {
-                        if (i < mCallValue.operands.size()) {
-                            Long operandId = mCallValue.operands.get(i);
-                            if (mCallbacks.getOperand(operandId).getType() != Operand.TYPE_FLOAT) {
-                                mCallbacks.updateOperand(operandId, new FloatValue());
-                            }
-                        } else {
-                            mCallValue.operands.add(mCallbacks.createOperand(new FloatValue()));
+                // Get the prop and instantiate our parameter name factory.
+                ExperimentObject actionObject = mCallbacks
+                        .getExperimentObject(mCallValue.actionObject);
+                final NameResolverFactory parameterNameFactory = ModelUtils
+                        .getParameterNameFactory(actionObject.getClass());
+
+                for (int parameterPosition = 0; parameterPosition < params.length; parameterPosition++) {
+                    Class<?> parameterType = params[parameterPosition];
+                    Annotation[][] paramAnnotations = data.method.getParameterAnnotations();
+
+                    // Look for ParameterId annotation in this parameters
+                    // annotations.
+                    ParameterId paramAnnotation = null;
+                    for (int j = 0; j < paramAnnotations.length; j++) {
+                        Annotation annotation = (ParameterId)paramAnnotations[parameterPosition][j];
+                        if (annotation instanceof ParameterId) {
+                            paramAnnotation = (ParameterId)annotation;
+                            break;
                         }
-                    } else if (param.isAssignableFrom(int.class)) {
-                        if (i < mCallValue.operands.size()) {
-                            Long operandId = mCallValue.operands.get(i);
-                            if (mCallbacks.getOperand(operandId).getType() != Operand.TYPE_INTEGER) {
-                                mCallbacks.updateOperand(operandId, new IntegerValue());
-                            }
-                        } else {
-                            mCallValue.operands.add(mCallbacks.createOperand(new IntegerValue()));
-                        }
-                    } else if (param.isAssignableFrom(String.class)) {
-                        if (i < mCallValue.operands.size()) {
-                            Long operandId = mCallValue.operands.get(i);
-                            if (mCallbacks.getOperand(operandId).getType() != Operand.TYPE_STRING) {
-                                mCallbacks.updateOperand(operandId, new StringValue());
-                            }
-                        } else {
-                            mCallValue.operands.add(mCallbacks.createOperand(new StringValue()));
-                        }
+                    }
+
+                    // Sanity check; expect annotation is present for parameter.
+                    if (paramAnnotation == null) {
+                        throw new RuntimeException("Missing annotation for parameter "
+                                + parameterPosition + " of method " + methodId + " on class "
+                                + actionObject.getClass().getName());
+                    }
+
+                    String paramName = getString(parameterNameFactory.getResId(paramAnnotation
+                            .value()));
+
+                    Operand newOperand = new StubOperand(paramName);
+
+                    // Switch upon the parameter type and reuse the old operand
+                    // if it fits, or create a new operand to fill it.
+                    if (parameterType.isAssignableFrom(float.class)) {
+                        reuseOrReplaceParameterOperand(parameterPosition, newOperand,
+                                Operand.TYPE_FLOAT);
+                    } else if (parameterType.isAssignableFrom(int.class)) {
+                        reuseOrReplaceParameterOperand(parameterPosition, newOperand,
+                                Operand.TYPE_INTEGER);
+                    } else if (parameterType.isAssignableFrom(String.class)) {
+                        reuseOrReplaceParameterOperand(parameterPosition, newOperand,
+                                Operand.TYPE_STRING);
                     }
                 }
 
@@ -86,8 +105,39 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                     mCallValue.operands.remove(params.length);
                 }
 
-                mCallValue.actionMethod = (int)id;
+                // Update the action method.
+                mCallValue.actionMethod = (int)methodId;
                 mViews.updateViews(mCallValue);
+            }
+        }
+
+        private void reuseOrReplaceParameterOperand(int parameterPosition, Operand newOperand,
+                int desiredType) {
+            // Bind our new operand to the expected type. This
+            // should never fail.
+            if (!newOperand.attemptRestrictType(desiredType)) {
+                throw new RuntimeException(
+                        "Stub operand failed to bind to float type. This should not be possible.");
+            }
+
+            if (parameterPosition < mCallValue.operands.size()) {
+                // Attempt to re-use the pre-existing operand for
+                // this parameter position.
+                Long operandId = mCallValue.operands.get(parameterPosition);
+                Operand oldOperand = mCallbacks.getOperand(operandId);
+                if (oldOperand.attemptRestrictType(desiredType)) {
+                    // Update the old operands name to match the new parameter
+                    // name, already stored in what was to be the new operand.
+                    oldOperand.name = newOperand.name;
+                    mCallbacks.updateOperand(operandId, oldOperand);
+                } else {
+                    // Replace the old operand with the new one.
+                    mCallbacks.updateOperand(operandId, newOperand);
+                }
+            } else {
+                // No pre-existing operand so create and add the new
+                // one.
+                mCallValue.operands.add(mCallbacks.createOperand(newOperand));
             }
         }
 

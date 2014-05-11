@@ -26,9 +26,9 @@ import java.util.ArrayList;
  */
 public interface ProgramCallbacks extends DialogueResultListenerRegistrar, OperandCallbacks,
         ActionCallbacks, GeneratorCallbacks, LoopCallbacks, RuleCallbacks, SceneCallbacks {
-    SpinnerAdapter getEventsAdapter(Class<?> clazz);
-
     void editStage(long id);
+
+    SpinnerAdapter getEventsAdapter(Class<?> clazz);
 
     ExperimentObject getExperimentObject(ExperimentObjectReference object);
 
@@ -37,6 +37,8 @@ public interface ProgramCallbacks extends DialogueResultListenerRegistrar, Opera
     ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter);
 
     FragmentPagerAdapter getObjectsPagerAdapter(FragmentManager fm, long sceneId, Factory factory);
+
+    Prop getProp(long id);
 
     ArrayList<Prop> getPropsArray(long stageId);
 

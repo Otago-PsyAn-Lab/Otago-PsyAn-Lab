@@ -743,6 +743,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public Prop getProp(long id) {
+        return mExperiment.props.get(id);
+    }
+
+    @Override
     public Rule getRule(long id) {
         return mExperiment.rules.get(id);
     }

@@ -4,8 +4,11 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.model.Operand;
+import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -33,6 +36,17 @@ public class EditOperandDialogFragment extends DialogFragment {
     private static final String ARG_TYPE = "arg_type";
 
     private static final long INVALID_ID = -1;
+
+    protected OperandCallbacks mCallbacks;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (!(activity instanceof OperandCallbacks)) {
+            throw new RuntimeException("Activity must implement operand callbacks.");
+        }
+        mCallbacks = (OperandCallbacks)activity;
+    }
 
     private static final OnDoneListener sOnDoneDummyListener = new OnDoneListener() {
         @Override
@@ -124,6 +138,13 @@ public class EditOperandDialogFragment extends DialogFragment {
 
         mViews = new ViewHolder(view);
         mViews.initViews();
+
+        Operand operand = mCallbacks.getOperand(mOperandId);
+        if (operand instanceof CallValue) {
+            mViews.pager.setCurrentItem(1);
+        } else {
+            mViews.pager.setCurrentItem(0);
+        }
     }
 
     public void setOnDoneListener(OnDoneListener listener) {

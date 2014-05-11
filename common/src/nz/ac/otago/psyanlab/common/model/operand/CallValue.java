@@ -10,6 +10,8 @@ import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import java.util.ArrayList;
 
 public class CallValue extends Operand implements CallOperand {
+    public static final int INVALID_METHOD = -1;
+
     @Expose
     public int actionMethod;
 
@@ -24,6 +26,7 @@ public class CallValue extends Operand implements CallOperand {
 
     public CallValue(Operand operand) {
         super(operand);
+        actionMethod = INVALID_METHOD;
     }
 
     @Override

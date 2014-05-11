@@ -223,7 +223,9 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
 
     @Override
     public void saveOperand() {
-        mCallbacks.updateOperand(mObjectId, mCallValue);
+        if (mCallValue.actionMethod != CallValue.INVALID_METHOD) {
+            mCallbacks.updateOperand(mObjectId, mCallValue);
+        }
     }
 
     protected void showEditOperandDialogue(long id, int type) {

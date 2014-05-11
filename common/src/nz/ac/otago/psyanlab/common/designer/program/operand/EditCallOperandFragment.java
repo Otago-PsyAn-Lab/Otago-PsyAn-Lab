@@ -105,10 +105,25 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                     mCallValue.operands.remove(params.length);
                 }
 
-                // Update the action method.
+                // Update operand with new method and type.
                 mCallValue.actionMethod = (int)methodId;
+                Class<?> returnType = data.method.getReturnType();
+                if (returnType.equals(Boolean.TYPE)) {
+                    mCallValue.type = Operand.TYPE_BOOLEAN;
+                } else if (returnType.equals(Integer.TYPE)) {
+                    mCallValue.type = Operand.TYPE_INTEGER;
+                } else if (returnType.equals(Float.TYPE)) {
+                    mCallValue.type = Operand.TYPE_FLOAT;
+                } else if (returnType.equals(String.class)) {
+                    mCallValue.type = Operand.TYPE_STRING;
+                }
+
                 mViews.updateViews(mCallValue);
             }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
         }
 
         private void reuseOrReplaceParameterOperand(int parameterPosition, Operand newOperand,
@@ -139,10 +154,6 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                 // one.
                 mCallValue.operands.add(mCallbacks.createOperand(newOperand));
             }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
         }
     };
 

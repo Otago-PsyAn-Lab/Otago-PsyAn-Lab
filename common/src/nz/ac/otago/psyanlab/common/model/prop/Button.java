@@ -22,6 +22,10 @@ public class Button extends Text {
         return new MethodNameFactory();
     }
 
+    public static NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
+    }
+
     public Button(Context context, Prop prop, int defaultSuffix) {
         super(context, prop, defaultSuffix);
 
@@ -60,6 +64,16 @@ public class Button extends Text {
     }
 
     protected static class MethodNameFactory extends Text.MethodNameFactory {
+        @Override
+        public int getResId(int lookup) {
+            switch (lookup) {
+                default:
+                    return super.getResId(lookup);
+            }
+        }
+    }
+
+    protected static class ParameterNameFactory extends Text.ParameterNameFactory {
         @Override
         public int getResId(int lookup) {
             switch (lookup) {

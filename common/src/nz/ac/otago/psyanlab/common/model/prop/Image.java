@@ -16,6 +16,10 @@ public class Image extends Prop {
         return new MethodNameFactory();
     }
 
+    public static NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
+    }
+
     public Image(Context context, Prop prop, int defaultSuffix) {
         super(context, prop, defaultSuffix);
 
@@ -39,6 +43,16 @@ public class Image extends Prop {
     }
 
     protected static class MethodNameFactory extends Prop.MethodNameFactory {
+        @Override
+        public int getResId(int lookup) {
+            switch (lookup) {
+                default:
+                    return super.getResId(lookup);
+            }
+        }
+    }
+
+    protected static class ParameterNameFactory extends Prop.ParameterNameFactory {
         @Override
         public int getResId(int lookup) {
             switch (lookup) {

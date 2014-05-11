@@ -84,6 +84,27 @@ public class ModelUtils {
         return nameFactory;
     }
 
+    public static NameResolverFactory getParameterNameFactory(final Class<?> clazz) {
+        Method m;
+        try {
+            m = clazz.getMethod("getParameterNameFactory", (Class<?>[])null);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
+        }
+
+        final NameResolverFactory nameFactory;
+        try {
+            nameFactory = (NameResolverFactory)m.invoke(null, (Object[])null);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
+        }
+        return nameFactory;
+    }
+
     public static Experiment readDefinition(String paleDefinition) {
         return ModelUtils.getDataReaderWriter().fromJson(
                 new JsonReader(new StringReader(paleDefinition)), Experiment.class);

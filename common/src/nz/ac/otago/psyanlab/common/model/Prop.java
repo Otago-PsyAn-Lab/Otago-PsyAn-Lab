@@ -127,4 +127,11 @@ public abstract class Prop implements Parcelable, ExperimentObject {
             return R.string.method_missing_string;
         }
     }
+
+    protected static class ParameterNameFactory implements NameResolverFactory {
+        @Override
+        public int getResId(int lookup) {
+            return R.string.parameter_missing_string;
+        }
+    }
 }

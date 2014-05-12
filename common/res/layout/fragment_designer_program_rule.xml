@@ -211,12 +211,12 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/stage_detail"
+                    android:id="@+id/condition_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dip"
                     android:fontFamily="sans-serif-light"
-                    android:text="Condition details"
+                    android:text="@string/default_condition_details"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
 

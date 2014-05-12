@@ -269,5 +269,7 @@
     <string name="parameter_test_integer">Test integer</string>
     <string name="method_get_text_2">Get text 2</string>
     <string name="format_call_operand_value">Call «%2$s» on %1$s</string>
+    <string name="default_condition_details">Condition unspecified</string>
+    <string name="format_condition_details">Rule will execute if the following is true at point of evaluation.\n\n %1$s</string>
 
 </resources>

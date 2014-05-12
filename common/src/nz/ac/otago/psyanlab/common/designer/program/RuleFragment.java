@@ -2,6 +2,7 @@
 package nz.ac.otago.psyanlab.common.designer.program;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.operand.EditOperandDialogFragment;
@@ -9,9 +10,14 @@ import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Action;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Rule;
+import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
+import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
+import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
+import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -36,7 +42,8 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-public class RuleFragment extends BaseProgramFragment implements RuleDataChangeListener {
+public class RuleFragment extends BaseProgramFragment implements RuleDataChangeListener,
+        OperandDataChangeListener {
     private static final String ARG_SCENE_ID = "arg_scene_id";
 
     public static BaseProgramFragment newInstance(long id, long sceneId) {
@@ -209,8 +216,14 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     public void onDetach() {
         super.onDetach();
 
+        mCallbacks.removeOperandDataChangeListener(this);
         mCallbacks.removeRuleDataChangeListener(this);
         saveChanges();
+    }
+
+    @Override
+    public void onOperandDataChange() {
+        mViews.updateViews(mRule, mRule);
     }
 
     @Override
@@ -232,6 +245,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         mRule = mCallbacks.getRule(mObjectId);
         mCallbacks.addRuleDataChangeListener(this);
+        mCallbacks.addOperandDataChangeListener(this);
 
         mActionsAdapter = mCallbacks.getActionAdapter(mObjectId);
 
@@ -242,6 +256,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         // Register a listener for when a rule trigger object has been set.
         mCallbacks.registerDialogueResultListener(RequestCodes.RULE_TRIGGER_OBJECT,
                 mDialogueResultListener);
+
     }
 
     private void saveChanges() {
@@ -295,7 +310,9 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Rule> {
-        public View condition;
+        public TextView conditionDetails;
+
+        public View editCondition;
 
         public TextView name;
 
@@ -312,14 +329,15 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             name = (EditText)view.findViewById(R.id.name);
             triggerObject = (Button)view.findViewById(R.id.trigger_object);
             triggerEvent = (Spinner)view.findViewById(R.id.trigger_event);
-            condition = view.findViewById(R.id.edit_condition);
+            editCondition = view.findViewById(R.id.edit_condition);
+            conditionDetails = (TextView)view.findViewById(R.id.condition_detail);
             actionsList = (ListView)view.findViewById(R.id.actions);
             newAction = view.findViewById(R.id.new_action);
         }
 
         @Override
         public void initViews() {
-            condition.setOnClickListener(mConditionClickListener);
+            editCondition.setOnClickListener(mConditionClickListener);
 
             newAction.setOnClickListener(mNewActionClickListener);
 
@@ -342,6 +360,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             } else {
                 unsetTrigger();
             }
+
+            updateCondition(rule);
         }
 
         public void updateViews(Rule newRule, Rule oldRule) {
@@ -353,6 +373,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             } else {
                 unsetTrigger();
             }
+
+            updateCondition(newRule);
         }
 
         private void setTrigger(Rule rule) {
@@ -374,6 +396,28 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             triggerObject.setText(null);
             triggerEvent.setEnabled(false);
             triggerEvent.setAdapter(null);
+        }
+
+        private void updateCondition(Rule rule) {
+            Operand condition = mCallbacks.getOperand(rule.conditionId);
+            String operandDetail = "";
+            if (condition instanceof CallOperand) {
+                CallOperand callOperand = (CallOperand)condition;
+                ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
+                        .getActionObject());
+                final NameResolverFactory nameFactory = ModelUtils
+                        .getMethodNameFactory(experimentObject.getClass());
+                operandDetail = getString(R.string.format_call_operand_value,
+                        experimentObject.getPrettyName(getActivity()),
+                        getString(nameFactory.getResId(callOperand.getActionMethod())));
+            } else if (condition instanceof LiteralOperand) {
+                operandDetail = ((LiteralOperand)condition).getValue();
+            } else {
+                conditionDetails.setText(R.string.default_condition_details);
+                return;
+            }
+
+            conditionDetails.setText(getString(R.string.format_condition_details, operandDetail));
         }
     }
 }

@@ -124,12 +124,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         SubjectFragment.Callbacks, AssetTabFragmentsCallbacks, ProgramCallbacks,
         DialogueResultCallbacks {
 
-    public static final int OPERAND_ACCESS_SCOPE_ACTION = 0x01;
-
-    public static final int OPERAND_ACCESS_SCOPE_EXPRESSION = 0x03;
-
-    public static final int OPERAND_ACCESS_SCOPE_OPERAND = 0x02;
-
     private static final String ADAPTER_STATE = "adapter_state";
 
     private static final int MODE_EDIT = 0x02;
@@ -160,8 +154,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private ListView mDrawerList;
 
-    private CharSequence mDrawerTitle;
-
     private ActionBarDrawerToggle mDrawerToggle;
 
     private Experiment mExperiment;
@@ -189,7 +181,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     };
 
-    private LongSparseArray<LongSparseArray<ProgramComponentAdapter<Operand>>> mOperandAdapters = new LongSparseArray<LongSparseArray<ProgramComponentAdapter<Operand>>>();
+    private LongSparseArray<ProgramComponentAdapter<Operand>> mOperandAdapters = new LongSparseArray<ProgramComponentAdapter<Operand>>();
 
     private ArrayList<OperandDataChangeListener> mOperandDataChangeListeners;
 
@@ -374,24 +366,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public void discardOperandAdapter(ProgramComponentAdapter<Operand> adapter) {
-        for (int i = 0; i < mOperandAdapters.size(); i++) {
-            // Check scope level.
-            long scopeKey = mOperandAdapters.keyAt(i);
-            LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope = mOperandAdapters
-                    .get(scopeKey);
-
-            for (int j = 0; j < operandAdaptersInScope.size(); j++) {
-                // Check adapters currently existing for operand parents.
-                long key = operandAdaptersInScope.keyAt(j);
-                if (operandAdaptersInScope.get(key) == adapter) {
-                    operandAdaptersInScope.remove(key);
-                    if (operandAdaptersInScope.size() == 0) {
-                        mOperandAdapters.remove(scopeKey);
-                    }
-                    return;
-                }
+        for (int j = 0; j < mOperandAdapters.size(); j++) {
+            // Check adapters currently existing for operand parents.
+            long key = mOperandAdapters.keyAt(j);
+            if (mOperandAdapters.get(key) == adapter) {
+                mOperandAdapters.remove(key);
+                return;
             }
-
         }
     }
 
@@ -691,39 +672,24 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     /**
      * Fetch adapter per scope and parent id. If not, create any missing data structure.
      */
-    public ProgramComponentAdapter<Operand> getOperandAdapter(long parentId, int scope) {
+    public ProgramComponentAdapter<Operand> getOperandAdapter(long parentId) {
         ProgramComponentAdapter<Operand> adapter;
-        LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope;
-
-        operandAdaptersInScope = mOperandAdapters.get(scope);
-        if (operandAdaptersInScope != null) {
-            adapter = operandAdaptersInScope.get(parentId);
+        if (mOperandAdapters != null) {
+            adapter = mOperandAdapters.get(parentId);
             if (adapter != null) {
                 return adapter;
             }
         } else {
-            operandAdaptersInScope = new LongSparseArray<ProgramComponentAdapter<Operand>>();
-            mOperandAdapters.put(scope, operandAdaptersInScope);
+            mOperandAdapters = new LongSparseArray<ProgramComponentAdapter<Operand>>();
         }
 
         // Create adapter for our requested scope and parent id.
 
-        OperandHolder operandHolder;
-        switch (scope) {
-            case OPERAND_ACCESS_SCOPE_ACTION:
-                operandHolder = mExperiment.actions.get(parentId);
-                break;
-            case OPERAND_ACCESS_SCOPE_OPERAND:
-                operandHolder = (OperandHolder)mExperiment.operands.get(parentId);
-                break;
-
-            default:
-                throw new RuntimeException("Unknown operand scope " + scope);
-        }
+        OperandHolder operandHolder = (OperandHolder)mExperiment.operands.get(parentId);
 
         adapter = new ProgramComponentAdapter<Operand>(mExperiment.operands,
                 operandHolder.getOperands(), new OperandListItemViewBinder(this, this));
-        operandAdaptersInScope.put(parentId, adapter);
+        mOperandAdapters.put(parentId, adapter);
 
         return adapter;
     }
@@ -906,8 +872,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         mAssetsAdapter = new AssetsAdapter(this, mExperiment.assets);
 
-        setTitle(R.string.title_new_experiment);
-        mDrawerTitle = mTitle;
+        setTitle(mExperiment.name);
 
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new DrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
@@ -1033,8 +998,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             notifyParameterAdapter();
         }
 
-        updateOperandAdapterIfExists(id, OPERAND_ACCESS_SCOPE_ACTION, action);
-
         notifyActionDataChangeListeners();
     }
 
@@ -1074,7 +1037,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         if (operand instanceof OperandHolder) {
             OperandHolder holder = (OperandHolder)operand;
-            updateOperandAdapterIfExists(id, OPERAND_ACCESS_SCOPE_OPERAND, holder);
+            updateOperandAdapterIfExists(id, holder);
         }
 
         notifyOperandAdapters(id);
@@ -1184,7 +1147,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     private void doSelectSection(int position) {
         mSectionManager.selectSection(position);
         mDrawerList.setItemChecked(position, true);
-        setTitle(mSectionManager.getTitle(position));
+        getActionBar().setSubtitle(mSectionManager.getTitle(position));
     }
 
     private Long findUnusedKey(LongSparseArray<?> map) {
@@ -1284,23 +1247,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     private void notifyOperandAdapters(long id) {
-        // Check all adapters to see if it references this operand we have
-        // updated so we can notify a data set change.
-        for (int i = 0; i < mOperandAdapters.size(); i++) {
-            // Check scope level.
-            LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope = mOperandAdapters
-                    .get(mOperandAdapters.keyAt(i));
+        for (int j = 0; j < mOperandAdapters.size(); j++) {
+            // Check adapters currently existing for operand parents.
+            ProgramComponentAdapter<Operand> adapter = mOperandAdapters.get(mOperandAdapters
+                    .keyAt(j));
 
-            for (int j = 0; j < operandAdaptersInScope.size(); j++) {
-                // Check adapters currently existing for operand parents.
-                ProgramComponentAdapter<Operand> adapter = operandAdaptersInScope
-                        .get(operandAdaptersInScope.keyAt(j));
-
-                for (Long operandId : adapter.getKeys()) {
-                    if (operandId == id) {
-                        adapter.notifyDataSetChanged();
-                        break;
-                    }
+            for (Long operandId : adapter.getKeys()) {
+                if (operandId == id) {
+                    adapter.notifyDataSetChanged();
+                    break;
                 }
             }
         }
@@ -1396,6 +1351,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 Time time = new Time();
                 time.setToNow();
                 experiment.dateCreated = time.toMillis(false);
+                experiment.name = getString(R.string.title_new_experiment);
                 mMode = MODE_NEW;
             } else {
                 // Load experiment from disk using the delegate.
@@ -1430,13 +1386,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
     }
 
-    private void updateOperandAdapterIfExists(long scopeId, int scope, OperandHolder holder) {
+    private void updateOperandAdapterIfExists(long scopeId, OperandHolder holder) {
         ProgramComponentAdapter<Operand> adapter;
-        LongSparseArray<ProgramComponentAdapter<Operand>> operandAdaptersInScope;
 
-        operandAdaptersInScope = mOperandAdapters.get(scope);
-        if (operandAdaptersInScope != null) {
-            adapter = operandAdaptersInScope.get(scopeId);
+        if (mOperandAdapters != null) {
+            adapter = mOperandAdapters.get(scopeId);
             if (adapter != null) {
                 adapter.setKeys(holder.getOperands());
                 return;
@@ -1650,7 +1604,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         @Override
         public void onDrawerClosed(View view) {
             super.onDrawerClosed(view);
-            getActionBar().setTitle(mTitle);
+            getActionBar().setSubtitle(
+                    mSectionManager.getTitle(mSectionManager.getCurrentPosition()));
             invalidateOptionsMenu(); // creates call to
                                      // onPrepareOptionsMenu()
         }
@@ -1659,7 +1614,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         @Override
         public void onDrawerOpened(View drawerView) {
             super.onDrawerOpened(drawerView);
-            getActionBar().setTitle(mDrawerTitle);
+            getActionBar().setSubtitle(null);
             invalidateOptionsMenu(); // creates call to
                                      // onPrepareOptionsMenu()
         }

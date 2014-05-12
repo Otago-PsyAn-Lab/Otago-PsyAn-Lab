@@ -61,21 +61,15 @@
         android:layout_below="@+id/name_container"
         android:background="?android:attr/listDivider" />
 
-    <ListView
-        android:id="@+id/parameters"
-        style="@style/column"
+    <LinearLayout
+        android:id="@+id/operand_fragment_container"
         android:layout_width="0dip"
-        android:layout_height="match_parent"
+        android:layout_height="0dip"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/name_container"
         android:layout_below="@+id/divide"
-        android:clipToPadding="false"
-        android:drawSelectorOnTop="false"
-        android:listSelector="@drawable/action_list_selector_holo_light"
-        android:paddingBottom="16dip"
-        android:paddingTop="16dip"
-        android:scrollbarStyle="outsideOverlay" />
+        android:orientation="vertical" />
 
     <View
         android:layout_width="0dip"

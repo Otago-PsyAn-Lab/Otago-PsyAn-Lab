@@ -22,7 +22,7 @@ public interface OperandCallbacks {
 
     Operand getOperand(long id);
 
-    ProgramComponentAdapter<Operand> getOperandAdapter(long scopeId, int scope);
+    ProgramComponentAdapter<Operand> getOperandAdapter(long scopeId);
 
     void removeOperandDataChangeListener(OperandDataChangeListener listener);
 

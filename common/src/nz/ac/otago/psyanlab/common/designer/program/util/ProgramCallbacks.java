@@ -21,7 +21,7 @@ import android.widget.SpinnerAdapter;
 import java.util.ArrayList;
 
 /**
- * Collection of all the call-backs used toimplement the program editor
+ * Collection of all the call-backs used to implement the program editor
  * interface.
  */
 public interface ProgramCallbacks extends DialogueResultListenerRegistrar, OperandCallbacks,

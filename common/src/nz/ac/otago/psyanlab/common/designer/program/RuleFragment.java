@@ -14,6 +14,7 @@ import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Rule;
+import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
@@ -279,6 +280,9 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
     protected void onNewAction() {
         Action action = new Action();
+        Operand condition = new CallValue();
+        condition.type = ExperimentObjectReference.HAS_SETTERS;
+        action.operandId = mCallbacks.createOperand(condition);
         final long newActionId = mCallbacks.createAction(action);
         action.name = "Action " + (newActionId + 1);
         mRule.actions.add(newActionId);

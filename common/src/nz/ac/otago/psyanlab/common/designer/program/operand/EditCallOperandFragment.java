@@ -180,13 +180,13 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
         }
     };
 
-    protected OnClickListener mOperandActionOnClickListener = new OnClickListener() {
+    protected OnClickListener mOperandActionObjectOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mCallbacks.pickExperimentObject(mSceneId, mCallValue.type,
                     RequestCodes.OPERAND_ACTION_OBJECT);
         }
-    };;
+    };
 
     protected ProgramComponentAdapter<Operand> mParameterAdapter;
 
@@ -260,7 +260,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
 
         @Override
         public void initViews() {
-            actionObject.setOnClickListener(mOperandActionOnClickListener);
+            actionObject.setOnClickListener(mOperandActionObjectOnClickListener);
             actionMethod.setOnItemSelectedListener(mActionMethodOnItemSelectedListener);
 
             mParameterAdapter = new ProgramComponentAdapter<Operand>(mCallbacks.getOperands(),

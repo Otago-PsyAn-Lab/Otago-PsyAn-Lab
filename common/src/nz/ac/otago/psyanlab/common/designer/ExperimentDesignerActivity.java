@@ -88,7 +88,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.widget.DrawerLayout;
 import android.text.format.Time;
-import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -843,8 +842,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
         mSectionManager = new EditorSectionManager(this, R.id.content_frame,
                 getSupportFragmentManager());
-
-        Log.d("asdfads", "on create");
 
         mSectionManager.addSection(R.string.designer_tab_properties, MetaFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_subject, SubjectFragment.class, null);

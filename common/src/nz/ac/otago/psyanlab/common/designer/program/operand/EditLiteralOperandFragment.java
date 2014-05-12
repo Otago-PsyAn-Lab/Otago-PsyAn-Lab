@@ -206,7 +206,9 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
 
     @Override
     public void saveOperand() {
-        mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
+        if (!TextUtils.isEmpty(mOperand.getValue())) {
+            mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
+        }
     }
 
     private boolean handleLiteral(Expression expression) {

@@ -264,7 +264,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             actionMethod.setOnItemSelectedListener(mActionMethodOnItemSelectedListener);
 
             mParameterAdapter = new ProgramComponentAdapter<Operand>(mCallbacks.getOperands(),
-                    null, new OperandListItemViewBinder(getActivity(), mCallbacks));
+                    mCallValue.operands, new OperandListItemViewBinder(getActivity(), mCallbacks));
             parameters.setAdapter(mParameterAdapter);
             parameters.setOnItemClickListener(mOnParameterItemClickListener);
             parameters.setDivider(null);

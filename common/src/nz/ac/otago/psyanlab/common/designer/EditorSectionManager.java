@@ -13,6 +13,10 @@ import android.support.v4.util.SparseArrayCompat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Helper class that manages adding and removing editor section fragments and
+ * maintains their state.
+ */
 public class EditorSectionManager {
     private int mContainerResId;
 

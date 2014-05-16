@@ -69,7 +69,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
 
     private ViewHolder mViews;
 
-    protected OnClickListener mClearVariableLsitener;
+    protected OnClickListener mClearVariableListener;
 
     protected OnClickListener mDontClearVariableListener;
 

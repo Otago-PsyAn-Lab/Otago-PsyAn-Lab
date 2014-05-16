@@ -26,6 +26,7 @@ import nz.ac.otago.psyanlab.common.model.operand.ExpressionValue;
 import nz.ac.otago.psyanlab.common.model.operand.FloatValue;
 import nz.ac.otago.psyanlab.common.model.operand.IntegerValue;
 import nz.ac.otago.psyanlab.common.model.operand.StringValue;
+import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
@@ -469,5 +470,10 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
                 hideOperands();
             }
         }
+    }
+
+    @Override
+    public Operand initReplacement(Operand oldOperand) {
+        return new StubOperand(oldOperand.getName());
     }
 }

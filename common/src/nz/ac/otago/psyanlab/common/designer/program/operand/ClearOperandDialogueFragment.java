@@ -4,7 +4,6 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
 import nz.ac.otago.psyanlab.common.model.Operand;
-import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,6 +18,17 @@ public class ClearOperandDialogueFragment extends DialogFragment {
     private static final String ARG_OPERAND_ID = "arg_operand_id";
 
     private static final String ARG_TITLE = "arg_title";
+
+    private static final OnClearListener sDummyListener = new OnClearListener() {
+        @Override
+        public void OnClearOperand() {
+        }
+
+        @Override
+        public Operand initReplacement(Operand oldOperand) {
+            return oldOperand;
+        }
+    };
 
     /**
      * Create a new dialogue to clear operand, or not.
@@ -40,7 +50,7 @@ public class ClearOperandDialogueFragment extends DialogFragment {
         }
     };
 
-    private OnClearListener mOnClearListener;
+    private OnClearListener mOnClearListener = sDummyListener;
 
     private Operand mOperand;
 
@@ -51,7 +61,7 @@ public class ClearOperandDialogueFragment extends DialogFragment {
             // Do this to clear up any potential hierarchy.
             mCallbacks.deleteOperand(mOperandId);
             // Put the replacement into the known position (id).
-            mCallbacks.updateOperand(mOperandId, new StubOperand(mOperand.getName()));
+            mCallbacks.updateOperand(mOperandId, mOnClearListener.initReplacement(mOperand));
             mOnClearListener.OnClearOperand();
             dismiss();
         }
@@ -102,5 +112,13 @@ public class ClearOperandDialogueFragment extends DialogFragment {
 
     public interface OnClearListener {
         void OnClearOperand();
+
+        /**
+         * Initialise replacement operand for the 'clear' operation.
+         * 
+         * @param oldOperand Operand that will be replaced.
+         * @return
+         */
+        Operand initReplacement(Operand oldOperand);
     }
 }

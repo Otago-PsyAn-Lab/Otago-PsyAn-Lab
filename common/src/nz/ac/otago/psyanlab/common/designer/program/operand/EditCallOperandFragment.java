@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.designer.program.operand;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
+import nz.ac.otago.psyanlab.common.designer.program.operand.ClearOperandDialogueFragment.OnClearListener;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
@@ -27,6 +28,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ListView;
@@ -41,7 +43,7 @@ import java.util.ArrayList;
  * A fragment that provides a UI to input a call value as an operand.
  */
 public class EditCallOperandFragment extends AbsOperandFragment implements
-        OperandDataChangeListener {
+        OperandDataChangeListener, OnClearListener {
     private ViewHolder mViews;
 
     protected OnItemSelectedListener mActionMethodOnItemSelectedListener = new OnItemSelectedListener() {
@@ -195,6 +197,26 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
         }
     };
 
+    protected OnItemLongClickListener mOperandItemLongClickListener = new OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            int viewType = parent.getAdapter().getItemViewType(position);
+            if (viewType == ListView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) {
+                return false;
+            }
+
+            showClearOperandDialogue(id);
+            return true;
+        }
+    };
+
+    protected void showClearOperandDialogue(long id) {
+        ClearOperandDialogueFragment dialogue = ClearOperandDialogueFragment.newDialog(
+                R.string.title_clear_variable, id);
+        dialogue.setOnClearListener(this);
+        dialogue.show(getChildFragmentManager(), "dialogue_clear_operand");
+    }
+
     protected CallValue mCallValue;
 
     protected OnItemClickListener mOnParameterItemClickListener = new OnItemClickListener() {
@@ -305,6 +327,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                     mCallValue.operands, new OperandListItemViewBinder(getActivity(), mCallbacks));
             parameters.setAdapter(mParameterAdapter);
             parameters.setOnItemClickListener(mOnParameterItemClickListener);
+            parameters.setOnItemLongClickListener(mOperandItemLongClickListener);
             parameters.setDivider(null);
         }
 
@@ -349,5 +372,18 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             actionMethod.setEnabled(false);
             actionMethod.setAdapter(null);
         }
+    }
+
+    @Override
+    public void OnClearOperand() {
+
+    }
+
+    @Override
+    public Operand initReplacement(Operand oldOperand) {
+        StubOperand replacement = new StubOperand(oldOperand.getName());
+        replacement.type = oldOperand.type;
+        replacement.tag = oldOperand.tag;
+        return replacement;
     }
 }

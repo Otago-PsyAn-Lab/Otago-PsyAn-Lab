@@ -116,6 +116,11 @@ public abstract class Operand {
      * @return True if restriction successful.
      */
     public boolean attemptRestrictType(int type) {
+        int intersection = this.type & type;
+        if (intersection != 0) {
+            this.type = intersection;
+            return true;
+        }
         return false;
     }
 

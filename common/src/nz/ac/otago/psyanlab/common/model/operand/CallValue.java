@@ -48,9 +48,4 @@ public class CallValue extends Operand implements CallOperand {
     public int getType() {
         return type;
     }
-
-    @Override
-    public boolean attemptRestrictType(int type) {
-        return this.type == type;
-    }
 }

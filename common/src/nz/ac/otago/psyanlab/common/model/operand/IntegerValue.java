@@ -23,13 +23,4 @@ public class IntegerValue extends Operand implements LiteralOperand {
     public String getValue() {
         return String.valueOf(value);
     }
-
-    @Override
-    public boolean attemptRestrictType(int type) {
-        if (type == TYPE_INTEGER) {
-            this.type = type;
-            return true;
-        }
-        return super.attemptRestrictType(type);
-    }
 }

@@ -17,7 +17,7 @@ public class CallValue extends Operand implements CallOperand {
 
     @Expose
     public ExperimentObjectReference actionObject;
-    
+
     @Expose
     public ArrayList<Long> operands = new ArrayList<Long>();
 
@@ -47,5 +47,10 @@ public class CallValue extends Operand implements CallOperand {
     @Override
     public int getType() {
         return type;
+    }
+
+    @Override
+    public boolean attemptRestrictType(int type) {
+        return this.type == type;
     }
 }

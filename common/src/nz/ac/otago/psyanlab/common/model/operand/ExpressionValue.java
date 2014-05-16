@@ -34,4 +34,14 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     public List<Long> getOperands() {
         return operands;
     }
+
+    @Override
+    public boolean attemptRestrictType(int type) {
+        int intersection = this.type & type;
+        if (intersection != 0) {
+            this.type = intersection;
+            return true;
+        }
+        return false;
+    }
 }

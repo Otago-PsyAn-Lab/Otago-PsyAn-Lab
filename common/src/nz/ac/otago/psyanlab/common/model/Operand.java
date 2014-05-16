@@ -28,13 +28,13 @@ public abstract class Operand {
 
     public static final int TYPE_INTEGER = 0x04;
 
+    public static final int TYPE_NUMBER = TYPE_FLOAT | TYPE_INTEGER;
+
     public static final int TYPE_SOUND = 0x40;
 
     public static final int TYPE_STRING = 0x08;
 
     public static final int TYPE_VIDEO = 0x20;
-
-    public static final int TYPE_NUMBER = TYPE_FLOAT | TYPE_INTEGER;
 
     public static final int TYPE_NON_ASSETS = TYPE_BOOLEAN | TYPE_NUMBER | TYPE_STRING;
 
@@ -91,19 +91,23 @@ public abstract class Operand {
         return types;
     }
 
-    public Operand(Operand operand) {
-        name = operand.name;
-        type = operand.type;
-    }
-
-    public Operand() {
-    }
-
     @Expose
     public String name = "Unset";
 
     @Expose
+    public int tag;
+
+    @Expose
     public int type;
+
+    public Operand() {
+    }
+
+    public Operand(Operand operand) {
+        name = operand.name;
+        type = operand.type;
+        tag = operand.tag;
+    }
 
     /**
      * Attempt to refine the type of the operand.
@@ -119,8 +123,16 @@ public abstract class Operand {
         return name;
     }
 
+    public int getTag() {
+        return tag;
+    }
+
     public int getType() {
         return type;
+    }
+
+    public void setTag(int tag) {
+        this.tag = tag;
     }
 
     public class OperandGsonAdapter implements JsonSerializer<Operand>, JsonDeserializer<Operand> {

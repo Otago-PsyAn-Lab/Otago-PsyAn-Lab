@@ -1,8 +1,6 @@
 
 package nz.ac.otago.psyanlab.common.expression;
 
-import android.util.Log;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -87,7 +85,6 @@ public class Lexer implements Iterator<Token> {
 
     @Override
     public Token next() {
-        Log.d("LEXER NEXT", "" + mOffset);
         while (mOffset < mText.length()) {
             final int codePoint = mText.codePointAt(mOffset);
             mOffset += Character.charCount(codePoint);

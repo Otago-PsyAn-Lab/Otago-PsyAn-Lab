@@ -259,9 +259,11 @@
     <string name="title_edit_condition">Edit Condition</string>
     <string name="label_variables">Variables</string>
     <string name="error_expected_operator">Expected operator.</string>
-    <string name="message_clear_operand">Clear value for \'%s\'?</string>
+    <string name="message_clear_operand">Clear value for \'%1$s\'?</string>
     <string name="action_clear">Clear</string>
-    <string name="title_clear_variable">Clear variable %s</string>
+    <string name="action_rename">Rename</string>
+    <string name="title_clear_variable">Clear variable %1$s</string>
+    <string name="title_rename_variable">Rename variable %1$s</string>
     <string name="test_method_get_text">Get Text</string>
     <string name="parameter_missing_string">Missing parameter name</string>
     <string name="parameter_text">Text</string>
@@ -271,5 +273,6 @@
     <string name="format_call_operand_value">Call «%2$s» on %1$s</string>
     <string name="default_condition_details">Condition unspecified</string>
     <string name="format_condition_details">Rule will execute if the following is true at point of evaluation.\n\n %1$s</string>
+    <string name="label_name">Name</string>
 
 </resources>

@@ -8,6 +8,8 @@ import nz.ac.otago.psyanlab.common.expression.Precedence;
  */
 public class NameExpression implements Expression {
     private final String mName;
+    
+    private long mOperandId = -1;
 
     public NameExpression(String name) {
         mName = name;
@@ -25,5 +27,9 @@ public class NameExpression implements Expression {
     @Override
     public int getPrecedence() {
         return Precedence.IDENTITY;
+    }
+
+    public void setOperand(long operandId) {
+        mOperandId = operandId;
     }
 }

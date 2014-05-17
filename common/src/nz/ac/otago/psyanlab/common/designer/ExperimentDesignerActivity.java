@@ -600,35 +600,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         return new MethodAdapter(this, filteredMethods, nameFactory);
     }
 
-    /**
-     * Checks to see the given ored set of return types intersects with the
-     * given method's return type.
-     * 
-     * @param method Method to test.
-     * @param returnTypes Ored set of return types.
-     * @return True if intersection.
-     */
-    private boolean returnTypeIntersects(Method method, int returnTypes) {
-        if ((returnTypes & Operand.TYPE_BOOLEAN) != 0
-                && method.getReturnType().equals(Boolean.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Operand.TYPE_INTEGER) != 0
-                && method.getReturnType().equals(Integer.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Operand.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Operand.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
-            return true;
-        }
-        if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter) {
         switch (section) {
@@ -699,17 +670,17 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public Prop getProp(long id) {
+        return mExperiment.props.get(id);
+    }
+
+    @Override
     public ArrayList<Prop> getPropsArray(long stageId) {
         ArrayList<Prop> props = new ArrayList<Prop>();
         for (Long propId : mExperiment.scenes.get(stageId).props) {
             props.add(mExperiment.props.get(propId));
         }
         return props;
-    }
-
-    @Override
-    public Prop getProp(long id) {
-        return mExperiment.props.get(id);
     }
 
     @Override
@@ -895,7 +866,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     @Override
     public void onDialogueResult(int requestCode, Bundle data) {
         mDialogueResultListeners.get(requestCode).onResult(data);
-    };
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -906,7 +877,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    };
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -1329,7 +1300,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             fm.beginTransaction().add(holder, "experiment_holder").commit();
         }
         return holder;
-    };
+    }
 
     /**
      * Restore experiment from persisted state or create it if necessary.
@@ -1360,6 +1331,35 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return experiment;
+    };
+
+    /**
+     * Checks to see the given ored set of return types intersects with the
+     * given method's return type.
+     * 
+     * @param method Method to test.
+     * @param returnTypes Ored set of return types.
+     * @return True if intersection.
+     */
+    private boolean returnTypeIntersects(Method method, int returnTypes) {
+        if ((returnTypes & Operand.TYPE_BOOLEAN) != 0
+                && method.getReturnType().equals(Boolean.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Operand.TYPE_INTEGER) != 0
+                && method.getReturnType().equals(Integer.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Operand.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Operand.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
+            return true;
+        }
+        if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
+            return true;
+        }
+        return false;
     }
 
     private void selectSection(int section) {

@@ -21,12 +21,12 @@ public class ClearOperandDialogueFragment extends DialogFragment {
 
     private static final OnClearListener sDummyListener = new OnClearListener() {
         @Override
-        public void OnClearOperand() {
+        public Operand initReplacement(Operand oldOperand) {
+            return oldOperand;
         }
 
         @Override
-        public Operand initReplacement(Operand oldOperand) {
-            return oldOperand;
+        public void OnClearOperand() {
         }
     };
 
@@ -111,8 +111,6 @@ public class ClearOperandDialogueFragment extends DialogFragment {
     }
 
     public interface OnClearListener {
-        void OnClearOperand();
-
         /**
          * Initialise replacement operand for the 'clear' operation.
          * 
@@ -120,5 +118,7 @@ public class ClearOperandDialogueFragment extends DialogFragment {
          * @return
          */
         Operand initReplacement(Operand oldOperand);
+
+        void OnClearOperand();
     }
 }

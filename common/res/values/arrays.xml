@@ -25,6 +25,10 @@
         <item>Landscape</item>
         <item>Portrait</item>
     </string-array>
+    <string-array name="variable_options">
+        <item>@string/action_clear</item>
+        <item>@string/action_rename</item>
+    </string-array>
     <string-array name="experiment_designer_sections">
         <item>@string/label_properties</item>
         <item>@string/label_subject</item>

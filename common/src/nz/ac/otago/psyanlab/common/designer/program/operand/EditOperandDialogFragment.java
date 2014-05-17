@@ -15,18 +15,27 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 
 /**
  * A dialogue that allows the user to configure an operand. Use copy on write so
  * it is easy to roll back changes.
  */
 public class EditOperandDialogFragment extends DialogFragment {
+    private static final String ARG_EDIT_NAME = "arg_edit_name";
+
+    private static final String ARG_HIDE_NAME = "arg_hide_name";
+
     private static final String ARG_OPERAND_ID = "arg_operand_id";
 
     private static final String ARG_SCENE_ID = "arg_scene_id";
@@ -36,17 +45,6 @@ public class EditOperandDialogFragment extends DialogFragment {
     private static final String ARG_TYPE = "arg_type";
 
     private static final long INVALID_ID = -1;
-
-    protected OperandCallbacks mCallbacks;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (!(activity instanceof OperandCallbacks)) {
-            throw new RuntimeException("Activity must implement operand callbacks.");
-        }
-        mCallbacks = (OperandCallbacks)activity;
-    }
 
     private static final OnDoneListener sOnDoneDummyListener = new OnDoneListener() {
         @Override
@@ -59,8 +57,9 @@ public class EditOperandDialogFragment extends DialogFragment {
      * 
      * @param sceneId Scene id of scene operand being edited belongs to.
      * @param operandId Operand id of operand to edit.
-     * @param title
-     * @param typeBoolean type the operand should match.
+     * @param title Title of dialogue.
+     * @param type Type the operand should match.
+     * @return Initialised fragment.
      */
     public static EditOperandDialogFragment newDialog(long sceneId, long operandId, int type,
             String title) {
@@ -74,10 +73,38 @@ public class EditOperandDialogFragment extends DialogFragment {
         return f;
     }
 
+    /**
+     * Create a new dialogue to edit the number of iterations a loop undergoes.
+     * 
+     * @param sceneId Scene id of scene operand being edited belongs to.
+     * @param operandId Operand id of operand to edit.
+     * @param title Title of dialogue.
+     * @param type Type the operand should match.
+     * @param hideName Whether to hide name field of operand.
+     * @param editName Whether to make name editable.
+     * @return Initialised fragment.
+     */
+    public static EditOperandDialogFragment newDialog(long sceneId, long operandId, int type,
+            String title, boolean hideName, boolean editName) {
+        EditOperandDialogFragment f = new EditOperandDialogFragment();
+        Bundle args = new Bundle();
+        args.putLong(ARG_SCENE_ID, sceneId);
+        args.putLong(ARG_OPERAND_ID, operandId);
+        args.putInt(ARG_TYPE, type);
+        args.putString(ARG_TITLE, title);
+        args.putBoolean(ARG_HIDE_NAME, hideName);
+        args.putBoolean(ARG_EDIT_NAME, editName);
+        f.setArguments(args);
+        return f;
+    }
+
     public OnClickListener mOnDoneClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mViews.saveOperand();
+            mOperand = mCallbacks.getOperand(mOperandId);
+            mOperand.name = mViews.name.getText().toString();
+            mCallbacks.updateOperand(mOperandId, mOperand);
             mOnDoneListener.OnEditOperandDialogueDone();
             getDialog().dismiss();
         }
@@ -89,13 +116,30 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     protected Operand mBackupOperand;
 
+    protected OperandCallbacks mCallbacks;
+
+    protected boolean mEditNameEnabled;
+
+    protected boolean mHideName;
+
     protected OnDoneListener mOnDoneListener = sOnDoneDummyListener;
+
+    protected Operand mOperand;
 
     protected long mOperandId;
 
     protected int mOperandType;
 
     protected long mSceneId;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (!(activity instanceof OperandCallbacks)) {
+            throw new RuntimeException("Activity must implement operand callbacks.");
+        }
+        mCallbacks = (OperandCallbacks)activity;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -125,6 +169,9 @@ public class EditOperandDialogFragment extends DialogFragment {
             mOperandId = args.getLong(ARG_OPERAND_ID, INVALID_ID);
             mOperandType = args.getInt(ARG_TYPE);
             mTitle = args.getString(ARG_TITLE);
+            mHideName = args.getBoolean(ARG_HIDE_NAME, true);
+            mEditNameEnabled = args.getBoolean(ARG_EDIT_NAME, false);
+            mOperand = mCallbacks.getOperand(mOperandId);
         }
 
         if (mOperandId == INVALID_ID) {
@@ -156,7 +203,58 @@ public class EditOperandDialogFragment extends DialogFragment {
     }
 
     class ViewHolder {
-        private Button done;
+        public Button done;
+
+        public EditText name;
+
+        public View nameContainer;
+
+        public ViewPager pager;
+
+        public PagerSlidingTabStrip tabs;
+
+        private InputFilter mFilter = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
+                    int dstart, int dend) {
+                boolean keepOriginal = true;
+                StringBuilder sb = new StringBuilder(end - start);
+
+                int offset = 0;
+                String s = source.toString();
+
+                while (offset < s.length()) {
+                    final int codePoint = s.codePointAt(offset);
+                    if ((offset == 0 && isAllowedAsFirst(codePoint))
+                            || (offset > 0 && isAllowed(codePoint))) {
+                        sb.appendCodePoint(codePoint);
+                    } else {
+                        keepOriginal = false;
+                    }
+                    offset += Character.charCount(codePoint);
+                }
+
+                if (keepOriginal)
+                    return null;
+                else {
+                    if (source instanceof Spanned) {
+                        SpannableString sp = new SpannableString(sb);
+                        TextUtils.copySpansFrom((Spanned)source, start, sb.length(), null, sp, 0);
+                        return sp;
+                    } else {
+                        return sb;
+                    }
+                }
+            }
+
+            private boolean isAllowed(int codePoint) {
+                return Character.isLetterOrDigit(codePoint);
+            }
+
+            private boolean isAllowedAsFirst(int codePoint) {
+                return Character.isLetter(codePoint);
+            }
+        };
 
         private FragmentStatePagerAdapter mPagerAdapter = new FragmentStatePagerAdapter(
                 getChildFragmentManager()) {
@@ -197,14 +295,12 @@ public class EditOperandDialogFragment extends DialogFragment {
             };
         };
 
-        private ViewPager pager;
-
-        private PagerSlidingTabStrip tabs;
-
         public ViewHolder(View view) {
             pager = (ViewPager)view.findViewById(R.id.pager);
             tabs = (PagerSlidingTabStrip)view.findViewById(R.id.tabs);
             done = (Button)view.findViewById(R.id.done);
+            name = (EditText)view.findViewById(R.id.name);
+            nameContainer = view.findViewById(R.id.name_container);
         }
 
         public void initViews() {
@@ -214,6 +310,17 @@ public class EditOperandDialogFragment extends DialogFragment {
             tabs.setViewPager(pager);
 
             done.setOnClickListener(mOnDoneClickListener);
+
+            name.setText(mOperand.name);
+            name.setEnabled(mEditNameEnabled);
+            name.setFilters(new InputFilter[] {
+                mFilter
+            });
+            if (mHideName) {
+                nameContainer.setVisibility(View.GONE);
+            } else {
+                nameContainer.setVisibility(View.VISIBLE);
+            }
         }
 
         public void saveOperand() {

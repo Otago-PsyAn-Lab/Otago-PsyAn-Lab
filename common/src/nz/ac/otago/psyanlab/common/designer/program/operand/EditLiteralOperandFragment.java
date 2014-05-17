@@ -5,6 +5,7 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.operand.ClearOperandDialogueFragment.OnClearListener;
 import nz.ac.otago.psyanlab.common.designer.program.operand.EditOperandDialogFragment.OnDoneListener;
+import nz.ac.otago.psyanlab.common.designer.program.operand.RenameOperandDialogueFragment.OnRenameListener;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.expression.Lexer;
@@ -31,7 +32,6 @@ import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
@@ -40,12 +40,17 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -59,7 +64,7 @@ import java.util.HashMap;
  * operand.
  */
 public class EditLiteralOperandFragment extends AbsOperandFragment implements
-        OperandDataChangeListener, OnDoneListener, OnClearListener {
+        OperandDataChangeListener, OnDoneListener, OnClearListener, OnRenameListener {
     private static final String ARG_OPERAND_MAP = "arg_operand_map";
 
     private final BackgroundColorSpan mErrorSpan = new BackgroundColorSpan(0xFFFF0000);
@@ -70,12 +75,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
 
     private ViewHolder mViews;
 
-    protected OnClickListener mClearVariableListener;
-
-    protected OnClickListener mDontClearVariableListener;
-
     protected TextWatcher mExpressionChangedListener = new TextWatcher() {
-
         @Override
         public void afterTextChanged(Editable s) {
             handleExpressionChange(s);
@@ -104,22 +104,38 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         }
     };
 
-    protected OnItemLongClickListener mOperandItemLongClickListener = new OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            int viewType = parent.getAdapter().getItemViewType(position);
-            if (viewType == ListView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) {
-                return false;
-            }
-
-            showClearOperandDialogue(id);
-            return true;
-        }
-    };
+    @Override
+    public Operand initReplacement(Operand oldOperand) {
+        return new StubOperand(oldOperand.getName());
+    }
 
     @Override
     public void OnClearOperand() {
         handleExpressionChange(mViews.expression.getText());
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_edit) {
+            Operand operand = mCallbacks.getOperand(info.id);
+            showEditOperandDialogue(
+                    info.id,
+                    operand.getType(),
+                    getString(R.string.title_edit_operand,
+                            Operand.getTypeString(getActivity(), operand.getType())));
+            return true;
+        } else if (itemId == R.id.menu_clear) {
+            showClearOperandDialogue(info.id);
+            return true;
+        } else if (itemId == R.id.menu_rename) {
+            showRenameOperandDialogue(info.id);
+            return true;
+        }
+
+        return super.onContextItemSelected(item);
     }
 
     @Override
@@ -138,6 +154,25 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
                 mOperandMap.put(keys[i], operandMap.getLong(keys[i]));
             }
         }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.variable_options, menu);
+
+        // Bloody annoying.
+        OnMenuItemClickListener listener = new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                onContextItemSelected(item);
+                return false;
+            }
+        };
+
+        for (int i = 0, n = menu.size(); i < n; i++)
+            menu.getItem(i).setOnMenuItemClickListener(listener);
     }
 
     @Override
@@ -203,6 +238,9 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         mViews = new ViewHolder(view);
         mViews.initViews();
         mViews.setViewValues(mOperand);
+
+        registerForContextMenu(mViews.operands);
+        mViews.operands.setOnCreateContextMenuListener(this);
     }
 
     @Override
@@ -361,6 +399,12 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         dialogue.show(getChildFragmentManager(), "dialogue_edit_operand");
     }
 
+    protected void showRenameOperandDialogue(long id) {
+        RenameOperandDialogueFragment dialogue = RenameOperandDialogueFragment.newDialog(id);
+        dialogue.setOnRenameListener(this);
+        dialogue.show(getChildFragmentManager(), "dialogue_rename_operand");
+    }
+
     public class ViewHolder extends TonicFragment.ViewHolder<LiteralOperand> {
         public TextView error;
 
@@ -401,8 +445,8 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         public void initViews() {
             expression.addTextChangedListener(mExpressionChangedListener);
             operands.setOnItemClickListener(mOperandItemClickListener);
-            operands.setOnItemLongClickListener(mOperandItemLongClickListener);
             operands.setDivider(null);
+
             mOperandAdapter = new ProgramComponentAdapter<Operand>(mCallbacks.getOperands(), null,
                     new OperandListItemViewBinder(getActivity(), mCallbacks));
             operands.setAdapter(mOperandAdapter);
@@ -473,7 +517,24 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
     }
 
     @Override
-    public Operand initReplacement(Operand oldOperand) {
-        return new StubOperand(oldOperand.getName());
+    public void onRename(String name, String oldName) {
+        // Update operand map.
+        long id = mOperandMap.get(oldName);
+        mOperandMap.remove(oldName);
+        mOperandMap.put(name, id);
+
+        // Update expression.
+        String expression = mViews.expression.getText().toString();
+        String wordBreak = "([^\\p{L}\\p{N}])";
+        String word = oldName;
+        String matchOnly = "^" + word + "$";
+        String matchBeginning = "^" + word + wordBreak;
+        String matchEnd = wordBreak + word + "$";
+        String matchMiddle = wordBreak + oldName + wordBreak;
+        expression = expression.replaceAll(matchOnly, name);
+        expression = expression.replaceAll(matchBeginning, name + "$1");
+        expression = expression.replaceAll(matchEnd, "$1" + name);
+        expression = expression.replaceAll(matchMiddle, "$1" + name + "$2");
+        mViews.expression.setText(expression);
     }
 }

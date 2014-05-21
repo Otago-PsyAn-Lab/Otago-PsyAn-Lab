@@ -765,7 +765,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     @Override
     public void onBackPressed() {
         DialogFragment dialog = ConfirmDialogFragment.newInstance(R.string.title_exit_designer,
-                R.string.action_save_exit, R.string.action_cancel, R.string.action_discard,
+                R.string.action_save_exit, R.string.action_cancel,
                 new ConfirmDialogFragment.OnClickListener() {
                     @Override
                     public void onClick(Dialog dialog) {
@@ -779,15 +779,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                     public void onClick(Dialog dialog) {
                         dialog.dismiss();
                     }
-                }, new ConfirmDialogFragment.OnClickListener() {
-                    @Override
-                    public void onClick(Dialog dialog) {
-                        Intent data = new Intent();
-                        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
-                        setResult(RESULT_CANCELED, data);
-                        finish();
-                        dialog.dismiss();
-                    }
+//                }, new ConfirmDialogFragment.OnClickListener() {
+//                    @Override
+//                    public void onClick(Dialog dialog) {
+//                        Intent data = new Intent();
+//                        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
+//                        setResult(RESULT_CANCELED, data);
+//                        finish();
+//                        dialog.dismiss();
+//                    }
                 });
         dialog.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
     }
@@ -867,6 +867,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
         if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        long itemId = item.getItemId();
+        if (itemId == R.id.menu_discard) {
+            Intent data = new Intent();
+            data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
+            setResult(RESULT_CANCELED, data);
+            finish();
+            return true;
+        } else if (itemId == R.id.menu_done) {
+            storeExperiment();
+            setResult(RESULT_OK);
+            finish();
             return true;
         }
 

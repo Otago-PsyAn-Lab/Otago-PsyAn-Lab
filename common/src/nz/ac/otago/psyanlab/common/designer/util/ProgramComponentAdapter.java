@@ -3,13 +3,13 @@ package nz.ac.otago.psyanlab.common.designer.util;
 
 import com.mobeta.android.dslv.DragSortListView.DragSortListener;
 
-import android.support.v4.util.LongSparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortListener {
@@ -22,11 +22,11 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
      */
     private List<Long> mKeys;
 
-    private LongSparseArray<T> mMap;
+    private HashMap<Long, T> mMap;
 
     private ViewBinder<T> mViewBinder;
 
-    public ProgramComponentAdapter(LongSparseArray<T> map, List<Long> keys, ViewBinder<T> viewBinder) {
+    public ProgramComponentAdapter(HashMap<Long, T> map, List<Long> keys, ViewBinder<T> viewBinder) {
         mMap = map;
         mViewBinder = viewBinder;
         mKeys = keys;

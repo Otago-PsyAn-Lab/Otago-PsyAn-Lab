@@ -7,7 +7,6 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
-import android.support.v4.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 
 class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapter {
     /**
@@ -24,11 +24,11 @@ class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapte
      */
     private Long[] mAssetKeys;
 
-    private LongSparseArray<Asset> mAssets;
+    private HashMap<Long, Asset> mAssets;
 
     private final LayoutInflater mLayoutInflater;
 
-    public AssetsAdapter(ExperimentDesignerActivity activity, LongSparseArray<Asset> assets) {
+    public AssetsAdapter(ExperimentDesignerActivity activity, HashMap<Long, Asset> assets) {
         mLayoutInflater = activity.getLayoutInflater();
         mAssets = assets;
         sortKeys(mAssets);
@@ -109,10 +109,12 @@ class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapte
         super.notifyDataSetChanged();
     }
 
-    private void sortKeys(LongSparseArray<Asset> assets) {
+    private void sortKeys(HashMap<Long, Asset> assets) {
         mAssetKeys = new Long[assets.size()];
-        for (int i = 0; i < assets.size(); i++) {
-            mAssetKeys[i] = assets.keyAt(i);
+        int i = 0;
+        for (Long entry : assets.keySet()) {
+            mAssetKeys[i] = entry;
+            i++;
         }
 
         Arrays.sort(mAssetKeys, new Comparator<Long>() {

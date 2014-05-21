@@ -88,7 +88,7 @@ public class ExperimentModel extends DbModel {
 
     public String description;
 
-    public String filePath;
+    public String file;
 
     public long fileSize;
 
@@ -123,7 +123,7 @@ public class ExperimentModel extends DbModel {
             dateCreated = b.getLong(KEY_DATE_CREATED);
         }
         if (b.containsKey(KEY_FILE)) {
-            filePath = b.getString(KEY_FILE);
+            file = b.getString(KEY_FILE);
         }
         if (b.containsKey(KEY_FILE_SIZE)) {
             fileSize = b.getLong(KEY_FILE_SIZE);
@@ -162,9 +162,9 @@ public class ExperimentModel extends DbModel {
             dateCreated = c.getLong(c.getColumnIndex(namespaced(KEY_DATE_CREATED)));
         }
         if (c.getColumnIndex(KEY_FILE) != INVALID_COL) {
-            filePath = c.getString(c.getColumnIndex(KEY_FILE));
+            file = c.getString(c.getColumnIndex(KEY_FILE));
         } else if (c.getColumnIndex(namespaced(KEY_FILE)) != INVALID_COL) {
-            filePath = c.getString(c.getColumnIndex(namespaced(KEY_FILE)));
+            file = c.getString(c.getColumnIndex(namespaced(KEY_FILE)));
         }
         if (c.getColumnIndex(KEY_FILE_SIZE) != INVALID_ID) {
             fileSize = c.getLong(c.getColumnIndex(KEY_FILE_SIZE));
@@ -193,7 +193,7 @@ public class ExperimentModel extends DbModel {
             dateCreated = c.getLong(c.getColumnIndex(prefix + KEY_DATE_CREATED));
         }
         if (c.getColumnIndex(prefix + KEY_FILE) != INVALID_COL) {
-            filePath = c.getString(c.getColumnIndex(prefix + KEY_FILE));
+            file = c.getString(c.getColumnIndex(prefix + KEY_FILE));
         }
         if (c.getColumnIndex(prefix + KEY_FILE_SIZE) != INVALID_ID) {
             fileSize = c.getLong(c.getColumnIndex(prefix + KEY_FILE_SIZE));
@@ -206,7 +206,7 @@ public class ExperimentModel extends DbModel {
         description = experimentDef.description;
         version = experimentDef.version;
         dateCreated = experimentDef.dateCreated;
-        filePath = paleFile.getPath();
+        file = paleFile.getName();
         fileSize = paleFile.length();
     }
 
@@ -218,7 +218,7 @@ public class ExperimentModel extends DbModel {
         b.putString(KEY_DESCRIPTION, description);
         b.putInt(KEY_VERSION, version);
         b.putLong(KEY_DATE_CREATED, dateCreated);
-        b.putString(KEY_FILE, filePath);
+        b.putString(KEY_FILE, file);
         b.putLong(KEY_FILE_SIZE, fileSize);
         return b;
     }
@@ -289,7 +289,7 @@ public class ExperimentModel extends DbModel {
         v.put(KEY_AUTHORS, authors);
         v.put(KEY_DATE_CREATED, dateCreated);
         v.put(KEY_DESCRIPTION, description);
-        v.put(KEY_FILE, filePath);
+        v.put(KEY_FILE, file);
         v.put(KEY_FILE_SIZE, fileSize);
         v.put(KEY_NAME, name);
         v.put(KEY_VERSION, version);

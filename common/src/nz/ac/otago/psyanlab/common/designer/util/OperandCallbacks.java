@@ -4,7 +4,7 @@ package nz.ac.otago.psyanlab.common.designer.util;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
-import android.support.v4.util.LongSparseArray;
+import java.util.HashMap;
 
 public interface OperandCallbacks {
     long createOperand(Operand operand);
@@ -28,5 +28,5 @@ public interface OperandCallbacks {
 
     void updateOperand(long id, Operand operand);
 
-    LongSparseArray<Operand> getOperands();
+    HashMap<Long, Operand> getOperands();
 }

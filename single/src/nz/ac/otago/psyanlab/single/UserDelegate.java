@@ -41,12 +41,15 @@ public class UserDelegate implements UserDelegateI {
     };
 
     private static final int LOADER_EXPERIMENTS = 0x01;
+
+    private static final String PATH_INTERNAL_TEMP_DIR = "temp";
+
     private static final String[] sExperimentsCols = new String[] {
-            ExperimentModel.namespaced(ExperimentModel.KEY_ID),
-            ExperimentModel.KEY_NAME
+            ExperimentModel.namespaced(ExperimentModel.KEY_ID), ExperimentModel.KEY_NAME
     };
 
     private FragmentActivity mActivity;
+
     private SimpleCursorAdapter mAdapter;
 
     public UserDelegate() {
@@ -56,12 +59,38 @@ public class UserDelegate implements UserDelegateI {
     }
 
     @Override
+    public Uri addExperiment(Experiment experiment) throws IOException {
+        // Compress experiment and store it in a temporary file. This file is
+        // then copied and named as appropriate as part of the data provider
+        // insert operation.
+        File tempFile = new File(mActivity.getExternalCacheDir(),
+                FileUtils.generateTimestampFilename());
+        tempFile.createNewFile();
+        String path = tempFile.getCanonicalPath();
+
+        Uri uri = null;
+        try {
+            FileUtils.compress(tempFile, experiment);
+            File paleFile = FileUtils.copyToInternalStorage(mActivity, path,
+                    FileUtils.generateNewFileName(path));
+
+            // Store experiment.
+            ContentValues values = new ExperimentModel(experiment, paleFile).toValues();
+            ContentResolver contentResolver = mActivity.getContentResolver();
+            uri = contentResolver.insert(DataProvider.URI_EXPERIMENTS, values);
+        } finally {
+            FileUtils.clearCache(mActivity);
+        }
+        return uri;
+    }
+
+    @Override
     public Uri addExperiment(String path) throws JSONException, IOException {
-        File paleFile = new File(path);
-        ContentValues values = new ExperimentModel(
-                FileUtils.loadExperimentDefinition(paleFile), paleFile)
-                .toValues();
-        values.put(Args.FILE_PATH, path);
+        File paleFile = FileUtils.copyToInternalStorage(mActivity, path,
+                FileUtils.generateNewFileName(path));
+        ContentValues values = new ExperimentModel(FileUtils.loadExperimentDefinition(paleFile),
+                paleFile).toValues();
+
         ContentResolver contentResolver = mActivity.getContentResolver();
         return contentResolver.insert(DataProvider.URI_EXPERIMENTS, values);
     }
@@ -75,16 +104,15 @@ public class UserDelegate implements UserDelegateI {
     public ListAdapter getExperimentsAdapter(int layout, int[] fields, int[] to) {
         String[] from = convertFields(fields);
         mAdapter = new SimpleCursorAdapter(mActivity, layout, null, from, to, 0);
-        mActivity.getSupportLoaderManager().initLoader(LOADER_EXPERIMENTS,
-                null, new ExperimentsLoaderCallbacks());
+        mActivity.getSupportLoaderManager().initLoader(LOADER_EXPERIMENTS, null,
+                new ExperimentsLoaderCallbacks());
 
         return mAdapter;
     }
 
     @Override
     public ExperimentDelegate getUserExperimentDelegate(long experimentId) {
-        ExperimentDelegate userExperimentDelegate = new ExperimentDelegate(
-                experimentId);
+        ExperimentDelegate userExperimentDelegate = new ExperimentDelegate(experimentId);
         userExperimentDelegate.init(mActivity);
         return userExperimentDelegate;
     }
@@ -137,13 +165,11 @@ public class UserDelegate implements UserDelegateI {
         return Arrays.copyOfRange(cols, 0, numUnderstood);
     }
 
-    private final class ExperimentsLoaderCallbacks implements
-            LoaderCallbacks<Cursor> {
+    private final class ExperimentsLoaderCallbacks implements LoaderCallbacks<Cursor> {
         @Override
         public Loader<Cursor> onCreateLoader(int newLoaderId, final Bundle args) {
-            return new CursorLoader(mActivity, DataProvider.URI_EXPERIMENTS,
-                    sExperimentsCols, null, null, ExperimentModel.KEY_NAME
-                            + " ASC");
+            return new CursorLoader(mActivity, DataProvider.URI_EXPERIMENTS, sExperimentsCols,
+                    null, null, ExperimentModel.KEY_NAME + " ASC");
         }
 
         @Override
@@ -161,10 +187,5 @@ public class UserDelegate implements UserDelegateI {
                 oldCursor.close();
             }
         }
-    }
-
-    @Override
-    public void addExperiment(Experiment experiment) throws IOException {
-        // TODO Auto-generated method stub
     }
 }

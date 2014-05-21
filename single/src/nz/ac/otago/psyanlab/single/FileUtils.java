@@ -32,16 +32,19 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class FileUtils extends nz.ac.otago.psyanlab.common.util.FileUtils {
-    public static final String PATH_TEMP = "tmp";
     public static final String PATH_EXTERNAL_EXPERIMENTS_DIR = "PsyAn Lab" + File.separator
             + "Experiment Files";
+
     public static final String PATH_INTERNAL_EXPERIMENTS_DIR = "pales";
 
+    public static final String PATH_TEMP = "tmp";
+
     /**
-     * Copies a file to internal storage giving it a unique name in the process.
+     * Copies a file to internal storage.
      * 
      * @param context Application context.
-     * @param filePath Path of file to copy.
+     * @param source Source file path.
+     * @param dest Destination filename.
      * @return New file in private internal storage.
      * @throws IOException
      */
@@ -65,18 +68,67 @@ public class FileUtils extends nz.ac.otago.psyanlab.common.util.FileUtils {
         return newPaleFile;
     }
 
-    public static String generateNewFileName(String file) throws IOException,
-            NoSuchAlgorithmException {
-        MessageDigest digester = MessageDigest.getInstance("MD5");
+    /**
+     * Clear the cache for the application.
+     * 
+     * @param context Application context.
+     */
+    public static void clearCache(Context context) {
+        File cacheDir = context.getExternalCacheDir();
+        for (File child : cacheDir.listFiles()) {
+            rmHyphenR(child);
+        }
+    }
+
+    /**
+     * Recursively delete a file hierarchy.
+     * 
+     * @param file File indicating path to delete.
+     */
+    public static void rmHyphenR(File file) {
+        if (file.isDirectory()) {
+            for (File child : file.listFiles()) {
+                rmHyphenR(child);
+            }
+        }
+
+        file.delete();
+    }
+
+    /**
+     * Create a new filename based on the md5sum of an existing file.
+     * 
+     * @param filepath File to read.
+     * @return New name.
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
+    public static String generateNewFileName(String filepath) throws IOException {
+        MessageDigest digester;
+        try {
+            digester = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
 
         byte[] bytes = new byte[8192];
-        FileInputStream in = new FileInputStream(file);
+        FileInputStream in = new FileInputStream(filepath);
 
         int byteCount;
         while ((byteCount = in.read(bytes)) > 0) {
             digester.update(bytes, 0, byteCount);
         }
+        in.close();
         byte[] digest = digester.digest();
         return URLEncoder.encode(new String(digest), "UTF-8") + ".pale";
+    }
+
+    /**
+     * Generates a filename which is the current timestamp.
+     * 
+     * @return New name.
+     */
+    public static String generateTimestampFilename() {
+        return String.valueOf(System.currentTimeMillis()) + ".pale";
     }
 }

@@ -3,16 +3,15 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
-import android.support.v4.util.LongSparseArray;
-
 import java.io.File;
+import java.util.HashMap;
 
 public class Experiment {
     @Expose
-    public LongSparseArray<Action> actions;
+    public HashMap<Long, Action> actions;
 
     @Expose
-    public LongSparseArray<Asset> assets;
+    public HashMap<Long, Asset> assets;
 
     @Expose
     public String authors;
@@ -24,31 +23,31 @@ public class Experiment {
     public String description;
 
     @Expose
-    public LongSparseArray<Generator> generators;
+    public HashMap<Long, Generator> generators;
 
     @Expose
     public LandingPage landingPage;
 
     @Expose
-    public LongSparseArray<Loop> loops;
+    public HashMap<Long, Loop> loops;
 
     @Expose
     public String name;
 
     @Expose
-    public LongSparseArray<Operand> operands;
+    public HashMap<Long, Operand> operands;
 
     @Expose
     public Program program;
 
     @Expose
-    public LongSparseArray<Prop> props;
+    public HashMap<Long, Prop> props;
 
     @Expose
-    public LongSparseArray<Rule> rules;
+    public HashMap<Long, Rule> rules;
 
     @Expose
-    public LongSparseArray<Scene> scenes;
+    public HashMap<Long, Scene> scenes;
 
     @Expose
     public TargetScreen screen;
@@ -59,14 +58,14 @@ public class Experiment {
     private File workingDirectory;
 
     public Experiment() {
-        actions = new LongSparseArray<Action>();
-        assets = new LongSparseArray<Asset>();
-        generators = new LongSparseArray<Generator>();
-        loops = new LongSparseArray<Loop>();
-        operands = new LongSparseArray<Operand>();
-        props = new LongSparseArray<Prop>();
-        rules = new LongSparseArray<Rule>();
-        scenes = new LongSparseArray<Scene>();
+        actions = new HashMap<Long, Action>();
+        assets = new HashMap<Long, Asset>();
+        generators = new HashMap<Long, Generator>();
+        loops = new HashMap<Long, Loop>();
+        operands = new HashMap<Long, Operand>();
+        props = new HashMap<Long, Prop>();
+        rules = new HashMap<Long, Rule>();
+        scenes = new HashMap<Long, Scene>();
 
         landingPage = new LandingPage();
         program = new Program();

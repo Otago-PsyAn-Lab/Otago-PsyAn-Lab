@@ -25,6 +25,12 @@ public class ModelUtils {
     public static Gson getDataReaderWriter() {
         if (mGson == null) {
             GsonBuilder gson = new GsonBuilder();
+
+//            Type loopArrayType = new TypeToken<LongSparseArray<Loop>>() {
+//            }.getType();
+//            gson.registerTypeAdapter(loopArrayType,
+//                    new LongSparseArrayGsonAdapter<Loop>(Loop.class));
+
             gson.registerTypeAdapter(Operand.class, new AbsModelGsonAdapter<Operand>(
                     AbsModelGsonAdapter.NS_MODEL_ASSET));
             gson.registerTypeAdapter(Generator.class, new AbsModelGsonAdapter<Generator>(

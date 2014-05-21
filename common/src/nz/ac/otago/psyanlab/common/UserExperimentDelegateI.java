@@ -72,4 +72,11 @@ public interface UserExperimentDelegateI extends Parcelable {
      * @throws IOException on error when reading experiment.
      */
     Experiment getExperiment() throws IOException;
+
+    /**
+     * Get the experiment id.
+     * 
+     * @return Experiment id.
+     */
+    long getId();
 }

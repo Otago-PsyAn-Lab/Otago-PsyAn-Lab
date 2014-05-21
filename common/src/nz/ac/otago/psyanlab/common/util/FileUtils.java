@@ -20,6 +20,9 @@
 
 package nz.ac.otago.psyanlab.common.util;
 
+import com.google.gson.stream.JsonReader;
+
+import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 
@@ -29,6 +32,7 @@ import android.text.TextUtils;
 import android.text.format.Time;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,9 +40,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.Enumeration;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -47,6 +54,116 @@ import java.util.zip.ZipOutputStream;
 //
 
 public class FileUtils {
+    /**
+     * Compress a working directory to some destination.
+     * 
+     * @param workingDir Directory whose contents will be archived.
+     * @param destFile Destination file which will be written to.
+     * @return Archive file written.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    @Deprecated
+    public static File compress(File workingDir, File destFile) throws FileNotFoundException,
+            IOException {
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destFile));
+        addFiles(workingDir, workingDir, out);
+        out.close();
+
+        return destFile;
+    }
+
+    public static void compress(File destination, Experiment experiment) throws IOException {
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destination));
+
+        try {
+            writeExperimentToArchive(out, copyAssetsToArchive(out, experiment));
+        } finally {
+            out.close();
+        }
+    }
+
+    /**
+     * Inflate a pale file to a given working directory.
+     * 
+     * @param paleFile .pale file to inflate.
+     * @param workingDir Path to extract to.
+     * @return Path of the location the file was extracted to.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static File decompress(File paleFile, File workingDir) throws FileNotFoundException,
+            IOException {
+        ZipFile archive = new ZipFile(paleFile);
+
+        try {
+            // Iterate over elements in zip file and extract them to working
+            // directory.
+            Enumeration<? extends ZipEntry> entries = archive.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry ze = entries.nextElement();
+                File newFile = new File(workingDir, ze.getName());
+
+                if (ze.isDirectory()) {
+                    if (!newFile.exists()) {
+                        newFile.mkdirs();
+                    }
+                    continue;
+                }
+
+                if (!newFile.getParentFile().exists()) {
+                    // Dir tree missing for some reason so create it.
+                    newFile.getParentFile().mkdirs();
+                }
+
+                InputStream in = archive.getInputStream(ze);
+                OutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
+
+                try {
+                    copy(in, out);
+                } finally {
+                    in.close();
+                    out.close();
+                }
+            }
+        } finally {
+            archive.close();
+        }
+
+        return workingDir;
+    }
+
+    /**
+     * Extract a single named file from an archive.
+     * 
+     * @param needle Archive relative path of file to extract.
+     * @param paleFile Experiment archive file.
+     * @throws IOException
+     * @throws ZipException
+     */
+    public static byte[] extractJust(String needle, File paleFile) throws ZipException, IOException {
+        ZipFile archive = new ZipFile(paleFile);
+        try {
+            ZipEntry ze = archive.getEntry(needle);
+            if (ze == null) {
+                throw new RuntimeException("Could not find experiment json in "
+                        + paleFile.getName());
+            }
+            InputStream in = archive.getInputStream(ze);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            try {
+                copy(in, out);
+                return out.toByteArray();
+            } finally {
+                in.close();
+                out.close();
+            }
+        } finally {
+            archive.close();
+        }
+    }
+
     /**
      * Format Bytes to a human readable quantity.
      * 
@@ -66,65 +183,48 @@ public class FileUtils {
     }
 
     /**
-     * Decompress a pale file to a given working directory.
+     * Generates a relatively unique path to use as a temporary directory.
      * 
-     * @param paleFile .pale file to decompress.
-     * @param workingDir Path to extract to.
-     * @return Path of the location the file was extracted to.
-     * @throws FileNotFoundException
-     * @throws IOException
+     * @return
      */
-    public static File decompress(File paleFile, File workingDir) throws FileNotFoundException,
-            IOException {
-        ZipFile archive = new ZipFile(paleFile);
-
-        // Iterate over elements in zip file and extract them to working
-        // directory.
-        Enumeration<? extends ZipEntry> entries = archive.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry ze = entries.nextElement();
-            File newFile = new File(workingDir, ze.getName());
-
-            if (ze.isDirectory()) {
-                if (!newFile.exists()) {
-                    newFile.mkdirs();
-                }
-                continue;
-            }
-
-            if (!newFile.getParentFile().exists()) {
-                // Dir tree missing for some reason so create it.
-                newFile.getParentFile().mkdirs();
-            }
-
-            InputStream in = archive.getInputStream(ze);
-            OutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
-
-            copy(in, out);
-
-            in.close();
-            out.close();
-        }
-
-        return workingDir;
+    public static String generateTempPath() {
+        Time now = new Time();
+        now.setToNow();
+        return "tmp-" + now.toMillis(false) + "/";
     }
 
     /**
-     * Compress a working directory to some destination.
+     * Load PALE definition from deflated file.
      * 
-     * @param workingDir Directory whose contents will be archived.
-     * @param destFile Destination file which will be written to.
-     * @return Archive file written.
-     * @throws FileNotFoundException
+     * @param paleFile Deflated PALE file.
+     * @return Experiment definition.
      * @throws IOException
+     * @throws JSONException
      */
-    public static File compress(File workingDir, File destFile) throws FileNotFoundException,
-            IOException {
-        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destFile));
-        addFiles(workingDir, workingDir, out);
-        out.close();
+    public static Experiment loadExperimentDefinitionFromArchive(File paleFile) throws IOException,
+            JSONException {
+        String paleDefinition = new String(FileUtils.extractJust("experiment.json", paleFile));
 
-        return destFile;
+        if (TextUtils.isEmpty(paleDefinition)) {
+            throw new IllegalStateException("PALE definition was empty.");
+        }
+
+        try {
+            return ModelUtils.readDefinition(paleDefinition);
+        } catch (RuntimeException e) {
+            throw new JSONException("Failed to parse PALE definition.");
+        }
+    }
+
+    public static Experiment loadExperimentDefinition(File experimentJsonFile)
+            throws FileNotFoundException {
+        try {
+            return ModelUtils.getDataReaderWriter().fromJson(
+                    new JsonReader(new InputStreamReader(new FileInputStream(experimentJsonFile),
+                            "UTF-16")), Experiment.class);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Unexpected internal error.", e);
+        }
     }
 
     /**
@@ -157,69 +257,64 @@ public class FileUtils {
     }
 
     /**
-     * Generates a relatively unique path to use as a temporary directory.
+     * Copies assets files referenced in experiment to the specified archive.
      * 
-     * @return
+     * @param archive Archive to copy assets into.
+     * @param experiment The experiment.
+     * @return Modified experiment file with updated asset references.
+     * @throws IOException
      */
-    public static String generateTempPath() {
-        Time now = new Time();
-        now.setToNow();
-        return "tmp-" + now.toMillis(false) + "/";
+    private static Experiment copyAssetsToArchive(ZipOutputStream out, Experiment experiment)
+            throws IOException {
+
+        for (Entry<Long, Asset> entry : experiment.assets.entrySet()) {
+            long key = entry.getKey();
+            Asset asset = entry.getValue();
+
+            File assetFile = new File(asset.path);
+            InputStream in = new FileInputStream(assetFile);
+
+            // Rename files so as to prevent name collision.
+            String newPath = "assets/" + asset.getTypeId() + "_" + key;
+            ZipEntry ze = new ZipEntry(newPath);
+            out.putNextEntry(ze);
+
+            // Update definition with new asset location.
+            asset.path = newPath;
+            experiment.assets.put(key, asset);
+
+            try {
+                copy(in, out);
+            } finally {
+                in.close();
+            }
+        }
+
+        return experiment;
     }
 
     /**
-     * Load PALE definition from deflated file.
+     * Write the experiment definition to the zip output stream. This should be
+     * done as the final operation in compressing the entire experiment as
+     * earlier stages may modify this data that is to be written.
      * 
-     * @param paleFile Deflated PALE file.
-     * @return Experiment definition.
+     * @param out Output stream for encoding the data.
+     * @param experiment Experiment definition.
      * @throws IOException
-     * @throws JSONException
      */
-    public static Experiment loadExperimentDefinition(File paleFile) throws IOException,
-            JSONException {
-        String paleDefinition = new String(FileUtils.extractJust("experiment.json", paleFile));
+    private static void writeExperimentToArchive(ZipOutputStream out, Experiment experiment)
+            throws IOException {
+        String paleDef = ModelUtils.getDataReaderWriter().toJson(experiment);
+        InputStream in = new ByteArrayInputStream(paleDef.getBytes("UTF-16"));
 
-        if (TextUtils.isEmpty(paleDefinition)) {
-            throw new IllegalStateException("PALE definition was empty.");
-        }
+        ZipEntry ze = new ZipEntry("experiment.json");
+        out.putNextEntry(ze);
 
         try {
-            return ModelUtils.readDefinition(paleDefinition);
-        } catch (RuntimeException e) {
-            throw new JSONException("Failed to parse PALE definition.");
+            copy(in, out);
+        } finally {
+            in.close();
         }
-    }
-
-    /**
-     * Extract a single named file from an archive.
-     * 
-     * @param needle Archive relative path of file to extract.
-     * @param paleFile Experiment archive file.
-     * @throws IOException
-     * @throws ZipException
-     */
-    public static byte[] extractJust(String needle, File paleFile) throws ZipException, IOException {
-        ZipFile archive = new ZipFile(paleFile);
-
-        // Iterate over elements in zip file until we find the file we want.
-        Enumeration<? extends ZipEntry> entries = archive.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry ze = entries.nextElement();
-            if (TextUtils.equals(needle, ze.getName())) {
-                InputStream in = archive.getInputStream(ze);
-
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-                copy(in, out);
-
-                in.close();
-
-                return out.toByteArray();
-            }
-
-        }
-
-        return null;
     }
 
     protected static void copy(InputStream in, OutputStream out) throws IOException {

@@ -23,7 +23,6 @@ package nz.ac.otago.psyanlab.common.designer;
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.UserDelegateI;
 import nz.ac.otago.psyanlab.common.UserExperimentDelegateI;
 import nz.ac.otago.psyanlab.common.designer.EditorSectionManager.EditorSectionItem;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetTabFragmentsCallbacks;
@@ -79,7 +78,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -92,6 +90,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,14 +103,15 @@ import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -169,8 +169,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private ArrayList<LoopDataChangeListener> mLoopDataChangeListeners;
 
-    private int mMode;
-
     private OnItemClickListener mOnDrawerListItemClickListener = new OnItemClickListener() {
 
         @Override
@@ -191,8 +189,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     private EditorSectionManager mSectionManager;
 
     private CharSequence mTitle;
-
-    private UserDelegateI mUserDelegate;
 
     protected DrawerLayout mDrawerLayout;
 
@@ -325,7 +321,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public void deleteAsset(long id) {
-        if (mExperiment.assets.indexOfKey(id) >= 0) {
+        if (mExperiment.assets.containsKey(id)) {
             mExperiment.assets.remove(id);
             mAssetsAdapter.notifyDataSetChanged();
             notifyAssetDataChangeListeners();
@@ -665,7 +661,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public LongSparseArray<Operand> getOperands() {
+    public HashMap<Long, Operand> getOperands() {
         return mExperiment.operands;
     }
 
@@ -724,11 +720,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public File getWorkingDirectory() {
-        return mExperiment.getWorkingDirectory();
-    }
-
-    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
             case REQUEST_EDIT_STAGE: {
@@ -757,8 +748,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                         String[] paths = data.getStringArrayExtra(Args.ASSET_PATHS);
                         Time t = new Time();
                         t.setToNow();
-                        mExperiment.assets.put(t.toMillis(false),
-                                Asset.getFactory().newAsset(paths[0]));
+                        mExperiment.assets.put(findUnusedKey(mExperiment.assets), Asset
+                                .getFactory().newAsset(paths[0]));
                         mAssetsAdapter.notifyDataSetChanged();
                         break;
                     default:
@@ -779,6 +770,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                     @Override
                     public void onClick(Dialog dialog) {
                         storeExperiment();
+                        setResult(RESULT_OK);
                         finish();
                         dialog.dismiss();
                     }
@@ -790,6 +782,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                 }, new ConfirmDialogFragment.OnClickListener() {
                     @Override
                     public void onClick(Dialog dialog) {
+                        Intent data = new Intent();
+                        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
+                        setResult(RESULT_CANCELED, data);
                         finish();
                         dialog.dismiss();
                     }
@@ -826,10 +821,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         mDrawerList.setOnItemClickListener(mOnDrawerListItemClickListener);
 
         Bundle extras = getIntent().getExtras();
-        mUserDelegate = extras.getParcelable(Args.USER_DELEGATE);
-        if (extras.containsKey(Args.USER_DELEGATE)) {
-            mExperimentDelegate = extras.getParcelable(Args.USER_EXPERIMENT_DELEGATE);
-        }
+
+        mExperimentDelegate = extras.getParcelable(Args.USER_EXPERIMENT_DELEGATE);
+        mExperimentDelegate.init(this);
 
         mExperimentHolderFragment = restoreExperimentHolder();
         mExperiment = restoreOrCreateExperiment(mExperimentHolderFragment);
@@ -858,8 +852,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // MenuInflater mi = getMenuInflater();
-        // mi.inflate(R.menu.activity_experiment_designer, menu);
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.activity_experiment_designer, menu);
         return true;
     }
 
@@ -971,7 +965,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     @Override
     public void updateAsset(long id, Asset asset) {
-        if (mExperiment.assets.indexOfKey(id) >= 0) {
+        if (mExperiment.assets.containsKey(id)) {
             mExperiment.assets.put(id, asset);
             mAssetsAdapter.notifyDataSetChanged();
             notifyAssetDataChangeListeners();
@@ -1129,15 +1123,24 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         return currKey;
     }
 
+    private Long findUnusedKey(HashMap<Long, ?> map) {
+        Long currKey = 0l;
+        while (true) {
+            if (!map.keySet().contains(currKey)) {
+                break;
+            }
+            currKey++;
+        }
+        return currKey;
+    }
+
     private Experiment getExperimentFromDelegate() {
-        Experiment experiment = null;
         try {
-            experiment = mExperimentDelegate.getExperiment();
+            return mExperimentDelegate.getExperiment();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return experiment;
     }
 
     private void notifyActionAdapter() {
@@ -1312,20 +1315,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         if (experiment == null) {
             // We are therefore entering the activity and either creating a new
             // experiment or editing an existing one.
-            if (mExperimentDelegate == null) {
-                // No experiment delegate so we are creating a new experiment.
-                experiment = new Experiment();
-                experiment.setWorkingDirectory(Environment.getExternalStorageDirectory());
-                Time time = new Time();
-                time.setToNow();
-                experiment.dateCreated = time.toMillis(false);
-                experiment.name = getString(R.string.title_new_experiment);
-                mMode = MODE_NEW;
-            } else {
-                // Load experiment from disk using the delegate.
-                experiment = getExperimentFromDelegate();
-                mMode = MODE_EDIT;
-            }
+            experiment = getExperimentFromDelegate();
             // Store the experiment for persistence.
             mExperimentHolderFragment.setExperiment(experiment);
         }
@@ -1368,18 +1358,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     private void storeExperiment() {
-        if (mMode == MODE_NEW) {
-            try {
-                mUserDelegate.addExperiment(mExperiment);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                mExperimentDelegate.replace(mExperiment);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            mExperimentDelegate.replace(mExperiment);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -1450,9 +1432,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     StickyGridHeadersSimpleAdapter getAssetsAdapter(int filter) {
         ExperimentObjectFilter objectFilter = ExperimentObjectReference.getFilter(filter);
 
-        LongSparseArray<Asset> filteredAssets = new LongSparseArray<Asset>();
-        for (int i = 0; i < mExperiment.assets.size(); i++) {
-            long key = mExperiment.assets.keyAt(i);
+        HashMap<Long, Asset> filteredAssets = new HashMap<Long, Asset>();
+        for (Entry<Long, Asset> entry : filteredAssets.entrySet()) {
+            long key = entry.getKey();
             Asset asset = mExperiment.assets.get(key);
             if (objectFilter.filter(asset)) {
                 filteredAssets.put(key, asset);
@@ -1497,25 +1479,29 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             experimentControls.add(new Pair<ExperimentObject, Long>(scene, sceneId));
         }
 
-        for (int i = 0; i < mExperiment.loops.size(); i++) {
-            Loop loop = mExperiment.loops.valueAt(i);
+        int i = 0;
+        for (Entry<Long, Loop> entry : mExperiment.loops.entrySet()) {
+            Loop loop = entry.getValue();
             if (loop.contains(sceneId)) {
                 if (objectFilter.filter(loop)) {
                     experimentControls.add(new Pair<ExperimentObject, Long>(loop, (long)i));
                 }
                 break;
             }
+            i++;
         }
 
         // TODO: Records and Stores.
         // experimentControls.add(mExperiment.stores);
         // experimentControls.add(mExperiment.records);
 
-        for (int i = 0; i < mExperiment.generators.size(); i++) {
-            Generator generator = mExperiment.generators.valueAt(i);
+        i = 0;
+        for (Entry<Long, Generator> entry : mExperiment.generators.entrySet()) {
+            Generator generator = entry.getValue();
             if (objectFilter.filter(generator)) {
                 experimentControls.add(new Pair<ExperimentObject, Long>(generator, (long)i));
             }
+            i++;
         }
 
         return new ExperimentControlAdapter(this, new ArrayList<Pair<ExperimentObject, Long>>(

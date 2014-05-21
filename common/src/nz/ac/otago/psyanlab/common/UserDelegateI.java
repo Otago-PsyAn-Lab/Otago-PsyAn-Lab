@@ -37,7 +37,7 @@ public interface UserDelegateI extends Parcelable {
      * @param experiment Experiment to add for the user.
      * @throws IOException
      */
-    void addExperiment(Experiment experiment) throws IOException;
+    Uri addExperiment(Experiment experiment) throws IOException;
 
     /**
      * Add an experiment to the set of experiments belonging to the user this

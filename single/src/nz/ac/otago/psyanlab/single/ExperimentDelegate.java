@@ -1,12 +1,17 @@
 
 package nz.ac.otago.psyanlab.single;
 
+import com.google.gson.JsonSyntaxException;
+
 import nz.ac.otago.psyanlab.common.PaleRow;
 import nz.ac.otago.psyanlab.common.UserExperimentDelegateI;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.single.model.ExperimentModel;
 import nz.ac.otago.psyanlab.single.model.RecordModel;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,9 +22,16 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.widget.ListAdapter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 public class ExperimentDelegate implements UserExperimentDelegateI {
@@ -36,6 +48,8 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
     };
 
     private static final int LOADER_RECORDS = 0x02;
+
+    private static final String PATH_INTERNAL_TEMP_DIR = "temp";
 
     private static final String[] sProjection = new String[] {
             ExperimentModel.KEY_ID, ExperimentModel.KEY_LAST_RUN, ExperimentModel.KEY_AUTHORS,
@@ -75,6 +89,47 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
     }
 
     @Override
+    public Experiment getExperiment() throws IOException {
+        Cursor c = mActivity.getContentResolver().query(mUri, null, null, null, null);
+        c.moveToFirst();
+        ExperimentModel model = new ExperimentModel(c);
+        c.close();
+        File paleFile = new File(mActivity.getDir(FileUtils.PATH_INTERNAL_EXPERIMENTS_DIR,
+                Context.MODE_PRIVATE), model.file);
+        try {
+            File workingDir = FileUtils.decompress(paleFile, mActivity.getExternalCacheDir());
+            logExperimentDef(workingDir);
+            try {
+                return FileUtils.loadExperimentDefinition(new File(workingDir, "experiment.json"));
+            } catch (JsonSyntaxException e) {
+                logExperimentDef(workingDir);
+                throw e;
+            }
+        } finally {
+            FileUtils.clearCache(mActivity);
+        }
+    }
+
+    private void logExperimentDef(File workingDir) throws FileNotFoundException, IOException,
+            UnsupportedEncodingException {
+        InputStream in = new FileInputStream(new File(workingDir, "experiment.json"));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            final byte[] buffer = new byte[8192];
+            int len = 0;
+
+            while (-1 != (len = in.read(buffer))) {
+                out.write(buffer, 0, len);
+            }
+            Log.d("experiment.json", new String(out.toByteArray(), "UTF-16"));
+        } finally {
+            in.close();
+            out.close();
+        }
+    }
+
+    @Override
     public PaleRow getExperimentDetails() {
         if (mExperimentRow == null) {
             Cursor c = mActivity.getContentResolver().query(mUri, sProjection, null, null, null);
@@ -88,6 +143,11 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
             c.close();
         }
         return mExperimentRow;
+    }
+
+    @Override
+    public long getId() {
+        return mExperimentId;
     }
 
     @Override
@@ -120,8 +180,35 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
 
     @Override
     public boolean replace(Experiment experiment) throws IOException {
-        // TODO Auto-generated method stub
-        return false;
+        ContentResolver contentResolver = mActivity.getContentResolver();
+
+        // Need to pull the model data before changing it to so we can later
+        // clear the old pale file.
+        Cursor c = contentResolver.query(mUri, null, null, null, null);
+        c.moveToFirst();
+        ExperimentModel model = new ExperimentModel(c);
+
+        File tempFile = new File(mActivity.getExternalCacheDir(),
+                FileUtils.generateTimestampFilename());
+        tempFile.createNewFile();
+        String path = tempFile.getCanonicalPath();
+
+        try {
+            FileUtils.compress(tempFile, experiment);
+            File paleFile = FileUtils.copyToInternalStorage(mActivity, path,
+                    FileUtils.generateNewFileName(path));
+
+            // Store experiment.
+            ContentValues values = new ExperimentModel(experiment, paleFile).toValues();
+            contentResolver.update(mUri, values, null, null);
+        } finally {
+            FileUtils.clearCache(mActivity);
+        }
+
+        File oldFile = new File(mActivity.getDir(FileUtils.PATH_INTERNAL_EXPERIMENTS_DIR,
+                Context.MODE_PRIVATE), model.file);
+        oldFile.delete();
+        return true;
     }
 
     @Override
@@ -180,11 +267,5 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
                 oldCursor.close();
             }
         }
-    }
-
-    @Override
-    public Experiment getExperiment() throws IOException {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

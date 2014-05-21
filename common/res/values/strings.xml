@@ -274,5 +274,6 @@
     <string name="default_condition_details">Condition unspecified</string>
     <string name="format_condition_details">Rule will execute if the following is true at point of evaluation.\n\n %1$s</string>
     <string name="label_name">Name</string>
+    <string name="default_new_experiment">New Experiment</string>
 
 </resources>

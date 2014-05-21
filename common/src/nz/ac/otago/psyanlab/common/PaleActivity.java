@@ -21,10 +21,12 @@
 package nz.ac.otago.psyanlab.common;
 
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
+import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.util.Args;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -32,6 +34,8 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.io.IOException;
 
 public class PaleActivity extends FragmentActivity implements PaleListFragment.Callbacks,
         PaleDetailFragment.Callbacks {
@@ -68,6 +72,18 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
                         break;
 
                     default:
+                        long experimentId = data.getLongExtra(Args.EXPERIMENT_ID, -1);
+                        if (experimentId != -1) {
+                            try {
+                                mUserDelegate.getUserExperimentDelegate(experimentId)
+                                        .deleteExperiment();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            throw new RuntimeException("Invalid experiment id.");
+                        }
                         break;
                 }
                 break;
@@ -181,8 +197,21 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
     }
 
     private void doNewExperiment() {
+        Experiment experiment = new Experiment();
+        experiment.authors = mUserDelegate.getUserName();
+        experiment.dateCreated = System.currentTimeMillis();
+        experiment.name = getString(R.string.default_new_experiment);
+        Uri uri = null;
+        try {
+            uri = mUserDelegate.addExperiment(experiment);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
         Intent i = new Intent(this, ExperimentDesignerActivity.class);
-        i.putExtra(Args.USER_DELEGATE, mUserDelegate);
+        i.putExtra(Args.USER_EXPERIMENT_DELEGATE,
+                mUserDelegate.getUserExperimentDelegate(Long.parseLong(uri.getLastPathSegment())));
         startActivityForResult(i, REQUEST_NEW);
     }
 

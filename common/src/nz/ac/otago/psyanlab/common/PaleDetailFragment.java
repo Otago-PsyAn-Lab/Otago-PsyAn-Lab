@@ -238,7 +238,7 @@ public class PaleDetailFragment extends Fragment {
             }
 
             mAdapter = new RecordAdapterWrapper(getActivity(), mDelegate.getRecordsAdapter(
-                    R.layout.record_item, new int[] {
+                    R.layout.list_item_record, new int[] {
                             UserExperimentDelegateI.RECORD_ID, UserExperimentDelegateI.RECORD_DATE,
                             UserExperimentDelegateI.RECORD_NOTE
                     }, new int[] {

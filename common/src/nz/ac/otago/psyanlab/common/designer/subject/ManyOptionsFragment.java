@@ -40,7 +40,7 @@ public class ManyOptionsFragment extends Fragment implements OptionsFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mInflater = inflater;
-        View view = inflater.inflate(R.layout.fragment_type_many_options, container, false);
+        View view = inflater.inflate(R.layout.fragment_user_detail_type_many_options, container, false);
         mList = (DragSortListView)view.findViewById(R.id.options);
 
         mAdapter = new OptionsAdapter(inflater, mOptions);

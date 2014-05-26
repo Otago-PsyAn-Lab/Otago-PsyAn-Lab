@@ -27,7 +27,7 @@ public class HintOptionsFragment extends Fragment implements OptionsFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_type_hint_option,
+        View v = inflater.inflate(R.layout.fragment_user_detail_type_hint_option,
                 container, false);
         mHint = (EditText)v.findViewById(R.id.hint);
         if (mOptions != null) {

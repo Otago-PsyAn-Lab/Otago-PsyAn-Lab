@@ -40,7 +40,7 @@ public class TwoOptionsFragment extends Fragment implements OptionsFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_type_two_options,
+        View v = inflater.inflate(R.layout.fragment_user_detail_type_two_options,
                 container, false);
         mOptionOne = (EditText)v.findViewById(R.id.first_option);
         mOptionTwo = (EditText)v.findViewById(R.id.second_option);

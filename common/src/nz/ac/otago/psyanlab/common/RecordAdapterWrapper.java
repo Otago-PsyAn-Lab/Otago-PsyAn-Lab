@@ -87,7 +87,7 @@ class RecordAdapterWrapper implements StickyGridHeadersSimpleAdapter {
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater)mContext
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.record_header, parent, false);
+            convertView = inflater.inflate(R.layout.header_record_list, parent, false);
             holder = new ViewHolder();
             convertView.setTag(holder);
         } else {

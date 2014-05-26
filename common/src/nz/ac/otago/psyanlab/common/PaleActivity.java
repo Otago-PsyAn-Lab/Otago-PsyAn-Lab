@@ -44,13 +44,13 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
     private static final int REQUEST_NEW = 0x03;
 
-    protected PaleListFragment mPaleListFragment;
-
-    protected PaleDetailFragment mPaleDetailFragment;
+    private UserExperimentDelegateI mCurrentExperimentDelegate;
 
     private UserDelegateI mUserDelegate;
 
-    private UserExperimentDelegateI mCurrentExperimentDelegate;
+    protected PaleDetailFragment mPaleDetailFragment;
+
+    protected PaleListFragment mPaleListFragment;
 
     protected SlidingPaneLayout mSlidingContainer;
 
@@ -146,16 +146,21 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelable(Args.USER_EXPERIMENT_DELEGATE, mCurrentExperimentDelegate);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_user_pales, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onExperimentDeleted() {
+        updateExperimentDelegate(null);
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                mPaleListFragment.onExperimentDelete();
+            }
+        });
     }
 
     @Override
@@ -182,11 +187,6 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void updateExperimentDelegate(UserExperimentDelegateI experimentDelegate) {
-        mCurrentExperimentDelegate = experimentDelegate;
-        mPaleDetailFragment.setExperimentDelegate(experimentDelegate);
     }
 
     /**
@@ -243,15 +243,15 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         }
     }
 
-    @Override
-    public void onExperimentDeleted() {
-        updateExperimentDelegate(null);
+    private void updateExperimentDelegate(UserExperimentDelegateI experimentDelegate) {
+        mCurrentExperimentDelegate = experimentDelegate;
+        mPaleDetailFragment.setExperimentDelegate(experimentDelegate);
+    }
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                mPaleListFragment.onExperimentDelete();
-            }
-        });
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable(Args.USER_EXPERIMENT_DELEGATE, mCurrentExperimentDelegate);
     }
 }

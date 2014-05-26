@@ -192,9 +192,9 @@ public class PaleDetailFragment extends Fragment {
 
         public ListView records;
 
-        private ListAdapter mAdapter;
-
         public View rootView;
+
+        private ListAdapter mAdapter;
 
         public ViewHolder(View view) {
             rootView = view;

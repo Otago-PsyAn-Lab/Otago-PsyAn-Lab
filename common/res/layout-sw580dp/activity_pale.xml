@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_view"
+<android.support.v4.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sliding_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:baselineAligned="false"
-    android:orientation="horizontal"
-    android:splitMotionEvents="true" >
+    android:layout_height="match_parent" >
 
     <fragment
-        android:id="@+id/user_list_fragment"
+        android:id="@+id/pale_list_fragment"
         android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
-        android:layout_width="0dp"
+        android:layout_width="320dp"
+        android:layout_height="match_parent" />
+
+    <fragment
+        android:id="@+id/pale_detail_fragment"
+        android:name="nz.ac.otago.psyanlab.common.PaleDetailFragment"
+        android:layout_width="400dp"
         android:layout_height="match_parent"
+        android:layout_marginLeft="100dip"
         android:layout_weight="1" />
 
-    <fragment
-        android:id="@+id/user_detail_container"
-        android:name="nz.ac.otago.psyanlab.common.PaleDetailContainerFragment"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="2" />
-
-</LinearLayout>
+</android.support.v4.widget.SlidingPaneLayout>

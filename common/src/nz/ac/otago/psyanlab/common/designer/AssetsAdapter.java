@@ -49,7 +49,7 @@ class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapte
         TextViewHolder holder;
 
         if (convertView == null) {
-            convertView = mLayoutInflater.inflate(R.layout.section_header, parent, false);
+            convertView = mLayoutInflater.inflate(R.layout.list_section_header, parent, false);
             holder = new TextViewHolder(1);
             holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);

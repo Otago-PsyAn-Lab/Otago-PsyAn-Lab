@@ -44,8 +44,4 @@ public class PaleRecordListFragment extends ListFragment {
         }
         setListAdapter(mAdapter);
     }
-
-    public void resetAdapter() {
-        setListAdapter(mAdapter);
-    }
 }

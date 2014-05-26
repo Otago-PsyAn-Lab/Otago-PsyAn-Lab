@@ -36,6 +36,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -45,17 +47,9 @@ public class PaleDetailFragment extends Fragment {
 
     private Callbacks mCallbacks;
 
-    private TextView mDescription;
-
-    private TextView mCreated;
-
-    private TextView mName;
-
-    private View mRootView;
-
-    private TextView mAuthors;
-
     private UserExperimentDelegateI mDelegate;
+
+    private ViewHolder mViews;
 
     @Override
     public void onAttach(Activity activity) {
@@ -79,23 +73,11 @@ public class PaleDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_pale_detail, container, false);
-        mName = (TextView)mRootView.findViewById(R.id.name);
-        mDescription = (TextView)mRootView.findViewById(R.id.description);
-        mCreated = (TextView)mRootView.findViewById(R.id.created);
-        mAuthors = (TextView)mRootView.findViewById(R.id.authors);
+        View v = inflater.inflate(R.layout.fragment_pale_detail, container, false);
 
-        updateDisplay();
-
-        return mRootView;
-    }
-
-    public void setExperimentDelegate(UserExperimentDelegateI userExperimentDelegate) {
-        mDelegate = userExperimentDelegate;
-        if (mDelegate != null) {
-            mDelegate.init(getActivity());
-        }
-        updateDisplay();
+        ListView records = (ListView)v.findViewById(R.id.records);
+        records.addHeaderView(inflater.inflate(R.layout.header_pale_detail, records, false));
+        return v;
     }
 
     @Override
@@ -114,34 +96,39 @@ public class PaleDetailFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateDisplay() {
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mViews = new ViewHolder(view);
+
+        mViews.setViewValues(mDelegate);
+
         if (mDelegate == null) {
             setHasOptionsMenu(false);
-
-            mName.setVisibility(View.GONE);
-            mDescription.setVisibility(View.GONE);
-            mAuthors.setVisibility(View.GONE);
-            mCreated.setVisibility(View.GONE);
         } else {
             setHasOptionsMenu(true);
+        }
+    }
 
-            mName.setVisibility(View.VISIBLE);
-            mDescription.setVisibility(View.VISIBLE);
-            mAuthors.setVisibility(View.VISIBLE);
-            mCreated.setVisibility(View.VISIBLE);
+    /**
+     * Update fragment with selected experiment encapsulated by the experiment
+     * delegate.
+     * 
+     * @param userExperimentDelegate Delegate which gives access to experiment.
+     */
+    public void setExperimentDelegate(UserExperimentDelegateI userExperimentDelegate) {
+        mDelegate = userExperimentDelegate;
+        if (mDelegate != null) {
+            mDelegate.init(getActivity());
+        }
 
-            PaleRow experimentDetails = mDelegate.getExperimentDetails();
+        mViews.setViewValues(mDelegate);
 
-            mName.setText(experimentDetails.name);
-            mDescription.setText(experimentDetails.description);
-            mAuthors.setText(experimentDetails.authors);
-
-            if (experimentDetails.lastRun > experimentDetails.dateCreated) {
-                mCreated.setText(DateUtils.formatDateTime(getActivity(),
-                        experimentDetails.dateCreated, 0));
-            } else {
-                mCreated.setText("Never");
-            }
+        if (mDelegate == null) {
+            setHasOptionsMenu(false);
+        } else {
+            setHasOptionsMenu(true);
         }
     }
 
@@ -188,5 +175,77 @@ public class PaleDetailFragment extends Fragment {
 
     public interface Callbacks {
         void onExperimentDeleted();
+    }
+
+    private class ViewHolder {
+        public TextView authors;
+
+        public TextView created;
+
+        public TextView description;
+
+        public TextView lastModified;
+
+        public TextView lastRun;
+
+        public TextView name;
+
+        public ListView records;
+
+        private ListAdapter mAdapter;
+
+        public View rootView;
+
+        public ViewHolder(View view) {
+            rootView = view;
+            name = (TextView)view.findViewById(R.id.name);
+            description = (TextView)view.findViewById(R.id.description);
+            authors = (TextView)view.findViewById(R.id.authors);
+            created = (TextView)view.findViewById(R.id.created);
+            lastModified = (TextView)view.findViewById(R.id.last_modified);
+            lastRun = (TextView)view.findViewById(R.id.last_run);
+            records = (ListView)view.findViewById(R.id.records);
+        }
+
+        public void setViewValues(UserExperimentDelegateI delegate) {
+            if (delegate == null) {
+                // Setup for blank scenario.
+                rootView.setVisibility(View.INVISIBLE);
+                mAdapter = null;
+                records.setAdapter(null);
+                return;
+            }
+
+            // Fill in views with experiment held by the delegate.
+            rootView.setVisibility(View.VISIBLE);
+
+            final PaleRow experimentDetails = delegate.getExperimentDetails();
+            name.setText(experimentDetails.name);
+            description.setText(experimentDetails.description);
+            authors.setText(experimentDetails.authors);
+
+            created.setText(DateUtils.formatDateTime(getActivity(), experimentDetails.dateCreated,
+                    0));
+
+            lastModified.setText(DateUtils.formatDateTime(getActivity(),
+                    experimentDetails.lastModified, 0));
+
+            if (experimentDetails.lastRun > experimentDetails.dateCreated) {
+                lastRun.setText(DateUtils.formatDateTime(getActivity(), experimentDetails.lastRun,
+                        0));
+            } else {
+                lastRun.setText("Never");
+            }
+
+            mAdapter = new RecordAdapterWrapper(getActivity(), mDelegate.getRecordsAdapter(
+                    R.layout.record_item, new int[] {
+                            UserExperimentDelegateI.RECORD_ID, UserExperimentDelegateI.RECORD_DATE,
+                            UserExperimentDelegateI.RECORD_NOTE
+                    }, new int[] {
+                            R.id.session_id, R.id.date, R.id.note
+                    }));
+            records.setAdapter(mAdapter);
+
+        }
     }
 }

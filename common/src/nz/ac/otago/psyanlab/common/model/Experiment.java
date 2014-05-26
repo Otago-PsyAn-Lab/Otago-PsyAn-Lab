@@ -20,6 +20,9 @@ public class Experiment {
     public long dateCreated;
 
     @Expose
+    public long lastModified;
+
+    @Expose
     public String description;
 
     @Expose

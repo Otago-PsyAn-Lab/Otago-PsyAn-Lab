@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,19 +44,18 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
     private static final int REQUEST_NEW = 0x03;
 
-    private boolean mTwoPane;
+    protected PaleListFragment mPaleListFragment;
 
-    private PaleDetailContainerFragment mDetailContainerFragment;
-
-    private PaleListFragment mPaleListFragment;
+    protected PaleDetailFragment mPaleDetailFragment;
 
     private UserDelegateI mUserDelegate;
 
     private UserExperimentDelegateI mCurrentExperimentDelegate;
 
+    protected SlidingPaneLayout mSlidingContainer;
+
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-
         switch (requestCode) {
             case REQUEST_IMPORT:
                 switch (resultCode) {
@@ -102,6 +102,7 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pale);
 
+        // Get and initialise user delegate.
         if (getIntent().hasExtra(Args.USER_DELEGATE)) {
             mUserDelegate = getIntent().getParcelableExtra(Args.USER_DELEGATE);
             mUserDelegate.init(this);
@@ -109,39 +110,39 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
             throw new IllegalStateException("User delegate must be provided.");
         }
 
+        // Initialise action bar.
         ActionBar actionBar = getActionBar();
         String title = mUserDelegate.getUserName();
         if (TextUtils.isEmpty(title)) {
-            title = "Otago PsyAn Lab";
+            title = getString(R.string.app_name);
         } else {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         actionBar.setTitle(title);
 
-        init(savedInstanceState);
+        // Initialise fragments.
+        FragmentManager fm = getSupportFragmentManager();
 
+        // List fragment.
+        mPaleListFragment = (PaleListFragment)fm.findFragmentById(R.id.pale_list_fragment);
+        mPaleListFragment.init(mUserDelegate);
+        mPaleListFragment.setActivateOnItemClick(true);
+        // if (savedInstanceState == null) {
+        // mPaleListFragment.setActivatedPosition(0);
+        // }
+
+        // Detail fragment.
+        mPaleDetailFragment = (PaleDetailFragment)fm.findFragmentById(R.id.pale_detail_fragment);
         if (savedInstanceState != null) {
             updateExperimentDelegate(savedInstanceState
                     .<UserExperimentDelegateI> getParcelable(Args.USER_EXPERIMENT_DELEGATE));
         }
-    }
 
-    private void init(Bundle savedInstanceState) {
-        FragmentManager fm = getSupportFragmentManager();
-        mPaleListFragment = (PaleListFragment)fm.findFragmentById(R.id.user_list_fragment);
-        mPaleListFragment.init(mUserDelegate);
-        mPaleListFragment.setActivateOnItemClick(true);
-
-        if (findViewById(R.id.user_detail_container) != null) {
-            mTwoPane = true;
-            mDetailContainerFragment = (PaleDetailContainerFragment)fm
-                    .findFragmentById(R.id.user_detail_container);
-
-            mPaleListFragment.setActivateOnItemClick(true);
-            if (savedInstanceState == null) {
-                mPaleListFragment.setActivatedPosition(0);
-            }
-        }
+        // Initialise sliding container.
+        mSlidingContainer = (SlidingPaneLayout)findViewById(R.id.sliding_container);
+        mSlidingContainer.openPane();
+        mSlidingContainer.setParallaxDistance((int)getResources().getDimension(
+                R.dimen.sliding_container_parallax));
     }
 
     @Override
@@ -162,13 +163,9 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         UserExperimentDelegateI experimentDelegate = mUserDelegate
                 .getUserExperimentDelegate(experimentId);
 
-        if (mTwoPane) {
-            updateExperimentDelegate(experimentDelegate);
-        } else {
-            Intent experimentDetails = new Intent(this, PaleDetailActivity.class).putExtra(
-                    Args.USER_EXPERIMENT_DELEGATE, experimentDelegate);
-            startActivity(experimentDetails);
-        }
+        updateExperimentDelegate(experimentDelegate);
+
+        mSlidingContainer.closePane();
     }
 
     @Override
@@ -189,21 +186,29 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
     private void updateExperimentDelegate(UserExperimentDelegateI experimentDelegate) {
         mCurrentExperimentDelegate = experimentDelegate;
-        if (mDetailContainerFragment != null) {
-            mDetailContainerFragment.setExperimentDelegate(mCurrentExperimentDelegate);
-        }
+        mPaleDetailFragment.setExperimentDelegate(experimentDelegate);
     }
 
+    /**
+     * Perform import action. Starts the import activity for the user.
+     */
     private void doImportExperiment() {
         Intent i = new Intent(this, ImportPaleActivity.class);
         i.putExtra(Args.USER_DELEGATE, mUserDelegate);
         startActivityForResult(i, REQUEST_IMPORT);
     }
 
+    /**
+     * Perform new experiment action. Creates a new experiment and sends an
+     * intent to edit it. If the user discards the new experiment without
+     * 'saving' it, we'll have to delete the new experiment when the edit
+     * activity returns.
+     */
     private void doNewExperiment() {
         Experiment experiment = new Experiment();
         experiment.authors = mUserDelegate.getUserName();
         experiment.dateCreated = System.currentTimeMillis();
+        experiment.lastModified = System.currentTimeMillis();
         experiment.name = getString(R.string.default_new_experiment);
         Uri uri = null;
         try {
@@ -219,11 +224,16 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         startActivityForResult(i, REQUEST_NEW);
     }
 
+    /**
+     * Handle IDs for experiments the user just chose to import.
+     * 
+     * @param ids IDs of new experiments.
+     */
     private void handleImportedIds(final long[] ids) {
         if (ids.length == 1) {
+            // Use a handler to post a message back to self after we have been
+            // recreated.
             new Handler().post(new Runnable() {
-                // Use a handler to post a message back to self
-                // after we have been recreated.
                 @Override
                 public void run() {
                     mPaleListFragment.onExperimentInsert(ids[0]);
@@ -235,15 +245,13 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
     @Override
     public void onExperimentDeleted() {
-        if (mTwoPane) {
-            updateExperimentDelegate(null);
+        updateExperimentDelegate(null);
 
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    mPaleListFragment.onExperimentDelete();
-                }
-            });
-        }
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                mPaleListFragment.onExperimentDelete();
+            }
+        });
     }
 }

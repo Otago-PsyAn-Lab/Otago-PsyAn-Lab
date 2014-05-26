@@ -34,11 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExperimentModel extends DbModel {
-    public static final String CREATE_TABLE = "create table experiment (_id integer primary key autoincrement, last_run number, name text not null, description text, version number, date_created number not null, file text unique not null, file_size number not null, authors text); ";
+    public static final String CREATE_TABLE = "create table experiment (_id integer primary key autoincrement, last_run number, name text not null, description text, version number, date_created number not null, last_modified number not null, file text unique not null, file_size number not null, authors text); ";
 
     public static final String KEY_AUTHORS = "authors";
 
     public static final String KEY_DATE_CREATED = "date_created";
+
+    public static final String KEY_LAST_MODIFIED = "last_modified";
 
     public static final String KEY_DESCRIPTION = "description";
 
@@ -86,6 +88,8 @@ public class ExperimentModel extends DbModel {
 
     public long dateCreated;
 
+    public long lastModified;
+
     public String description;
 
     public String file;
@@ -121,6 +125,9 @@ public class ExperimentModel extends DbModel {
         }
         if (b.containsKey(KEY_DATE_CREATED)) {
             dateCreated = b.getLong(KEY_DATE_CREATED);
+        }
+        if (b.containsKey(KEY_LAST_MODIFIED)) {
+            lastModified = b.getLong(KEY_LAST_MODIFIED);
         }
         if (b.containsKey(KEY_FILE)) {
             file = b.getString(KEY_FILE);
@@ -161,6 +168,11 @@ public class ExperimentModel extends DbModel {
         } else if (c.getColumnIndex(namespaced(KEY_DATE_CREATED)) != INVALID_ID) {
             dateCreated = c.getLong(c.getColumnIndex(namespaced(KEY_DATE_CREATED)));
         }
+        if (c.getColumnIndex(KEY_LAST_MODIFIED) != INVALID_ID) {
+            lastModified = c.getLong(c.getColumnIndex(KEY_LAST_MODIFIED));
+        } else if (c.getColumnIndex(namespaced(KEY_LAST_MODIFIED)) != INVALID_ID) {
+            lastModified = c.getLong(c.getColumnIndex(namespaced(KEY_LAST_MODIFIED)));
+        }
         if (c.getColumnIndex(KEY_FILE) != INVALID_COL) {
             file = c.getString(c.getColumnIndex(KEY_FILE));
         } else if (c.getColumnIndex(namespaced(KEY_FILE)) != INVALID_COL) {
@@ -192,6 +204,9 @@ public class ExperimentModel extends DbModel {
         if (c.getColumnIndex(prefix + KEY_DATE_CREATED) != INVALID_ID) {
             dateCreated = c.getLong(c.getColumnIndex(prefix + KEY_DATE_CREATED));
         }
+        if (c.getColumnIndex(prefix + KEY_LAST_MODIFIED) != INVALID_ID) {
+            lastModified = c.getLong(c.getColumnIndex(prefix + KEY_LAST_MODIFIED));
+        }
         if (c.getColumnIndex(prefix + KEY_FILE) != INVALID_COL) {
             file = c.getString(c.getColumnIndex(prefix + KEY_FILE));
         }
@@ -206,6 +221,7 @@ public class ExperimentModel extends DbModel {
         description = experimentDef.description;
         version = experimentDef.version;
         dateCreated = experimentDef.dateCreated;
+        lastModified = experimentDef.lastModified;
         file = paleFile.getName();
         fileSize = paleFile.length();
     }
@@ -218,6 +234,7 @@ public class ExperimentModel extends DbModel {
         b.putString(KEY_DESCRIPTION, description);
         b.putInt(KEY_VERSION, version);
         b.putLong(KEY_DATE_CREATED, dateCreated);
+        b.putLong(KEY_LAST_MODIFIED, lastModified);
         b.putString(KEY_FILE, file);
         b.putLong(KEY_FILE_SIZE, fileSize);
         return b;
@@ -228,7 +245,8 @@ public class ExperimentModel extends DbModel {
      * 
      * @param other The other experiment model in the comparison.
      * @return 0 if the same. -1 if this experiment model is lesser in order of
-     *         name, date created, version, description, file size. +1 if more.
+     *         name, date created, date edited, version, description, file size.
+     *         +1 if more.
      */
     public int compareTo(ExperimentModel other) {
         int nameCompare = name.compareTo(other.name);
@@ -237,7 +255,11 @@ public class ExperimentModel extends DbModel {
         }
 
         if (dateCreated != other.dateCreated) {
-            return (dateCreated < other.dateCreated) ? -1 : 1;
+            return dateCreated < other.dateCreated ? -1 : 1;
+        }
+
+        if (lastModified != other.lastModified) {
+            return lastModified < other.lastModified ? -1 : 1;
         }
 
         if (version != other.version) {
@@ -250,7 +272,7 @@ public class ExperimentModel extends DbModel {
         }
 
         if (fileSize != other.fileSize) {
-            return (fileSize < other.fileSize) ? -1 : 1;
+            return fileSize < other.fileSize ? -1 : 1;
         }
 
         return 0;
@@ -281,6 +303,7 @@ public class ExperimentModel extends DbModel {
         row.authors = authors;
         row.name = name;
         row.fileSize = fileSize;
+        row.lastModified = lastModified;
         return row;
     }
 
@@ -288,6 +311,7 @@ public class ExperimentModel extends DbModel {
         ContentValues v = new ContentValues();
         v.put(KEY_AUTHORS, authors);
         v.put(KEY_DATE_CREATED, dateCreated);
+        v.put(KEY_LAST_MODIFIED, lastModified);
         v.put(KEY_DESCRIPTION, description);
         v.put(KEY_FILE, file);
         v.put(KEY_FILE_SIZE, fileSize);

@@ -1379,6 +1379,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     private void storeExperiment() {
+        mExperiment.lastModified = System.currentTimeMillis();
         try {
             mExperimentDelegate.replace(mExperiment);
         } catch (IOException e) {

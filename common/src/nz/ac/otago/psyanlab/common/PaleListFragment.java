@@ -48,10 +48,6 @@ public class PaleListFragment extends ListFragment {
 
     private Callbacks mCallbacks;
 
-    public long idPosZero() {
-        return getListAdapter().getItemId(0);
-    }
-
     public void init(UserDelegateI userDelegate) {
         mAdapter = userDelegate.getExperimentsAdapter(
                 android.R.layout.simple_list_item_activated_1, new int[] {

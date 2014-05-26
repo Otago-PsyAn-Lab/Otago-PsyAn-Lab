@@ -275,5 +275,7 @@
     <string name="format_condition_details">Rule will execute if the following is true at point of evaluation.\n\n %1$s</string>
     <string name="label_name">Name</string>
     <string name="default_new_experiment">New Experiment</string>
+    <string name="hint_description_subject">Description and assistance Text</string>
+    <string name="hint_title_subject">Title</string>
 
 </resources>

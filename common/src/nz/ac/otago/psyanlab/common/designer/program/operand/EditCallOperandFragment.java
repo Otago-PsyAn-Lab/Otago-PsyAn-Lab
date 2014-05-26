@@ -256,7 +256,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_call_operand, container, false);
         ListView list = (ListView)view.findViewById(R.id.parameters);
-        list.addHeaderView(inflater.inflate(R.layout.action_header_content, list, false));
+        list.addHeaderView(inflater.inflate(R.layout.header_edit_call_operand, list, false));
         return view;
     }
 

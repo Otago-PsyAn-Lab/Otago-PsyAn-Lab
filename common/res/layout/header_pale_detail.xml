@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/filler_experiment_name" />
+
+    <TextView
+        android:id="@+id/authors"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16sp"
+        android:text="@string/filler_experiment_authors" />
+
+    <TextView
+        android:id="@+id/created"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/filler_experiment_created" />
+
+    <TextView
+        android:id="@+id/last_modified"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/filler_experiment_created" />
+
+    <TextView
+        android:id="@+id/last_run"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/filler_experiment_created" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/filler_experiment_description"
+        android:textSize="14sp" />
+
+</LinearLayout>

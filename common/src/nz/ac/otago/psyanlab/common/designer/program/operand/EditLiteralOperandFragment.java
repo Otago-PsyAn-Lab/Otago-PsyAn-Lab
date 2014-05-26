@@ -179,7 +179,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_literal_operand, container, false);
         ListView list = (ListView)view.findViewById(R.id.operands);
-        list.addHeaderView(inflater.inflate(R.layout.edit_literal_operand_header_content, list,
+        list.addHeaderView(inflater.inflate(R.layout.header_edit_literal_operand, list,
                 false));
         return view;
     }

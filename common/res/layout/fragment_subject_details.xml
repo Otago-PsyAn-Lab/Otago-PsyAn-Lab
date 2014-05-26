@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Subject Details Title"
+        android:text="@string/hint_title_subject"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/title_subject_details"
         android:gravity="center"
-        android:text="Subject Details Description (Assistance Text)"
+        android:text="@string/hint_description_subject"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -35,7 +35,11 @@
         android:layout_above="@+id/description_required_infotext"
         android:layout_below="@+id/description_subject_details" >
 
-        <include layout="@layout/subject_details" />
+        <GridLayout
+            android:id="@+id/container_subject_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2" />
     </ScrollView>
 
 </RelativeLayout>

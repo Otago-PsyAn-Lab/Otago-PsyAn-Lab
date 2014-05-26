@@ -1,7 +1,19 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
-    android:id="@+id/user_list_fragment"
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sliding_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp" />
+    android:layout_height="match_parent" >
+
+    <fragment
+        android:id="@+id/pale_list_fragment"
+        android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
+        android:layout_width="320dp"
+        android:layout_height="match_parent" />
+
+    <fragment
+        android:id="@+id/pale_detail_fragment"
+        android:name="nz.ac.otago.psyanlab.common.PaleDetailFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</android.support.v4.widget.SlidingPaneLayout>

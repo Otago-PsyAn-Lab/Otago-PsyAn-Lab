@@ -29,7 +29,6 @@ import nz.ac.otago.psyanlab.common.designer.assets.AssetTabFragmentsCallbacks;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetsFragment;
 import nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity;
 import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment;
-import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment.Details;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
@@ -37,6 +36,7 @@ import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
 import nz.ac.otago.psyanlab.common.designer.util.ActionListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.DetailsCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.EventAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
@@ -119,7 +119,7 @@ import java.util.TreeSet;
  * Provides an interface to the fragments implementing the UI whereby they can
  * manipulate the experiment data.
  */
-public class ExperimentDesignerActivity extends FragmentActivity implements MetaFragment.Callbacks,
+public class ExperimentDesignerActivity extends FragmentActivity implements DetailsCallbacks,
         SubjectFragment.Callbacks, AssetTabFragmentsCallbacks, ProgramCallbacks,
         DialogueResultCallbacks {
 
@@ -426,6 +426,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         return mAssetsAdapter;
     }
 
+    @Override
+    public String getAuthors() {
+        return mExperiment.authors;
+    }
+
+    @Override
+    public String getDescription() {
+        return mExperiment.description;
+    }
+
     /**
      * Get an adapter containing all methods which register listeners for events
      * emitted by the given class.
@@ -460,16 +470,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return new EventAdapter(this, filteredEvents, nameFactory);
-    }
-
-    @Override
-    public Details getExperimentDetails() {
-        Details ed = new Details();
-        ed.name = mExperiment.name;
-        ed.authors = mExperiment.authors;
-        ed.description = mExperiment.description;
-        ed.version = String.valueOf(mExperiment.version);
-        return ed;
     }
 
     @Override
@@ -592,6 +592,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return new MethodAdapter(this, filteredMethods, nameFactory);
+    }
+
+    @Override
+    public String getName() {
+        return mExperiment.name;
     }
 
     @Override
@@ -718,6 +723,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public int getVersion() {
+        return mExperiment.version;
+    }
+
+    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
             case REQUEST_EDIT_STAGE: {
@@ -795,7 +805,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
-    }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -884,7 +894,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return super.onOptionsItemSelected(item);
-    };
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -948,18 +958,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
-    public void storeDetails(Details details) {
-        mExperiment.authors = details.authors;
-        mExperiment.description = details.description;
-        mExperiment.name = details.name;
-        try {
-            mExperiment.version = Integer.parseInt(details.version);
-        } catch (NumberFormatException e) {
-            // Ignore invalid version input.
-        }
-    }
-
-    @Override
     public void storeLandingPage(LandingPage landingPage) {
         mExperiment.landingPage = landingPage;
         notifyLandingPageDataChangeListeners();
@@ -984,6 +982,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     }
 
     @Override
+    public void updateAuthors(String authors) {
+        mExperiment.authors = authors;
+    }
+
+    @Override
+    public void updateDescription(String description) {
+        mExperiment.description = description;
+    }
+
+    @Override
     public void updateGenerator(long id, Generator generator) {
         mExperiment.generators.put(id, generator);
         notifyGeneratorDataChangeListeners();
@@ -1002,6 +1010,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             notifyGeneratorAdapter();
         }
         notifyLoopDataChangeListeners();
+    }
+
+    @Override
+    public void updateName(String name) {
+        mExperiment.name = name;
     }
 
     @Override
@@ -1039,6 +1052,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
             notifyRuleAdapter();
         }
         notifySceneDataChangeListeners();
+    }
+
+    @Override
+    public void updateVersion(int version) {
+        mExperiment.version = version;
     }
 
     private void deleteActionData(Long id) {
@@ -1123,10 +1141,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         getActionBar().setSubtitle(mSectionManager.getTitle(position));
     }
 
-    private Long findUnusedKey(LongSparseArray<?> map) {
+    private Long findUnusedKey(HashMap<Long, ?> map) {
         Long currKey = 0l;
         while (true) {
-            if (map.indexOfKey(currKey) < 0) {
+            if (!map.keySet().contains(currKey)) {
                 break;
             }
             currKey++;
@@ -1134,10 +1152,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         return currKey;
     }
 
-    private Long findUnusedKey(HashMap<Long, ?> map) {
+    private Long findUnusedKey(LongSparseArray<?> map) {
         Long currKey = 0l;
         while (true) {
-            if (!map.keySet().contains(currKey)) {
+            if (map.indexOfKey(currKey) < 0) {
                 break;
             }
             currKey++;
@@ -1226,7 +1244,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         for (LoopDataChangeListener l : mLoopDataChangeListeners) {
             l.onLoopDataChange();
         }
-    }
+    };
 
     private void notifyOperandAdapters(long id) {
         for (int j = 0; j < mOperandAdapters.size(); j++) {
@@ -1324,7 +1342,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         }
 
         return experiment;
-    };
+    }
 
     /**
      * Checks to see the given ored set of return types intersects with the

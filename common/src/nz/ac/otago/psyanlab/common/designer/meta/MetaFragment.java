@@ -2,10 +2,13 @@
 package nz.ac.otago.psyanlab.common.designer.meta;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.util.DetailsCallbacks;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,19 +18,17 @@ import android.widget.EditText;
  * Fragment that enables the UI for editing the experiment meta-data.
  */
 public class MetaFragment extends Fragment {
-    private Callbacks mCallbacks;
+    private DetailsCallbacks mCallbacks;
 
     private ViewHolder mViews;
-
-    private Details mExperimentDetails;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof Callbacks)) {
+        if (!(activity instanceof DetailsCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (Callbacks)activity;
+        mCallbacks = (DetailsCallbacks)activity;
     }
 
     @Override
@@ -36,40 +37,11 @@ public class MetaFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        if (mViews != null) {
-            mExperimentDetails.name = mViews.name.getText().toString();
-            mExperimentDetails.version = mViews.version.getText().toString();
-            mExperimentDetails.description = mViews.description.getText().toString();
-            mExperimentDetails.authors = mViews.authors.getText().toString();
-            mCallbacks.storeDetails(mExperimentDetails);
-        }
-        super.onPause();
-    }
-
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         mViews = new ViewHolder(view);
-        mExperimentDetails = mCallbacks.getExperimentDetails();
-        mViews.setViewValues(mExperimentDetails);
-    }
-
-    public static interface Callbacks {
-        void storeDetails(Details details);
-
-        Details getExperimentDetails();
-    }
-
-    public static class Details {
-        public String authors;
-
-        public String description;
-
-        public String name;
-
-        public String version;
+        mViews.initViews();
     }
 
     public class ViewHolder {
@@ -81,6 +53,75 @@ public class MetaFragment extends Fragment {
 
         public EditText version;
 
+        private TextWatcher mAuthorsWatcher = new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                final String newString = s.toString();
+                mCallbacks.updateAuthors(newString);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        };
+
+        private TextWatcher mDescriptionWatcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                final String newString = s.toString();
+                mCallbacks.updateDescription(newString);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        };;
+
+        private TextWatcher mNameWatcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                final String newString = s.toString();
+                mCallbacks.updateName(newString);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        };;
+
+        private TextWatcher mVersionWatcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                final String newString = s.toString();
+                try {
+                    mCallbacks.updateVersion(Integer.parseInt(newString));
+                } catch (NumberFormatException e) {
+                    // Ignore invalid version input.
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        };;
+
         public ViewHolder(View view) {
             name = (EditText)view.findViewById(R.id.name);
             version = (EditText)view.findViewById(R.id.version);
@@ -88,11 +129,16 @@ public class MetaFragment extends Fragment {
             description = (EditText)view.findViewById(R.id.description);
         }
 
-        public void setViewValues(Details ed) {
-            name.setText(ed.name);
-            version.setText(ed.version);
-            description.setText(ed.description);
-            authors.setText(ed.authors);
+        public void initViews() {
+            name.setText(mCallbacks.getName());
+            version.setText(String.valueOf(mCallbacks.getVersion()));
+            description.setText(mCallbacks.getDescription());
+            authors.setText(mCallbacks.getAuthors());
+
+            name.addTextChangedListener(mNameWatcher);
+            version.addTextChangedListener(mVersionWatcher);
+            authors.addTextChangedListener(mAuthorsWatcher);
+            description.addTextChangedListener(mDescriptionWatcher);
         }
     }
 }

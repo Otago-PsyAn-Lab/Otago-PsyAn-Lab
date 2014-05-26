@@ -4,6 +4,8 @@ package nz.ac.otago.psyanlab.common.designer.util;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
+import android.widget.SpinnerAdapter;
+
 import java.util.HashMap;
 
 public interface OperandCallbacks {
@@ -29,4 +31,6 @@ public interface OperandCallbacks {
     void updateOperand(long id, Operand operand);
 
     HashMap<Long, Operand> getOperands();
+
+    SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes);
 }

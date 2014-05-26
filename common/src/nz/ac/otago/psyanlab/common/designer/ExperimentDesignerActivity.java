@@ -143,8 +143,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
 
     private Pair<Long, ProgramComponentAdapter<Generator>> mCurrentGeneratorAdapter;
 
-    private Pair<Long, ProgramComponentAdapter<Operand>> mCurrentParameterAdapter;
-
     private Pair<Long, ProgramComponentAdapter<Rule>> mCurrentRuleAdapter;
 
     private Pair<Long, ProgramComponentAdapter<Scene>> mCurrentSceneAdapter;
@@ -779,15 +777,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
                     public void onClick(Dialog dialog) {
                         dialog.dismiss();
                     }
-//                }, new ConfirmDialogFragment.OnClickListener() {
-//                    @Override
-//                    public void onClick(Dialog dialog) {
-//                        Intent data = new Intent();
-//                        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
-//                        setResult(RESULT_CANCELED, data);
-//                        finish();
-//                        dialog.dismiss();
-//                    }
+                    // }, new ConfirmDialogFragment.OnClickListener() {
+                    // @Override
+                    // public void onClick(Dialog dialog) {
+                    // Intent data = new Intent();
+                    // data.putExtra(Args.EXPERIMENT_ID,
+                    // mExperimentDelegate.getId());
+                    // setResult(RESULT_CANCELED, data);
+                    // finish();
+                    // dialog.dismiss();
+                    // }
                 });
         dialog.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
     }
@@ -970,9 +969,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
     public void updateAction(long id, Action action) {
         mExperiment.actions.put(id, action);
 
-        if (mCurrentParameterAdapter != null && mCurrentGeneratorAdapter.first == id) {
-            notifyParameterAdapter();
-        }
+        notifyActionAdapter();
 
         notifyActionDataChangeListeners();
     }
@@ -1254,14 +1251,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Meta
         for (OperandDataChangeListener listener : mOperandDataChangeListeners) {
             listener.onOperandDataChange();
         }
-    }
-
-    private void notifyParameterAdapter() {
-        if (mCurrentParameterAdapter == null) {
-            return;
-        }
-
-        mCurrentParameterAdapter.second.notifyDataSetChanged();
     }
 
     private void notifyRuleAdapter() {

@@ -36,7 +36,7 @@ public class MetaFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
+    public void onPause() {
         if (mViews != null) {
             mExperimentDetails.name = mViews.name.getText().toString();
             mExperimentDetails.version = mViews.version.getText().toString();
@@ -44,7 +44,7 @@ public class MetaFragment extends Fragment {
             mExperimentDetails.authors = mViews.authors.getText().toString();
             mCallbacks.storeDetails(mExperimentDetails);
         }
-        super.onDetach();
+        super.onPause();
     }
 
     @Override

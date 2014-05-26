@@ -21,7 +21,9 @@ import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -318,6 +320,25 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         public View editCondition;
 
+        public TextWatcher mNameWatcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                String newName = s.toString();
+                if (!TextUtils.equals(mRule.name, newName)) {
+                    mRule.name = newName;
+                    mCallbacks.updateRule(mObjectId, mRule);
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        };
+
         public TextView name;
 
         public Spinner triggerEvent;
@@ -342,6 +363,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         @Override
         public void initViews() {
             editCondition.setOnClickListener(mConditionClickListener);
+
+            name.addTextChangedListener(mNameWatcher);
 
             newAction.setOnClickListener(mNewActionClickListener);
 

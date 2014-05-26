@@ -2,8 +2,8 @@
 package nz.ac.otago.psyanlab.single.test;
 
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
-import nz.ac.otago.psyanlab.common.designer.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.OperandCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.expression.Lexer;
 import nz.ac.otago.psyanlab.common.expression.OpalExpressionParser;
 import nz.ac.otago.psyanlab.common.expression.ParseException;
@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.v4.util.LongSparseArray;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.SpinnerAdapter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -274,12 +275,22 @@ public class ExpressionCompilerTest extends TestCase {
         }
 
         @Override
+        public SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes) {
+            return null;
+        }
+
+        @Override
         public Operand getOperand(long id) {
             return mOperands.get(id);
         }
 
         @Override
-        public ProgramComponentAdapter<Operand> getOperandAdapter(long scopeId, int scope) {
+        public ProgramComponentAdapter<Operand> getOperandAdapter(long scopeId) {
+            return null;
+        }
+
+        @Override
+        public HashMap<Long, Operand> getOperands() {
             return null;
         }
 

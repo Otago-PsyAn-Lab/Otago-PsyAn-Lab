@@ -69,9 +69,13 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
             case REQUEST_NEW:
                 switch (resultCode) {
                     case RESULT_OK:
+                        // Nothing to do because the experiment has already been
+                        // saved through the user delegate.
                         break;
 
                     default:
+                        // We have to delete the experiment because it was
+                        // discarded by the user.
                         long experimentId = data.getLongExtra(Args.EXPERIMENT_ID, -1);
                         if (experimentId != -1) {
                             try {

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -166,8 +165,6 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
         fragment.setScrollerPos(mFragments.size());
         mFragments.add(fragment);
 
-        Log.e("add", fragment.getScrollerPos() + "");
-
         ft.add(R.id.program_container, fragment, "program_frag" + fragment.getScrollerPos());
 
         // WARNING: It has been mentioned it is possible that the order of
@@ -177,7 +174,6 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
     private void snip(int pos, FragmentTransaction ft) {
         for (int i = mFragments.size() - 1; i >= pos; i--) {
             ft.remove(mFragments.get(i));
-            Log.e("snip", i + "");
             mFragments.remove(i);
         }
     }

@@ -13,10 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class AssetsFragment extends Fragment implements AssetsListFragment.OnShowAssetListener {
-    private static final int TWO_PANE = 2;
-
-    private int mDisplayMode;
-
     private AssetTabFragmentsCallbacks mCallbacks;
 
     private AssetsListFragment mListFragment;
@@ -27,14 +23,10 @@ public class AssetsFragment extends Fragment implements AssetsListFragment.OnSho
     public void showAsset(long id) {
         FragmentManager fm = getChildFragmentManager();
 
-        if (mDisplayMode == TWO_PANE) {
-            FragmentTransaction ft = fm.beginTransaction();
-            mDetailFragment = AssetDetailFragment.newInstance(id);
-            ft.replace(R.id.asset_detail_container, mDetailFragment, "detail");
-            ft.commit();
-        } else {
-            mCallbacks.displayAsset(id);
-        }
+        FragmentTransaction ft = fm.beginTransaction();
+        mDetailFragment = AssetDetailFragment.newInstance(id);
+        ft.replace(R.id.asset_detail_container, mDetailFragment, "detail");
+        ft.commit();
     }
 
     @Override
@@ -54,10 +46,6 @@ public class AssetsFragment extends Fragment implements AssetsListFragment.OnSho
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // TODO: non two pane version - just use a configuration variable to
-        // detect the display mode.
-        mDisplayMode = getResources().getInteger(R.integer.assets_display_mode);
 
         // Attach asset list.
         AssetsListFragment listFragment = (AssetsListFragment)getChildFragmentManager()

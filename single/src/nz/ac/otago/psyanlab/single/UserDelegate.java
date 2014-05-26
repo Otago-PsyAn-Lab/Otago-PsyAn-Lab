@@ -42,15 +42,11 @@ public class UserDelegate implements UserDelegateI {
 
     private static final int LOADER_EXPERIMENTS = 0x01;
 
-    private static final String PATH_INTERNAL_TEMP_DIR = "temp";
-
     private static final String[] sExperimentsCols = new String[] {
             ExperimentModel.namespaced(ExperimentModel.KEY_ID), ExperimentModel.KEY_NAME
     };
 
     private FragmentActivity mActivity;
-
-    private SimpleCursorAdapter mAdapter;
 
     public UserDelegate() {
     }
@@ -103,11 +99,16 @@ public class UserDelegate implements UserDelegateI {
     @Override
     public ListAdapter getExperimentsAdapter(int layout, int[] fields, int[] to) {
         String[] from = convertFields(fields);
-        mAdapter = new SimpleCursorAdapter(mActivity, layout, null, from, to, 0);
-        mActivity.getSupportLoaderManager().initLoader(LOADER_EXPERIMENTS, null,
-                new ExperimentsLoaderCallbacks());
 
-        return mAdapter;
+        // An adapter which we will load with the cursor when the loader
+        // completes.
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(mActivity, layout, null, from, to, 0);
+
+        // Kick off loading the cursor from the database.
+        mActivity.getSupportLoaderManager().initLoader(LOADER_EXPERIMENTS, null,
+                new ExperimentsLoaderCallbacks(adapter));
+
+        return adapter;
     }
 
     @Override
@@ -131,6 +132,12 @@ public class UserDelegate implements UserDelegateI {
     public void writeToParcel(Parcel dest, int flags) {
     }
 
+    /**
+     * Translate the delegate field names to the database model's field name.
+     * 
+     * @param fields Fields as given in the delegate nomenclature.
+     * @return String array of database field names.
+     */
     private String[] convertFields(int[] fields) {
         String[] cols = new String[fields.length];
         int numUnderstood = 0;
@@ -166,10 +173,16 @@ public class UserDelegate implements UserDelegateI {
     }
 
     private final class ExperimentsLoaderCallbacks implements LoaderCallbacks<Cursor> {
+        private SimpleCursorAdapter mAdapter;
+
+        public ExperimentsLoaderCallbacks(SimpleCursorAdapter adapter) {
+            mAdapter = adapter;
+        }
+
         @Override
         public Loader<Cursor> onCreateLoader(int newLoaderId, final Bundle args) {
             return new CursorLoader(mActivity, DataProvider.URI_EXPERIMENTS, sExperimentsCols,
-                    null, null, ExperimentModel.KEY_NAME + " ASC");
+                    null, null, ExperimentModel.KEY_NAME + " COLLATE NOCASE ASC");
         }
 
         @Override

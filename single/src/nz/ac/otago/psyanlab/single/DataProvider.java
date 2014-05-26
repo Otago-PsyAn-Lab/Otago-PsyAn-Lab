@@ -163,7 +163,8 @@ public class DataProvider extends ContentProvider {
     }
 
     private int deleteExperiments(String selection, String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        return db.delete(ExperimentModel.TABLE, selection, selectionArgs);
     }
 
     private int deleteRecords(String selection, String[] selectionArgs) {

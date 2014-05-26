@@ -26,21 +26,21 @@ public class ModelUtils {
         if (mGson == null) {
             GsonBuilder gson = new GsonBuilder();
 
-//            Type loopArrayType = new TypeToken<LongSparseArray<Loop>>() {
-//            }.getType();
-//            gson.registerTypeAdapter(loopArrayType,
-//                    new LongSparseArrayGsonAdapter<Loop>(Loop.class));
+            // Type loopArrayType = new TypeToken<LongSparseArray<Loop>>() {
+            // }.getType();
+            // gson.registerTypeAdapter(loopArrayType,
+            // new LongSparseArrayGsonAdapter<Loop>(Loop.class));
 
             gson.registerTypeAdapter(Operand.class, new AbsModelGsonAdapter<Operand>(
-                    AbsModelGsonAdapter.NS_MODEL_ASSET));
+                    AbsModelGsonAdapter.NS_MODEL_OPERAND));
             gson.registerTypeAdapter(Generator.class, new AbsModelGsonAdapter<Generator>(
                     AbsModelGsonAdapter.NS_MODEL_GENERATOR));
             gson.registerTypeAdapter(Subject.class, new AbsModelGsonAdapter<Subject>(
-                    AbsModelGsonAdapter.NS_MODEL_OPERAND));
+                    AbsModelGsonAdapter.NS_MODEL_SUBJECT));
             gson.registerTypeAdapter(Prop.class, new AbsModelGsonAdapter<Prop>(
                     AbsModelGsonAdapter.NS_MODEL_PROP));
             gson.registerTypeAdapter(Asset.class, new AbsModelGsonAdapter<Asset>(
-                    AbsModelGsonAdapter.NS_MODEL_SUBJECT));
+                    AbsModelGsonAdapter.NS_MODEL_ASSET));
 
             mGson = gson.create();
         }

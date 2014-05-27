@@ -277,5 +277,9 @@
     <string name="default_new_experiment">New Experiment</string>
     <string name="hint_description_subject">Description and assistance Text</string>
     <string name="hint_title_subject">Title</string>
+    <string name="title_experiments">Experiments</string>
+    <string name="note_experiment_no_description">No experiment description.</string>
+    <string name="note_experiment_no_authors">No authors given</string>
+    <string name="note_experiment_no_name">Missing experiment title</string>
 
 </resources>

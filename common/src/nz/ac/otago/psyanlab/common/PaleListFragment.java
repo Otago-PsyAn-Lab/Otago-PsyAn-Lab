@@ -21,15 +21,12 @@
 package nz.ac.otago.psyanlab.common;
 
 import android.app.Activity;
-import android.database.DataSetObserver;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -48,17 +45,6 @@ public class PaleListFragment extends ListFragment {
 
     private Callbacks mCallbacks;
 
-    public void init(UserDelegateI userDelegate) {
-        mAdapter = userDelegate.getExperimentsAdapter(
-                android.R.layout.simple_list_item_activated_1, new int[] {
-                    UserDelegateI.EXPERIMENT_NAME
-                }, new int[] {
-                    android.R.id.text1
-                });
-        setListAdapter(mAdapter);
-        mAdapter.registerDataSetObserver(new SelectFirstOnStart());
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -72,18 +58,6 @@ public class PaleListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_pale_list, container, false);
-    }
-
-    /**
-     * Trigger an update on active position and item selection adjusting for a
-     * deleted item.
-     */
-    public void onExperimentDelete() {
-        if (mActivatedPosition > 0) {
-            mActivatedPosition -= 1;
-            setActivatedPosition(mActivatedPosition);
-            mCallbacks.onItemSelected(getListView().getItemIdAtPosition(mActivatedPosition));
-        }
     }
 
     public void onExperimentInsert(final long id) {
@@ -124,11 +98,7 @@ public class PaleListFragment extends ListFragment {
     }
 
     public void setActivatedPosition(int position) {
-        if (position == AdapterView.INVALID_POSITION) {
-            getListView().setItemChecked(mActivatedPosition, false);
-        } else {
-            getListView().setItemChecked(position, true);
-        }
+        getListView().setItemChecked(position, true);
 
         mActivatedPosition = position;
     }
@@ -141,25 +111,16 @@ public class PaleListFragment extends ListFragment {
         mActivateOnItemClick = activateOnItemClick;
     }
 
-    public static interface Callbacks {
-        public void onItemSelected(long id);
+    public void setUserDelegate(UserDelegateI userDelegate) {
+        mAdapter = userDelegate.getExperimentsAdapter(R.layout.list_item_experiment, new int[] {
+            UserDelegateI.EXPERIMENT_NAME
+        }, new int[] {
+            android.R.id.text1
+        });
+        setListAdapter(mAdapter);
     }
 
-    private final class SelectFirstOnStart extends DataSetObserver {
-        @Override
-        public void onChanged() {
-            new Handler().post(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (mAdapter.getCount() > 0) {
-                        setActivatedPosition(mActivatedPosition);
-                        mCallbacks.onItemSelected(getListView().getItemIdAtPosition(
-                                mActivatedPosition));
-                    }
-                    mAdapter.unregisterDataSetObserver(SelectFirstOnStart.this);
-                }
-            });
-        }
+    public static interface Callbacks {
+        public void onItemSelected(long id);
     }
 }

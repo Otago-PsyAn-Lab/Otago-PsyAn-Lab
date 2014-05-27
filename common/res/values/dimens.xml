@@ -14,6 +14,6 @@
     <dimen name="right_column">240dip</dimen>
     <dimen name="right_column_aligned">232dip</dimen>
     <dimen name="sticky_header_offset">16dip</dimen>
-    <dimen name="sliding_container_parallax">48dip</dimen>
+    <dimen name="sliding_container_parallax">14dip</dimen>
 
 </resources>

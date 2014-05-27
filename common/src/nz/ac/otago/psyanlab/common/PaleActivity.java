@@ -125,7 +125,7 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
         // List fragment.
         mPaleListFragment = (PaleListFragment)fm.findFragmentById(R.id.pale_list_fragment);
-        mPaleListFragment.init(mUserDelegate);
+        mPaleListFragment.setUserDelegate(mUserDelegate);
         mPaleListFragment.setActivateOnItemClick(true);
         // if (savedInstanceState == null) {
         // mPaleListFragment.setActivatedPosition(0);
@@ -140,27 +140,24 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
         // Initialise sliding container.
         mSlidingContainer = (SlidingPaneLayout)findViewById(R.id.sliding_container);
-        mSlidingContainer.openPane();
         mSlidingContainer.setParallaxDistance((int)getResources().getDimension(
                 R.dimen.sliding_container_parallax));
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!mSlidingContainer.isOpen()) {
+            mSlidingContainer.openPane();
+            return;
+        }
+
+        super.onBackPressed();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_user_pales, menu);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public void onExperimentDeleted() {
-        updateExperimentDelegate(null);
-
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                mPaleListFragment.onExperimentDelete();
-            }
-        });
     }
 
     @Override

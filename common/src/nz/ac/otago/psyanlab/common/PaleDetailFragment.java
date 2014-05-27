@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,7 +48,7 @@ public class PaleDetailFragment extends Fragment {
 
     private Callbacks mCallbacks;
 
-    private UserExperimentDelegateI mDelegate;
+    protected UserExperimentDelegateI mDelegate;
 
     private ViewHolder mViews;
 
@@ -74,7 +75,6 @@ public class PaleDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_pale_detail, container, false);
-
         ListView records = (ListView)v.findViewById(R.id.records);
         records.addHeaderView(inflater.inflate(R.layout.header_pale_detail, records, false));
         return v;
@@ -111,14 +111,22 @@ public class PaleDetailFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Refresh the data in case it has change while we were away.
+        setExperimentDelegate(mDelegate);
+    }
+
     /**
      * Update fragment with selected experiment encapsulated by the experiment
      * delegate.
      * 
-     * @param userExperimentDelegate Delegate which gives access to experiment.
+     * @param experimentDelegate Delegate which gives access to experiment.
      */
-    public void setExperimentDelegate(UserExperimentDelegateI userExperimentDelegate) {
-        mDelegate = userExperimentDelegate;
+    public void setExperimentDelegate(UserExperimentDelegateI experimentDelegate) {
+        mDelegate = experimentDelegate;
         if (mDelegate != null) {
             mDelegate.init(getActivity());
         }
@@ -145,11 +153,11 @@ public class PaleDetailFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int id) {
                         try {
                             mDelegate.deleteExperiment();
+                            setExperimentDelegate(null);
                         } catch (IOException e) {
                             // FIXME: Handle error deleting experiment.
                             e.printStackTrace();
                         }
-                        mCallbacks.onExperimentDeleted();
                         dialog.dismiss();
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -174,7 +182,6 @@ public class PaleDetailFragment extends Fragment {
     }
 
     public interface Callbacks {
-        void onExperimentDeleted();
     }
 
     private class ViewHolder {
@@ -192,12 +199,9 @@ public class PaleDetailFragment extends Fragment {
 
         public ListView records;
 
-        public View rootView;
-
         private ListAdapter mAdapter;
 
         public ViewHolder(View view) {
-            rootView = view;
             name = (TextView)view.findViewById(R.id.name);
             description = (TextView)view.findViewById(R.id.description);
             authors = (TextView)view.findViewById(R.id.authors);
@@ -210,19 +214,40 @@ public class PaleDetailFragment extends Fragment {
         public void setViewValues(UserExperimentDelegateI delegate) {
             if (delegate == null) {
                 // Setup for blank scenario.
-                rootView.setVisibility(View.INVISIBLE);
                 mAdapter = null;
                 records.setAdapter(null);
+                records.setVisibility(View.GONE);
                 return;
             }
 
             // Fill in views with experiment held by the delegate.
-            rootView.setVisibility(View.VISIBLE);
+            records.setVisibility(View.VISIBLE);
 
             final PaleRow experimentDetails = delegate.getExperimentDetails();
-            name.setText(experimentDetails.name);
-            description.setText(experimentDetails.description);
-            authors.setText(experimentDetails.authors);
+
+            // Show experiment name if we have it, else we show a default
+            // message to advise the missing name.
+            if (TextUtils.isEmpty(experimentDetails.name)) {
+                name.setText(getString(R.string.note_experiment_no_name));
+            } else {
+                name.setText(experimentDetails.name);
+            }
+
+            // Show description if we have one, else we show a default message
+            // to advise the missing description.
+            if (TextUtils.isEmpty(experimentDetails.description)) {
+                description.setText(getString(R.string.note_experiment_no_description));
+            } else {
+                description.setText(experimentDetails.description);
+            }
+
+            // Show authors if we have them, else we show a default message
+            // to advise the missing authorship.
+            if (TextUtils.isEmpty(experimentDetails.authors)) {
+                authors.setText(getString(R.string.note_experiment_no_authors));
+            } else {
+                authors.setText(experimentDetails.authors);
+            }
 
             created.setText(DateUtils.formatDateTime(getActivity(), experimentDetails.dateCreated,
                     0));

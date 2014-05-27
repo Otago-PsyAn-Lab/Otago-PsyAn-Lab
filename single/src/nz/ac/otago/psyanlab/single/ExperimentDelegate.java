@@ -49,8 +49,6 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
 
     private static final int LOADER_RECORDS = 0x02;
 
-    private static final String PATH_INTERNAL_TEMP_DIR = "temp";
-
     private static final String[] sProjection = new String[] {
             ExperimentModel.KEY_ID, ExperimentModel.KEY_LAST_RUN, ExperimentModel.KEY_AUTHORS,
             ExperimentModel.KEY_DATE_CREATED, ExperimentModel.KEY_DESCRIPTION,
@@ -62,9 +60,9 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
 
     private SimpleCursorAdapter mAdapter;
 
-    private long mExperimentId;
+    private Cursor mExperimentCursor;
 
-    private PaleRow mExperimentRow;
+    private long mExperimentId;
 
     private Uri mUri;
 
@@ -90,10 +88,15 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
 
     @Override
     public Experiment getExperiment() throws IOException {
-        Cursor c = mActivity.getContentResolver().query(mUri, null, null, null, null);
-        c.moveToFirst();
-        ExperimentModel model = new ExperimentModel(c);
-        c.close();
+        if (mExperimentCursor != null) {
+            mExperimentCursor.close();
+            mExperimentCursor = null;
+        }
+
+        mExperimentCursor = mActivity.getContentResolver().query(mUri, null, null, null, null);
+        mExperimentCursor.moveToFirst();
+        ExperimentModel model = new ExperimentModel(mExperimentCursor);
+        mExperimentCursor.close();
         File paleFile = new File(mActivity.getDir(FileUtils.PATH_INTERNAL_EXPERIMENTS_DIR,
                 Context.MODE_PRIVATE), model.file);
         try {
@@ -110,39 +113,19 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
         }
     }
 
-    private void logExperimentDef(File workingDir) throws FileNotFoundException, IOException,
-            UnsupportedEncodingException {
-        InputStream in = new FileInputStream(new File(workingDir, "experiment.json"));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        try {
-            final byte[] buffer = new byte[8192];
-            int len = 0;
-
-            while (-1 != (len = in.read(buffer))) {
-                out.write(buffer, 0, len);
-            }
-            Log.d("experiment.json", new String(out.toByteArray(), "UTF-16"));
-        } finally {
-            in.close();
-            out.close();
-        }
-    }
-
     @Override
     public PaleRow getExperimentDetails() {
-        if (mExperimentRow == null) {
-            Cursor c = mActivity.getContentResolver().query(mUri, sProjection, null, null, null);
-            if (!c.moveToFirst()) {
-                c.close();
-                return null;
-            }
-
-            mExperimentRow = new PaleRow();
-            new ExperimentModel(c).toDetails(mExperimentRow);
+        Cursor c = mActivity.getContentResolver().query(mUri, null, null, null, null);
+        if (!c.moveToFirst()) {
             c.close();
+            return null;
         }
-        return mExperimentRow;
+
+        PaleRow experimentRow = new PaleRow();
+        new ExperimentModel(c).toDetails(experimentRow);
+        c.close();
+
+        return experimentRow;
     }
 
     @Override
@@ -243,6 +226,48 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
             cols[i] = col;
         }
         return Arrays.copyOfRange(cols, 0, numUnderstood);
+    }
+
+    private void logExperimentDef(File workingDir) throws FileNotFoundException, IOException,
+            UnsupportedEncodingException {
+        InputStream in = new FileInputStream(new File(workingDir, "experiment.json"));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            final byte[] buffer = new byte[8192];
+            int len = 0;
+
+            while (-1 != (len = in.read(buffer))) {
+                out.write(buffer, 0, len);
+            }
+            Log.d("experiment.json", new String(out.toByteArray(), "UTF-16"));
+        } finally {
+            in.close();
+            out.close();
+        }
+    }
+
+    private final class ExperimentLoaderCallbacks implements LoaderCallbacks<Cursor> {
+        @Override
+        public Loader<Cursor> onCreateLoader(int newLoaderId, final Bundle args) {
+            return new CursorLoader(mActivity, mUri, null, null, null, null);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            if (mExperimentCursor != null) {
+                mExperimentCursor.close();
+            }
+            mExperimentCursor = null;
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> arg0, Cursor newCursor) {
+            if (mExperimentCursor != null) {
+                mExperimentCursor.close();
+            }
+            mExperimentCursor = newCursor;
+        }
     }
 
     private final class RecordsLoaderCallbacks implements LoaderCallbacks<Cursor> {

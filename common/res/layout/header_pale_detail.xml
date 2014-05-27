@@ -1,45 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:alignmentMode="alignMargins"
+    android:columnCount="2"
+    android:padding="16dip"
+    android:useDefaultMargins="true" >
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/filler_experiment_name" />
+        android:layout_columnSpan="2"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="0dip"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Title"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/authors"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16sp"
-        android:text="@string/filler_experiment_authors" />
-
-    <TextView
-        android:id="@+id/created"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/filler_experiment_created" />
-
-    <TextView
-        android:id="@+id/last_modified"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/filler_experiment_created" />
-
-    <TextView
-        android:id="@+id/last_run"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/filler_experiment_created" />
+        android:layout_columnSpan="2"
+        android:layout_gravity="fill_horizontal"
+        android:fontFamily="sans-serif-light"
+        android:paddingLeft="8sp"
+        android:text="@string/filler_experiment_authors"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="italic" />
 
     <TextView
         android:id="@+id/description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:layout_gravity="fill_horizontal"
+        android:fontFamily="sans-serif-light"
         android:text="@string/filler_experiment_description"
-        android:textSize="14sp" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="16sp" />
 
-</LinearLayout>
+    <TextView
+        android:layout_columnSpan="2"
+        android:layout_marginTop="32dip"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Details"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:fontFamily="sans-serif-light"
+        android:paddingRight="16sp"
+        android:text="Created"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/created"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/filler_experiment_created"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:fontFamily="sans-serif-light"
+        android:paddingRight="16sp"
+        android:text="Last Modified"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/last_modified"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/filler_experiment_created"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:fontFamily="sans-serif-light"
+        android:paddingRight="16sp"
+        android:text="Last Run"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/last_run"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/filler_experiment_created"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:layout_columnSpan="2"
+        android:layout_marginBottom="0dip"
+        android:layout_marginTop="32dip"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Records"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</GridLayout>

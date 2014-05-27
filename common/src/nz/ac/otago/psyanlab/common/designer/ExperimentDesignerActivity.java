@@ -778,7 +778,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                     @Override
                     public void onClick(Dialog dialog) {
                         storeExperiment();
-                        setResult(RESULT_OK);
+                        Intent data = new Intent();
+                        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
+                        setResult(RESULT_OK, data);
                         finish();
                         dialog.dismiss();
                     }
@@ -787,16 +789,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                     public void onClick(Dialog dialog) {
                         dialog.dismiss();
                     }
-                    // }, new ConfirmDialogFragment.OnClickListener() {
-                    // @Override
-                    // public void onClick(Dialog dialog) {
-                    // Intent data = new Intent();
-                    // data.putExtra(Args.EXPERIMENT_ID,
-                    // mExperimentDelegate.getId());
-                    // setResult(RESULT_CANCELED, data);
-                    // finish();
-                    // dialog.dismiss();
-                    // }
                 });
         dialog.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
     }
@@ -880,15 +872,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         long itemId = item.getItemId();
+        Intent data = new Intent();
+        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
         if (itemId == R.id.menu_discard) {
-            Intent data = new Intent();
-            data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
             setResult(RESULT_CANCELED, data);
             finish();
             return true;
         } else if (itemId == R.id.menu_done) {
             storeExperiment();
-            setResult(RESULT_OK);
+            setResult(RESULT_OK, data);
             finish();
             return true;
         }

@@ -59,10 +59,7 @@ public class AssetsListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_designer_asset_list, container, false);
-        mViews = new ViewHolder(view);
-        mViews.initViews();
-        return view;
+        return inflater.inflate(R.layout.fragment_designer_asset_list, container, false);
     }
 
     @Override
@@ -73,6 +70,9 @@ public class AssetsListFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mViews = new ViewHolder(view);
+        mViews.initViews();
     }
 
     public void setOnAssetClickedListener(OnShowAssetListener listener) {

@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:layout_below="@+id/colour_bar_spacer"
     android:layout_toRightOf="@+id/colour_left_margin"
+    android:background="@color/card_background"
     android:paddingBottom="16dip"
     android:paddingLeft="16dip"
     android:paddingRight="16dip"

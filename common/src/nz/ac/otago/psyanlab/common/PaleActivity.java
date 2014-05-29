@@ -145,6 +145,7 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         mSlidingContainer = (SlidingPaneLayout)findViewById(R.id.sliding_container);
         mSlidingContainer.setParallaxDistance((int)getResources().getDimension(
                 R.dimen.sliding_container_parallax));
+        mSlidingContainer.setShadowResource(R.drawable.opal_list_background);
     }
 
     @Override

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:alignmentMode="alignBounds"
+    android:background="@color/card_background"
     android:columnCount="2"
     android:columnOrderPreserved="false"
     android:useDefaultMargins="true" >

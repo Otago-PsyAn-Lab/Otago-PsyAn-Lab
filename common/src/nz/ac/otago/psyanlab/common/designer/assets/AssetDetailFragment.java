@@ -47,13 +47,15 @@ public class AssetDetailFragment extends Fragment {
                 @Override
                 public void run() {
                     mCallbacks.deleteAsset(mAssetId);
-                    getView().setVisibility(View.GONE);
+                    mOnDeleteListener.onDeleteAsset();
                 }
             }, ViewConfiguration.getTapTimeout());
         }
     };
 
     private ViewHolder mViews;
+
+    private OnDeleteAssetListener mOnDeleteListener;
 
     @Override
     public void onAttach(Activity activity) {
@@ -69,13 +71,6 @@ public class AssetDetailFragment extends Fragment {
         inflater.cloneInContext(new ContextThemeWrapper(getActivity(),
                 android.R.style.Theme_Holo_Light));
         return inflater.inflate(R.layout.fragment_designer_asset_detail, container, false);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mCallbacks.updateAsset(mAssetId, mAsset);
     }
 
     @Override
@@ -150,5 +145,13 @@ public class AssetDetailFragment extends Fragment {
         public void initViews() {
             delete.setOnClickListener(mDeleteClickListener);
         }
+    }
+
+    public void setOnAssetDeletedListener(OnDeleteAssetListener listener) {
+        mOnDeleteListener = listener;
+    }
+
+    public interface OnDeleteAssetListener {
+        void onDeleteAsset();
     }
 }

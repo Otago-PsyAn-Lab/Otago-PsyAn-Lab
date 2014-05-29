@@ -2,13 +2,12 @@
 <android.support.v4.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/sliding_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true" >
+    android:layout_height="match_parent" >
 
     <fragment
         android:id="@+id/pale_list_fragment"
         android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
-        android:layout_width="320dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <fragment

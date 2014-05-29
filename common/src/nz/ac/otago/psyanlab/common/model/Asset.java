@@ -39,11 +39,14 @@ public abstract class Asset implements ExperimentObject {
     @Expose
     public String name;
 
+    @Expose
     public String path;
 
     protected int mHeaderResId;
 
     protected long mTypeId = 0x00;
+
+    private boolean mIsExternal = false;
 
     public int compareTo(Asset another) {
         int cmpr = this.getClass().getName().compareToIgnoreCase(another.getClass().getName());
@@ -71,11 +74,16 @@ public abstract class Asset implements ExperimentObject {
         return ExperimentObjectReference.KIND_ASSET;
     }
 
-    public void setFile(File file) {
+    public void setExternalFile(File file) {
         filesize = file.length();
         path = file.getPath();
         filename = file.getName();
         name = file.getName();
+        mIsExternal = true;
+    }
+
+    public boolean isExternal() {
+        return mIsExternal;
     }
 
     public static final class AssetFactory {
@@ -100,7 +108,7 @@ public abstract class Asset implements ExperimentObject {
             } else {
                 throw new RuntimeException("Unknown asset file type");
             }
-            asset.setFile(file);
+            asset.setExternalFile(file);
 
             return asset;
         }

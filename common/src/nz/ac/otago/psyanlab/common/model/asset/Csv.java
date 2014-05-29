@@ -15,8 +15,7 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 
 public class Csv extends Asset {
-    public static void countRowsAndCols(Csv csv) throws IOException {
-        File file = new File(csv.path);
+    public static void countRowsAndCols(Csv csv, File file) throws IOException {
         CSVReader reader = new CSVReader(new FileReader(file), ',', '\"', 0);
         LineNumberReader lineCounter = new LineNumberReader(new FileReader(file));
 
@@ -24,7 +23,7 @@ public class Csv extends Asset {
         csv.mTotalCols = reader.readNext().length;
 
         // Read number of rows.
-        while ((lineCounter.readLine()) != null) {
+        while (lineCounter.readLine() != null) {
         }
         csv.mTotalRows = lineCounter.getLineNumber();
 

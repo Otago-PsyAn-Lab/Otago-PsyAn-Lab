@@ -60,8 +60,6 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
 
     private SimpleCursorAdapter mAdapter;
 
-    private Cursor mExperimentCursor;
-
     private long mExperimentId;
 
     private Uri mUri;
@@ -77,6 +75,11 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
     }
 
     @Override
+    public void closeExperiment() {
+        FileUtils.clearCache(mActivity);
+    }
+
+    @Override
     public boolean deleteExperiment() throws IOException {
         return mActivity.getContentResolver().delete(mUri, null, null) == 1;
     }
@@ -84,33 +87,6 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    @Override
-    public Experiment getExperiment() throws IOException {
-        if (mExperimentCursor != null) {
-            mExperimentCursor.close();
-            mExperimentCursor = null;
-        }
-
-        mExperimentCursor = mActivity.getContentResolver().query(mUri, null, null, null, null);
-        mExperimentCursor.moveToFirst();
-        ExperimentModel model = new ExperimentModel(mExperimentCursor);
-        mExperimentCursor.close();
-        File paleFile = new File(mActivity.getDir(FileUtils.PATH_INTERNAL_EXPERIMENTS_DIR,
-                Context.MODE_PRIVATE), model.file);
-        try {
-            File workingDir = FileUtils.decompress(paleFile, mActivity.getExternalCacheDir());
-            logExperimentDef(workingDir);
-            try {
-                return FileUtils.loadExperimentDefinition(new File(workingDir, "experiment.json"));
-            } catch (JsonSyntaxException e) {
-                logExperimentDef(workingDir);
-                throw e;
-            }
-        } finally {
-            FileUtils.clearCache(mActivity);
-        }
     }
 
     @Override
@@ -126,6 +102,11 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
         c.close();
 
         return experimentRow;
+    }
+
+    @Override
+    public File getFile(String path) {
+        return new File(mActivity.getExternalCacheDir(), path);
     }
 
     @Override
@@ -153,6 +134,23 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
     @Override
     public void init(FragmentActivity activity) {
         mActivity = activity;
+    }
+
+    @Override
+    public Experiment openExperiment() throws IOException {
+        Cursor c = mActivity.getContentResolver().query(mUri, null, null, null, null);
+        c.moveToFirst();
+        ExperimentModel model = new ExperimentModel(c);
+        c.close();
+        File paleFile = new File(mActivity.getDir(FileUtils.PATH_INTERNAL_EXPERIMENTS_DIR,
+                Context.MODE_PRIVATE), model.file);
+        File workingDir = FileUtils.decompress(paleFile, mActivity.getExternalCacheDir());
+        try {
+            return FileUtils.loadExperimentDefinition(new File(workingDir, "experiment.json"));
+        } catch (JsonSyntaxException e) {
+            logExperimentDef(workingDir);
+            throw e;
+        }
     }
 
     @Override
@@ -244,29 +242,6 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
         } finally {
             in.close();
             out.close();
-        }
-    }
-
-    private final class ExperimentLoaderCallbacks implements LoaderCallbacks<Cursor> {
-        @Override
-        public Loader<Cursor> onCreateLoader(int newLoaderId, final Bundle args) {
-            return new CursorLoader(mActivity, mUri, null, null, null, null);
-        }
-
-        @Override
-        public void onLoaderReset(Loader<Cursor> loader) {
-            if (mExperimentCursor != null) {
-                mExperimentCursor.close();
-            }
-            mExperimentCursor = null;
-        }
-
-        @Override
-        public void onLoadFinished(Loader<Cursor> arg0, Cursor newCursor) {
-            if (mExperimentCursor != null) {
-                mExperimentCursor.close();
-            }
-            mExperimentCursor = newCursor;
         }
     }
 

@@ -103,6 +103,7 @@ import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.Collator;
@@ -492,6 +493,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public File getFile(String path) {
+        return mExperimentDelegate.getFile(path);
+    }
+
+    @Override
     public Generator getGenerator(long id) {
         return mExperiment.generators.get(id);
     }
@@ -777,10 +783,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 new ConfirmDialogFragment.OnClickListener() {
                     @Override
                     public void onClick(Dialog dialog) {
-                        storeExperiment();
-                        Intent data = new Intent();
-                        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
-                        setResult(RESULT_OK, data);
+                        doSaveAction();
                         finish();
                         dialog.dismiss();
                     }
@@ -791,13 +794,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                     }
                 });
         dialog.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
-    }
+    };
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
-    };
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -872,15 +875,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         long itemId = item.getItemId();
-        Intent data = new Intent();
-        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
         if (itemId == R.id.menu_discard) {
-            setResult(RESULT_CANCELED, data);
-            finish();
-            return true;
+            return doDiscardAction();
         } else if (itemId == R.id.menu_done) {
-            storeExperiment();
-            setResult(RESULT_OK, data);
+            doSaveAction();
             finish();
             return true;
         }
@@ -1127,6 +1125,26 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    private boolean doDiscardAction() {
+        Intent data = new Intent();
+        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
+
+        mExperimentDelegate.closeExperiment();
+        setResult(RESULT_CANCELED, data);
+        finish();
+        return true;
+    }
+
+    private void doSaveAction() {
+        storeExperiment();
+
+        Intent data = new Intent();
+        data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
+
+        mExperimentDelegate.closeExperiment();
+        setResult(RESULT_OK, data);
+    }
+
     private void doSelectSection(int position) {
         mSectionManager.selectSection(position);
         mDrawerList.setItemChecked(position, true);
@@ -1157,7 +1175,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     private Experiment getExperimentFromDelegate() {
         try {
-            return mExperimentDelegate.getExperiment();
+            return mExperimentDelegate.openExperiment();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -1218,7 +1236,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         for (LandingPageDataChangeListener l : mLandingPageDataChangeListeners) {
             l.onLandingPageDataChange();
         }
-    }
+    };
 
     private void notifyLoopAdapter() {
         if (mLoopAdapter == null) {
@@ -1236,7 +1254,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         for (LoopDataChangeListener l : mLoopDataChangeListeners) {
             l.onLoopDataChange();
         }
-    };
+    }
 
     private void notifyOperandAdapters(long id) {
         for (int j = 0; j < mOperandAdapters.size(); j++) {

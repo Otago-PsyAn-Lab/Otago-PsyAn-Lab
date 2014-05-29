@@ -7,6 +7,8 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.AssetData
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar;
 import nz.ac.otago.psyanlab.common.model.Asset;
 
+import java.io.File;
+
 public interface AssetTabFragmentsCallbacks extends DialogueResultListenerRegistrar {
     public void displayAsset(long id);
 
@@ -23,4 +25,6 @@ public interface AssetTabFragmentsCallbacks extends DialogueResultListenerRegist
     void removeAssetDataChangeListener(AssetDataChangeListener listener);
 
     void updateAsset(long id, Asset asset);
+
+    public File getFile(String path);
 }

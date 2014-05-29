@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -178,9 +179,14 @@ public class CSVDataDetailFragment extends Fragment {
 
         if (!mCsv.fileCounted()) {
             try {
-                Csv.countRowsAndCols(mCsv);
+                if (mCsv.isExternal()) {
+                    Csv.countRowsAndCols(mCsv, new File(mCsv.path));
+                } else {
+                    Csv.countRowsAndCols(mCsv, mCallbacks.getFile(mCsv.path));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
+                // TODO: Throw error up to user interface.
             }
         }
 

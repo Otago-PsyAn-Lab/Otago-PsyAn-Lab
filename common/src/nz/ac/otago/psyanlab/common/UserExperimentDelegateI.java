@@ -8,6 +8,7 @@ import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.widget.ListAdapter;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -66,12 +67,17 @@ public interface UserExperimentDelegateI extends Parcelable {
     boolean replace(Experiment experiment) throws IOException;
 
     /**
-     * Get the experiment this delegate represents.
+     * Unpack the experiment this delegate represents.
      * 
      * @return Experiment Memory model of experiment.
      * @throws IOException on error when reading experiment.
      */
-    Experiment getExperiment() throws IOException;
+    Experiment openExperiment() throws IOException;
+
+    /**
+     * Cleanup anything left behind while the experiment was opened.
+     */
+    void closeExperiment();
 
     /**
      * Get the experiment id.
@@ -79,4 +85,12 @@ public interface UserExperimentDelegateI extends Parcelable {
      * @return Experiment id.
      */
     long getId();
+
+    /**
+     * Get a file from storage.
+     * 
+     * @param path Path may be internal or external.
+     * @return File from storage.
+     */
+    File getFile(String path);
 }

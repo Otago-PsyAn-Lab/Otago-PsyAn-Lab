@@ -37,8 +37,6 @@ public class FileUtils extends nz.ac.otago.psyanlab.common.util.FileUtils {
 
     public static final String PATH_INTERNAL_EXPERIMENTS_DIR = "pales";
 
-    public static final String PATH_TEMP = "tmp";
-
     /**
      * Copies a file to internal storage.
      * 

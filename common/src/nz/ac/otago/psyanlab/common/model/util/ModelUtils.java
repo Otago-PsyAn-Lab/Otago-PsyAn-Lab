@@ -24,7 +24,7 @@ public class ModelUtils {
 
     public static Gson getDataReaderWriter() {
         if (mGson == null) {
-            GsonBuilder gson = new GsonBuilder();
+            GsonBuilder gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation();
 
             // Type loopArrayType = new TypeToken<LongSparseArray<Loop>>() {
             // }.getType();
@@ -41,7 +41,6 @@ public class ModelUtils {
                     AbsModelGsonAdapter.NS_MODEL_PROP));
             gson.registerTypeAdapter(Asset.class, new AbsModelGsonAdapter<Asset>(
                     AbsModelGsonAdapter.NS_MODEL_ASSET));
-
             mGson = gson.create();
         }
 

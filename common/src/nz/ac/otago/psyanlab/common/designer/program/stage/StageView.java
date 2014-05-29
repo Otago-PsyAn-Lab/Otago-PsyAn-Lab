@@ -167,7 +167,7 @@ public class StageView extends AdapterView<StageAdapter> {
 
     @Override
     public View getSelectedView() {
-        throw new RuntimeException("Unsupport method: View getSelectedView()");
+        return null;
     }
 
     @Override
@@ -233,12 +233,12 @@ public class StageView extends AdapterView<StageAdapter> {
                 }
 
                 boolean moveIsOverSlop = false;
-                int touchSlop = (mMaxFingersDown > 1) ? mTouchSlop * 6 : mTouchSlop;
+                int touchSlop = mMaxFingersDown > 1 ? mTouchSlop * 6 : mTouchSlop;
                 for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
                     int pointerId = event.getPointerId(pointerIndex);
                     moveIsOverSlop = moveIsOverSlop
-                            || (Math.abs(event.getY(pointerIndex) - mMotionY.get(pointerId)) > touchSlop || Math
-                                    .abs(event.getX(pointerIndex) - mMotionX.get(pointerId)) > touchSlop);
+                            || Math.abs(event.getY(pointerIndex) - mMotionY.get(pointerId)) > touchSlop || Math
+                                    .abs(event.getX(pointerIndex) - mMotionX.get(pointerId)) > touchSlop;
                 }
 
                 if (mTouchMode != TOUCH_MODE_AT_REST && moveIsOverSlop) {
@@ -652,7 +652,7 @@ public class StageView extends AdapterView<StageAdapter> {
     }
 
     private boolean shouldShowSelector() {
-        return (hasFocus() && !isInTouchMode()) || touchModeDrawsInPressedState();
+        return hasFocus() && !isInTouchMode() || touchModeDrawsInPressedState();
     }
 
     private boolean touchModeDrawsInPressedState() {
@@ -781,18 +781,18 @@ public class StageView extends AdapterView<StageAdapter> {
         }
         float horizontalScaleFactor = 1;
         if (specifiedWidth != 0) {
-            horizontalScaleFactor = ((float)specifiedWidth) / ((float)mNativeWidth);
+            horizontalScaleFactor = (float)specifiedWidth / (float)mNativeWidth;
         }
         float verticalScaleFactor = 1;
         if (specifiedHeight != 0) {
-            verticalScaleFactor = ((float)specifiedHeight) / ((float)mNativeHeight);
+            verticalScaleFactor = (float)specifiedHeight / (float)mNativeHeight;
         }
 
-        mScaleFactor = (horizontalScaleFactor < verticalScaleFactor) ? horizontalScaleFactor
+        mScaleFactor = horizontalScaleFactor < verticalScaleFactor ? horizontalScaleFactor
                 : verticalScaleFactor;
 
-        float width = ((float)mNativeWidth) * mScaleFactor;
-        float height = ((float)mNativeHeight) * mScaleFactor;
+        float width = mNativeWidth * mScaleFactor;
+        float height = mNativeHeight * mScaleFactor;
 
         setMeasuredDimension((int)width, (int)height);
     }

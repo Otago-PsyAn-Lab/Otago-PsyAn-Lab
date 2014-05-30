@@ -405,7 +405,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
 
         private void setTrigger(Rule rule) {
-            triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject).getPrettyName(
+            triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject).getExperimentObjectName(
                     getActivity()));
             triggerEvent.setEnabled(true);
             SpinnerAdapter eventsAdapter = mCallbacks.getEventsAdapter(mCallbacks
@@ -435,7 +435,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 final NameResolverFactory nameFactory = ModelUtils
                         .getMethodNameFactory(experimentObject.getClass());
                 operandDetail = getString(R.string.format_call_operand_value,
-                        experimentObject.getPrettyName(getActivity()),
+                        experimentObject.getExperimentObjectName(getActivity()),
                         getString(nameFactory.getResId(callOperand.getActionMethod())));
             } else if (condition instanceof LiteralOperand) {
                 operandDetail = ((LiteralOperand)condition).getValue();

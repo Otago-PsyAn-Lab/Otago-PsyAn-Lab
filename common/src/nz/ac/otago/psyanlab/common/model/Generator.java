@@ -23,7 +23,7 @@ public abstract class Generator implements ExperimentObject {
     }
 
     @Override
-    public String getPrettyName(Context context) {
+    public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_generator_class_name, name);
     }
 

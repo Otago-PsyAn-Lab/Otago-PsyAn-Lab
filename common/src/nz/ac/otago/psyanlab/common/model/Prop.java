@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public abstract class Prop implements Parcelable, ExperimentObject {
     public static final Parcelable.Creator<Prop> CREATOR = new Parcelable.Creator<Prop>() {
+        @Override
         public Prop createFromParcel(Parcel in) {
             String propKind = in.readString();
 
@@ -36,6 +37,7 @@ public abstract class Prop implements Parcelable, ExperimentObject {
             }
         }
 
+        @Override
         public Prop[] newArray(int size) {
             return new Prop[size];
         }
@@ -90,7 +92,7 @@ public abstract class Prop implements Parcelable, ExperimentObject {
     }
 
     @Override
-    public String getPrettyName(Context context) {
+    public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_prop_class_name, name);
     }
 

@@ -1499,8 +1499,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                             Pair<ExperimentObject, Long> rhs) {
                         Collator collator = getCollater();
                         return collator.compare(
-                                lhs.first.getPrettyName(ExperimentDesignerActivity.this),
-                                rhs.first.getPrettyName(ExperimentDesignerActivity.this));
+                                lhs.first.getExperimentObjectName(ExperimentDesignerActivity.this),
+                                rhs.first.getExperimentObjectName(ExperimentDesignerActivity.this));
                     }
                 });
 
@@ -1680,7 +1680,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 holder = (TextViewHolder)convertView.getTag();
             }
 
-            holder.textViews[0].setText(mItems.get(position).first.getPrettyName(mContext));
+            holder.textViews[0].setText(mItems.get(position).first.getExperimentObjectName(mContext));
 
             return convertView;
         }

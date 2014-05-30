@@ -53,7 +53,7 @@ public abstract class Asset implements ExperimentObject {
     }
 
     @Override
-    public String getPrettyName(Context context) {
+    public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_asset_class_name, name);
     }
 

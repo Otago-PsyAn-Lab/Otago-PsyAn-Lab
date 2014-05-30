@@ -42,7 +42,7 @@ public class Loop implements ExperimentObject {
     }
 
     @Override
-    public String getPrettyName(Context context) {
+    public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_loop_class_name, name);
     }
 

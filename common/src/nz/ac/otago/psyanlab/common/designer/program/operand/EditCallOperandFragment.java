@@ -352,7 +352,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
 
         private void setAction(CallOperand operand) {
             actionObject.setText(mCallbacks.getExperimentObject(operand.getActionObject())
-                    .getPrettyName(getActivity()));
+                    .getExperimentObjectName(getActivity()));
             actionMethod.setEnabled(true);
             SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(mCallbacks
                     .getExperimentObject(operand.getActionObject()).getClass(), mOperandType);

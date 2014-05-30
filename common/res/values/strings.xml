@@ -281,5 +281,6 @@
     <string name="note_experiment_no_description">No experiment description.</string>
     <string name="note_experiment_no_authors">No authors given</string>
     <string name="note_experiment_no_name">Missing experiment title</string>
+    <string name="title_data_channels">Data Channels</string>
 
 </resources>

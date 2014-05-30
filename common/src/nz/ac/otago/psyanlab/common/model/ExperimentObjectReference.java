@@ -31,6 +31,11 @@ public class ExperimentObjectReference {
     public static final int KIND_ASSET = 0x01;
 
     /**
+     * An object which describes how to store collected experiment records.
+     */
+    public static final int KIND_DATA_CHANNEL = 0x08;
+
+    /**
      * An object which is a kind of experiment.
      */
     public static final int KIND_EXPERIMENT = 0x02;
@@ -114,41 +119,6 @@ public class ExperimentObjectReference {
         boolean filter(ExperimentObject object);
     }
 
-    public static class ReturnTypeFilter implements ExperimentObjectFilter {
-        private int mFilter;
-
-        public ReturnTypeFilter(int filter) {
-            mFilter = filter;
-        }
-
-        @Override
-        public boolean filter(ExperimentObject object) {
-            Method[] methods = object.getClass().getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                if (method.isAnnotationPresent(MethodId.class)) {
-                    if ((mFilter & Operand.TYPE_BOOLEAN) != 0
-                            && method.getReturnType().equals(Boolean.TYPE)) {
-                        return true;
-                    }
-                    if ((mFilter & Operand.TYPE_STRING) != 0
-                            && method.getReturnType().equals(String.class)) {
-                        return true;
-                    }
-                    if ((mFilter & Operand.TYPE_INTEGER) != 0
-                            && method.getReturnType().equals(Integer.TYPE)) {
-                        return true;
-                    }
-                    if ((mFilter & Operand.TYPE_FLOAT) != 0
-                            && method.getReturnType().equals(Float.TYPE)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-    }
-
     public static class HasFloatGettersFilter implements ExperimentObjectFilter {
         @Override
         public boolean filter(ExperimentObject object) {
@@ -203,6 +173,41 @@ public class ExperimentObjectReference {
                 if (method.getReturnType().equals(String.class)
                         && method.isAnnotationPresent(MethodId.class)) {
                     return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static class ReturnTypeFilter implements ExperimentObjectFilter {
+        private int mFilter;
+
+        public ReturnTypeFilter(int filter) {
+            mFilter = filter;
+        }
+
+        @Override
+        public boolean filter(ExperimentObject object) {
+            Method[] methods = object.getClass().getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                Method method = methods[i];
+                if (method.isAnnotationPresent(MethodId.class)) {
+                    if ((mFilter & Operand.TYPE_BOOLEAN) != 0
+                            && method.getReturnType().equals(Boolean.TYPE)) {
+                        return true;
+                    }
+                    if ((mFilter & Operand.TYPE_STRING) != 0
+                            && method.getReturnType().equals(String.class)) {
+                        return true;
+                    }
+                    if ((mFilter & Operand.TYPE_INTEGER) != 0
+                            && method.getReturnType().equals(Integer.TYPE)) {
+                        return true;
+                    }
+                    if ((mFilter & Operand.TYPE_FLOAT) != 0
+                            && method.getReturnType().equals(Float.TYPE)) {
+                        return true;
+                    }
                 }
             }
             return false;

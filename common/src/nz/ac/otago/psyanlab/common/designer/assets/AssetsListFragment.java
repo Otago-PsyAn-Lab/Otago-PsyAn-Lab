@@ -23,25 +23,25 @@ public class AssetsListFragment extends Fragment {
         }
     };
 
-    public OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mShowAssetListener.showAsset(id);
-        }
-    };
-
     private AssetTabFragmentsCallbacks mCallbacks;
 
-    private OnClickListener mImportClickListener = new OnClickListener() {
+    private OnShowAssetListener mShowAssetListener = sDummy;
+
+    private ViewHolder mViews;
+
+    protected OnClickListener mImportClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mCallbacks.doImportAsset();
         }
     };
 
-    private OnShowAssetListener mShowAssetListener = sDummy;
-
-    private ViewHolder mViews;
+    protected OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mShowAssetListener.showAsset(id);
+        }
+    };
 
     @Override
     public void onAttach(Activity activity) {
@@ -53,18 +53,8 @@ public class AssetsListFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_asset_list, container, false);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 
     @Override

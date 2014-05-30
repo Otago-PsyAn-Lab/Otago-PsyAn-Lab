@@ -47,7 +47,7 @@ public class Scene implements ExperimentObject {
     }
 
     @Override
-    public String getPrettyName(Context context) {
+    public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_scene_class_name, name);
     }
 

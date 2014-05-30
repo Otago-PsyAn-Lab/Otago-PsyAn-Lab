@@ -13,7 +13,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +27,6 @@ public class AssetDetailFragment extends Fragment {
     public static AssetDetailFragment newInstance(long assetId) {
         AssetDetailFragment f = new AssetDetailFragment();
         f.setAssetId(assetId);
-        Log.d("AssetDetailFragment", "Create for asset id " + assetId);
         return f;
     }
 

@@ -118,9 +118,11 @@ class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapte
         }
 
         Arrays.sort(mAssetKeys, new Comparator<Long>() {
+            final Asset.Comparator compr = new Asset.Comparator();
+
             @Override
             public int compare(Long lhs, Long rhs) {
-                return mAssets.get(lhs).compareTo(mAssets.get(rhs));
+                return compr.compare(mAssets.get(lhs), mAssets.get(rhs));
             }
         });
     }

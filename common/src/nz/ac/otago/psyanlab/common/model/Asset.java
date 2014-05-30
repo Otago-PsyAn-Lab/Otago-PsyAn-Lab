@@ -42,19 +42,11 @@ public abstract class Asset implements ExperimentObject {
     @Expose
     public String path;
 
+    private boolean mIsExternal = false;
+
     protected int mHeaderResId;
 
     protected long mTypeId = 0x00;
-
-    private boolean mIsExternal = false;
-
-    public int compareTo(Asset another) {
-        int cmpr = this.getClass().getName().compareToIgnoreCase(another.getClass().getName());
-        if (cmpr == 0) {
-            return name.compareTo(another.name);
-        }
-        return cmpr;
-    }
 
     public int getHeaderResId() {
         return mHeaderResId;
@@ -69,6 +61,10 @@ public abstract class Asset implements ExperimentObject {
         return mTypeId;
     }
 
+    public boolean isExternal() {
+        return mIsExternal;
+    }
+
     @Override
     public int kind() {
         return ExperimentObjectReference.KIND_ASSET;
@@ -80,10 +76,6 @@ public abstract class Asset implements ExperimentObject {
         filename = file.getName();
         name = file.getName();
         mIsExternal = true;
-    }
-
-    public boolean isExternal() {
-        return mIsExternal;
     }
 
     public static final class AssetFactory {
@@ -111,6 +103,17 @@ public abstract class Asset implements ExperimentObject {
             asset.setExternalFile(file);
 
             return asset;
+        }
+    }
+
+    public static class Comparator implements java.util.Comparator<Asset> {
+        @Override
+        public int compare(Asset lhs, Asset rhs) {
+            int cmpr = lhs.getClass().getName().compareToIgnoreCase(rhs.getClass().getName());
+            if (cmpr == 0) {
+                return lhs.name.compareToIgnoreCase(rhs.name);
+            }
+            return cmpr;
         }
     }
 

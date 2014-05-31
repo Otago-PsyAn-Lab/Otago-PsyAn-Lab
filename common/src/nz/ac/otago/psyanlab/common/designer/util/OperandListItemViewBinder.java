@@ -10,6 +10,7 @@ import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
 import android.app.Activity;
@@ -41,14 +42,14 @@ final public class OperandListItemViewBinder extends AbsViewBinder implements Vi
         if (operand instanceof CallOperand) {
             CallOperand callOperand = (CallOperand)operand;
             ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
-                    .getActionObject());
+                    .getObject());
             final NameResolverFactory nameFactory = ModelUtils
                     .getMethodNameFactory(experimentObject.getClass());
 
             holder.textViews[1].setVisibility(View.VISIBLE);
             holder.textViews[1].setText(mActivity.getString(R.string.format_call_operand_value,
                     experimentObject.getExperimentObjectName(mActivity),
-                    mActivity.getString(nameFactory.getResId(callOperand.getActionMethod()))));
+                    mActivity.getString(nameFactory.getResId(callOperand.getMethod()))));
             holder.textViews[0].setText(operand.getName());
         } else {
             holder.textViews[0].setText(operand.getName());
@@ -60,7 +61,7 @@ final public class OperandListItemViewBinder extends AbsViewBinder implements Vi
             }
         }
         holder.textViews[2].setText(TextUtils.join("\n",
-                Operand.typeToStringArray(mActivity, operand.getType())));
+                Type.typeToStringArray(mActivity, operand.getType())));
         return convertView;
     }
 }

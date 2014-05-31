@@ -1,8 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.model.util;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public interface OperandHolder {
-    List<Long> getOperands();
+    ArrayList<Long> getOperands();
 }

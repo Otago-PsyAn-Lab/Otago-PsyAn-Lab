@@ -3,48 +3,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:showDividers="middle" >
+    android:clickable="true"
+    android:orientation="vertical" >
 
-    <RelativeLayout
-        android:id="@+id/button_delete"
+    <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/card_item_background_holo_light"
-        android:padding="16dip" >
-
-        <TextView
-            android:id="@+id/text_delete"
-            style="@style/header_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:text="@string/action_remove" />
-
-        <TextView
-            android:id="@+id/filesize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginRight="16dip"
-            android:layout_toLeftOf="@+id/text_delete"
-            android:fontFamily="sans-serif"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp" />
+        android:background="@color/card_background"
+        android:columnCount="3" >
 
         <TextView
             android:id="@+id/filename"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_marginRight="16dip"
-            android:layout_toLeftOf="@+id/filesize"
+            android:layout_gravity="fill_horizontal"
+            android:layout_margin="16dip"
             android:ellipsize="end"
             android:fontFamily="sans-serif-light"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-    </RelativeLayout>
+
+        <TextView
+            android:id="@+id/filesize"
+            android:layout_marginBottom="16dip"
+            android:layout_marginEnd="16dip"
+            android:layout_marginTop="16dip"
+            android:fontFamily="sans-serif"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp" />
+
+        <FrameLayout
+            android:id="@+id/button_delete"
+            android:layout_gravity="fill_vertical"
+            android:background="@drawable/card_item_background_holo_light"
+            android:padding="16dip" >
+
+            <TextView
+                android:id="@+id/text_delete"
+                style="@style/header_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/action_remove" />
+        </FrameLayout>
+    </GridLayout>
 
     <View
         android:layout_width="match_parent"

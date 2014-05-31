@@ -10,7 +10,7 @@ public interface StageCallbacks {
 
     Prop getProp(int id);
 
-    ArrayAdapter getPropAdapter();
+    ArrayAdapter<Prop> getPropAdapter();
 
     int getStageHeight();
 

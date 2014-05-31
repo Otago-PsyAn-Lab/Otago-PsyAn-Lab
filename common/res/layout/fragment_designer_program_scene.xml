@@ -181,27 +181,22 @@
                     android:fontFamily="sans-serif-light"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dip"
-                android:background="?android:attr/listDivider" />
         </LinearLayout>
     </ScrollView>
 
     <com.mobeta.android.dslv.DragSortListView
         android:id="@+id/rules"
         android:layout_width="0dip"
-        android:layout_height="0dip"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/new_rule_container"
-        android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/new_rule_container"
         android:layout_below="@+id/divide"
+        android:divider="@drawable/divider_inset"
         android:drawSelectorOnTop="false"
         android:listSelector="@drawable/scene_list_selector_holo_light"
         app:drag_enabled="true"
         app:drag_handle_id="@+id/handle"
-        app:drag_start_mode="onLongPress"
+        app:drag_start_mode="onDown"
         app:float_background_color="@android:color/transparent"
         app:remove_enabled="false"
         app:use_default_controller="true" />

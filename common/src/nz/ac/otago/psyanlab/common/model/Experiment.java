@@ -17,10 +17,10 @@ public class Experiment {
     public String authors;
 
     @Expose
-    public long dateCreated;
+    public HashMap<Long, DataChannel> dataChannels;
 
     @Expose
-    public long lastModified;
+    public long dateCreated;
 
     @Expose
     public String description;
@@ -30,6 +30,9 @@ public class Experiment {
 
     @Expose
     public LandingPage landingPage;
+
+    @Expose
+    public long lastModified;
 
     @Expose
     public HashMap<Long, Loop> loops;
@@ -69,6 +72,7 @@ public class Experiment {
         props = new HashMap<Long, Prop>();
         rules = new HashMap<Long, Rule>();
         scenes = new HashMap<Long, Scene>();
+        dataChannels = new HashMap<Long, DataChannel>();
 
         landingPage = new LandingPage();
         program = new Program();

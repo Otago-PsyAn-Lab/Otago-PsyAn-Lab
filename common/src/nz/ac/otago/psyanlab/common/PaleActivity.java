@@ -101,6 +101,16 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
     }
 
     @Override
+    public void onBackPressed() {
+        if (!mSlidingContainer.isOpen()) {
+            mSlidingContainer.openPane();
+            return;
+        }
+
+        super.onBackPressed();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pale);
@@ -118,6 +128,7 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         String title = mUserDelegate.getUserName();
         if (TextUtils.isEmpty(title)) {
             title = getString(R.string.app_name);
+            actionBar.setDisplayHomeAsUpEnabled(false);
         } else {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
@@ -149,19 +160,14 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
     }
 
     @Override
-    public void onBackPressed() {
-        if (!mSlidingContainer.isOpen()) {
-            mSlidingContainer.openPane();
-            return;
-        }
-
-        super.onBackPressed();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_user_pales, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onExperimentDeleted() {
+        mCurrentExperimentDelegate = null;
     }
 
     @Override
@@ -210,10 +216,11 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
         experiment.authors = mUserDelegate.getUserName();
         experiment.dateCreated = System.currentTimeMillis();
         experiment.lastModified = System.currentTimeMillis();
-        experiment.name = getString(R.string.default_new_experiment);
-        Uri uri = null;
+        experiment.name = getString(R.string.default_name_new_experiment);
+        long experimentId;
         try {
-            uri = mUserDelegate.addExperiment(experiment);
+            Uri uri = mUserDelegate.addExperiment(experiment);
+            experimentId = Long.parseLong(uri.getLastPathSegment());
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -221,7 +228,7 @@ public class PaleActivity extends FragmentActivity implements PaleListFragment.C
 
         Intent i = new Intent(this, ExperimentDesignerActivity.class);
         i.putExtra(Args.USER_EXPERIMENT_DELEGATE,
-                mUserDelegate.getUserExperimentDelegate(Long.parseLong(uri.getLastPathSegment())));
+                mUserDelegate.getUserExperimentDelegate(experimentId));
         startActivityForResult(i, REQUEST_NEW);
     }
 

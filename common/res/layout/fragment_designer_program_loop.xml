@@ -5,7 +5,6 @@
     android:id="@+id/background"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:background="@drawable/loops_background_flat"
     android:focusable="true"
     android:focusableInTouchMode="true" >
 
@@ -115,31 +114,31 @@
         android:id="@+id/generators"
         style="@style/column"
         android:layout_width="0dip"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/name_container"
         android:layout_below="@+id/divide"
         android:clipToPadding="false"
+        android:divider="@drawable/divider_inset"
         android:drawSelectorOnTop="true"
+        android:footerDividersEnabled="false"
+        android:headerDividersEnabled="false"
         android:listSelector="@drawable/loop_list_selector_holo_light"
-        android:paddingBottom="16dip"
-        android:paddingTop="16dip"
         android:scrollbarStyle="outsideOverlay" />
 
     <com.mobeta.android.dslv.DragSortListView
         android:id="@+id/scenes"
         android:layout_width="0dip"
-        android:layout_height="0dip"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/new_scene_container"
-        android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/new_scene_container"
         android:layout_below="@+id/divide"
+        android:divider="@drawable/divider_inset"
         android:drawSelectorOnTop="false"
         android:listSelector="@drawable/loop_list_selector_holo_light"
         app:drag_enabled="true"
         app:drag_handle_id="@+id/handle"
-        app:drag_start_mode="onLongPress"
+        app:drag_start_mode="onDown"
         app:float_background_color="@android:color/transparent"
         app:remove_enabled="false" />
 

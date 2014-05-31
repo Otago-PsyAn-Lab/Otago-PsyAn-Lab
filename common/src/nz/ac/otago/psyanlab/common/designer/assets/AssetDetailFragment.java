@@ -34,7 +34,7 @@ public class AssetDetailFragment extends Fragment {
 
     private long mAssetId;
 
-    private AssetTabFragmentsCallbacks mCallbacks;
+    private AssetCallbacks mCallbacks;
 
     private OnClickListener mDeleteClickListener = new OnClickListener() {
         @Override
@@ -58,10 +58,10 @@ public class AssetDetailFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof AssetTabFragmentsCallbacks)) {
+        if (!(activity instanceof AssetCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (AssetTabFragmentsCallbacks)activity;
+        mCallbacks = (AssetCallbacks)activity;
     }
 
     @Override
@@ -103,6 +103,7 @@ public class AssetDetailFragment extends Fragment {
             }
 
         } else if (mAsset instanceof Image) {
+            // TODO:
             // FragmentTransaction ft =
             // getChildFragmentManager().beginTransaction();
             // Fragment f = ImageDetailFragment.newInstance(mAssetId);
@@ -110,8 +111,10 @@ public class AssetDetailFragment extends Fragment {
             // ft.commit();
 
         } else if (mAsset instanceof Sound) {
+            // TODO:
 
         } else if (mAsset instanceof Video) {
+            // TODO:
 
         } else {
             throw new RuntimeException("Unknown kind of asset.");

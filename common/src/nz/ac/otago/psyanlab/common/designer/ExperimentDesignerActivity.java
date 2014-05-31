@@ -25,9 +25,11 @@ import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.UserExperimentDelegateI;
 import nz.ac.otago.psyanlab.common.designer.EditorSectionManager.EditorSectionItem;
-import nz.ac.otago.psyanlab.common.designer.assets.AssetTabFragmentsCallbacks;
+import nz.ac.otago.psyanlab.common.designer.assets.AssetCallbacks;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetsFragment;
 import nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity;
+import nz.ac.otago.psyanlab.common.designer.channels.ChannelCallbacks;
+import nz.ac.otago.psyanlab.common.designer.channels.ChannelsFragment;
 import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
@@ -51,6 +53,7 @@ import nz.ac.otago.psyanlab.common.designer.util.RuleListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.SceneListItemViewBinder;
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.Asset;
+import nz.ac.otago.psyanlab.common.model.DataChannel;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
@@ -62,12 +65,15 @@ import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
-import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
+import nz.ac.otago.psyanlab.common.model.channel.Field;
+import nz.ac.otago.psyanlab.common.model.operand.CallValue;
+import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventId;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.OperandHolder;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
@@ -84,7 +90,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.util.LongSparseArray;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.text.format.Time;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -121,14 +129,10 @@ import java.util.TreeSet;
  * manipulate the experiment data.
  */
 public class ExperimentDesignerActivity extends FragmentActivity implements DetailsCallbacks,
-        SubjectFragment.Callbacks, AssetTabFragmentsCallbacks, ProgramCallbacks,
+        SubjectFragment.Callbacks, AssetCallbacks, ProgramCallbacks, ChannelCallbacks,
         DialogueResultCallbacks {
 
     private static final String ADAPTER_STATE = "adapter_state";
-
-    private static final int MODE_EDIT = 0x02;
-
-    private static final int MODE_NEW = 0x01;
 
     private static final int REQUEST_ASSET_IMPORT = 0x02;
 
@@ -148,9 +152,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     private Pair<Long, ProgramComponentAdapter<Scene>> mCurrentSceneAdapter;
 
+    private DataChannelsAdapter mDataChannelAdapter;
+
+    private ArrayList<DataChannelDataChangeListener> mDataChannelDataChangeListeners;
+
     private SparseArray<DialogueResultListener> mDialogueResultListeners;
 
     private ListView mDrawerList;
+
+    private ArrayList<DrawerListener> mDrawerListeners = new ArrayList<DrawerLayout.DrawerListener>();
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -192,6 +202,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     protected DrawerLayout mDrawerLayout;
 
     @Override
+    public long addAction(Action action) {
+        long unusedKey = findUnusedKey(mExperiment.actions);
+        mExperiment.actions.put(unusedKey, action);
+        notifyActionDataChangeListeners();
+        return unusedKey;
+    }
+
+    @Override
     public void addActionDataChangeListener(ActionDataChangeListener listener) {
         if (mActionDataChangeListeners == null) {
             mActionDataChangeListeners = new ArrayList<ActionDataChangeListener>();
@@ -205,6 +223,35 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             mAssetDataChangeListeners = new ArrayList<AssetDataChangeListener>();
         }
         mAssetDataChangeListeners.add(listener);
+    }
+
+    @Override
+    public long addDataChannel(DataChannel dataChannel) {
+        Long unusedKey = findUnusedKey(mExperiment.dataChannels);
+        mExperiment.dataChannels.put(unusedKey, dataChannel);
+        notifyDataChannelDataChange();
+        return unusedKey;
+    }
+
+    @Override
+    public void addDataChannelDataChangeListener(DataChannelDataChangeListener listener) {
+        if (mDataChannelDataChangeListeners == null) {
+            mDataChannelDataChangeListeners = new ArrayList<DataChannelDataChangeListener>();
+        }
+        mDataChannelDataChangeListeners.add(listener);
+    }
+
+    @Override
+    public void addDrawerListener(DrawerListener listener) {
+        mDrawerListeners.add(listener);
+    }
+
+    @Override
+    public long addGenerator(Generator generator) {
+        Long unusedKey = findUnusedKey(mExperiment.generators);
+        mExperiment.generators.put(unusedKey, generator);
+        notifyGeneratorDataChangeListeners();
+        return unusedKey;
     }
 
     @Override
@@ -224,11 +271,29 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public long addLoop(Loop loop) {
+        Long key = findUnusedKey(mExperiment.loops);
+        mExperiment.loops.put(key, loop);
+        mExperiment.program.loops.add(key);
+        notifyLoopAdapter();
+        notifyLoopDataChangeListeners();
+        return key;
+    }
+
+    @Override
     public void addLoopDataChangeListener(LoopDataChangeListener listener) {
         if (mLoopDataChangeListeners == null) {
             mLoopDataChangeListeners = new ArrayList<LoopDataChangeListener>();
         }
         mLoopDataChangeListeners.add(listener);
+    }
+
+    @Override
+    public long addOperand(Operand operand) {
+        Long key = findUnusedKey(mExperiment.operands);
+        mExperiment.operands.put(key, operand);
+        notifyOperandDataChangeListeners();
+        return key;
     }
 
     @Override
@@ -240,11 +305,27 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public long addRule(Rule rule) {
+        Long unusedKey = findUnusedKey(mExperiment.rules);
+        mExperiment.rules.put(unusedKey, rule);
+        notifyRuleDataChangeListeners();
+        return unusedKey;
+    }
+
+    @Override
     public void addRuleDataChangeListener(RuleDataChangeListener listener) {
         if (mRuleDataChangeListeners == null) {
             mRuleDataChangeListeners = new ArrayList<RuleDataChangeListener>();
         }
         mRuleDataChangeListeners.add(listener);
+    }
+
+    @Override
+    public long addScene(Scene scene) {
+        Long unusedKey = findUnusedKey(mExperiment.scenes);
+        mExperiment.scenes.put(unusedKey, scene);
+        notifySceneDataChangeListeners();
+        return unusedKey;
     }
 
     @Override
@@ -263,56 +344,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
-    public long createAction(Action action) {
-        long unusedKey = findUnusedKey(mExperiment.actions);
-        mExperiment.actions.put(unusedKey, action);
-        notifyActionDataChangeListeners();
-        return unusedKey;
-    }
-
-    @Override
-    public long createGenerator(Generator generator) {
-        Long unusedKey = findUnusedKey(mExperiment.generators);
-        mExperiment.generators.put(unusedKey, generator);
-        notifyGeneratorDataChangeListeners();
-        return unusedKey;
-    }
-
-    @Override
-    public long createLoop(Loop loop) {
-        Long key = findUnusedKey(mExperiment.loops);
-        mExperiment.loops.put(key, loop);
-        mExperiment.program.loops.add(key);
-        notifyLoopAdapter();
-        notifyLoopDataChangeListeners();
-        return key;
-    }
-
-    @Override
-    public long createOperand(Operand operand) {
-        Long key = findUnusedKey(mExperiment.operands);
-        mExperiment.operands.put(key, operand);
-        notifyOperandDataChangeListeners();
-        return key;
-    }
-
-    @Override
-    public long createRule(Rule rule) {
-        Long unusedKey = findUnusedKey(mExperiment.rules);
-        mExperiment.rules.put(unusedKey, rule);
-        notifyRuleDataChangeListeners();
-        return unusedKey;
-    }
-
-    @Override
-    public long createScene(Scene scene) {
-        Long unusedKey = findUnusedKey(mExperiment.scenes);
-        mExperiment.scenes.put(unusedKey, scene);
-        notifySceneDataChangeListeners();
-        return unusedKey;
-    }
-
-    @Override
     public void deleteAction(long id) {
         mExperiment.actions.remove(id);
         notifyActionDataChangeListeners();
@@ -320,11 +351,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public void deleteAsset(long id) {
-        if (mExperiment.assets.containsKey(id)) {
-            mExperiment.assets.remove(id);
-            mAssetsAdapter.notifyDataSetChanged();
-            notifyAssetDataChangeListeners();
-        }
+        deleteAssetData(id);
+
+        mAssetsAdapter.notifyDataSetChanged();
+        notifyAssetDataChangeListeners();
+    }
+
+    @Override
+    public void deleteDataChannel(long id) {
+        DataChannel dataChannel = mExperiment.dataChannels.remove(id);
+
+        deleteDataChannelData(dataChannel);
+        removeReferencesTo(ExperimentObjectReference.KIND_DATA_CHANNEL, id);
+
+        notifyDataChannelDataChange();
     }
 
     @Override
@@ -342,7 +382,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public void deleteOperand(long id) {
-        deleteOperandData(id);
+        if (!mExperiment.operands.containsKey(id)) {
+            // Nothing to do because we already don't have the indicated
+            // operand.
+            return;
+        }
+
+        deleteOperandData(mExperiment.operands.remove(id));
+        ;
         notifyOperandDataChangeListeners();
     }
 
@@ -368,34 +415,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 return;
             }
         }
-    }
-
-    @Override
-    public void displayAsset(long id) {
-        // TODO: Detail activity here.
-    }
-
-    @Override
-    public void doImportAsset() {
-        Intent intent = new Intent(this, ImportAssetActivity.class);
-        startActivityForResult(intent, REQUEST_ASSET_IMPORT);
-    }
-
-    @Override
-    public void editStage(long sceneId) {
-        Scene scene = mExperiment.scenes.get(sceneId);
-        Intent intent = new Intent(this, StageActivity.class);
-
-        intent.putExtra(Args.EXPERIMENT_PROPS, getPropsArray(sceneId));
-        intent.putExtra(Args.SCENE_ID, sceneId);
-        intent.putExtra(Args.STAGE_WIDTH, scene.stageWidth);
-        intent.putExtra(Args.STAGE_HEIGHT, scene.stageHeight);
-
-        if (scene.orientation != -1) {
-            intent.putExtra(Args.STAGE_ORIENTATION, scene.orientation);
-        }
-
-        startActivityForResult(intent, REQUEST_EDIT_STAGE);
     }
 
     @Override
@@ -430,6 +449,25 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public String getAuthors() {
         return mExperiment.authors;
+    }
+
+    @Override
+    public File getCachedFile(String path) {
+        return mExperimentDelegate.getFile(path);
+    }
+
+    @Override
+    public DataChannel getDataChannel(long id) {
+        return mExperiment.dataChannels.get(id);
+    }
+
+    @Override
+    public ListAdapter getDataChannelsAdapter() {
+        if (mDataChannelAdapter == null) {
+            mDataChannelAdapter = new DataChannelsAdapter(this, mExperiment.dataChannels);
+        }
+
+        return mDataChannelAdapter;
     }
 
     @Override
@@ -490,11 +528,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             case ExperimentObjectReference.KIND_EXPERIMENT:
                 return null;
         }
-    }
-
-    @Override
-    public File getFile(String path) {
-        return mExperimentDelegate.getFile(path);
     }
 
     @Override
@@ -644,9 +677,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
-    /**
-     * Fetch adapter per scope and parent id. If not, create any missing data structure.
-     */
     public ProgramComponentAdapter<Operand> getOperandAdapter(long parentId) {
         ProgramComponentAdapter<Operand> adapter;
         if (mOperandAdapters != null) {
@@ -658,8 +688,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             mOperandAdapters = new LongSparseArray<ProgramComponentAdapter<Operand>>();
         }
 
-        // Create adapter for our requested scope and parent id.
-
+        // Create adapter for our requested parent id.
         OperandHolder operandHolder = (OperandHolder)mExperiment.operands.get(parentId);
 
         adapter = new ProgramComponentAdapter<Operand>(mExperiment.operands,
@@ -699,7 +728,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             return mCurrentRuleAdapter.second;
         }
 
-        // FIXME: NPE
         ProgramComponentAdapter<Rule> adapter = new ProgramComponentAdapter<Rule>(
                 mExperiment.rules, mExperiment.scenes.get(sceneId).rules,
                 new RuleListItemViewBinder(this, this));
@@ -774,7 +802,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             default:
                 break;
         }
-    }
+    };
 
     @Override
     public void onBackPressed() {
@@ -794,7 +822,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                     }
                 });
         dialog.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
-    };
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -816,6 +844,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mSectionManager.addSection(R.string.designer_tab_properties, MetaFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_subject, SubjectFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_assets, AssetsFragment.class, null);
+        mSectionManager.addSection(R.string.designer_tab_sources, AssetsFragment.class, null);
+        mSectionManager.addSection(R.string.designer_tab_variables, AssetsFragment.class, null);
+        mSectionManager.addSection(R.string.designer_tab_data_channels, ChannelsFragment.class,
+                null);
         mSectionManager.addSection(R.string.designer_tab_program, ProgramFragment.class, null);
 
         ArrayAdapter<EditorSectionItem> adapter = new SectionAdapter(this,
@@ -846,8 +878,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
+        getActionBar().setDisplayShowHomeEnabled(false);
 
         if (savedInstanceState == null) {
             selectSection(0);
@@ -899,6 +933,93 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public void putAction(long id, Action action) {
+        mExperiment.actions.put(id, action);
+
+        notifyActionAdapter();
+
+        notifyActionDataChangeListeners();
+    }
+
+    @Override
+    public void putAsset(long id, Asset asset) {
+        mExperiment.assets.put(id, asset);
+
+        updateReferencesTo(ExperimentObjectReference.KIND_ASSET, id);
+
+        mAssetsAdapter.notifyDataSetChanged();
+        notifyAssetDataChangeListeners();
+    }
+
+    @Override
+    public void putDataChannel(long id, DataChannel dataChannel) {
+        mExperiment.dataChannels.put(id, dataChannel);
+        updateReferencesTo(ExperimentObjectReference.KIND_DATA_CHANNEL, id);
+        notifyDataChannelDataChange();
+    }
+
+    @Override
+    public void putGenerator(long id, Generator generator) {
+        mExperiment.generators.put(id, generator);
+
+        updateReferencesTo(ExperimentObjectReference.KIND_GENERATOR, id);
+
+        notifyGeneratorDataChangeListeners();
+        notifyLoopDataChangeListeners();
+        notifyGeneratorAdapter();
+    }
+
+    @Override
+    public void putLoop(long id, Loop loop) {
+        mExperiment.loops.put(id, loop);
+        notifyLoopAdapter();
+        if (mCurrentSceneAdapter != null && mCurrentSceneAdapter.first == id) {
+            notifySceneAdapter();
+        }
+        if (mCurrentGeneratorAdapter != null && mCurrentGeneratorAdapter.first == id) {
+            notifyGeneratorAdapter();
+        }
+        notifyLoopDataChangeListeners();
+    }
+
+    @Override
+    public void putOperand(long id, Operand operand) {
+        mExperiment.operands.put(id, operand);
+
+        if (operand instanceof OperandHolder) {
+            OperandHolder holder = (OperandHolder)operand;
+            updateOperandAdapterIfExists(id, holder);
+        }
+
+        notifyOperandAdapters(id);
+
+        notifyOperandDataChangeListeners();
+    }
+
+    @Override
+    public void putRule(long id, Rule rule) {
+        mExperiment.rules.put(id, rule);
+        notifyRuleAdapter();
+        if (mCurrentActionAdapter != null && mCurrentActionAdapter.first == id) {
+            notifyActionAdapter();
+        }
+        notifyRuleDataChangeListeners();
+    }
+
+    @Override
+    public void putScene(long id, Scene scene) {
+        mExperiment.scenes.put(id, scene);
+        notifySceneAdapter();
+        if (mCurrentGeneratorAdapter != null && mCurrentGeneratorAdapter.first == id) {
+            notifyGeneratorAdapter();
+        }
+        if (mCurrentRuleAdapter != null && mCurrentRuleAdapter.first == id) {
+            notifyRuleAdapter();
+        }
+        notifySceneDataChangeListeners();
+    }
+
+    @Override
     public void registerDialogueResultListener(int requestCode, DialogueResultListener listener) {
         if (mDialogueResultListeners == null) {
             mDialogueResultListeners = new SparseArray<DialogueResultListener>();
@@ -914,6 +1035,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public void removeAssetDataChangeListener(AssetDataChangeListener listener) {
         mAssetDataChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void removeDataChannelDataChangeListener(DataChannelDataChangeListener listener) {
+        mDataChannelDataChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void removeDrawerListener(DrawerListener drawerListener) {
+        mDrawerListeners.remove(drawerListener);
     }
 
     @Override
@@ -948,27 +1079,32 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public void startEditStage(long sceneId) {
+        Scene scene = mExperiment.scenes.get(sceneId);
+        Intent intent = new Intent(this, StageActivity.class);
+
+        intent.putExtra(Args.EXPERIMENT_PROPS, getPropsArray(sceneId));
+        intent.putExtra(Args.SCENE_ID, sceneId);
+        intent.putExtra(Args.STAGE_WIDTH, scene.stageWidth);
+        intent.putExtra(Args.STAGE_HEIGHT, scene.stageHeight);
+
+        if (scene.orientation != -1) {
+            intent.putExtra(Args.STAGE_ORIENTATION, scene.orientation);
+        }
+
+        startActivityForResult(intent, REQUEST_EDIT_STAGE);
+    }
+
+    @Override
+    public void startImportAssetUI() {
+        Intent intent = new Intent(this, ImportAssetActivity.class);
+        startActivityForResult(intent, REQUEST_ASSET_IMPORT);
+    }
+
+    @Override
     public void storeLandingPage(LandingPage landingPage) {
         mExperiment.landingPage = landingPage;
         notifyLandingPageDataChangeListeners();
-    }
-
-    @Override
-    public void updateAction(long id, Action action) {
-        mExperiment.actions.put(id, action);
-
-        notifyActionAdapter();
-
-        notifyActionDataChangeListeners();
-    }
-
-    @Override
-    public void updateAsset(long id, Asset asset) {
-        if (mExperiment.assets.containsKey(id)) {
-            mExperiment.assets.put(id, asset);
-            mAssetsAdapter.notifyDataSetChanged();
-            notifyAssetDataChangeListeners();
-        }
     }
 
     @Override
@@ -982,66 +1118,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
-    public void updateGenerator(long id, Generator generator) {
-        mExperiment.generators.put(id, generator);
-        notifyGeneratorDataChangeListeners();
-        notifyLoopDataChangeListeners();
-        notifyGeneratorAdapter();
-    }
-
-    @Override
-    public void updateLoop(long id, Loop loop) {
-        mExperiment.loops.put(id, loop);
-        notifyLoopAdapter();
-        if (mCurrentSceneAdapter != null && mCurrentSceneAdapter.first == id) {
-            notifySceneAdapter();
-        }
-        if (mCurrentGeneratorAdapter != null && mCurrentGeneratorAdapter.first == id) {
-            notifyGeneratorAdapter();
-        }
-        notifyLoopDataChangeListeners();
-    }
-
-    @Override
     public void updateName(String name) {
         mExperiment.name = name;
-    }
-
-    @Override
-    public void updateOperand(long id, Operand operand) {
-        mExperiment.operands.put(id, operand);
-
-        if (operand instanceof OperandHolder) {
-            OperandHolder holder = (OperandHolder)operand;
-            updateOperandAdapterIfExists(id, holder);
-        }
-
-        notifyOperandAdapters(id);
-
-        notifyOperandDataChangeListeners();
-    }
-
-    @Override
-    public void updateRule(long id, Rule rule) {
-        mExperiment.rules.put(id, rule);
-        notifyRuleAdapter();
-        if (mCurrentActionAdapter != null && mCurrentActionAdapter.first == id) {
-            notifyActionAdapter();
-        }
-        notifyRuleDataChangeListeners();
-    }
-
-    @Override
-    public void updateScene(long id, Scene scene) {
-        mExperiment.scenes.put(id, scene);
-        notifySceneAdapter();
-        if (mCurrentGeneratorAdapter != null && mCurrentGeneratorAdapter.first == id) {
-            notifyGeneratorAdapter();
-        }
-        if (mCurrentRuleAdapter != null && mCurrentRuleAdapter.first == id) {
-            notifyRuleAdapter();
-        }
-        notifySceneDataChangeListeners();
+        setTitle(name);
     }
 
     @Override
@@ -1053,8 +1132,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mExperiment.actions.remove(id);
     }
 
+    private void deleteAssetData(long id) {
+        mExperiment.assets.remove(id);
+
+        removeReferencesTo(ExperimentObjectReference.KIND_ASSET, id);
+    }
+
+    private void deleteDataChannelData(DataChannel dataChannel) {
+        // removeReferencesTo(ExperimentObjectReference.KIND_DATA_CHANNEL, id);
+    }
+
     private void deleteGeneratorData(Long id) {
         mExperiment.generators.remove(id);
+
+        removeReferencesTo(ExperimentObjectReference.KIND_GENERATOR, id);
     }
 
     private void deleteLoopData(long id) {
@@ -1079,30 +1170,35 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
-    private void deleteOperandData(long id) {
-        Operand operand = mExperiment.operands.get(id);
-
-        if (!(operand instanceof CallOperand)) {
-            mExperiment.operands.remove(id);
+    private void deleteOperandData(Operand operand) {
+        if (operand == null) {
             return;
         }
 
-        ArrayList<Long> operandIds = ((CallOperand)operand).getOperands();
-        for (Long operandId : operandIds) {
-            deleteOperandData(operandId);
+        if (operand instanceof OperandHolder) {
+            ArrayList<Long> parameterIds = ((OperandHolder)operand).getOperands();
+            for (Long parameterId : parameterIds) {
+                deleteOperandData(mExperiment.operands.remove(parameterId));
+            }
+            return;
         }
     }
 
-    private void deletePropData(Long pId) {
-        // TODO Auto-generated method stub
+    private void deletePropData(Long id) {
+        Prop prop = mExperiment.props.remove(id);
+
+        if (prop != null) {
+            // TODO: Cleanup prop properties.
+        }
     }
 
     private void deleteRuleData(Long id) {
-        Rule rule = mExperiment.rules.get(id);
-        mExperiment.rules.remove(id);
+        Rule rule = mExperiment.rules.remove(id);
 
-        for (Long aid : rule.actions) {
-            deleteActionData(aid);
+        if (rule != null) {
+            for (Long aid : rule.actions) {
+                deleteActionData(aid);
+            }
         }
 
         if (mCurrentActionAdapter != null && mCurrentActionAdapter.first == id) {
@@ -1150,6 +1246,21 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mDrawerList.setItemChecked(position, true);
         getActionBar().setSubtitle(mSectionManager.getTitle(position));
     }
+
+    private ArrayList<Long> findAffectedCallIds(int kind, long id) {
+        ArrayList<Long> affectedCallIds = new ArrayList<Long>();
+        for (Entry<Long, Operand> entry : mExperiment.operands.entrySet()) {
+            Operand value = entry.getValue();
+            if (value instanceof CallValue) {
+                CallValue call = (CallValue)value;
+                if (call.getObject() != null && call.getObject().kind == kind
+                        && call.getObject().id == id) {
+                    affectedCallIds.add(entry.getKey());
+                }
+            }
+        }
+        return affectedCallIds;
+    };
 
     private Long findUnusedKey(HashMap<Long, ?> map) {
         Long currKey = 0l;
@@ -1210,6 +1321,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    private void notifyDataChannelDataChange() {
+        if (mDataChannelAdapter != null) {
+            mDataChannelAdapter.notifyDataSetChanged();
+        }
+
+        if (mDataChannelDataChangeListeners != null) {
+            for (DataChannelDataChangeListener listener : mDataChannelDataChangeListeners) {
+                listener.onDataChannelDataChange();
+            }
+        }
+    }
+
     private void notifyGeneratorAdapter() {
         if (mCurrentGeneratorAdapter == null) {
             return;
@@ -1236,7 +1359,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         for (LandingPageDataChangeListener l : mLandingPageDataChangeListeners) {
             l.onLandingPageDataChange();
         }
-    };
+    }
 
     private void notifyLoopAdapter() {
         if (mLoopAdapter == null) {
@@ -1318,6 +1441,37 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     /**
+     * Look through the experiment program and remove any calls, and the
+     * corresponding hierarchy, to the object.
+     * 
+     * @param kind The kind of the experiment object as indicated by constant
+     *            int value from ExperimentObjectReference.KIND_*.
+     * @param id The id of the experiment object for which references to are
+     *            being removed.
+     */
+    private void removeReferencesTo(int kind, long id) {
+        if (kind == ExperimentObjectReference.KIND_ASSET) {
+            // TODO: Something different.
+        }
+
+        ArrayList<Long> affectedCallIds = findAffectedCallIds(kind, id);
+
+        for (Long key : affectedCallIds) {
+            // There may be attempts to double delete some operands due to the
+            // operand graph. However, this is okay because those calls will be
+            // ignored.
+            CallValue call = (CallValue)mExperiment.operands.get(key);
+            StubOperand replacement = call.originalStub;
+            if (replacement == null) {
+                replacement = new StubOperand(call.name);
+                replacement.attemptRestrictType(call.type);
+            }
+            deleteOperand(key);
+            putOperand(key, replacement);
+        }
+    }
+
+    /**
      * Restore or create the fragment used to keep the experiment in memory
      * across configuration changes.
      * 
@@ -1363,18 +1517,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      * @return True if intersection.
      */
     private boolean returnTypeIntersects(Method method, int returnTypes) {
-        if ((returnTypes & Operand.TYPE_BOOLEAN) != 0
-                && method.getReturnType().equals(Boolean.TYPE)) {
+        if ((returnTypes & Type.TYPE_BOOLEAN) != 0 && method.getReturnType().equals(Boolean.TYPE)) {
             return true;
         }
-        if ((returnTypes & Operand.TYPE_INTEGER) != 0
-                && method.getReturnType().equals(Integer.TYPE)) {
+        if ((returnTypes & Type.TYPE_INTEGER) != 0 && method.getReturnType().equals(Integer.TYPE)) {
             return true;
         }
-        if ((returnTypes & Operand.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
+        if ((returnTypes & Type.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
             return true;
         }
-        if ((returnTypes & Operand.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
+        if ((returnTypes & Type.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
             return true;
         }
         if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
@@ -1405,6 +1557,88 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             if (adapter != null) {
                 adapter.setKeys(holder.getOperands());
                 return;
+            }
+        }
+    }
+
+    /**
+     * Look through the experiment program and make a best attempt to update
+     * calls to the experiment object.
+     * 
+     * @param kind The kind of the experiment object as indicated by constant
+     *            int value from ExperimentObjectReference.KIND_*.
+     * @param id The id of the experiment object for which references to are
+     *            being updated.
+     */
+    private void updateReferencesTo(int kind, long id) {
+        switch (kind) {
+            case ExperimentObjectReference.KIND_ASSET:
+                updateReferencesToAsset(id);
+                return;
+            case ExperimentObjectReference.KIND_DATA_CHANNEL:
+                updateReferencesToDataChannel(id);
+                return;
+            case ExperimentObjectReference.KIND_GENERATOR:
+                // Nothing to do because generators always have the same type
+                // and
+                // calling interface.
+                return;
+
+            default:
+                break;
+        }
+
+    }
+
+    private void updateReferencesToAsset(long id) {
+        // TODO Auto-generated method stub
+    }
+
+    private void updateReferencesToDataChannel(long id) {
+        DataChannel dataChannel = mExperiment.dataChannels.get(id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObjectReference.KIND_DATA_CHANNEL, id);
+
+        for (Long callId : calls) {
+            CallValue call = (CallValue)mExperiment.operands.get(callId);
+
+            // Separate the parameters that will be retained from those that
+            // will be discarded.
+            LongSparseArray<Long> retainedParameterIds = new LongSparseArray<Long>();
+            ArrayList<Long> discardedParameterIds = new ArrayList<Long>();
+            for (Long parameterId : call.parameters) {
+                Operand parameter = mExperiment.operands.get(parameterId);
+                for (Field field : dataChannel.fields) {
+                    if (parameter.tag == field.id) {
+                        // Store parameters indexed by field id.
+                        retainedParameterIds.put(field.id, parameterId);
+                    } else {
+                        discardedParameterIds.add(parameterId);
+                    }
+                }
+            }
+
+            // Delete discarded parameters.
+            for (Long discardedId : discardedParameterIds) {
+                deleteOperandData(mExperiment.operands.remove(discardedId));
+            }
+
+            // Update parameters and rebuild the order to match that of the
+            // fields in the data channel.
+            call.parameters = new ArrayList<Long>();
+            for (Field field : dataChannel.fields) {
+                // Attempt to update type of parameters to match fields,
+                // otherwise replace parameters with stubs.
+                long parameterId = retainedParameterIds.get(field.id);
+                Operand parameter = mExperiment.operands.get(parameterId);
+                parameter.name = field.name;
+                if (!parameter.attemptRestrictType(field.type)) {
+                    deleteOperandData(parameter);
+                    StubOperand replacement = new StubOperand(field.name);
+                    replacement.attemptRestrictType(field.type);
+                    replacement.tag = field.id;
+                    putOperand(parameterId, replacement);
+                }
+                call.parameters.add(parameterId);
             }
         }
     }
@@ -1584,6 +1818,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         void onAssetDataChange();
     }
 
+    public interface DataChannelDataChangeListener {
+        void onDataChannelDataChange();
+    }
+
     public interface GeneratorDataChangeListener {
         void onGeneratorDataChange();
     }
@@ -1619,6 +1857,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         @Override
         public void onDrawerClosed(View view) {
             super.onDrawerClosed(view);
+            for (DrawerListener listener : mDrawerListeners) {
+                listener.onDrawerClosed(view);
+            }
+
             getActionBar().setSubtitle(
                     mSectionManager.getTitle(mSectionManager.getCurrentPosition()));
             invalidateOptionsMenu(); // creates call to
@@ -1629,9 +1871,21 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         @Override
         public void onDrawerOpened(View drawerView) {
             super.onDrawerOpened(drawerView);
+            for (DrawerListener listener : mDrawerListeners) {
+                listener.onDrawerOpened(drawerView);
+            }
+
             getActionBar().setSubtitle(null);
             invalidateOptionsMenu(); // creates call to
                                      // onPrepareOptionsMenu()
+        }
+
+        @Override
+        public void onDrawerStateChanged(int newState) {
+            super.onDrawerStateChanged(newState);
+            for (DrawerListener listener : mDrawerListeners) {
+                listener.onDrawerStateChanged(newState);
+            }
         }
     }
 
@@ -1680,7 +1934,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 holder = (TextViewHolder)convertView.getTag();
             }
 
-            holder.textViews[0].setText(mItems.get(position).first.getExperimentObjectName(mContext));
+            holder.textViews[0].setText(mItems.get(position).first
+                    .getExperimentObjectName(mContext));
 
             return convertView;
         }

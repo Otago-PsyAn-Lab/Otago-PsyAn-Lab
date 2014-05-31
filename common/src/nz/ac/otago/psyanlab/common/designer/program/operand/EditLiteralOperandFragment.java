@@ -30,6 +30,7 @@ import nz.ac.otago.psyanlab.common.model.operand.StringValue;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
 import android.os.Bundle;
@@ -100,7 +101,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
                     id,
                     operand.getType(),
                     getString(R.string.title_edit_operand,
-                            Operand.getTypeString(getActivity(), operand.getType())));
+                            Type.getTypeString(getActivity(), operand.getType())));
         }
     };
 
@@ -110,7 +111,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
     }
 
     @Override
-    public void OnClearOperand() {
+    public void onOperandCleared() {
         handleExpressionChange(mViews.expression.getText());
     }
 
@@ -125,7 +126,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
                     info.id,
                     operand.getType(),
                     getString(R.string.title_edit_operand,
-                            Operand.getTypeString(getActivity(), operand.getType())));
+                            Type.getTypeString(getActivity(), operand.getType())));
             return true;
         } else if (itemId == R.id.menu_clear) {
             showClearOperandDialogue(info.id);
@@ -246,7 +247,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
     @Override
     public void saveOperand() {
         if (!TextUtils.isEmpty(mOperand.getValue())) {
-            mCallbacks.updateOperand(mObjectId, (Operand)mOperand);
+            mCallbacks.putOperand(mObjectId, (Operand)mOperand);
         }
     }
 

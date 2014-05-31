@@ -23,7 +23,7 @@ public class AssetsListFragment extends Fragment {
         }
     };
 
-    private AssetTabFragmentsCallbacks mCallbacks;
+    private AssetCallbacks mCallbacks;
 
     private OnShowAssetListener mShowAssetListener = sDummy;
 
@@ -32,7 +32,7 @@ public class AssetsListFragment extends Fragment {
     protected OnClickListener mImportClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            mCallbacks.doImportAsset();
+            mCallbacks.startImportAssetUI();
         }
     };
 
@@ -46,10 +46,10 @@ public class AssetsListFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof AssetTabFragmentsCallbacks)) {
+        if (!(activity instanceof AssetCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (AssetTabFragmentsCallbacks)activity;
+        mCallbacks = (AssetCallbacks)activity;
     }
 
     @Override

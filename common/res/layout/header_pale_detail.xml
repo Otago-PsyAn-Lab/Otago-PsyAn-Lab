@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:alignmentMode="alignMargins"
+    android:background="@color/card_background"
     android:columnCount="2"
     android:padding="16dip"
     android:useDefaultMargins="true" >
@@ -11,18 +12,16 @@
         android:id="@+id/name"
         android:layout_columnSpan="2"
         android:layout_gravity="fill_horizontal"
-        android:layout_marginTop="0dip"
         android:fontFamily="sans-serif-condensed"
-        android:text="Title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/authors"
         android:layout_columnSpan="2"
         android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="8dip"
         android:fontFamily="sans-serif-light"
         android:paddingLeft="8sp"
-        android:text="@string/filler_experiment_authors"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textStyle="italic" />
 
@@ -30,8 +29,8 @@
         android:id="@+id/description"
         android:layout_columnSpan="2"
         android:layout_gravity="fill_horizontal"
+        android:layout_marginTop="16dip"
         android:fontFamily="sans-serif-light"
-        android:text="@string/filler_experiment_description"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="16sp" />
 
@@ -39,51 +38,48 @@
         android:layout_columnSpan="2"
         android:layout_marginTop="32dip"
         android:fontFamily="sans-serif-condensed"
-        android:text="Details"
+        android:text="@string/title_details"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:fontFamily="sans-serif-light"
         android:paddingRight="16sp"
-        android:text="Created"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="@string/label_date_created"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@+id/created"
         android:fontFamily="sans-serif-light"
-        android:text="@string/filler_experiment_created"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:fontFamily="sans-serif-light"
         android:paddingRight="16sp"
-        android:text="Last Modified"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="@string/label_modified"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@+id/last_modified"
         android:fontFamily="sans-serif-light"
-        android:text="@string/filler_experiment_created"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:fontFamily="sans-serif-light"
         android:paddingRight="16sp"
-        android:text="Last Run"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="@string/label_last_run"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@+id/last_run"
         android:fontFamily="sans-serif-light"
-        android:text="@string/filler_experiment_created"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
+        android:id="@+id/records_title"
         android:layout_columnSpan="2"
         android:layout_marginBottom="0dip"
         android:layout_marginTop="32dip"
         android:fontFamily="sans-serif-condensed"
-        android:text="Records"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </GridLayout>

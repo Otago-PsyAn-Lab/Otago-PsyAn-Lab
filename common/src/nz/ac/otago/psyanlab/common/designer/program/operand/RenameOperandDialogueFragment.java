@@ -52,7 +52,7 @@ public class RenameOperandDialogueFragment extends DialogFragment {
             String name = mName.getText().toString();
             String oldName = mOperand.name;
             mOperand.name = name;
-            mCallbacks.updateOperand(mOperandId, mOperand);
+            mCallbacks.putOperand(mOperandId, mOperand);
             mOnRenameListener.onRename(name, oldName);
             dismiss();
         }

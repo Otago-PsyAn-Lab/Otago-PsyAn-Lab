@@ -110,7 +110,7 @@ public abstract class Asset implements ExperimentObject {
         @Override
         public int compare(Asset lhs, Asset rhs) {
             int cmpr = lhs.getClass().getName().compareToIgnoreCase(rhs.getClass().getName());
-            if (cmpr == 0) {
+            if (cmpr == 0 && lhs.name != null && rhs != null) {
                 return lhs.name.compareToIgnoreCase(rhs.name);
             }
             return cmpr;

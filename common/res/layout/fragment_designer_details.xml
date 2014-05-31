@@ -1,48 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:columnCount="2" >
+    android:background="@color/card_background"
+    android:clipToPadding="false"
+    android:padding="32dip" >
 
-    <TextView
-        android:id="@+id/label_name"
-        android:text="Name" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
-    <EditText
-        android:id="@+id/name"
-        android:layout_width="0dp"
-        android:layout_gravity="fill_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/title_experiment_name"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/label_version"
-        android:text="Version" />
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dip"
+            android:hint="@string/hint_experiment_name"
+            android:inputType="textCapSentences|textAutoCorrect"
+            android:minEms="10"
+            android:singleLine="true" />
 
-    <EditText
-        android:id="@+id/version"
-        android:layout_width="0dp"
-        android:layout_gravity="fill_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="32dip"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/title_authors"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/label_authors"
-        android:layout_columnSpan="2"
-        android:text="Authorship" />
+        <EditText
+            android:id="@+id/authors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dip"
+            android:hint="@string/hint_authors"
+            android:inputType="textCapSentences|textAutoCorrect"
+            android:minEms="15"
+            android:singleLine="false" />
 
-    <EditText
-        android:id="@+id/authors"
-        android:layout_width="0dp"
-        android:layout_columnSpan="2"
-        android:layout_gravity="fill_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="32dip"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/title_description"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/label_description"
-        android:layout_column="0"
-        android:layout_columnSpan="2"
-        android:text="Description" />
+        <EditText
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dip"
+            android:hint="@string/hint_description"
+            android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+            android:singleLine="false" />
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/description"
-        android:layout_width="0dp"
-        android:layout_columnSpan="2"
-        android:layout_gravity="fill_horizontal" />
-
-</GridLayout>
+</ScrollView>

@@ -52,7 +52,7 @@ public abstract class BaseProgramFragment extends TonicFragment {
 
     public void setIsLastInList(boolean isLastInList) {
         if (isLastInList) {
-            mBackgroundResource = R.drawable.opal_list_background_flat;
+            mBackgroundResource = R.drawable.background_designer_program_default;
             if (getViewHolder() != null) {
                 getViewHolder().background.setBackgroundResource(mBackgroundResource);
             }
@@ -88,7 +88,7 @@ public abstract class BaseProgramFragment extends TonicFragment {
     }
 
     protected int getFavouredBackground() {
-        return R.drawable.opal_list_background_flat;
+        return R.drawable.background_designer_program_default;
     }
 
     protected abstract ViewHolder<?> getViewHolder();

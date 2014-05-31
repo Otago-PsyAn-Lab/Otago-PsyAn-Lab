@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +23,7 @@ public class AssetsFragment extends Fragment implements AssetsListFragment.OnSho
 
     private static final String TAG_LIST_FRAGMENT = "asset_list_fragment";
 
-    private AssetTabFragmentsCallbacks mCallbacks;
+    private AssetCallbacks mCallbacks;
 
     private AssetDetailFragment mDetailFragment;
 
@@ -31,13 +33,44 @@ public class AssetsFragment extends Fragment implements AssetsListFragment.OnSho
 
     private View mDetailContainer;
 
+    private DrawerListener mDrawerListener = new DrawerListener() {
+        @Override
+        public void onDrawerStateChanged(final int newState) {
+            if (mSlidingContainer.isOpen()) {
+                if (newState == DrawerLayout.STATE_DRAGGING
+                        || newState == DrawerLayout.STATE_SETTLING) {
+                    mSlidingContainer.closePane();
+                }
+            }
+        }
+
+        @Override
+        public void onDrawerSlide(View arg0, float arg1) {
+        }
+
+        @Override
+        public void onDrawerOpened(View arg0) {
+        }
+
+        @Override
+        public void onDrawerClosed(View arg0) {
+        }
+    };
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof AssetTabFragmentsCallbacks)) {
+        if (!(activity instanceof AssetCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (AssetTabFragmentsCallbacks)activity;
+        mCallbacks = (AssetCallbacks)activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        mCallbacks.removeDrawerListener(mDrawerListener);
     }
 
     @Override
@@ -48,6 +81,8 @@ public class AssetsFragment extends Fragment implements AssetsListFragment.OnSho
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mCallbacks.addDrawerListener(mDrawerListener);
 
         mSlidingContainer = (SlidingPaneLayout)view.findViewById(R.id.sliding_container);
         mSlidingContainer.setParallaxDistance((int)getResources().getDimension(

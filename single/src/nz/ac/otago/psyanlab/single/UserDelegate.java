@@ -66,7 +66,7 @@ public class UserDelegate implements UserDelegateI {
 
         Uri uri = null;
         try {
-            FileUtils.compress(tempFile, experiment);
+            FileUtils.compress(tempFile, experiment, mActivity.getExternalCacheDir());
             File paleFile = FileUtils.copyToInternalStorage(mActivity, path,
                     FileUtils.generateNewFileName(path));
 

@@ -13,35 +13,42 @@ public class CallValue extends Operand implements CallOperand {
     public static final int INVALID_METHOD = -1;
 
     @Expose
-    public int actionMethod;
+    public int method;
 
     @Expose
-    public ExperimentObjectReference actionObject;
+    public ExperimentObjectReference object;
 
     @Expose
-    public ArrayList<Long> operands = new ArrayList<Long>();
+    public ArrayList<Long> parameters = new ArrayList<Long>();
+
+    @Expose
+    public StubOperand originalStub;
 
     public CallValue() {
     }
 
     public CallValue(Operand operand) {
         super(operand);
-        actionMethod = INVALID_METHOD;
+        method = INVALID_METHOD;
+
+        if (operand instanceof StubOperand) {
+            originalStub = (StubOperand)operand;
+        }
     }
 
     @Override
-    public int getActionMethod() {
-        return actionMethod;
+    public int getMethod() {
+        return method;
     }
 
     @Override
-    public ExperimentObjectReference getActionObject() {
-        return actionObject;
+    public ExperimentObjectReference getObject() {
+        return object;
     }
 
     @Override
     public ArrayList<Long> getOperands() {
-        return operands;
+        return parameters;
     }
 
     @Override

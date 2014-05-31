@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
+import nz.ac.otago.psyanlab.common.BuildConfig;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.model.Generator;
@@ -41,6 +42,9 @@ public class ModelUtils {
                     AbsModelGsonAdapter.NS_MODEL_PROP));
             gson.registerTypeAdapter(Asset.class, new AbsModelGsonAdapter<Asset>(
                     AbsModelGsonAdapter.NS_MODEL_ASSET));
+            if (BuildConfig.DEBUG) {
+                gson.setPrettyPrinting();
+            }
             mGson = gson.create();
         }
 

@@ -1,6 +1,9 @@
 
 package nz.ac.otago.psyanlab.common.designer.program;
 
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.model.Loop;
@@ -30,14 +33,22 @@ public class LoopsListFragment extends BaseProgramFragment {
 
     public ProgramComponentAdapter<?> mLoopsAdapter;
 
-    public OnItemClickListener mOnLoopItemClickListener = new OnItemClickListener() {
+    public OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (mViews.listview.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
-                mViews.listview.setItemChecked(position, true);
+            if (mViews.loops.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
+                mViews.loops.setItemChecked(position, true);
 
-            } else if (mViews.listview.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
+            } else if (mViews.loops.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
                 setNextFragment(LoopFragment.newInstance(id));
+
+                View handle = mViews.loops.getChildAt(
+                        position - mViews.loops.getFirstVisiblePosition()
+                                + mViews.loops.getHeaderViewsCount()).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(true);
+                    handle.setVisibility(View.VISIBLE);
+                }
             }
         }
     };
@@ -57,10 +68,21 @@ public class LoopsListFragment extends BaseProgramFragment {
             if (mActionMode != null) {
                 return false;
             }
-            mViews.listview.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-            mViews.listview.setItemChecked(position, true);
+            mViews.loops.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+            mViews.loops.setItemChecked(position, true);
             mLoopsAdapter.fixItemBackground(R.drawable.loop_activated_background);
             setNextFragment(null);
+
+            for (int i = 0; i < mViews.loops.getChildCount(); i++) {
+                View handle = mViews.loops.getChildAt(i).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(false);
+                    handle.setVisibility(View.GONE);
+                }
+            }
+
+            mViews.loops.setDragEnabled(false);
+
             return true;
         }
     };
@@ -70,7 +92,7 @@ public class LoopsListFragment extends BaseProgramFragment {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
             if (itemId == R.id.menu_delete) {
-                long[] checkedItemIds = mViews.listview.getCheckedItemIds();
+                long[] checkedItemIds = mViews.loops.getCheckedItemIds();
                 for (int i = 0; i < checkedItemIds.length; i++) {
                     mCallbacks.deleteLoop(checkedItemIds[i]);
                 }
@@ -93,11 +115,12 @@ public class LoopsListFragment extends BaseProgramFragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            mViews.listview.post(new Runnable() {
+            mViews.loops.post(new Runnable() {
                 @Override
                 public void run() {
                     mLoopsAdapter.fixItemBackground(R.drawable.loop_activated_background_arrow);
-                    mViews.listview.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                    mViews.loops.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                    mViews.loops.setDragEnabled(true);
                 }
             });
         }
@@ -105,7 +128,7 @@ public class LoopsListFragment extends BaseProgramFragment {
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
                 boolean checked) {
-            final int checkedCount = mViews.listview.getCheckedItemCount();
+            final int checkedCount = mViews.loops.getCheckedItemCount();
             switch (checkedCount) {
                 case 0:
                     mode.setSubtitle(null);
@@ -147,7 +170,7 @@ public class LoopsListFragment extends BaseProgramFragment {
 
     @Override
     protected int getFavouredBackground() {
-        return R.drawable.loops_background_flat;
+        return R.drawable.background_designer_program_loops;
     }
 
     @Override
@@ -156,45 +179,51 @@ public class LoopsListFragment extends BaseProgramFragment {
     }
 
     protected void onNewLoop() {
-
         Loop loop = new Loop();
-        final long newLoopId = mCallbacks.createLoop(loop);
+        final long newLoopId = mCallbacks.addLoop(loop);
         loop.name = "Loop " + (newLoopId + 1);
         setNextFragment(LoopFragment.newInstance(newLoopId));
 
         if (mActionMode != null) {
             mActionMode.finish();
-            mViews.listview.post(new Runnable() {
+            mViews.loops.post(new Runnable() {
                 @Override
                 public void run() {
-                    selectItemInList(newLoopId, mViews.listview);
+                    selectItemInList(newLoopId, mViews.loops);
                 }
             });
         } else {
-            selectItemInList(newLoopId, mViews.listview);
+            selectItemInList(newLoopId, mViews.loops);
         }
     }
 
     protected class ViewHolder extends BaseProgramFragment.ViewHolder<Object> {
-        public ListView listview;
+        public DragSortListView loops;
 
-        public View newLoop;
+        private View mNew;
+
+        private View mEmpty;
 
         public ViewHolder(View view) {
             super(view);
-            listview = (ListView)view.findViewById(android.R.id.list);
-            newLoop = view.findViewById(R.id.new_loop);
+            loops = (DragSortListView)view.findViewById(android.R.id.list);
+            mNew = view.findViewById(R.id.new_loop);
         }
 
+        @Override
         public void initViews() {
-            listview.setMultiChoiceModeListener(mMultiChoiceModeCallbacks);
-            listview.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            listview.setOnItemClickListener(mOnLoopItemClickListener);
-            listview.setOnItemLongClickListener(mItemLongClickListener);
-            listview.setAdapter(mLoopsAdapter);
-            listview.setDivider(null);
+            loops.setMultiChoiceModeListener(mMultiChoiceModeCallbacks);
+            loops.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            loops.setOnItemClickListener(mOnItemClickListener);
+            loops.setOnItemLongClickListener(mItemLongClickListener);
 
-            newLoop.setOnClickListener(mNewLoopClickListener);
+            ProgramComponentDragSortController controller = new ProgramComponentDragSortController(
+                    loops, R.id.handle, DragSortController.ON_DRAG, 0, 0, 0);
+            loops.setFloatViewManager(controller);
+            loops.setOnTouchListener(controller);
+            loops.setAdapter(mLoopsAdapter);
+
+            mNew.setOnClickListener(mNewLoopClickListener);
         }
 
         @Override

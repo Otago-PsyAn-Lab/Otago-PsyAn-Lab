@@ -2,7 +2,7 @@
 package nz.ac.otago.psyanlab.common.expression.expressions;
 
 import nz.ac.otago.psyanlab.common.expression.TokenType;
-import nz.ac.otago.psyanlab.common.model.Operand;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 public class OperatorExpression {
     public static final int ASSOCIATIVE_LEFT = 2;
@@ -45,11 +45,11 @@ public class OperatorExpression {
             case OR:
             case XOR:
             case BANG:
-                return Operand.TYPE_BOOLEAN;
+                return Type.TYPE_BOOLEAN;
             case PLUS:
-                int r = (Operand.TYPE_NUMBER | Operand.TYPE_STRING) & typeMask;
+                int r = (Type.TYPE_NUMBER | Type.TYPE_STRING) & typeMask;
                 if (r == 0) {
-                    return Operand.TYPE_NUMBER | Operand.TYPE_STRING;
+                    return Type.TYPE_NUMBER | Type.TYPE_STRING;
                 }
                 return r;
             case ASTERISK:
@@ -62,9 +62,9 @@ public class OperatorExpression {
             case LESS_THAN_OR_EQUAL_TO:
             case MORE_THAN:
             case MORE_THAN_OR_EQUAL_TO:
-                return Operand.TYPE_NUMBER;
+                return Type.TYPE_NUMBER;
             case EQUALS:
-                return Operand.TYPE_NON_ASSETS;
+                return Type.TYPE_NON_ASSETS;
 
             default:
                 return 0;
@@ -102,22 +102,22 @@ public class OperatorExpression {
             case OR:
             case XOR:
             case BANG:
-                return Operand.TYPE_BOOLEAN;
+                return Type.TYPE_BOOLEAN;
             case PLUS:
-                return (Operand.TYPE_NUMBER | Operand.TYPE_STRING) & typeMask;
+                return (Type.TYPE_NUMBER | Type.TYPE_STRING) & typeMask;
             case ASTERISK:
             case CARET:
             case MINUS:
             case PERCENT:
             case SLASH:
-                return Operand.TYPE_NUMBER & typeMask;
+                return Type.TYPE_NUMBER & typeMask;
 
             case LESS_THAN:
             case LESS_THAN_OR_EQUAL_TO:
             case MORE_THAN:
             case MORE_THAN_OR_EQUAL_TO:
             case EQUALS:
-                return Operand.TYPE_BOOLEAN;
+                return Type.TYPE_BOOLEAN;
 
             default:
                 return 0;

@@ -16,7 +16,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="8dip"
             android:contentDescription="Drag Handle"
-            android:src="@drawable/ic_handle" />
+            android:src="@drawable/ic_handle_dark" />
     </FrameLayout>
 
     <TextView

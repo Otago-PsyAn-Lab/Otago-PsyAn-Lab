@@ -29,13 +29,32 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         return fragment;
     }
 
+    public TextWatcher mNameWatcher = new TextWatcher() {
+        @Override
+        public void afterTextChanged(Editable s) {
+            String newName = s.toString();
+            if (!TextUtils.equals(mAction.name, newName)) {
+                mAction.name = newName;
+                mCallbacks.putAction(mObjectId, mAction);
+            }
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+    };
+
     private Action mAction;
 
-    private ViewHolder mViews;
-
-    protected LayoutInflater mInflater;
+    private EditCallOperandFragment mOperandFragment;
 
     private long mSceneId;
+
+    private ViewHolder mViews;
 
     @Override
     public void onActionDataChange() {
@@ -50,9 +69,7 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mInflater = inflater;
-        View v = inflater.inflate(R.layout.fragment_designer_program_action, container, false);
-        return v;
+        return inflater.inflate(R.layout.fragment_designer_program_action, container, false);
     }
 
     @Override
@@ -85,33 +102,13 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         ft.commit();
     }
 
-    public TextWatcher mNameWatcher = new TextWatcher() {
-        @Override
-        public void afterTextChanged(Editable s) {
-            String newName = s.toString();
-            if (!TextUtils.equals(mAction.name, newName)) {
-                mAction.name = newName;
-                mCallbacks.updateAction(mObjectId, mAction);
-            }
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-    };
-
-    private EditCallOperandFragment mOperandFragment;
-
     @Override
-    public void setIsLastInList(boolean isLastInList) {
+    protected int getFavouredBackground() {
+        return R.color.card_background;
     }
 
     private void saveChanges() {
-        mCallbacks.updateAction(mObjectId, mAction);
+        mCallbacks.putAction(mObjectId, mAction);
     }
 
     @Override

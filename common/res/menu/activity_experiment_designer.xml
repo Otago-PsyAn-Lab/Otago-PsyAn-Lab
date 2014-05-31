@@ -5,11 +5,11 @@
         android:id="@+id/menu_done"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="@string/action_done"/>
+        android:title="@string/action_save_exit"/>
     <item
         android:id="@+id/menu_discard"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_discard"/>
+        android:title="@string/action_discard_changes"/>
 
 </menu>

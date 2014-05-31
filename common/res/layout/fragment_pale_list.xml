@@ -3,21 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/card_background"
     android:divider="?android:dividerHorizontal"
     android:orientation="vertical" >
 
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:divider="@drawable/divider_inset"
-        android:drawSelectorOnTop="false" />
+        android:drawSelectorOnTop="false"
+        android:listSelector="@drawable/loop_list_activated_holo" />
 
     <TextView
         android:id="@android:id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fontFamily="sans-serif-thin"
         android:gravity="center"
-        android:text="No experiments here yet!" />
+        android:text="@string/label_no_experiments" />
 
 </LinearLayout>

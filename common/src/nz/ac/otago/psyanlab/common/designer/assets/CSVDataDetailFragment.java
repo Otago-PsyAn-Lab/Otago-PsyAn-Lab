@@ -52,7 +52,7 @@ public class CSVDataDetailFragment extends Fragment {
                 fields.add(cols[i]);
             }
             mCsv.fieldnames = fields;
-            mCallbacks.updateAsset(mAssetId, mCsv);
+            mCallbacks.putAsset(mAssetId, mCsv);
         }
 
         @Override
@@ -66,7 +66,7 @@ public class CSVDataDetailFragment extends Fragment {
 
     private long mAssetId;
 
-    private AssetTabFragmentsCallbacks mCallbacks;
+    private AssetCallbacks mCallbacks;
 
     private OnClickListener mColStartClickListener = new OnClickListener() {
         @Override
@@ -89,7 +89,7 @@ public class CSVDataDetailFragment extends Fragment {
         public void onResult(Bundle data) {
             mCsv.numRows = data.getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER);
             mViews.numRows.setText(String.valueOf(mCsv.numRows));
-            mCallbacks.updateAsset(mAssetId, mCsv);
+            mCallbacks.putAsset(mAssetId, mCsv);
         }
     };
 
@@ -100,7 +100,7 @@ public class CSVDataDetailFragment extends Fragment {
                     .getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER));
             mViews.colStart.setText(String.valueOf(ExperimentUtils
                     .zeroBasedToUserValue(mCsv.colStart)));
-            mCallbacks.updateAsset(mAssetId, mCsv);
+            mCallbacks.putAsset(mAssetId, mCsv);
         }
     };
 
@@ -115,7 +115,7 @@ public class CSVDataDetailFragment extends Fragment {
             mViews.rowStart.setText(String.valueOf(ExperimentUtils
                     .zeroBasedToUserValue(mCsv.rowStart)));
             mViews.numRows.setText(String.valueOf(mCsv.numRows));
-            mCallbacks.updateAsset(mAssetId, mCsv);
+            mCallbacks.putAsset(mAssetId, mCsv);
         }
     };
 
@@ -132,7 +132,7 @@ public class CSVDataDetailFragment extends Fragment {
         @Override
         public void afterTextChanged(Editable s) {
             mCsv.name = s.toString();
-            mCallbacks.updateAsset(mAssetId, mCsv);
+            mCallbacks.putAsset(mAssetId, mCsv);
         }
 
         @Override
@@ -147,10 +147,10 @@ public class CSVDataDetailFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (!(activity instanceof AssetTabFragmentsCallbacks)) {
+        if (!(activity instanceof AssetCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (AssetTabFragmentsCallbacks)activity;
+        mCallbacks = (AssetCallbacks)activity;
     }
 
     @Override
@@ -182,7 +182,7 @@ public class CSVDataDetailFragment extends Fragment {
                 if (mCsv.isExternal()) {
                     Csv.countRowsAndCols(mCsv, new File(mCsv.path));
                 } else {
-                    Csv.countRowsAndCols(mCsv, mCallbacks.getFile(mCsv.path));
+                    Csv.countRowsAndCols(mCsv, mCallbacks.getCachedFile(mCsv.path));
                 }
             } catch (IOException e) {
                 e.printStackTrace();

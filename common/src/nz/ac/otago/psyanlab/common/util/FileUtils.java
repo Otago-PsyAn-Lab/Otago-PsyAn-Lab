@@ -73,11 +73,13 @@ public class FileUtils {
         return destFile;
     }
 
-    public static void compress(File destination, Experiment experiment) throws IOException {
+    public static void compress(File destination, Experiment experiment, File workingDir)
+            throws IOException {
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destination));
 
         try {
-            writeExperimentToArchive(out, copyAssetsToArchive(out, experiment));
+            writeExperimentDefinitionToArchive(out,
+                    copyAssetsToArchive(out, experiment, workingDir));
         } finally {
             out.close();
         }
@@ -264,14 +266,18 @@ public class FileUtils {
      * @return Modified experiment file with updated asset references.
      * @throws IOException
      */
-    private static Experiment copyAssetsToArchive(ZipOutputStream out, Experiment experiment)
-            throws IOException {
+    private static Experiment copyAssetsToArchive(ZipOutputStream out, Experiment experiment,
+            File workingDir) throws IOException {
 
         for (Entry<Long, Asset> entry : experiment.assets.entrySet()) {
             long key = entry.getKey();
             Asset asset = entry.getValue();
-
-            File assetFile = new File(asset.path);
+            File assetFile;
+            if (asset.isExternal()) {
+                assetFile = new File(asset.path);
+            } else {
+                assetFile = new File(workingDir, asset.path);
+            }
             InputStream in = new FileInputStream(assetFile);
 
             // Rename files so as to prevent name collision.
@@ -285,6 +291,7 @@ public class FileUtils {
 
             try {
                 copy(in, out);
+                out.closeEntry();
             } finally {
                 in.close();
             }
@@ -302,8 +309,8 @@ public class FileUtils {
      * @param experiment Experiment definition.
      * @throws IOException
      */
-    private static void writeExperimentToArchive(ZipOutputStream out, Experiment experiment)
-            throws IOException {
+    private static void writeExperimentDefinitionToArchive(ZipOutputStream out,
+            Experiment experiment) throws IOException {
         String paleDef = ModelUtils.getDataReaderWriter().toJson(experiment);
         InputStream in = new ByteArrayInputStream(paleDef.getBytes("UTF-16"));
 
@@ -312,6 +319,7 @@ public class FileUtils {
 
         try {
             copy(in, out);
+            out.closeEntry();
         } finally {
             in.close();
         }

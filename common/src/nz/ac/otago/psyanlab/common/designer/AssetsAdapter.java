@@ -7,6 +7,7 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +27,10 @@ class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapte
 
     private HashMap<Long, Asset> mAssets;
 
-    private final LayoutInflater mLayoutInflater;
+    private final LayoutInflater mInflater;
 
-    public AssetsAdapter(ExperimentDesignerActivity activity, HashMap<Long, Asset> assets) {
-        mLayoutInflater = activity.getLayoutInflater();
+    public AssetsAdapter(Context context, HashMap<Long, Asset> assets) {
+        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mAssets = assets;
         sortKeys(mAssets);
     }
@@ -49,7 +50,7 @@ class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapte
         TextViewHolder holder;
 
         if (convertView == null) {
-            convertView = mLayoutInflater.inflate(R.layout.list_section_header, parent, false);
+            convertView = mInflater.inflate(R.layout.list_section_header, parent, false);
             holder = new TextViewHolder(1);
             holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
@@ -80,7 +81,7 @@ class AssetsAdapter extends BaseAdapter implements StickyGridHeadersSimpleAdapte
         TextViewHolder holder;
 
         if (convertView == null) {
-            convertView = mLayoutInflater.inflate(R.layout.list_item_asset, parent, false);
+            convertView = mInflater.inflate(R.layout.list_item_asset, parent, false);
             holder = new TextViewHolder(1);
             holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);

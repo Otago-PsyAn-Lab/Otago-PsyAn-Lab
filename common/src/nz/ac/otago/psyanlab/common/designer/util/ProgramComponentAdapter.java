@@ -3,6 +3,8 @@ package nz.ac.otago.psyanlab.common.designer.util;
 
 import com.mobeta.android.dslv.DragSortListView.DragSortListener;
 
+import nz.ac.otago.psyanlab.common.R;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -83,11 +85,30 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
     }
 
     @Override
-    public View getView(int pos, View convertView, ViewGroup parent) {
-        View view = mViewBinder.bind(mMap.get(mKeys.get(pos)), convertView, parent);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view = mViewBinder.bind(mMap.get(mKeys.get(position)), convertView, parent);
         if (mBackgroundResource != -1) {
             view.setBackgroundResource(mBackgroundResource);
         }
+
+        ListView list;
+        if (parent instanceof ListView) {
+            list = (ListView)parent;
+        } else {
+            list = (ListView)parent.getParent();
+        }
+
+        View handle = view.findViewById(R.id.handle);
+        if (handle != null) {
+            if (list.getChoiceMode() == ListView.CHOICE_MODE_SINGLE && list.isItemChecked(position)) {
+                handle.setEnabled(true);
+                handle.setVisibility(View.VISIBLE);
+            } else {
+                handle.setEnabled(false);
+                handle.setVisibility(View.GONE);
+            }
+        }
+
         return view;
     }
 

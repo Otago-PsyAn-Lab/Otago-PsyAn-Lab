@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import nz.ac.otago.psyanlab.common.PaleRow;
 import nz.ac.otago.psyanlab.common.UserExperimentDelegateI;
 import nz.ac.otago.psyanlab.common.model.Experiment;
+import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.single.model.ExperimentModel;
 import nz.ac.otago.psyanlab.single.model.RecordModel;
 
@@ -146,9 +147,10 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
                 Context.MODE_PRIVATE), model.file);
         File workingDir = FileUtils.decompress(paleFile, mActivity.getExternalCacheDir());
         try {
+            logExperimentDefinitionFile(workingDir);
             return FileUtils.loadExperimentDefinition(new File(workingDir, "experiment.json"));
         } catch (JsonSyntaxException e) {
-            logExperimentDef(workingDir);
+            logExperimentDefinitionFile(workingDir);
             throw e;
         }
     }
@@ -161,6 +163,8 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
 
     @Override
     public boolean replace(Experiment experiment) throws IOException {
+        Log.d("Replace Experiment", ModelUtils.getDataReaderWriter().toJson(experiment));
+
         ContentResolver contentResolver = mActivity.getContentResolver();
 
         // Need to pull the model data before changing it to so we can later
@@ -175,7 +179,7 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
         String path = tempFile.getCanonicalPath();
 
         try {
-            FileUtils.compress(tempFile, experiment);
+            FileUtils.compress(tempFile, experiment, mActivity.getExternalCacheDir());
             File paleFile = FileUtils.copyToInternalStorage(mActivity, path,
                     FileUtils.generateNewFileName(path));
 
@@ -226,8 +230,8 @@ public class ExperimentDelegate implements UserExperimentDelegateI {
         return Arrays.copyOfRange(cols, 0, numUnderstood);
     }
 
-    private void logExperimentDef(File workingDir) throws FileNotFoundException, IOException,
-            UnsupportedEncodingException {
+    private void logExperimentDefinitionFile(File workingDir) throws FileNotFoundException,
+            IOException, UnsupportedEncodingException {
         InputStream in = new FileInputStream(new File(workingDir, "experiment.json"));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 

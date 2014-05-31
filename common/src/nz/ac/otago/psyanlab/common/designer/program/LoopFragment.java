@@ -1,6 +1,9 @@
 
 package nz.ac.otago.psyanlab.common.designer.program;
 
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LoopDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.generator.EditGeneratorDialogFragment;
@@ -12,7 +15,6 @@ import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -55,6 +57,15 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
                 mViews.scenesList.setItemChecked(position, true);
             } else if (mViews.scenesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
                 onSceneClick(id);
+
+                View handle = mViews.scenesList.getChildAt(
+                        position - mViews.scenesList.getFirstVisiblePosition()
+                                + mViews.scenesList.getHeaderViewsCount())
+                        .findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(true);
+                    handle.setVisibility(View.VISIBLE);
+                }
             }
         }
     };
@@ -76,7 +87,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             String newName = s.toString();
             if (!TextUtils.equals(mLoop.name, newName)) {
                 mLoop.name = newName;
-                mCallbacks.updateLoop(mObjectId, mLoop);
+                mCallbacks.putLoop(mObjectId, mLoop);
             }
         }
 
@@ -107,7 +118,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         @Override
         public void onResult(Bundle data) {
             mLoop.iterations = data.getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER);
-            mCallbacks.updateLoop(mObjectId, mLoop);
+            mCallbacks.putLoop(mObjectId, mLoop);
         }
     };
 
@@ -130,7 +141,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             } else {
             }
             if (loopIsDirty) {
-                mCallbacks.updateLoop(mObjectId, mLoop);
+                mCallbacks.putLoop(mObjectId, mLoop);
             }
             return true;
         }
@@ -183,6 +194,17 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             mViews.scenesList.setItemChecked(position, true);
             mScenesAdapter.fixItemBackground(R.drawable.loop_activated_background);
             setNextFragment(null);
+
+            for (int i = 0; i < mViews.scenesList.getChildCount(); i++) {
+                View handle = mViews.scenesList.getChildAt(i).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(false);
+                    handle.setVisibility(View.GONE);
+                }
+            }
+
+            mViews.scenesList.setDragEnabled(false);
+
             return true;
         }
     };
@@ -202,7 +224,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             } else {
             }
             if (loopIsDirty) {
-                mCallbacks.updateLoop(mObjectId, mLoop);
+                mCallbacks.putLoop(mObjectId, mLoop);
             }
             return true;
         }
@@ -226,6 +248,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
                 public void run() {
                     mScenesAdapter.fixItemBackground(R.drawable.loop_activated_background_arrow);
                     mViews.scenesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                    mViews.scenesList.setDragEnabled(true);
                 }
             });
         }
@@ -262,7 +285,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         View v = inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
         ListView list = (ListView)v.findViewById(R.id.generators);
         list.addHeaderView(inflater.inflate(R.layout.header_loop_content, list, false));
-        list.addFooterView(inflater.inflate(R.layout.view_separator, list, false));
         return v;
     }
 
@@ -277,7 +299,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
     @Override
     public void onGeneratorCreated(long id) {
         mLoop.generators.add(id);
-        mCallbacks.updateLoop(mObjectId, mLoop);
+        mCallbacks.putLoop(mObjectId, mLoop);
     }
 
     @Override
@@ -304,33 +326,18 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         mScenesAdapter = mCallbacks.getScenesAdapter(mObjectId);
         mGeneratorAdapter = mCallbacks.getGeneratorAdapter(mObjectId);
 
-        mViews = new ViewHolder(getResources(), view);
+        mViews = new ViewHolder(view);
         mViews.setViewValues(mLoop);
         mViews.initViews();
     }
 
-    @Override
-    public void setIsLastInList(boolean isLastInList) {
-        if (isLastInList) {
-            mBackgroundResource = R.drawable.opal_list_background_flat;
-            if (mViews != null) {
-                mViews.background.setBackgroundResource(mBackgroundResource);
-            }
-        } else {
-            mBackgroundResource = R.drawable.loop_background_flat;
-            if (mViews != null) {
-                mViews.background.setBackgroundResource(mBackgroundResource);
-            }
-        }
-    }
-
     private void saveChanges() {
-        mCallbacks.updateLoop(mObjectId, mLoop);
+        mCallbacks.putLoop(mObjectId, mLoop);
     }
 
     @Override
     protected int getFavouredBackground() {
-        return R.drawable.loop_background_flat;
+        return R.drawable.background_designer_program_loop;
     }
 
     @Override
@@ -344,10 +351,10 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
     protected void onNewScene() {
         Scene scene = new Scene();
-        final long newSceneId = mCallbacks.createScene(scene);
-        scene.name = "Scene " + (newSceneId + 1);
+        final long newSceneId = mCallbacks.addScene(scene);
+        scene.name = getActivity().getString(R.string.default_name_new_scene, newSceneId + 1);
         mLoop.scenes.add(newSceneId);
-        mCallbacks.updateLoop(mObjectId, mLoop);
+        mCallbacks.putLoop(mObjectId, mLoop);
         setNextFragment(SceneFragment.newInstance(newSceneId));
 
         if (mActionMode != null) {
@@ -401,29 +408,26 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         public Button iterations;
 
-        public Resources mResources;
-
         public EditText name;
 
         public View newGenerator;
 
         public View newScene;
 
-        public ListView scenesList;
+        public DragSortListView scenesList;
 
-        public ViewHolder(Resources resources, View view) {
+        public ViewHolder(View view) {
             super(view);
-            mResources = resources;
-
             generatorsList = (ListView)view.findViewById(R.id.generators);
 
             iterations = (Button)view.findViewById(R.id.iterations);
             name = (EditText)view.findViewById(R.id.name);
             newGenerator = view.findViewById(R.id.new_generator);
             newScene = view.findViewById(R.id.new_scene);
-            scenesList = (ListView)view.findViewById(R.id.scenes);
+            scenesList = (DragSortListView)view.findViewById(R.id.scenes);
         }
 
+        @Override
         public void initViews() {
             iterations.setOnClickListener(mIterationsClickListener);
 
@@ -433,20 +437,23 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
             newScene.setOnClickListener(mNewSceneClickListener);
 
+            ProgramComponentDragSortController controller = new ProgramComponentDragSortController(
+                    scenesList, R.id.handle, DragSortController.ON_DRAG, 0, 0, 0);
+            scenesList.setFloatViewManager(controller);
+            scenesList.setOnTouchListener(controller);
             scenesList.setAdapter(mScenesAdapter);
             scenesList.setMultiChoiceModeListener(mSceneMultiChoiceModeCallbacks);
             scenesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             scenesList.setOnItemClickListener(mOnSceneItemClickListener);
             scenesList.setOnItemLongClickListener(mItemLongClickListener);
-            scenesList.setDivider(null);
 
             generatorsList.setAdapter(mGeneratorAdapter);
             generatorsList.setOnItemClickListener(mOnGeneratorItemClickListener);
             generatorsList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             generatorsList.setMultiChoiceModeListener(mGeneratorMultiChoiceModeCallbacks);
-            generatorsList.setDivider(null);
         }
 
+        @Override
         public void setViewValues(Loop loop) {
             name.setText(loop.name);
 
@@ -462,12 +469,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         private void setIterationsText(Loop loop) {
             iterations.setText(String.valueOf(loop.iterations));
-            // if (loop.iterations == 1) {
-            // iterations.setText(R.string.label_iteration);
-            // } else {
-            // iterations.setText(mResources.getString(R.string.label_format_iterations,
-            // loop.iterations));
-            // }
         }
     }
 }

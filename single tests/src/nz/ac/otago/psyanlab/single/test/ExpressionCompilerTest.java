@@ -15,6 +15,7 @@ import nz.ac.otago.psyanlab.common.expression.RefineTypeVisitor.TypeException;
 import nz.ac.otago.psyanlab.common.expression.expressions.Expression;
 import nz.ac.otago.psyanlab.common.expression.expressions.ExpressionVisitor;
 import nz.ac.otago.psyanlab.common.model.Operand;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 import android.content.Context;
 import android.support.v4.util.LongSparseArray;
@@ -41,70 +42,70 @@ public class ExpressionCompilerTest extends TestCase {
     public final void testExpression() {
         mOperands = new LongSparseArray<Operand>();
         Log.d("TEST SECTION", "Unary precedence");
-        test("! a", "!a", "(!a)", "!a", Operand.TYPE_BOOLEAN);
-        test("- + a", "-+a", "(-(+a))", "-+a", Operand.TYPE_NUMBER);
+        test("! a", "!a", "(!a)", "!a", Type.TYPE_BOOLEAN);
+        test("- + a", "-+a", "(-(+a))", "-+a", Type.TYPE_NUMBER);
 
         Log.d("TEST SECTION", "Unary and binary precedence");
-        test("-a*b", "-a * b", "((-a) * b)", "-a * b", Operand.TYPE_NUMBER);
-        test("a*-b", "a * -b", "(a * (-b))", "a * -b", Operand.TYPE_NUMBER);
-        test("!a and b", "!a and b", "((!a) and b)", "!a and b", Operand.TYPE_BOOLEAN);
+        test("-a*b", "-a * b", "((-a) * b)", "-a * b", Type.TYPE_NUMBER);
+        test("a*-b", "a * -b", "(a * (-b))", "a * -b", Type.TYPE_NUMBER);
+        test("!a and b", "!a and b", "((!a) and b)", "!a and b", Type.TYPE_BOOLEAN);
         test("!a or b and c", "!a or b and c", "((!a) or (b and c))", "!a or b and c",
-                Operand.TYPE_BOOLEAN);
-        test("a and !b", "a and !b", "(a and (!b))", "a and !b", Operand.TYPE_BOOLEAN);
+                Type.TYPE_BOOLEAN);
+        test("a and !b", "a and !b", "(a and (!b))", "a and !b", Type.TYPE_BOOLEAN);
         test("a and !b or c", "a and !b or c", "((a and (!b)) or c)", "a and !b or c",
-                Operand.TYPE_BOOLEAN);
+                Type.TYPE_BOOLEAN);
 
         Log.d("TEST SECTION", "Binary precedence");
         test("b+c*d^e-f/g", "b + c * d ^ e - f / g", "((b + (c * (d ^ e))) - (f / g))",
-                "b + c * d ^ e - f / g", Operand.TYPE_NUMBER);
+                "b + c * d ^ e - f / g", Type.TYPE_NUMBER);
 
         Log.d("TEST SECTION", "Binary associativity");
-        test("a+b-c", "a + b - c", "((a + b) - c)", "a + b - c", Operand.TYPE_NUMBER);
-        test("a*b/c", "a * b / c", "((a * b) / c)", "a * b / c", Operand.TYPE_NUMBER);
-        test("a^b^c", "a ^ b ^ c", "(a ^ (b ^ c))", "a ^ b ^ c", Operand.TYPE_NUMBER);
+        test("a+b-c", "a + b - c", "((a + b) - c)", "a + b - c", Type.TYPE_NUMBER);
+        test("a*b/c", "a * b / c", "((a * b) / c)", "a * b / c", Type.TYPE_NUMBER);
+        test("a^b^c", "a ^ b ^ c", "(a ^ (b ^ c))", "a ^ b ^ c", Type.TYPE_NUMBER);
 
         Log.d("TEST SECTION", "Conditional operator");
         test("a?b:c?d:e", "a ? b : c ? d : e", "(a ? b : (c ? d : e))", "a ? b : c ? d : e",
-                Operand.TYPE_BOOLEAN);
+                Type.TYPE_BOOLEAN);
         test("a ? b ? c : d : e", "a ? b ? c : d : e", "(a ? (b ? c : d) : e)",
-                "a ? b ? c : d : e", Operand.TYPE_BOOLEAN);
+                "a ? b ? c : d : e", Type.TYPE_BOOLEAN);
         test("a and b ? c * d : e / f", "a and b ? c * d : e / f",
-                "((a and b) ? (c * d) : (e / f))", "a and b ? c * d : e / f", Operand.TYPE_NUMBER);
+                "((a and b) ? (c * d) : (e / f))", "a and b ? c * d : e / f", Type.TYPE_NUMBER);
 
         Log.d("TEST SECTION", "Grouping");
         test("a + (b + c) + d", "a + (b + c) + d", "((a + (b + c)) + d)", "a + (b + c) + d",
-                Operand.TYPE_NUMBER);
-        test("a ^ (b + c)", "a ^ (b + c)", "(a ^ (b + c))", "a ^ (b + c)", Operand.TYPE_NUMBER);
+                Type.TYPE_NUMBER);
+        test("a ^ (b + c)", "a ^ (b + c)", "(a ^ (b + c))", "a ^ (b + c)", Type.TYPE_NUMBER);
         test("a ^ (d ? b + c: a + b)", "a ^ (d ? b + c : a + b)", "(a ^ (d ? (b + c) : (a + b)))",
-                "a ^ (d ? b + c : a + b)", Operand.TYPE_NUMBER);
+                "a ^ (d ? b + c : a + b)", Type.TYPE_NUMBER);
 
         Log.d("TEST SECTION", "Literal detection and coercion");
-        test("1", "1", "1", "1", Operand.TYPE_NUMBER);
-        test("1", "1", "1", "1", Operand.TYPE_INTEGER);
-        test("1", "1", "1", "1", Operand.TYPE_FLOAT);
-        test("1.1", "1.1", "1.1", "1.1", Operand.TYPE_NUMBER);
-        test("1.1", "1.1", "1.1", "1.1", Operand.TYPE_FLOAT);
-        test("\"a string\"", "\"a string\"", "\"a string\"", "\"a string\"", Operand.TYPE_STRING);
+        test("1", "1", "1", "1", Type.TYPE_NUMBER);
+        test("1", "1", "1", "1", Type.TYPE_INTEGER);
+        test("1", "1", "1", "1", Type.TYPE_FLOAT);
+        test("1.1", "1.1", "1.1", "1.1", Type.TYPE_NUMBER);
+        test("1.1", "1.1", "1.1", "1.1", Type.TYPE_FLOAT);
+        test("\"a string\"", "\"a string\"", "\"a string\"", "\"a string\"", Type.TYPE_STRING);
 
         Log.d("TEST SECTION", "Substring");
         test("\"my \" + \"a string\"[2,8]", "\"my \" + \"a string\"[2, 8]",
                 "(\"my \" + (\"a string\"[2, 8]))", "\"my \" + \"a string\"[2, 8]",
-                Operand.TYPE_STRING);
+                Type.TYPE_STRING);
 
         Log.d("TEST SECTION", "Type assertion");
-        test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_NUMBER);
-        test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_INTEGER);
-        test("1 + a", "1 + a", "(1 + a)", "1 + a", Operand.TYPE_FLOAT);
+        test("1 + a", "1 + a", "(1 + a)", "1 + a", Type.TYPE_NUMBER);
+        test("1 + a", "1 + a", "(1 + a)", "1 + a", Type.TYPE_INTEGER);
+        test("1 + a", "1 + a", "(1 + a)", "1 + a", Type.TYPE_FLOAT);
 
         Log.d("TEST SECTION", "Concatenation operator");
         test("\"a string\" + \"another string\"", "\"a string\" + \"another string\"",
                 "(\"a string\" + \"another string\")", "\"a string\" + \"another string\"",
-                Operand.TYPE_STRING);
+                Type.TYPE_STRING);
 
         Log.d("TEST SECTION", "Chained inequalities (virtual boolean operators)");
-        test("a=b=c", "a = b = c", "((a = b) and (b = c))", "a = b = c", Operand.TYPE_BOOLEAN);
+        test("a=b=c", "a = b = c", "((a = b) and (b = c))", "a = b = c", Type.TYPE_BOOLEAN);
         test("1 <= a >= c", "1 <= a >= c", "((1 <= a) and (a >= c))", "1 <= a >= c",
-                Operand.TYPE_BOOLEAN);
+                Type.TYPE_BOOLEAN);
     }
 
     public final void testIncompleteParseDetection() {
@@ -205,7 +206,7 @@ public class ExpressionCompilerTest extends TestCase {
 
     private void testTypeDetection(String expression, int expectedType) {
         ContextlessRefineTypeVisitor refineTypeVisitor = new ContextlessRefineTypeVisitor(null,
-                mOperandCallbacks, new HashMap<String, Long>(), Operand.TYPE_ANY);
+                mOperandCallbacks, new HashMap<String, Long>(), Type.TYPE_ANY);
         Expression e = parse(expression);
         try {
             e.accept(refineTypeVisitor);
@@ -259,7 +260,7 @@ public class ExpressionCompilerTest extends TestCase {
         }
 
         @Override
-        public long createOperand(Operand operand) {
+        public long addOperand(Operand operand) {
             long id = findUnusedKey(mOperands);
             mOperands.put(id, operand);
             return id;
@@ -299,7 +300,7 @@ public class ExpressionCompilerTest extends TestCase {
         }
 
         @Override
-        public void updateOperand(long id, Operand operand) {
+        public void putOperand(long id, Operand operand) {
             mOperands.put(id, operand);
         }
     }

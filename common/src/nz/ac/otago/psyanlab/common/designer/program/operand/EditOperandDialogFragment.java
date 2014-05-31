@@ -104,7 +104,7 @@ public class EditOperandDialogFragment extends DialogFragment {
             mViews.saveOperand();
             mOperand = mCallbacks.getOperand(mOperandId);
             mOperand.name = mViews.name.getText().toString();
-            mCallbacks.updateOperand(mOperandId, mOperand);
+            mCallbacks.putOperand(mOperandId, mOperand);
             mOnDoneListener.OnEditOperandDialogueDone();
             getDialog().dismiss();
         }

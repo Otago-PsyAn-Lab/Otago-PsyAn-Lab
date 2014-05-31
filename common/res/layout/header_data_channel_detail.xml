@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="16dip"
+    android:orientation="vertical"
+    android:paddingLeft="16dip" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="16dip"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/title_data_channel_description"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dip"
+        android:layout_marginTop="8dip"
+        android:hint="@string/hint_data_channel_description"
+        android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+        android:nextFocusUp="@+id/name"
+        android:singleLine="false"
+        android:textSize="14sp" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dip"
+        android:columnCount="2" >
+
+        <TextView
+            android:layout_gravity="center_vertical|fill_horizontal"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/title_data_channel_fields"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <FrameLayout
+            android:id="@+id/add"
+            android:layout_gravity="fill_vertical"
+            android:background="@drawable/card_item_background_holo_light"
+            android:padding="16dip" >
+
+            <TextView
+                android:id="@+id/text_add"
+                style="@style/header_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/action_add_new" />
+        </FrameLayout>
+    </GridLayout>
+
+</LinearLayout>

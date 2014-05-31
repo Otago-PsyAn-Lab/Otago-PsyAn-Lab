@@ -2,14 +2,19 @@
 package nz.ac.otago.psyanlab.common.designer.subject;
 
 import com.mobeta.android.dslv.DragSortListView.DragSortListener;
+import com.mobeta.android.dslv.DragSortListView.RemoveListener;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LandingPageDataChangeListener;
+import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment.ListItemViewHolder.OnEditDetailClickListener;
+import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment.ListItemViewHolder.TextFocusedListener;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Subject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,13 +23,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -37,7 +42,21 @@ public class SubjectFragment extends Fragment implements LandingPageDataChangeLi
 
     private LandingPage mLandingPage;
 
-    private FragmentViewHolder mViews;
+    private OnEditDetailClickListener mOnEditDetailClickListener = new OnEditDetailClickListener() {
+        @Override
+        public void onEditDetailClick(int position) {
+            showEditTypeDialogue(position, R.string.title_set_type);
+        }
+    };
+
+    private ViewHolder mViews;
+
+    protected OnClickListener mOnAddSubjectQuestionClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showEditTypeDialogue(-1, R.string.title_set_type);
+        }
+    };
 
     @Override
     public void onAttach(Activity activity) {
@@ -50,13 +69,16 @@ public class SubjectFragment extends Fragment implements LandingPageDataChangeLi
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_designer_subject, container, false);
+        View view = inflater.inflate(R.layout.fragment_designer_subject, container, false);
+        ListView list = (ListView)view.findViewById(R.id.list);
+        list.addHeaderView(inflater.inflate(R.layout.header_subject_details, list, false));
+        return view;
     }
 
     @Override
     public void onDetach() {
-        mLandingPage.title = mViews.title.getText().toString();
-        mLandingPage.introduction = mViews.introduction.getText().toString();
+        mLandingPage.title = mViews.mTitle.getText().toString();
+        mLandingPage.introduction = mViews.mIntroduction.getText().toString();
 
         mCallbacks.storeLandingPage(mLandingPage);
         super.onDetach();
@@ -75,10 +97,12 @@ public class SubjectFragment extends Fragment implements LandingPageDataChangeLi
 
         mLandingPage = mCallbacks.getLandingPage();
         mCallbacks.addLandingPageDataChangeListener(this);
-        mAdapter = new SubjectRowAdapter(SubjectFragment.this);
+
+        mViews = new ViewHolder(view);
+
+        mAdapter = new SubjectRowAdapter(getActivity(), mViews.mList, mOnEditDetailClickListener);
         mAdapter.setRows(mLandingPage.subjectDetails);
 
-        mViews = new FragmentViewHolder(view);
         mViews.initViews(mAdapter);
         mViews.setViewValues(mLandingPage);
     }
@@ -100,58 +124,48 @@ public class SubjectFragment extends Fragment implements LandingPageDataChangeLi
     }
 
     public static interface Callbacks {
-        LandingPage getLandingPage();
-
         void addLandingPageDataChangeListener(LandingPageDataChangeListener listener);
+
+        LandingPage getLandingPage();
 
         void storeLandingPage(LandingPage landingPage);
     }
 
-    private class FragmentViewHolder {
-        public EditText introduction;
-
-        public ListView list;
-
-        public EditText title;
-
-        private ListItemViewHolder mFooterHolder;
-
-        public FragmentViewHolder(View view) {
-            title = (EditText)view.findViewById(R.id.title);
-            introduction = (EditText)view.findViewById(R.id.subtitle);
-            list = (ListView)view.findViewById(R.id.list);
-        }
-
-        public void initViews(ListAdapter adapter) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            final View foot = inflater.inflate(R.layout.item_subject_adder, list, false);
-            mFooterHolder = new ListItemViewHolder(foot);
-            foot.setTag(mFooterHolder);
-            mFooterHolder.type.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showEditTypeDialogue(-1, R.string.title_set_type);
-                }
-            });
-            list.addFooterView(foot);
-            list.setAdapter(adapter);
-            list.setDivider(null);
-        }
-
-        public void setViewValues(LandingPage landingPage) {
-            title.setText(landingPage.title);
-            introduction.setText(landingPage.introduction);
-        }
-    }
-
     private static class SubjectRowAdapter extends BaseAdapter implements DragSortListener {
-        private SubjectFragment mFragment;
+        private OnEditDetailClickListener mEditDetailDialogueCallback;
+
+        private LayoutInflater mInflater;
+
+        private ListView mList;
 
         private ArrayList<Subject> mRows;
 
-        public SubjectRowAdapter(SubjectFragment fragment) {
+        /**
+         * Hack around edit text losing focus inside a list view.
+         */
+        private TextFocusedListener mTextFocusedListener = new TextFocusedListener() {
+            @Override
+            public void onTextFocused(int position) {
+                mList.setSelection(position);
+
+                ViewGroup dragSortListItem = (ViewGroup)mList.getChildAt(position
+                        - mList.getFirstVisiblePosition() + mList.getHeaderViewsCount());
+                if (dragSortListItem == null) {
+                    return;
+                }
+
+                View listItem = dragSortListItem.getChildAt(0);
+                ListItemViewHolder viewHolder = (ListItemViewHolder)listItem.getTag();
+                viewHolder.focusText();
+            }
+        };
+
+        public SubjectRowAdapter(Context context, ListView list,
+                OnEditDetailClickListener editDetailDialogueCallback) {
+            mList = list;
             mRows = new ArrayList<Subject>();
-            mFragment = fragment;
+            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mEditDetailDialogueCallback = editDetailDialogueCallback;
         }
 
         @Override
@@ -183,63 +197,19 @@ public class SubjectFragment extends Fragment implements LandingPageDataChangeLi
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             final ListItemViewHolder holder;
-            if (convertView == null) {
-                convertView = mFragment.getActivity().getLayoutInflater()
-                        .inflate(R.layout.item_subject_row, parent, false);
-                holder = new ListItemViewHolder(convertView);
-                holder.row = convertView;
-                convertView.setTag(holder);
-                holder.text.setOnFocusChangeListener(new OnFocusChangeListener() {
-                    @Override
-                    public void onFocusChange(final View v, boolean hasFocus) {
-                        // Only show the remove icon when the row is selected
-                        // (text is focused).
 
-                        if (hasFocus) {
-                            // Ask for another focus in a short time because the
-                            // keyboard may steal away our focus.
-                            v.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (!v.hasFocus()) {
-                                        v.requestFocus();
-                                    }
-                                }
-                            }, 200);
-                            holder.remove.setVisibility(View.VISIBLE);
-                        } else {
-                            holder.remove.setVisibility(View.INVISIBLE);
-                        }
-                    }
-                });
-            } else {
-                holder = (ListItemViewHolder)convertView.getTag();
-            }
+            // View reuse seems to play havoc with interaction between edit text
+            // views and the IME. So for now a new view is created everytime.
+            // if (convertView == null) {
+            convertView = mInflater.inflate(R.layout.list_item_subject_question, parent, false);
+            holder = new ListItemViewHolder(convertView);
+            holder.initViews(this, mTextFocusedListener, mEditDetailDialogueCallback);
+            convertView.setTag(holder);
+            // } else {
+            // holder = (ListItemViewHolder)convertView.getTag();
+            // }
 
-            // Set a new anon callback every time the row is recycled so we
-            // always have the correct position inside the listener.
-            holder.type.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mFragment.showEditTypeDialogue(position, R.string.title_set_type);
-                }
-            });
-            holder.remove.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mRows.remove(position);
-                    notifyDataSetChanged();
-                }
-            });
-
-            // Initialise views.
-            Subject detail = getItem(position);
-            holder.setItem(detail);
-
-            holder.text.setText(detail.text);
-            holder.type.setText(detail.getTypeLabelResId());
-
-            holder.position = position;
+            holder.setViewValues(getItem(position), position);
 
             return convertView;
         }
@@ -256,92 +226,175 @@ public class SubjectFragment extends Fragment implements LandingPageDataChangeLi
         }
     }
 
-    protected static class TextUpdater implements TextWatcher {
-        public TextUpdater() {
-            // TODO Auto-generated constructor stub
+    private class ViewHolder {
+        private View mAdd;
+
+        private EditText mIntroduction;
+
+        private ListView mList;
+
+        private EditText mTitle;
+
+        public ViewHolder(View view) {
+            mTitle = (EditText)view.findViewById(R.id.title);
+            mIntroduction = (EditText)view.findViewById(R.id.description);
+            mList = (ListView)view.findViewById(R.id.list);
+            mAdd = view.findViewById(R.id.add);
         }
 
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+        public void initViews(ListAdapter adapter) {
+            mList.setAdapter(adapter);
+            mAdd.setOnClickListener(mOnAddSubjectQuestionClickListener);
         }
 
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
+        public void setViewValues(LandingPage landingPage) {
+            mTitle.setText(landingPage.title);
+            mIntroduction.setText(landingPage.introduction);
         }
     }
 
     protected static class ListItemViewHolder {
-        /**
-         * Button to add a new row.
-         */
-        public ImageButton add;
+        protected static Handler mHandler;
 
-        /**
-         * Handle to drag-sort row by.
-         */
-        public ImageView handle;
+        protected static EnsureFocus sEnsureFocus = new EnsureFocus();
 
-        public int position = -1;
-
-        /**
-         * Button to remove the row.
-         */
-        public ImageButton remove;
-
-        /**
-         * Subject statistic row.
-         */
-        public View row;
-
-        /**
-         * Text describing the statistic being collected.
-         */
-        public EditText text;
+        private Subject mDetail;
 
         /**
          * Button to call a dialogue to set the type of subject detail this is.
          * Also holds the detail object this row is working on.
          */
-        public Button type;
+        private Button mEditDetail;
 
-        private TextWatcher mTextWatcher;
+        private OnEditDetailClickListener mEditDetailDialogueCallback;
 
-        private Subject mDetail;
+        private OnClickListener mOnEditClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditDetailDialogueCallback.onEditDetailClick(mPosition);
+            }
+        };
+
+        private OnFocusChangeListener mOnFocusChangeListener = new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(final View v, boolean hasFocus) {
+                // Only show the remove icon when the row is selected.
+                if (hasFocus) {
+                    // Use the ugly hack around edit text problems in list
+                    // views.
+                    if (mHandler == null) {
+                        mHandler = new Handler();
+                    }
+
+                    mHandler.removeCallbacks(sEnsureFocus);
+                    sEnsureFocus.setTextFocusedListener(mTextFocusedListener);
+                    sEnsureFocus.setPosition(mPosition);
+                    mHandler.postDelayed(sEnsureFocus, 200);
+
+                    mRemove.setVisibility(View.VISIBLE);
+                } else {
+                    mRemove.setVisibility(View.INVISIBLE);
+                }
+            }
+        };
+
+        private OnClickListener mRemoveClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPosition != ListView.INVALID_POSITION) {
+                    mRemoveListener.remove(mPosition);
+                }
+            }
+        };
+
+        private RemoveListener mRemoveListener;
+
+        /**
+         * Text describing the statistic being collected.
+         */
+        private EditText mText;
+
+        private TextFocusedListener mTextFocusedListener;
+
+        private TextWatcher mTextWatcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                mDetail.text = s.toString();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        };
+
+        protected int mPosition;
+
+        /**
+         * Button to remove the row.
+         */
+        protected ImageButton mRemove;
 
         public ListItemViewHolder(View view) {
-            row = view;
-            handle = (ImageView)view.findViewById(R.id.handle);
-            remove = (ImageButton)view.findViewById(R.id.remove);
-            text = (EditText)view.findViewById(R.id.text);
-            type = (Button)view.findViewById(R.id.type);
-            add = (ImageButton)view.findViewById(R.id.add);
+            mRemove = (ImageButton)view.findViewById(R.id.remove);
+            mText = (EditText)view.findViewById(R.id.text);
+            mEditDetail = (Button)view.findViewById(R.id.type);
 
-            if (text != null) {
-                mTextWatcher = new TextWatcher() {
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    }
+            mText.addTextChangedListener(mTextWatcher);
+            mText.setOnFocusChangeListener(mOnFocusChangeListener);
+        }
 
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    }
+        public void focusText() {
+            mText.requestFocus();
+        }
 
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        mDetail.text = s.toString();
-                    }
-                };
-                text.addTextChangedListener(mTextWatcher);
+        public void initViews(RemoveListener removeListener,
+                TextFocusedListener textFocusedListener,
+                OnEditDetailClickListener editDetailDialogueCallback) {
+            mRemoveListener = removeListener;
+            mTextFocusedListener = textFocusedListener;
+            mEditDetailDialogueCallback = editDetailDialogueCallback;
+
+            mEditDetail.setOnClickListener(mOnEditClickListener);
+            mRemove.setOnClickListener(mRemoveClickListener);
+        }
+
+        public void setViewValues(Subject detail, int position) {
+            mDetail = detail;
+            mPosition = position;
+            mText.setText(detail.text);
+            mEditDetail.setText(detail.getTypeLabelResId());
+        }
+
+        public interface OnEditDetailClickListener {
+            void onEditDetailClick(int position);
+        }
+
+        public interface TextFocusedListener {
+            void onTextFocused(int position);
+        }
+
+        static class EnsureFocus implements Runnable {
+            private int mPosition;
+
+            private TextFocusedListener mTextFocusedListener;
+
+            @Override
+            public void run() {
+                mTextFocusedListener.onTextFocused(mPosition);
+            }
+
+            public void setPosition(int position) {
+                mPosition = position;
+            }
+
+            public void setTextFocusedListener(TextFocusedListener listener) {
+                mTextFocusedListener = listener;
             }
         }
-
-        public void setItem(Subject detail) {
-            mDetail = detail;
-        }
     }
+
 }

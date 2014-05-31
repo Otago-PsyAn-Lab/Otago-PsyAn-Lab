@@ -7,7 +7,6 @@ import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.ExpressionOperand;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ExpressionValue extends Operand implements ExpressionOperand {
     @Expose
@@ -31,7 +30,7 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     }
 
     @Override
-    public List<Long> getOperands() {
+    public ArrayList<Long> getOperands() {
         return operands;
     }
 }

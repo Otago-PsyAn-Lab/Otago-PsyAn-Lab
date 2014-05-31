@@ -2,24 +2,35 @@
 <resources>
 
     <string name="app_name">Otago PsyAn Lab</string>
-    <string name="action_authenticate">Authenticate</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_done">Done</string>
     <string name="action_discard">Discard</string>
+    <string name="action_discard_changes">Discard Changes</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_save">Save</string>
+    <string name="action_save">Save</string>
+    <string name="action_new_rule">New Rule</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_add_new">Add New</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_add_field">Add Field</string>
+    <string name="action_save_exit">Save &amp; Exit</string>
     <string name="hint_new_password">New Password</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>
-    <string name="label_authors">Authors:</string>
-    <string name="label_date_created">Date Created:</string>
-    <string name="label_file_size">File Size:</string>
-    <string name="label_last_active">Last Active:</string>
-    <string name="label_last_run">Last Run:</string>
-    <string name="label_number_subjects">Total Subjects:</string>
-    <string name="label_record_size">Records:</string>
+    <string name="label_authors">Authors</string>
+    <string name="label_date_created">Date Created</string>
+    <string name="label_file_size">File Size</string>
+    <string name="label_last_run">Last Run</string>
+    <string name="label_number_subjects">Total Subjects</string>
+    <string name="label_record_size">Records</string>
     <string name="label_select_user">Select User</string>
-    <string name="label_user_experiments">Experiments:</string>
-    <string name="label_user_records">Records:</string>
-    <string name="label_user_subjects">Total Subjects:</string>
+    <string name="label_user_experiments">Experiments</string>
+    <string name="label_user_records">Records</string>
+    <string name="label_user_subjects">Total Subjects</string>
+    <string name="label_modified">Modified</string>
+    <string name="label_no_loops">No Loops</string>
     <string name="menu_add">Add</string>
     <string name="menu_admin_password">Admin Password</string>
     <string name="menu_delete">Delete</string>
@@ -109,7 +120,7 @@
     <string name="action_save_exit">Save &amp; Exit</string>
     <string name="title_exit_designer">Exit Designer</string>
     <string name="designer_tab_properties">Properties</string>
-    <string name="designer_tab_subject">Subject</string>
+    <string name="designer_tab_subject">Landing Page</string>
     <string name="designer_tab_assets">Assets</string>
     <string name="designer_tab_program">Program</string>
     <string name="action_new_loop">New Loop</string>
@@ -160,22 +171,11 @@
     <string name="label_trigger_event">Event</string>
     <string name="label_action_method">Method</string>
     <string name="label_action_object">Object</string>
-    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing
-		elit, sed do eiusmod tempor incididunt ut labore et dolore magna
-		aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-		laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-		in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-		pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-		culpa qui officia deserunt mollit anim id est laborum.</string>
     <string name="label_stage_width">Width</string>
     <string name="label_stage_height">Height</string>
     <string name="label_stage_num_props">Number of Props</string>
     <string name="title_edit_stage_properties">Edit Properties</string>
     <string name="format_stage_detail">%1$d×%2$d (%3$s) %4$d props</string>
-    <string name="action_confirm">Confirm</string>
-    <string name="action_save">Save</string>
-    <string name="action_new_rule">New Rule</string>
-    <string name="action_edit">Edit</string>
     <string name="format_screen_dimensions">%1$d×%2$d</string>
     <string name="label_orientation">Orientation</string>
     <string name="label_dimensions">Dimensions</string>
@@ -187,7 +187,6 @@
     <string name="default_prop_name">Prop</string>
     <string name="format_default_prop_name">%1$s %2$d</string>
     <string name="title_rules">Rules</string>
-    <string name="action_add_new">Add New</string>
     <string name="title_loops">Loops</string>
     <string name="label_loop_cycles">Cycles</string>
     <string name="content_description_drag_handle">Drag Handle</string>
@@ -260,8 +259,6 @@
     <string name="label_variables">Variables</string>
     <string name="error_expected_operator">Expected operator.</string>
     <string name="message_clear_operand">Clear value for \'%1$s\'?</string>
-    <string name="action_clear">Clear</string>
-    <string name="action_rename">Rename</string>
     <string name="title_clear_variable">Clear variable %1$s</string>
     <string name="title_rename_variable">Rename variable %1$s</string>
     <string name="test_method_get_text">Get Text</string>
@@ -274,7 +271,6 @@
     <string name="default_condition_details">Condition unspecified</string>
     <string name="format_condition_details">Rule will execute if the following is true at point of evaluation.\n\n %1$s</string>
     <string name="label_name">Name</string>
-    <string name="default_new_experiment">New Experiment</string>
     <string name="hint_description_subject">Description and assistance Text</string>
     <string name="hint_title_subject">Title</string>
     <string name="title_experiments">Experiments</string>
@@ -282,5 +278,38 @@
     <string name="note_experiment_no_authors">No authors given</string>
     <string name="note_experiment_no_name">Missing experiment title</string>
     <string name="title_data_channels">Data Channels</string>
+    <string name="hint_field_name">Field name</string>
+    <string name="hint_data_channel_description">Notes</string>
+    <string name="title_data_channel_description">Notes</string>
+    <string name="title_data_channel_fields">Fields</string>
+    <string name="content_description_remove_row">Remove Row</string>
+    <string name="designer_tab_data_channels">Data Channels</string>
+    <string name="default_name_new_experiment">New Experiment</string>
+    <string name="default_name_new_csv">Data Sources %1$d</string>
+    <string name="default_name_new_channel">Channel %1$d</string>
+    <string name="default_name_new_loop">Loop %1$d</string>
+    <string name="default_name_new_scene">Scene %1$d</string>
+    <string name="default_name_new_rule">Rule %1$d</string>
+    <string name="default_name_new_action">Action %1$d</string>
+    <string name="designer_tab_variables">Variables</string>
+    <string name="designer_tab_sources">Sources</string>
+    <string name="default_name_data_channel_field">Field %1$s</string>
+    <string name="label_no_data_channels">No Data Channels</string>
+    <string name="title_subject_questions">Questions</string>
+    <string name="hint_landing_page_description">Introduction, description, subject instructions, and anything else…</string>
+    <string name="title_landing_page_description">Body</string>
+    <string name="hint_landing_page_title">Title</string>
+    <string name="title_landing_page_title">Title</string>
+    <string name="accessibility_content_drag_handle">Drag Handle</string>
+    <string name="hint_subject_question">Question</string>
+    <string name="accessibility_content_remove_question">Remove question</string>
+    <string name="label_no_experiments">No experiments here yet!</string>
+    <string name="title_experiment_name">Experiment Name</string>
+    <string name="title_description">Description</string>
+    <string name="title_authors">Authors</string>
+    <string name="hint_authors">Authors</string>
+    <string name="hint_description">Description</string>
+    <string name="hint_experiment_name">Name</string>
+    <string name="title_details">Details</string>
 
 </resources>

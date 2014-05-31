@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.model.util.EventId;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 import java.lang.reflect.Method;
 
@@ -94,6 +95,10 @@ public class ExperimentObjectReference {
     public ExperimentObjectReference(int kind, long id) {
         this.kind = kind;
         this.id = id;
+    }
+
+    public boolean equals(ExperimentObjectReference other) {
+        return kind == other.kind && id == other.id;
     }
 
     public static class EmitsEventsFilter implements ExperimentObjectFilter {
@@ -192,19 +197,19 @@ public class ExperimentObjectReference {
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
                 if (method.isAnnotationPresent(MethodId.class)) {
-                    if ((mFilter & Operand.TYPE_BOOLEAN) != 0
+                    if ((mFilter & Type.TYPE_BOOLEAN) != 0
                             && method.getReturnType().equals(Boolean.TYPE)) {
                         return true;
                     }
-                    if ((mFilter & Operand.TYPE_STRING) != 0
+                    if ((mFilter & Type.TYPE_STRING) != 0
                             && method.getReturnType().equals(String.class)) {
                         return true;
                     }
-                    if ((mFilter & Operand.TYPE_INTEGER) != 0
+                    if ((mFilter & Type.TYPE_INTEGER) != 0
                             && method.getReturnType().equals(Integer.TYPE)) {
                         return true;
                     }
-                    if ((mFilter & Operand.TYPE_FLOAT) != 0
+                    if ((mFilter & Type.TYPE_FLOAT) != 0
                             && method.getReturnType().equals(Float.TYPE)) {
                         return true;
                     }

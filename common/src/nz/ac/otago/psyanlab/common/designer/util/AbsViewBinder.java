@@ -14,5 +14,4 @@ public abstract class AbsViewBinder {
         mActivity = activity;
         mCallbacks = callbacks;
     }
-
 }

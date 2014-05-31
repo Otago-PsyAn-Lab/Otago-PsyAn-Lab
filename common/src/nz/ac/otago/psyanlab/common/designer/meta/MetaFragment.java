@@ -45,14 +45,6 @@ public class MetaFragment extends Fragment {
     }
 
     public class ViewHolder {
-        public EditText authors;
-
-        public EditText description;
-
-        public EditText name;
-
-        public EditText version;
-
         private TextWatcher mAuthorsWatcher = new TextWatcher() {
 
             @Override
@@ -84,7 +76,7 @@ public class MetaFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
-        };;
+        };
 
         private TextWatcher mNameWatcher = new TextWatcher() {
             @Override
@@ -100,7 +92,7 @@ public class MetaFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
-        };;
+        };
 
         private TextWatcher mVersionWatcher = new TextWatcher() {
             @Override
@@ -120,25 +112,29 @@ public class MetaFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
-        };;
+        };
+
+        protected EditText mAuthors;
+
+        protected EditText mDescription;
+
+        protected EditText mName;
 
         public ViewHolder(View view) {
-            name = (EditText)view.findViewById(R.id.name);
-            version = (EditText)view.findViewById(R.id.version);
-            authors = (EditText)view.findViewById(R.id.authors);
-            description = (EditText)view.findViewById(R.id.description);
+            mName = (EditText)view.findViewById(R.id.name);
+            mAuthors = (EditText)view.findViewById(R.id.authors);
+            mDescription = (EditText)view.findViewById(R.id.description);
         }
 
         public void initViews() {
-            name.setText(mCallbacks.getName());
-            version.setText(String.valueOf(mCallbacks.getVersion()));
-            description.setText(mCallbacks.getDescription());
-            authors.setText(mCallbacks.getAuthors());
+            mName.setText(mCallbacks.getName());
+            // mVersion.setText(String.valueOf(mCallbacks.getVersion()));
+            mDescription.setText(mCallbacks.getDescription());
+            mAuthors.setText(mCallbacks.getAuthors());
 
-            name.addTextChangedListener(mNameWatcher);
-            version.addTextChangedListener(mVersionWatcher);
-            authors.addTextChangedListener(mAuthorsWatcher);
-            description.addTextChangedListener(mDescriptionWatcher);
+            mName.addTextChangedListener(mNameWatcher);
+            mAuthors.addTextChangedListener(mAuthorsWatcher);
+            mDescription.addTextChangedListener(mDescriptionWatcher);
         }
     }
 }

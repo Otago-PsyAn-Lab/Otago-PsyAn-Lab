@@ -131,7 +131,9 @@ public class PaleDetailFragment extends Fragment {
             mDelegate.init(getActivity());
         }
 
-        mViews.setViewValues(mDelegate);
+        if (mViews != null) {
+            mViews.setViewValues(mDelegate);
+        }
 
         if (mDelegate == null) {
             setHasOptionsMenu(false);
@@ -154,6 +156,7 @@ public class PaleDetailFragment extends Fragment {
                         try {
                             mDelegate.deleteExperiment();
                             setExperimentDelegate(null);
+                            mCallbacks.onExperimentDeleted();
                         } catch (IOException e) {
                             // FIXME: Handle error deleting experiment.
                             e.printStackTrace();
@@ -182,6 +185,7 @@ public class PaleDetailFragment extends Fragment {
     }
 
     public interface Callbacks {
+        void onExperimentDeleted();
     }
 
     private class ViewHolder {
@@ -201,6 +205,8 @@ public class PaleDetailFragment extends Fragment {
 
         private ListAdapter mAdapter;
 
+        private View mRecordsTitle;
+
         public ViewHolder(View view) {
             name = (TextView)view.findViewById(R.id.name);
             description = (TextView)view.findViewById(R.id.description);
@@ -209,6 +215,15 @@ public class PaleDetailFragment extends Fragment {
             lastModified = (TextView)view.findViewById(R.id.last_modified);
             lastRun = (TextView)view.findViewById(R.id.last_run);
             records = (ListView)view.findViewById(R.id.records);
+            mRecordsTitle = view.findViewById(R.id.records_title);
+        }
+
+        public void updateParameterTitleVisibility() {
+            if (mAdapter == null || mAdapter.getCount() == 0) {
+                mRecordsTitle.setVisibility(View.GONE);
+            } else {
+                mRecordsTitle.setVisibility(View.VISIBLE);
+            }
         }
 
         public void setViewValues(UserExperimentDelegateI delegate) {
@@ -217,6 +232,7 @@ public class PaleDetailFragment extends Fragment {
                 mAdapter = null;
                 records.setAdapter(null);
                 records.setVisibility(View.GONE);
+                updateParameterTitleVisibility();
                 return;
             }
 
@@ -271,6 +287,7 @@ public class PaleDetailFragment extends Fragment {
                     }));
             records.setAdapter(mAdapter);
 
+            updateParameterTitleVisibility();
         }
     }
 }

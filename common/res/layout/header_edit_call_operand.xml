@@ -54,12 +54,8 @@
             android:minHeight="48dip" />
     </GridLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dip"
-        android:background="?android:attr/listDivider" />
-
     <TextView
+        android:id="@+id/parameter_title"
         style="@style/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

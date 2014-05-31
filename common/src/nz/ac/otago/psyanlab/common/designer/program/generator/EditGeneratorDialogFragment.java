@@ -75,7 +75,7 @@ public class EditGeneratorDialogFragment extends DialogFragment {
 
         if (mId == INVALID_ID) {
             mGenerator = new Random();
-            mId = mCallbacks.createGenerator(mGenerator);
+            mId = mCallbacks.addGenerator(mGenerator);
             mGenerator.name = "Generator " + (mId + 1);
             mMode = MODE_NEW;
         } else {
@@ -130,7 +130,7 @@ public class EditGeneratorDialogFragment extends DialogFragment {
                                 mGenerator.start = Integer.parseInt(start);
                                 mGenerator.end = Integer.parseInt(end);
 
-                                mCallbacks.updateGenerator(mId, mGenerator);
+                                mCallbacks.putGenerator(mId, mGenerator);
                                 if (mMode == MODE_NEW) {
                                     mOnGeneratorCreatedListener.onGeneratorCreated(mId);
                                 }

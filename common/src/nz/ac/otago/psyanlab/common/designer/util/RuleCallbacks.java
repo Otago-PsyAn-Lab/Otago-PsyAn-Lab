@@ -10,7 +10,7 @@ public interface RuleCallbacks {
 
     void addRuleDataChangeListener(RuleDataChangeListener listener);
 
-    long createRule(Rule rule);
+    long addRule(Rule rule);
 
     void deleteRule(long id);
 
@@ -24,5 +24,5 @@ public interface RuleCallbacks {
 
     void removeRuleDataChangeListener(RuleDataChangeListener listener);
 
-    void updateRule(long id, Rule rule);
+    void putRule(long id, Rule rule);
 }

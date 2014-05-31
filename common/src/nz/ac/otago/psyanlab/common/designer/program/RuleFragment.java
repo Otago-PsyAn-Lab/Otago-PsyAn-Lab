@@ -1,6 +1,9 @@
 
 package nz.ac.otago.psyanlab.common.designer.program;
 
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.RuleDataChangeListener;
@@ -19,6 +22,7 @@ import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -64,6 +68,15 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 mViews.actionsList.setItemChecked(position, true);
             } else if (mViews.actionsList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
                 onActionClick(id);
+
+                View handle = mViews.actionsList.getChildAt(
+                        position - mViews.actionsList.getFirstVisiblePosition()
+                                + mViews.actionsList.getHeaderViewsCount()).findViewById(
+                        R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(true);
+                    handle.setVisibility(View.VISIBLE);
+                }
             }
         }
     };
@@ -78,6 +91,17 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             mViews.actionsList.setItemChecked(position, true);
             mActionsAdapter.fixItemBackground(R.drawable.rule_activated_background);
             setNextFragment(null);
+
+            for (int i = 0; i < mViews.actionsList.getChildCount(); i++) {
+                View handle = mViews.actionsList.getChildAt(i).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(false);
+                    handle.setVisibility(View.GONE);
+                }
+            }
+
+            mViews.actionsList.setDragEnabled(false);
+
             return true;
         }
     };
@@ -101,7 +125,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
             mRule.triggerObject = new ExperimentObjectReference(objectKind, objectId);
 
-            mCallbacks.updateRule(mObjectId, mRule);
+            mCallbacks.putRule(mObjectId, mRule);
         }
     };
 
@@ -120,7 +144,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             } else {
             }
             if (sceneIsDirty) {
-                mCallbacks.updateRule(mObjectId, mRule);
+                mCallbacks.putRule(mObjectId, mRule);
             }
             return true;
         }
@@ -144,6 +168,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 public void run() {
                     mActionsAdapter.fixItemBackground(R.drawable.rule_activated_background_arrow);
                     mViews.actionsList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                    mViews.actionsList.setDragEnabled(true);
                 }
             });
         }
@@ -189,7 +214,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             if (mRule.triggerEvent != (int)id) {
                 mRule.triggerEvent = (int)id;
-                mCallbacks.updateRule(mObjectId, mRule);
+                mCallbacks.putRule(mObjectId, mRule);
             }
         }
 
@@ -263,12 +288,12 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     }
 
     private void saveChanges() {
-        mCallbacks.updateRule(mObjectId, mRule);
+        mCallbacks.putRule(mObjectId, mRule);
     }
 
     @Override
     protected int getFavouredBackground() {
-        return R.drawable.rule_background_flat;
+        return R.drawable.background_designer_program_rule;
     }
 
     @Override
@@ -284,11 +309,11 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         Action action = new Action();
         Operand condition = new CallValue();
         condition.type = ExperimentObjectReference.HAS_SETTERS;
-        action.operandId = mCallbacks.createOperand(condition);
-        final long newActionId = mCallbacks.createAction(action);
+        action.operandId = mCallbacks.addOperand(condition);
+        final long newActionId = mCallbacks.addAction(action);
         action.name = "Action " + (newActionId + 1);
         mRule.actions.add(newActionId);
-        mCallbacks.updateRule(mObjectId, mRule);
+        mCallbacks.putRule(mObjectId, mRule);
         setNextFragment(ActionFragment.newInstance(newActionId, mSceneId));
 
         if (mActionMode != null) {
@@ -310,7 +335,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
 
         EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mSceneId,
-                mRule.conditionId, Operand.TYPE_BOOLEAN,
+                mRule.conditionId, Type.TYPE_BOOLEAN,
                 getActivity().getString(R.string.title_edit_condition));
         dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
     }
@@ -326,7 +351,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 String newName = s.toString();
                 if (!TextUtils.equals(mRule.name, newName)) {
                     mRule.name = newName;
-                    mCallbacks.updateRule(mObjectId, mRule);
+                    mCallbacks.putRule(mObjectId, mRule);
                 }
             }
 
@@ -345,7 +370,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         public Button triggerObject;
 
-        private ListView actionsList;
+        private DragSortListView actionsList;
 
         private View newAction;
 
@@ -356,7 +381,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             triggerEvent = (Spinner)view.findViewById(R.id.trigger_event);
             editCondition = view.findViewById(R.id.edit_condition);
             conditionDetails = (TextView)view.findViewById(R.id.condition_detail);
-            actionsList = (ListView)view.findViewById(R.id.actions);
+            actionsList = (DragSortListView)view.findViewById(R.id.actions);
             newAction = view.findViewById(R.id.new_action);
         }
 
@@ -368,12 +393,15 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
             newAction.setOnClickListener(mNewActionClickListener);
 
+            ProgramComponentDragSortController controller = new ProgramComponentDragSortController(
+                    actionsList, R.id.handle, DragSortController.ON_DRAG, 0, 0, 0);
+            actionsList.setFloatViewManager(controller);
+            actionsList.setOnTouchListener(controller);
             actionsList.setAdapter(mActionsAdapter);
             actionsList.setMultiChoiceModeListener(mMultiChoiceModeCallbacks);
             actionsList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             actionsList.setOnItemClickListener(mActionItemClickListener);
             actionsList.setOnItemLongClickListener(mActionItemLongClickListener);
-            actionsList.setDivider(null);
 
             triggerObject.setOnClickListener(mTriggerObjectClickListener);
             triggerEvent.setOnItemSelectedListener(mTriggerEventItemSelectedListener);
@@ -405,8 +433,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
 
         private void setTrigger(Rule rule) {
-            triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject).getExperimentObjectName(
-                    getActivity()));
+            triggerObject.setText(mCallbacks.getExperimentObject(rule.triggerObject)
+                    .getExperimentObjectName(getActivity()));
             triggerEvent.setEnabled(true);
             SpinnerAdapter eventsAdapter = mCallbacks.getEventsAdapter(mCallbacks
                     .getExperimentObject(rule.triggerObject).getClass());
@@ -431,12 +459,12 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             if (condition instanceof CallOperand) {
                 CallOperand callOperand = (CallOperand)condition;
                 ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
-                        .getActionObject());
+                        .getObject());
                 final NameResolverFactory nameFactory = ModelUtils
                         .getMethodNameFactory(experimentObject.getClass());
                 operandDetail = getString(R.string.format_call_operand_value,
                         experimentObject.getExperimentObjectName(getActivity()),
-                        getString(nameFactory.getResId(callOperand.getActionMethod())));
+                        getString(nameFactory.getResId(callOperand.getMethod())));
             } else if (condition instanceof LiteralOperand) {
                 operandDetail = ((LiteralOperand)condition).getValue();
             } else {

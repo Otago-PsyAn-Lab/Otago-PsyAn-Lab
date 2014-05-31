@@ -11,86 +11,12 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
 
-import nz.ac.otago.psyanlab.common.R;
 
-import android.content.Context;
+
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class Operand {
-    public static final int TYPE_BOOLEAN = 0x01;
-
-    public static final int TYPE_FLOAT = 0x02;
-
-    public static final int TYPE_IMAGE = 0x10;
-
-    public static final int TYPE_INTEGER = 0x04;
-
-    public static final int TYPE_NUMBER = TYPE_FLOAT | TYPE_INTEGER;
-
-    public static final int TYPE_SOUND = 0x40;
-
-    public static final int TYPE_STRING = 0x08;
-
-    public static final int TYPE_VIDEO = 0x20;
-
-    public static final int TYPE_NON_ASSETS = TYPE_BOOLEAN | TYPE_NUMBER | TYPE_STRING;
-
-    public static final int TYPE_ANY = TYPE_NON_ASSETS | TYPE_IMAGE | TYPE_SOUND | TYPE_VIDEO;
-
-    public static CharSequence getTypeString(Context context, int type) {
-        if (type == TYPE_INTEGER) {
-            return context.getString(R.string.operand_type_integer);
-        } else if (type == TYPE_FLOAT) {
-            return context.getString(R.string.operand_type_float);
-        } else if (type == TYPE_STRING) {
-            return context.getString(R.string.operand_type_string);
-        } else if (type == TYPE_BOOLEAN) {
-            return context.getString(R.string.operand_type_boolean);
-        } else if (type == TYPE_IMAGE) {
-            return context.getString(R.string.operand_type_image);
-        } else if (type == TYPE_SOUND) {
-            return context.getString(R.string.operand_type_sound);
-        } else if (type == TYPE_VIDEO) {
-            return context.getString(R.string.operand_type_video);
-        } else if (type == TYPE_NUMBER) {
-            return context.getString(R.string.operand_type_number);
-        } else if (type == TYPE_NON_ASSETS) {
-            return context.getString(R.string.operand_type_any_except_asset);
-        } else {
-            return context.getString(R.string.operand_type_unknown);
-        }
-    }
-
-    public static List<String> typeToStringArray(Context context, int type) {
-        ArrayList<String> types = new ArrayList<String>();
-        if ((type & Operand.TYPE_BOOLEAN) != 0) {
-            types.add((String)Operand.getTypeString(context, Operand.TYPE_BOOLEAN));
-        }
-        if ((type & Operand.TYPE_FLOAT) != 0) {
-            types.add((String)Operand.getTypeString(context, Operand.TYPE_FLOAT));
-        }
-        if ((type & Operand.TYPE_IMAGE) != 0) {
-            types.add((String)Operand.getTypeString(context, Operand.TYPE_IMAGE));
-        }
-        if ((type & Operand.TYPE_INTEGER) != 0) {
-            types.add((String)Operand.getTypeString(context, Operand.TYPE_INTEGER));
-        }
-        if ((type & Operand.TYPE_SOUND) != 0) {
-            types.add((String)Operand.getTypeString(context, Operand.TYPE_SOUND));
-        }
-        if ((type & Operand.TYPE_STRING) != 0) {
-            types.add((String)Operand.getTypeString(context, Operand.TYPE_STRING));
-        }
-        if ((type & Operand.TYPE_VIDEO) != 0) {
-            types.add((String)Operand.getTypeString(context, Operand.TYPE_VIDEO));
-        }
-
-        return types;
-    }
-
     @Expose
     public String name = "Unset";
 

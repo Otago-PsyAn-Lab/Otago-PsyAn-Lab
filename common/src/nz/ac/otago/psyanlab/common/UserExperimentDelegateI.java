@@ -17,13 +17,18 @@ import java.io.IOException;
  */
 @SuppressLint("ParcelCreator")
 public interface UserExperimentDelegateI extends Parcelable {
+    static final int RECORD_DATE = 0x03;
+
     static final int RECORD_FILE_SIZE = 0x01;
+
+    static final int RECORD_ID = 0x04;
 
     static final int RECORD_NOTE = 0x02;
 
-    static final int RECORD_DATE = 0x03;
-
-    static final int RECORD_ID = 0x04;
+    /**
+     * Cleanup anything left behind while the experiment was opened.
+     */
+    void closeExperiment();
 
     /**
      * Store
@@ -36,11 +41,26 @@ public interface UserExperimentDelegateI extends Parcelable {
     boolean deleteExperiment() throws IOException;
 
     /**
+     * Get a file from storage.
+     * 
+     * @param path Path may be internal or external.
+     * @return File from storage.
+     */
+    File getFile(String path);
+
+    /**
      * Get the details about the experiment.
      * 
      * @return Experiment details.
      */
     PaleRow getExperimentDetails();
+
+    /**
+     * Get the experiment id.
+     * 
+     * @return Experiment id.
+     */
+    long getId();
 
     /**
      * Get the experiment (in its initialised form) that this delegate
@@ -55,6 +75,14 @@ public interface UserExperimentDelegateI extends Parcelable {
 
     void init(FragmentActivity activity);
 
+    /**
+     * Unpack the experiment this delegate represents.
+     * 
+     * @return Experiment Memory model of experiment.
+     * @throws IOException on error when reading experiment.
+     */
+    Experiment openExperiment() throws IOException;
+
     int removeRecords(long[] ids) throws IOException;
 
     /**
@@ -65,32 +93,4 @@ public interface UserExperimentDelegateI extends Parcelable {
      * @throws IOException
      */
     boolean replace(Experiment experiment) throws IOException;
-
-    /**
-     * Unpack the experiment this delegate represents.
-     * 
-     * @return Experiment Memory model of experiment.
-     * @throws IOException on error when reading experiment.
-     */
-    Experiment openExperiment() throws IOException;
-
-    /**
-     * Cleanup anything left behind while the experiment was opened.
-     */
-    void closeExperiment();
-
-    /**
-     * Get the experiment id.
-     * 
-     * @return Experiment id.
-     */
-    long getId();
-
-    /**
-     * Get a file from storage.
-     * 
-     * @param path Path may be internal or external.
-     * @return File from storage.
-     */
-    File getFile(String path);
 }

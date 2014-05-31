@@ -7,7 +7,7 @@
 
     <FrameLayout
         android:id="@+id/handle"
-        android:layout_width="48dip"
+        android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
         <ImageView
@@ -15,8 +15,8 @@
             android:layout_height="16dip"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="8dip"
-            android:contentDescription="Drag Handle"
-            android:src="@drawable/ic_handle" />
+            android:contentDescription="@string/accessibility_content_drag_handle"
+            android:src="@drawable/ic_handle_dark" />
     </FrameLayout>
 
     <TextView

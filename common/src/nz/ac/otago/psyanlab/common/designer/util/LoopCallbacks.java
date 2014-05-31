@@ -6,7 +6,7 @@ import nz.ac.otago.psyanlab.common.model.Loop;
 
 public interface LoopCallbacks {
 
-    long createLoop(Loop loop);
+    long addLoop(Loop loop);
 
     void deleteLoop(long id);
 
@@ -18,6 +18,6 @@ public interface LoopCallbacks {
 
     void removeLoopDataChangeListener(LoopDataChangeListener listener);
 
-    void updateLoop(long id, Loop loop);
+    void putLoop(long id, Loop loop);
 
 }

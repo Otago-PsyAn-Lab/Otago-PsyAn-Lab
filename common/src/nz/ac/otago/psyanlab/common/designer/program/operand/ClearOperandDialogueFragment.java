@@ -26,7 +26,7 @@ public class ClearOperandDialogueFragment extends DialogFragment {
         }
 
         @Override
-        public void OnClearOperand() {
+        public void onOperandCleared() {
         }
     };
 
@@ -45,6 +45,7 @@ public class ClearOperandDialogueFragment extends DialogFragment {
     private OperandCallbacks mCallbacks;
 
     private OnClickListener mNegativeListener = new OnClickListener() {
+        @Override
         public void onClick(DialogInterface dialog, int id) {
             getDialog().cancel();
         }
@@ -57,12 +58,12 @@ public class ClearOperandDialogueFragment extends DialogFragment {
     private long mOperandId;
 
     private OnClickListener mPositiveListener = new OnClickListener() {
+        @Override
         public void onClick(DialogInterface dialog, int id) {
             // Do this to clear up any potential hierarchy.
             mCallbacks.deleteOperand(mOperandId);
             // Put the replacement into the known position (id).
-            mCallbacks.updateOperand(mOperandId, mOnClearListener.initReplacement(mOperand));
-            mOnClearListener.OnClearOperand();
+            mCallbacks.putOperand(mOperandId, mOnClearListener.initReplacement(mOperand));
             dismiss();
         }
     };
@@ -119,6 +120,6 @@ public class ClearOperandDialogueFragment extends DialogFragment {
          */
         Operand initReplacement(Operand oldOperand);
 
-        void OnClearOperand();
+        void onOperandCleared();
     }
 }

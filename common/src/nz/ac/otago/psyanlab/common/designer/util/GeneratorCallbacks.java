@@ -7,7 +7,7 @@ import nz.ac.otago.psyanlab.common.model.Generator;
 public interface GeneratorCallbacks {
     void addGeneratorDataChangeListener(GeneratorDataChangeListener listener);
 
-    long createGenerator(Generator generator);
+    long addGenerator(Generator generator);
 
     void deleteGenerator(long id);
 
@@ -17,6 +17,6 @@ public interface GeneratorCallbacks {
 
     void removeGeneratorDataChangeListener(GeneratorDataChangeListener listener);
 
-    void updateGenerator(long id, Generator generator);
+    void putGenerator(long id, Generator generator);
 
 }

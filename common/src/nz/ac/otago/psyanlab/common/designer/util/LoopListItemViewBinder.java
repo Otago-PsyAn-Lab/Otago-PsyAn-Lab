@@ -20,8 +20,8 @@ public final class LoopListItemViewBinder extends AbsViewBinder implements ViewB
     public View bind(Loop loop, View convertView, ViewGroup parent) {
         TextViewHolder holder;
         if (convertView == null) {
-            convertView = mActivity.getLayoutInflater().inflate(R.layout.list_item_loop,
-                    parent, false);
+            convertView = mActivity.getLayoutInflater().inflate(R.layout.list_item_loop, parent,
+                    false);
             holder = new TextViewHolder(1);
             holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);

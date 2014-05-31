@@ -19,6 +19,7 @@ import nz.ac.otago.psyanlab.common.expression.expressions.StringExpression;
 import nz.ac.otago.psyanlab.common.expression.expressions.SubstringExpression;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -78,19 +79,19 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     @Override
     public String toString() {
-        return TextUtils.join(",  ", Operand.typeToStringArray(mContext, mTypeMask));
+        return TextUtils.join(",  ", Type.typeToStringArray(mContext, mTypeMask));
     }
 
     @Override
     public void visit(BooleanExpression expression) {
-        mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_BOOLEAN);
+        mTypeMask = doIntersectionOrError(expression, mTypeMask, Type.TYPE_BOOLEAN);
     }
 
     @Override
     public void visit(ConditionalExpression expression) {
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = Operand.TYPE_BOOLEAN;
+        mTypeMask = Type.TYPE_BOOLEAN;
         expression.getCondition().accept(this);
 
         mTypeMask = parentTypeMask;
@@ -102,7 +103,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     @Override
     public void visit(FloatExpression expression) {
-        mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_FLOAT);
+        mTypeMask = doIntersectionOrError(expression, mTypeMask, Type.TYPE_FLOAT);
     }
 
     @Override
@@ -114,7 +115,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
         expression.getLeft().accept(this);
         if (allowMixedNumbers(expression)) {
-            if (mTypeMask == Operand.TYPE_FLOAT) {
+            if (mTypeMask == Type.TYPE_FLOAT) {
                 sawOnlyFloat = true;
             }
         }
@@ -123,8 +124,8 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         mTypeMask = expression.getOperatorChildType(mTypeMask);
 
         expression.getRight().accept(this);
-        if (allowMixedNumbers(expression) && (mTypeMask & Operand.TYPE_NUMBER) != 0 && sawOnlyFloat) {
-            mTypeMask = Operand.TYPE_FLOAT;
+        if (allowMixedNumbers(expression) && (mTypeMask & Type.TYPE_NUMBER) != 0 && sawOnlyFloat) {
+            mTypeMask = Type.TYPE_FLOAT;
         }
         final int rightMask = mTypeMask;
 
@@ -133,15 +134,15 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
             expression.getLeft().accept(this);
             if (allowMixedNumbers(expression)) {
-                if (mTypeMask == Operand.TYPE_FLOAT) {
+                if (mTypeMask == Type.TYPE_FLOAT) {
                     sawOnlyFloat = true;
                 }
             }
 
             expression.getRight().accept(this);
-            if (allowMixedNumbers(expression) && (mTypeMask & Operand.TYPE_NUMBER) != 0
+            if (allowMixedNumbers(expression) && (mTypeMask & Type.TYPE_NUMBER) != 0
                     && sawOnlyFloat) {
-                mTypeMask = Operand.TYPE_FLOAT;
+                mTypeMask = Type.TYPE_FLOAT;
             }
         }
 
@@ -151,7 +152,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     @Override
     public void visit(IntegerExpression expression) {
-        mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_INTEGER);
+        mTypeMask = doIntersectionOrError(expression, mTypeMask, Type.TYPE_INTEGER);
     }
 
     @Override
@@ -167,7 +168,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         if (operandId == null) {
             // No matched operand, so create one.
             op = new StubOperand(name);
-            operandId = mCallbacks.createOperand(op);
+            operandId = mCallbacks.addOperand(op);
             mOperandMap.put(name, operandId);
         } else {
             op = mCallbacks.getOperand(operandId);
@@ -175,7 +176,7 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
         // Try to assert the requested type.
         if (op.attemptRestrictType(mTypeMask)) {
-            mCallbacks.updateOperand(operandId, op);
+            mCallbacks.putOperand(operandId, op);
         }
         mOperandsMentioned.put(name, operandId);
         mTypeMask = doIntersectionOrError(expression, mTypeMask, op.getType());
@@ -205,23 +206,23 @@ public class RefineTypeVisitor implements ExpressionVisitor {
 
     @Override
     public void visit(StringExpression expression) {
-        mTypeMask = doIntersectionOrError(expression, mTypeMask, Operand.TYPE_STRING);
+        mTypeMask = doIntersectionOrError(expression, mTypeMask, Type.TYPE_STRING);
     }
 
     @Override
     public void visit(SubstringExpression expression) {
         final int parentTypeMask = mTypeMask;
 
-        mTypeMask = Operand.TYPE_STRING;
+        mTypeMask = Type.TYPE_STRING;
         expression.getString().accept(this);
 
-        mTypeMask = Operand.TYPE_INTEGER;
+        mTypeMask = Type.TYPE_INTEGER;
         expression.getLow().accept(this);
 
-        mTypeMask = Operand.TYPE_INTEGER;
+        mTypeMask = Type.TYPE_INTEGER;
         expression.getHigh().accept(this);
 
-        mTypeMask = doIntersectionOrError(expression, parentTypeMask, Operand.TYPE_STRING);
+        mTypeMask = doIntersectionOrError(expression, parentTypeMask, Type.TYPE_STRING);
     }
 
     private boolean allowMixedNumbers(OperatorExpression expression) {
@@ -245,8 +246,8 @@ public class RefineTypeVisitor implements ExpressionVisitor {
         int intersection = got & expected;
         if (intersection == 0) {
             // No intersection, so store error and break out of type refining.
-            String errorMessage = formatTypeError(Operand.typeToStringArray(mContext, expected),
-                    Operand.typeToStringArray(mContext, got));
+            String errorMessage = formatTypeError(Type.typeToStringArray(mContext, expected),
+                    Type.typeToStringArray(mContext, got));
             mError = new TypeError(expression, errorMessage);
             throw new TypeException(errorMessage);
         }

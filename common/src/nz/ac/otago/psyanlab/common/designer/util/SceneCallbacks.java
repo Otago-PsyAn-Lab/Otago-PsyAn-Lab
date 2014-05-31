@@ -5,19 +5,19 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneData
 import nz.ac.otago.psyanlab.common.model.Scene;
 
 public interface SceneCallbacks {
+    long addScene(Scene scene);
+
+    void addSceneDataChangeListener(SceneDataChangeListener listener);
+
+    void deleteScene(long id);
 
     Scene getScene(long sceneId);
 
     ProgramComponentAdapter<Scene> getScenesAdapter(long loopId);
 
-    long createScene(Scene scene);
-
-    void deleteScene(long id);
-
-    void addSceneDataChangeListener(SceneDataChangeListener listener);
+    void putScene(long id, Scene scene);
 
     void removeSceneDataChangeListener(SceneDataChangeListener listener);
 
-    void updateScene(long id, Scene scene);
-
+    void startEditStage(long id);
 }

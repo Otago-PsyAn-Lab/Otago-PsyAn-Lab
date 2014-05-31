@@ -1,6 +1,9 @@
 
 package nz.ac.otago.psyanlab.common.designer.program;
 
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.stage.PropAdapter;
@@ -10,6 +13,7 @@ import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -42,7 +46,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
     protected final OnClickListener mEditStageClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            mCallbacks.editStage(mObjectId);
+            mCallbacks.startEditStage(mObjectId);
         }
     };
 
@@ -56,6 +60,17 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             mViews.rulesList.setItemChecked(position, true);
             mRulesAdapter.fixItemBackground(R.drawable.scene_activated_background);
             setNextFragment(null);
+
+            for (int i = 0; i < mViews.rulesList.getChildCount(); i++) {
+                View handle = mViews.rulesList.getChildAt(i).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(false);
+                    handle.setVisibility(View.GONE);
+                }
+            }
+
+            mViews.rulesList.setDragEnabled(false);
+
             return true;
         }
     };
@@ -75,7 +90,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             } else {
             }
             if (sceneIsDirty) {
-                mCallbacks.updateScene(mObjectId, mScene);
+                mCallbacks.putScene(mObjectId, mScene);
             }
             return true;
         }
@@ -99,6 +114,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
                 public void run() {
                     mRulesAdapter.fixItemBackground(R.drawable.scene_activated_background_arrow);
                     mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                    mViews.rulesList.setDragEnabled(true);
                 }
             });
         }
@@ -134,7 +150,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             String newName = s.toString();
             if (!TextUtils.equals(mScene.name, newName)) {
                 mScene.name = newName;
-                mCallbacks.updateScene(mObjectId, mScene);
+                mCallbacks.putScene(mObjectId, mScene);
             }
         }
 
@@ -161,6 +177,14 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
                 mViews.rulesList.setItemChecked(position, true);
             } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
                 onRuleClick(id);
+
+                View handle = mViews.rulesList.getChildAt(
+                        position - mViews.rulesList.getFirstVisiblePosition()
+                                + mViews.rulesList.getHeaderViewsCount()).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(true);
+                    handle.setVisibility(View.VISIBLE);
+                }
             }
         }
     };
@@ -215,12 +239,12 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
     }
 
     private void saveChanges() {
-        mCallbacks.updateScene(mObjectId, mScene);
+        mCallbacks.putScene(mObjectId, mScene);
     }
 
     @Override
     protected int getFavouredBackground() {
-        return R.drawable.scene_background_flat;
+        return R.drawable.background_designer_program_scene;
     }
 
     @Override
@@ -230,14 +254,14 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
     protected void onNewRule() {
         Rule rule = new Rule();
-        final long newRuleId = mCallbacks.createRule(rule);
+        final long newRuleId = mCallbacks.addRule(rule);
         rule.name = "Rule " + (newRuleId + 1);
         Operand condition = new StubOperand("Condition");
-        condition.attemptRestrictType(Operand.TYPE_BOOLEAN);
-        rule.conditionId = mCallbacks.createOperand(condition);
+        condition.attemptRestrictType(Type.TYPE_BOOLEAN);
+        rule.conditionId = mCallbacks.addOperand(condition);
 
         mScene.rules.add(newRuleId);
-        mCallbacks.updateScene(mObjectId, mScene);
+        mCallbacks.putScene(mObjectId, mScene);
         setNextFragment(RuleFragment.newInstance(newRuleId, mObjectId));
 
         if (mActionMode != null) {
@@ -266,7 +290,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
         public View newRule;
 
-        public ListView rulesList;
+        public DragSortListView rulesList;
 
         public TextView stageDetail;
 
@@ -277,7 +301,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             editStage = view.findViewById(R.id.edit_stage);
             name = (EditText)view.findViewById(R.id.name);
             newRule = view.findViewById(R.id.new_rule);
-            rulesList = (ListView)view.findViewById(R.id.rules);
+            rulesList = (DragSortListView)view.findViewById(R.id.rules);
             stageThumb = (StageView)view.findViewById(R.id.stage);
             stageDetail = (TextView)view.findViewById(R.id.stage_detail);
             editStagePsuedoButton = (TextView)view.findViewById(R.id.edit_stage_psudeo_button);
@@ -293,12 +317,15 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
             newRule.setOnClickListener(mNewRuleClickListener);
 
+            ProgramComponentDragSortController controller = new ProgramComponentDragSortController(
+                    rulesList, R.id.handle, DragSortController.ON_DRAG, 0, 0, 0);
+            rulesList.setFloatViewManager(controller);
+            rulesList.setOnTouchListener(controller);
             rulesList.setAdapter(mRulesAdapter);
             rulesList.setMultiChoiceModeListener(mMultiChoiceModeCallbacks);
             rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             rulesList.setOnItemClickListener(mOnRuleItemClickListener);
             rulesList.setOnItemLongClickListener(mItemLongClickListener);
-            rulesList.setDivider(null);
         }
 
         @Override

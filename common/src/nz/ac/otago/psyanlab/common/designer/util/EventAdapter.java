@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import nz.ac.otago.psyanlab.common.model.util.EventId;
+import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
@@ -19,21 +19,21 @@ import java.util.SortedSet;
 public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAdapter {
     private Context mContext;
 
-    private EventId[] mEvents;
+    private EventData[] mEvents;
 
     private LayoutInflater mInflater;
 
     private NameResolverFactory mNameFactory;
 
-    public EventAdapter(Context context, SortedSet<EventId> events,
+    public EventAdapter(Context context, SortedSet<EventData> events,
             NameResolverFactory nameFactory) {
         mContext = context;
         mNameFactory = nameFactory;
         mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        mEvents = new EventId[events.size()];
+        mEvents = new EventData[events.size()];
         int i = 0;
-        for (EventId event : events) {
+        for (EventData event : events) {
             mEvents[i] = event;
             i++;
         }
@@ -62,7 +62,7 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
         }
 
         holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mEvents[position]
-                .value())));
+                .id())));
 
         return convertView;
     }
@@ -74,7 +74,7 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
 
     @Override
     public long getItemId(int position) {
-        return mEvents[position].value();
+        return mEvents[position].id();
     }
 
     @Override
@@ -90,7 +90,7 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
         }
 
         holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mEvents[position]
-                .value())));
+                .id())));
 
         return convertView;
     }

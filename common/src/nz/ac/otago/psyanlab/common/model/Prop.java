@@ -12,7 +12,7 @@ import android.os.Parcelable;
 
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class Prop implements Parcelable, ExperimentObject {
+public abstract class Prop extends ExperimentObject implements Parcelable {
     public static final Parcelable.Creator<Prop> CREATOR = new Parcelable.Creator<Prop>() {
         @Override
         public Prop createFromParcel(Parcel in) {
@@ -98,7 +98,7 @@ public abstract class Prop implements Parcelable, ExperimentObject {
 
     @Override
     public int kind() {
-        return ExperimentObjectReference.KIND_PROP;
+        return ExperimentObject.KIND_PROP;
     }
 
     @Override

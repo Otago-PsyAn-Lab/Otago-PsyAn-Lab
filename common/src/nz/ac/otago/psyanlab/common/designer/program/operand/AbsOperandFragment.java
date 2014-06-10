@@ -6,22 +6,28 @@ import nz.ac.otago.psyanlab.common.util.TonicFragment;
 import android.os.Bundle;
 
 public abstract class AbsOperandFragment extends TonicFragment {
+    protected static final String ARG_CALLER_ID = "arg_caller_id";
+
+    protected static final String ARG_CALLER_KIND = "arg_caller_kind";
+
     protected static final String ARG_TYPE = "arg_type";
 
-    protected static final String ARG_SCENE_ID = "arg_scene_id";
-
-    public static <T extends TonicFragment> T init(T f, long sceneId, long objectId, int type) {
-        f = TonicFragment.init(f, objectId);
+    public static <T extends TonicFragment> T init(T f, int callerKind, long callerId,
+            long operandId, int type) {
+        f = TonicFragment.init(f, operandId);
         Bundle args = f.getArguments();
         args.putInt(ARG_TYPE, type);
-        args.putLong(ARG_SCENE_ID, sceneId);
+        args.putInt(ARG_CALLER_KIND, callerKind);
+        args.putLong(ARG_CALLER_ID, callerId);
         f.setArguments(args);
         return f;
     }
 
-    protected int mOperandType;
+    protected long mCallerId;
 
-    protected long mSceneId;
+    protected int mCallerKind;
+
+    protected int mOperandType;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,11 +41,15 @@ public abstract class AbsOperandFragment extends TonicFragment {
                 if (!args.containsKey(ARG_TYPE)) {
                     throw new RuntimeException("Expected operand type requirement.");
                 }
-                if (!args.containsKey(ARG_SCENE_ID)) {
-                    throw new RuntimeException("Expected scene id.");
+                if (!args.containsKey(ARG_CALLER_KIND)) {
+                    throw new RuntimeException("Expected caller kind.");
+                }
+                if (!args.containsKey(ARG_CALLER_ID)) {
+                    throw new RuntimeException("Expected caller id.");
                 }
                 mOperandType = args.getInt(ARG_TYPE);
-                mSceneId = args.getLong(ARG_SCENE_ID);
+                mCallerId = args.getLong(ARG_CALLER_ID);
+                mCallerKind = args.getInt(ARG_CALLER_KIND);
             }
         }
     }

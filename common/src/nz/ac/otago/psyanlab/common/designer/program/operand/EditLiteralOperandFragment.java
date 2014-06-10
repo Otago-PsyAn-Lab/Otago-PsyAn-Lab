@@ -172,16 +172,16 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
             }
         };
 
-        for (int i = 0, n = menu.size(); i < n; i++)
+        for (int i = 0, n = menu.size(); i < n; i++) {
             menu.getItem(i).setOnMenuItemClickListener(listener);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_literal_operand, container, false);
         ListView list = (ListView)view.findViewById(R.id.operands);
-        list.addHeaderView(inflater.inflate(R.layout.header_edit_literal_operand, list,
-                false));
+        list.addHeaderView(inflater.inflate(R.layout.header_edit_literal_operand, list, false));
         return view;
     }
 
@@ -394,8 +394,8 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
     }
 
     protected void showEditOperandDialogue(long id, int type, String title) {
-        EditOperandDialogFragment dialogue = EditOperandDialogFragment.newDialog(mSceneId, id,
-                type, title);
+        EditOperandDialogFragment dialogue = EditOperandDialogFragment.newDialog(mCallerKind,
+                mCallerId, id, type, title);
         dialogue.setOnDoneListener(this);
         dialogue.show(getChildFragmentManager(), "dialogue_edit_operand");
     }

@@ -38,12 +38,12 @@ import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment;
 import nz.ac.otago.psyanlab.common.designer.util.ActionListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.ArrayFragmentMapAdapter.PageData;
 import nz.ac.otago.psyanlab.common.designer.util.DetailsCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.EventAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.GeneratorListItemViewBinder;
-import nz.ac.otago.psyanlab.common.designer.util.LongSparseArrayAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.LoopListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
@@ -57,7 +57,6 @@ import nz.ac.otago.psyanlab.common.model.DataChannel;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
-import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference.ExperimentObjectFilter;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Loop;
@@ -65,10 +64,12 @@ import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
+import nz.ac.otago.psyanlab.common.model.TouchEvent;
+import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
 import nz.ac.otago.psyanlab.common.model.channel.Field;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
-import nz.ac.otago.psyanlab.common.model.util.EventId;
+import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
@@ -105,7 +106,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SpinnerAdapter;
@@ -131,12 +131,21 @@ import java.util.TreeSet;
 public class ExperimentDesignerActivity extends FragmentActivity implements DetailsCallbacks,
         SubjectFragment.Callbacks, AssetCallbacks, ProgramCallbacks, ChannelCallbacks,
         DialogueResultCallbacks {
-
     private static final String ADAPTER_STATE = "adapter_state";
 
     private static final int REQUEST_ASSET_IMPORT = 0x02;
 
     private static final int REQUEST_EDIT_STAGE = 0x03;
+
+    private static final int SCOPE_EXPERIMENT = 0x04;
+
+    private static final int SCOPE_LOOP = 0x03;
+
+    private static final int SCOPE_NONE = 0;
+
+    private static final int SCOPE_RULE = 0x01;
+
+    private static final int SCOPE_SCENE = 0x02;
 
     private ArrayList<ActionDataChangeListener> mActionDataChangeListeners;
 
@@ -362,7 +371,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         DataChannel dataChannel = mExperiment.dataChannels.remove(id);
 
         deleteDataChannelData(dataChannel);
-        removeReferencesTo(ExperimentObjectReference.KIND_DATA_CHANNEL, id);
+        removeReferencesTo(ExperimentObject.KIND_DATA_CHANNEL, id);
 
         notifyDataChannelDataChange();
     }
@@ -485,16 +494,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public SpinnerAdapter getEventsAdapter(final Class<?> clazz) {
         // Obtain the name factory to pull the internationalised event names.
-        SortedSet<EventId> filteredEvents;
+        SortedSet<EventData> filteredEvents;
 
         final NameResolverFactory nameFactory = ModelUtils.getEventNameFactory(clazz);
 
-        filteredEvents = new TreeSet<EventId>(new Comparator<EventId>() {
+        filteredEvents = new TreeSet<EventData>(new Comparator<EventData>() {
             @Override
-            public int compare(EventId lhs, EventId rhs) {
+            public int compare(EventData lhs, EventData rhs) {
                 Collator collator = getCollater();
-                return collator.compare(getString(nameFactory.getResId(lhs.value())),
-                        getString(nameFactory.getResId(rhs.value())));
+                return collator.compare(getString(nameFactory.getResId(lhs.id())),
+                        getString(nameFactory.getResId(rhs.id())));
             }
         });
 
@@ -502,7 +511,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
         // Filter methods for those which register listeners for events.
         for (int i = 0; i < methods.length; i++) {
-            EventId annotation = methods[i].getAnnotation(EventId.class);
+            EventData annotation = methods[i].getAnnotation(EventData.class);
             if (annotation != null) {
                 filteredEvents.add(annotation);
             }
@@ -514,18 +523,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public ExperimentObject getExperimentObject(ExperimentObjectReference object) {
         switch (object.kind) {
-            case ExperimentObjectReference.KIND_ASSET:
+            case ExperimentObject.KIND_ASSET:
                 return mExperiment.assets.get(object.id);
-            case ExperimentObjectReference.KIND_GENERATOR:
+            case ExperimentObject.KIND_GENERATOR:
                 return mExperiment.generators.get(object.id);
-            case ExperimentObjectReference.KIND_LOOP:
+            case ExperimentObject.KIND_LOOP:
                 return mExperiment.loops.get(object.id);
-            case ExperimentObjectReference.KIND_PROP:
+            case ExperimentObject.KIND_PROP:
                 return mExperiment.props.get(object.id);
-            case ExperimentObjectReference.KIND_SCENE:
+            case ExperimentObject.KIND_SCENE:
                 return mExperiment.scenes.get(object.id);
             default:
-            case ExperimentObjectReference.KIND_EXPERIMENT:
+            case ExperimentObject.KIND_EXPERIMENT:
                 return null;
         }
     }
@@ -582,26 +591,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      */
     @Override
     public SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes) {
-        // SortedSet<Method> filteredMethods = new TreeSet<Method>(new
-        // Comparator<Method>() {
-        // @Override
-        // public int compare(Method lhs, Method rhs) {
-        // Collator collator = getCollater();
-        // return 0;
-        // // return
-        // // collator.compare(getString(lhs.getAnnotation(Eve.class).value()),
-        // // getString(rhs.getAnnotation(I18nName.class).value()));
-        // }
-        // });
-        //
-        // Method[] methods = clazz.getMethods();
-        // for (int i = 0; i < methods.length; i++) {
-        // if (methods[i].getReturnType().equals(returnType)) {
-        // filteredMethods.add(methods[i]);
-        // }
-        // }
-        // return null;
-
         // Obtain the name factory to pull the internationalised event names.
         SortedSet<MethodData> filteredMethods;
 
@@ -638,37 +627,83 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         return mExperiment.name;
     }
 
-    @Override
-    public ExperimentObjectAdapter getObjectSectionListAdapter(long sceneId, int section, int filter) {
-        switch (section) {
-            case 0:
-                return new ExperimentObjectAdapter.Wrapper(ExperimentObjectReference.KIND_PROP,
-                        getPropsAdapter(sceneId, filter));
-            case 1:
-                return getExperimentControlsAdapter(sceneId, filter);
-            case 2:
-                return new ExperimentObjectAdapter.Wrapper(ExperimentObjectReference.KIND_ASSET,
-                        getAssetsAdapter(filter));
-
-            default:
-                return null;
-        }
-    }
-
     /**
-     * Get an array of adapters for all objects accessible from the given scene.
+     * Get an adapter for objects grouped into pages by scope.
      * 
-     * @param sceneId
-     * @return Array of ListAdapters
+     * @param fm Fragment manager for adapter.
+     * @param callerKind The kind of calling component. Use
+     *            ExperimentObject.KIND_*.
+     * @param componentId Id of the calling component.
+     * @param filter Filter to match experiment objects by.
+     * @param fragmentFactory Factory to produce page fragments.
+     * @return Adapter for pages of objects
      */
     @Override
-    public FragmentPagerAdapter getObjectsPagerAdapter(FragmentManager fm, long sceneId,
-            ArrayFragmentMapAdapter.Factory factory) {
-        List<String> stubs = new ArrayList<String>();
-        stubs.add(getString(R.string.title_props));
-        stubs.add(getString(R.string.title_experiment));
-        stubs.add(getString(R.string.title_assets));
-        return new ArrayFragmentMapAdapter(fm, factory, stubs);
+    public FragmentPagerAdapter getObjectBrowserPagerAdapter(FragmentManager fm, int callerKind,
+            long callerId, int filter, ArrayFragmentMapAdapter.FragmentFactory fragmentFactory) {
+
+        // Work out the base scope level from our caller.
+        int scopeLevel;
+        switch (callerKind) {
+            case ExperimentObject.KIND_ACTION:
+            case ExperimentObject.KIND_RULE:
+                scopeLevel = SCOPE_RULE;
+                break;
+            case ExperimentObject.KIND_SCENE:
+                scopeLevel = SCOPE_SCENE;
+                break;
+            case ExperimentObject.KIND_LOOP:
+                scopeLevel = SCOPE_LOOP;
+                break;
+
+            default:
+                scopeLevel = SCOPE_EXPERIMENT;
+                break;
+        }
+
+        // Build a dynamic list of pages corresponding with the scopes in which
+        // there are valid matches of objects as per the passed filter and base
+        // scope level.
+        List<PageData> stubs = new ArrayList<PageData>();
+        while (scopeLevel != SCOPE_NONE) {
+            switch (scopeLevel) {
+                case SCOPE_RULE:
+                    if (anyObjectsMatching(scopeLevel, callerKind, callerId, filter)) {
+                        Rule rule = mExperiment.rules.get(callerId);
+                        stubs.add(new PageData(rule.name, scopeLevel));
+                    }
+                    scopeLevel = SCOPE_SCENE;
+                case SCOPE_SCENE:
+                    if (anyObjectsMatching(scopeLevel, callerKind, callerId, filter)) {
+                        Scene scene = mExperiment.scenes.get(callerId);
+                        stubs.add(new PageData(scene.name, scopeLevel));
+                    }
+                    scopeLevel = SCOPE_LOOP;
+                case SCOPE_LOOP:
+                    if (anyObjectsMatching(scopeLevel, callerKind, callerId, filter)) {
+                        Loop loop = mExperiment.loops.get(callerId);
+                        stubs.add(new PageData(loop.name, scopeLevel));
+                    }
+
+                    scopeLevel = SCOPE_EXPERIMENT;
+                case SCOPE_EXPERIMENT:
+                default:
+                    scopeLevel = SCOPE_NONE;
+                    break;
+            }
+        }
+
+        return new ArrayFragmentMapAdapter(fm, fragmentFactory, stubs);
+    }
+
+    @Override
+    public ExperimentObjectAdapter getObjectSectionListAdapter(int callerKind, long callerId,
+            int relativeScope, int filter) {
+        // final int effectiveScope = getEffectiveScopeLevel(callerKind,
+        // relativeScope);
+        List<Pair<ExperimentObject, Long>> objects = getObjectsMatching(relativeScope, callerKind,
+                callerId, filter);
+        return new ExperimentObjectAdapter(this, objects);
     }
 
     @Override
@@ -802,7 +837,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             default:
                 break;
         }
-    };
+    }
 
     @Override
     public void onBackPressed() {
@@ -927,10 +962,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
-    public void pickExperimentObject(long sceneId, int filter, int requestCode) {
-        DialogFragment dialog = PickObjectDialogueFragment.newDialog(sceneId, filter, requestCode);
+    public void pickExperimentObject(int callerKind, long callerId, int filter, int requestCode) {
+        DialogFragment dialog = PickObjectDialogueFragment.newDialog(callerKind, callerId, filter,
+                requestCode);
         dialog.show(getSupportFragmentManager(), PickObjectDialogueFragment.TAG);
-    }
+    };
 
     @Override
     public void putAction(long id, Action action) {
@@ -945,7 +981,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     public void putAsset(long id, Asset asset) {
         mExperiment.assets.put(id, asset);
 
-        updateReferencesTo(ExperimentObjectReference.KIND_ASSET, id);
+        updateReferencesTo(ExperimentObject.KIND_ASSET, id);
 
         mAssetsAdapter.notifyDataSetChanged();
         notifyAssetDataChangeListeners();
@@ -954,7 +990,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public void putDataChannel(long id, DataChannel dataChannel) {
         mExperiment.dataChannels.put(id, dataChannel);
-        updateReferencesTo(ExperimentObjectReference.KIND_DATA_CHANNEL, id);
+        updateReferencesTo(ExperimentObject.KIND_DATA_CHANNEL, id);
         notifyDataChannelDataChange();
     }
 
@@ -962,7 +998,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     public void putGenerator(long id, Generator generator) {
         mExperiment.generators.put(id, generator);
 
-        updateReferencesTo(ExperimentObjectReference.KIND_GENERATOR, id);
+        updateReferencesTo(ExperimentObject.KIND_GENERATOR, id);
 
         notifyGeneratorDataChangeListeners();
         notifyLoopDataChangeListeners();
@@ -1128,6 +1164,77 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mExperiment.version = version;
     }
 
+    /**
+     * Look through all the experiment object containers to see if there are any
+     * matches.
+     * 
+     * @param scopeLevel
+     * @param callerKind
+     * @param callerId
+     * @param filter
+     * @return
+     */
+    private boolean anyObjectsMatching(final int scopeLevel, final int callerKind,
+            final long callerId, final int filter) {
+        // We only need to know if a single object satisfies the filter so we
+        // use early returns.
+        if (scopeLevel == SCOPE_RULE) {
+            final long ruleId = findRuleIdForDescendant(callerKind, callerId);
+
+            // Only trigger events exist in the rule scope level.
+            return triggerMatches(mExperiment.rules.get(ruleId), filter);
+        } else if (scopeLevel == SCOPE_SCENE) {
+            final long sceneId = findSceneIdForDescendant(callerKind, callerId);
+
+            Scene scene = mExperiment.scenes.get(sceneId);
+
+            if (scene.satisfiesFilter(filter)) {
+                return true;
+            }
+
+            for (Long propId : scene.props) {
+                Prop prop = mExperiment.props.get(propId);
+                if (prop.satisfiesFilter(filter)) {
+                    return true;
+                }
+            }
+
+            return false;
+        } else if (scopeLevel == SCOPE_LOOP) {
+            final long loopId = findLoopIdForDescendant(callerKind, callerId);
+
+            Loop loop = mExperiment.loops.get(loopId);
+            if (loop.satisfiesFilter(filter)) {
+                return true;
+            }
+
+            return false;
+        } else if (scopeLevel == SCOPE_EXPERIMENT) {
+            for (Entry<Long, DataChannel> entry : mExperiment.dataChannels.entrySet()) {
+                if (entry.getValue().satisfiesFilter(filter)) {
+                    return true;
+                }
+            }
+
+            for (Entry<Long, Asset> entry : mExperiment.assets.entrySet()) {
+                if (entry.getValue().satisfiesFilter(filter)) {
+                    return true;
+                }
+            }
+
+            for (Entry<Long, Generator> entry : mExperiment.generators.entrySet()) {
+                if (entry.getValue().satisfiesFilter(filter)) {
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            // No scope, or unknown scope.
+            return false;
+        }
+    }
+
     private void deleteActionData(Long id) {
         mExperiment.actions.remove(id);
     }
@@ -1135,7 +1242,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     private void deleteAssetData(long id) {
         mExperiment.assets.remove(id);
 
-        removeReferencesTo(ExperimentObjectReference.KIND_ASSET, id);
+        removeReferencesTo(ExperimentObject.KIND_ASSET, id);
     }
 
     private void deleteDataChannelData(DataChannel dataChannel) {
@@ -1145,7 +1252,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     private void deleteGeneratorData(Long id) {
         mExperiment.generators.remove(id);
 
-        removeReferencesTo(ExperimentObjectReference.KIND_GENERATOR, id);
+        removeReferencesTo(ExperimentObject.KIND_GENERATOR, id);
     }
 
     private void deleteLoopData(long id) {
@@ -1260,7 +1367,91 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             }
         }
         return affectedCallIds;
-    };
+    }
+
+    private long findLoopIdForDescendant(final int callingComponentKind, final long componentId) {
+        final long childId;
+        switch (callingComponentKind) {
+            case ExperimentObject.KIND_ACTION:
+            case ExperimentObject.KIND_RULE:
+            case ExperimentObject.KIND_SCENE:
+                childId = findSceneIdForDescendant(callingComponentKind, componentId);
+                break;
+
+            case ExperimentObject.KIND_LOOP:
+                return componentId;
+
+            default:
+                throw new RuntimeException(
+                        "Trying to call in loop scope from a component that is not in scope.");
+        }
+
+        for (Entry<Long, Loop> loopEntry : mExperiment.loops.entrySet()) {
+            Loop loop = loopEntry.getValue();
+            for (Long id : loop.scenes) {
+                if (id == childId) {
+                    return loopEntry.getKey();
+                }
+            }
+        }
+
+        throw new RuntimeException("Did not find loop for child. Must have been orphaned.");
+    }
+
+    private long findRuleIdForDescendant(final int callerKind, final long callerId) {
+        final long childId;
+        switch (callerKind) {
+            case ExperimentObject.KIND_ACTION:
+                childId = callerId;
+                break;
+
+            case ExperimentObject.KIND_RULE:
+                return callerId;
+
+            default:
+                throw new RuntimeException(
+                        "Trying to call in rule scope from a component that is not in scope.");
+        }
+
+        for (Entry<Long, Rule> ruleEntry : mExperiment.rules.entrySet()) {
+            Rule rule = ruleEntry.getValue();
+            for (Long id : rule.actions) {
+                if (id == childId) {
+                    return ruleEntry.getKey();
+                }
+            }
+        }
+
+        throw new RuntimeException("Did not find rule for child. Must have been orphaned.");
+    }
+
+    private long findSceneIdForDescendant(final int callingComponentKind, final long componentId) {
+        final long childId;
+        switch (callingComponentKind) {
+            case ExperimentObject.KIND_ACTION:
+            case ExperimentObject.KIND_RULE:
+                childId = findRuleIdForDescendant(callingComponentKind, componentId);
+                break;
+
+            case ExperimentObject.KIND_SCENE:
+                return componentId;
+
+            default:
+                throw new RuntimeException(
+                        "Trying to call in scene scope from a component that is not in scope.");
+        }
+
+        for (Entry<Long, Scene> sceneEntry : mExperiment.scenes.entrySet()) {
+            Scene scene = sceneEntry.getValue();
+            for (Long id : scene.rules) {
+                if (id == childId) {
+                    return sceneEntry.getKey();
+                }
+            }
+        }
+
+        throw new RuntimeException("Did not find scene for child. Must have been orphaned.");
+    }
 
     private Long findUnusedKey(HashMap<Long, ?> map) {
         Long currKey = 0l;
@@ -1284,6 +1475,51 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         return currKey;
     }
 
+    private int getEffectiveScopeLevel(int callerKind, int relativeScope) {
+        // Apply relative scope to implicit scope of the caller.
+        int callerScope;
+        switch (callerKind) {
+            case ExperimentObject.KIND_ACTION:
+            case ExperimentObject.KIND_RULE:
+                callerScope = 0 + relativeScope;
+                break;
+            case ExperimentObject.KIND_SCENE:
+                callerScope = 1 + relativeScope;
+                break;
+            case ExperimentObject.KIND_LOOP:
+                callerScope = 2 + relativeScope;
+                break;
+            case ExperimentObject.KIND_EXPERIMENT:
+                callerScope = 3 + relativeScope;
+                break;
+
+            default:
+                throw new RuntimeException("Invalid object kind for object browsing.");
+
+        }
+
+        // Convert the desired caller scope into static value scope level.
+        int effectiveScope;
+        switch (callerScope) {
+            case 0:
+                effectiveScope = SCOPE_RULE;
+                break;
+            case 1:
+                effectiveScope = SCOPE_SCENE;
+                break;
+            case 2:
+                effectiveScope = SCOPE_LOOP;
+                break;
+            case 3:
+                effectiveScope = SCOPE_EXPERIMENT;
+                break;
+
+            default:
+                throw new RuntimeException("Unknown program component scope level requested.");
+        }
+        return effectiveScope;
+    }
+
     private Experiment getExperimentFromDelegate() {
         try {
             return mExperimentDelegate.openExperiment();
@@ -1291,6 +1527,99 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    };
+
+    private List<Pair<ExperimentObject, Long>> getObjectsMatching(int scopeLevel, int callerKind,
+            long callerId, int filter) {
+
+        List<Pair<ExperimentObject, Long>> objects = new ArrayList<Pair<ExperimentObject, Long>>();
+
+        if (scopeLevel == SCOPE_RULE) {
+            final long ruleId = findRuleIdForDescendant(callerKind, callerId);
+
+            Rule rule = mExperiment.rules.get(ruleId);
+            // Presently, there are only trigger events in the rule scope level.
+            ExperimentObject eventObject = getTriggerEventDataForRule(rule);
+            if (eventObject.satisfiesFilter(filter)) {
+                objects.add(new Pair<ExperimentObject, Long>(eventObject, -1l));
+            }
+        } else if (scopeLevel == SCOPE_SCENE) {
+            final long sceneId = findSceneIdForDescendant(callerKind, callerId);
+
+            Scene scene = mExperiment.scenes.get(sceneId);
+
+            if (scene.satisfiesFilter(filter)) {
+                objects.add(new Pair<ExperimentObject, Long>(scene, sceneId));
+            }
+
+            for (Long propId : scene.props) {
+                Prop prop = mExperiment.props.get(propId);
+                if (prop.satisfiesFilter(filter)) {
+                    objects.add(new Pair<ExperimentObject, Long>(prop, propId));
+                }
+            }
+        } else if (scopeLevel == SCOPE_LOOP) {
+            final long loopId = findLoopIdForDescendant(callerKind, callerId);
+
+            Loop loop = mExperiment.loops.get(loopId);
+            if (loop.satisfiesFilter(filter)) {
+                objects.add(new Pair<ExperimentObject, Long>(loop, loopId));
+            }
+        } else if (scopeLevel == SCOPE_EXPERIMENT) {
+            for (Entry<Long, DataChannel> entry : mExperiment.dataChannels.entrySet()) {
+                DataChannel dataChannel = entry.getValue();
+                if (dataChannel.satisfiesFilter(filter)) {
+                    objects.add(new Pair<ExperimentObject, Long>(dataChannel, entry.getKey()));
+                }
+            }
+
+            for (Entry<Long, Asset> entry : mExperiment.assets.entrySet()) {
+                Asset asset = entry.getValue();
+                if (asset.satisfiesFilter(filter)) {
+                    objects.add(new Pair<ExperimentObject, Long>(asset, entry.getKey()));
+                }
+            }
+
+            for (Entry<Long, Generator> entry : mExperiment.generators.entrySet()) {
+                Generator generator = entry.getValue();
+                if (generator.satisfiesFilter(filter)) {
+                    objects.add(new Pair<ExperimentObject, Long>(generator, entry.getKey()));
+                }
+            }
+        }
+        return objects;
+    }
+
+    /**
+     * Get any event data object associated with the trigger event this rule is
+     * registered for.
+     * 
+     * @param rule Rule to check event data for.
+     * @return Any event data object that will be created when the rule is
+     *         triggered.
+     */
+    private ExperimentObject getTriggerEventDataForRule(Rule rule) {
+        if (rule.triggerObject == null) {
+            return null;
+        }
+
+        // Find the referenced trigger event, and pull the object that describes
+        // the event, if any.
+        ExperimentObject eventObject = null;
+        for (Method method : getExperimentObject(rule.triggerObject).getClass().getMethods()) {
+            EventData eventData = method.getAnnotation(EventData.class);
+            if (eventData != null && eventData.id() == rule.triggerEvent) {
+                if (eventData.type() == EventData.EVENT_TOUCH_MOTION) {
+                    eventObject = new TouchMotionEvent();
+                }
+                if (eventData.type() == EventData.EVENT_TOUCH) {
+                    eventObject = new TouchEvent();
+                }
+                break;
+            }
+        }
+
+        return eventObject;
     }
 
     private void notifyActionAdapter() {
@@ -1450,7 +1779,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      *            being removed.
      */
     private void removeReferencesTo(int kind, long id) {
-        if (kind == ExperimentObjectReference.KIND_ASSET) {
+        if (kind == ExperimentObject.KIND_ASSET) {
             // TODO: Something different.
         }
 
@@ -1549,6 +1878,31 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    private boolean triggerMatches(Rule rule, int filter) {
+        if (rule.triggerObject == null) {
+            return false;
+        }
+
+        // Find the referenced trigger event, and pull the object that describes
+        // the event, if any.
+        ExperimentObject eventObject = null;
+        for (Method method : getExperimentObject(rule.triggerObject).getClass().getMethods()) {
+            EventData eventData = method.getAnnotation(EventData.class);
+            if (eventData != null && eventData.id() == rule.triggerEvent) {
+                if (eventData.type() == EventData.EVENT_TOUCH) {
+                    eventObject = new TouchEvent();
+                }
+                break;
+            }
+        }
+
+        if (eventObject == null) {
+            return false;
+        }
+
+        return eventObject.satisfiesFilter(filter);
+    }
+
     private void updateOperandAdapterIfExists(long scopeId, OperandHolder holder) {
         ProgramComponentAdapter<Operand> adapter;
 
@@ -1572,13 +1926,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      */
     private void updateReferencesTo(int kind, long id) {
         switch (kind) {
-            case ExperimentObjectReference.KIND_ASSET:
+            case ExperimentObject.KIND_ASSET:
                 updateReferencesToAsset(id);
                 return;
-            case ExperimentObjectReference.KIND_DATA_CHANNEL:
+            case ExperimentObject.KIND_DATA_CHANNEL:
                 updateReferencesToDataChannel(id);
                 return;
-            case ExperimentObjectReference.KIND_GENERATOR:
+            case ExperimentObject.KIND_GENERATOR:
                 // Nothing to do because generators always have the same type
                 // and
                 // calling interface.
@@ -1596,7 +1950,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     private void updateReferencesToDataChannel(long id) {
         DataChannel dataChannel = mExperiment.dataChannels.get(id);
-        ArrayList<Long> calls = findAffectedCallIds(ExperimentObjectReference.KIND_DATA_CHANNEL, id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_DATA_CHANNEL, id);
 
         for (Long callId : calls) {
             CallValue call = (CallValue)mExperiment.operands.get(callId);
@@ -1696,13 +2050,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     StickyGridHeadersSimpleAdapter getAssetsAdapter(int filter) {
-        ExperimentObjectFilter objectFilter = ExperimentObjectReference.getFilter(filter);
-
         HashMap<Long, Asset> filteredAssets = new HashMap<Long, Asset>();
         for (Entry<Long, Asset> entry : filteredAssets.entrySet()) {
             long key = entry.getKey();
             Asset asset = mExperiment.assets.get(key);
-            if (objectFilter.filter(asset)) {
+            if (asset.satisfiesFilter(filter)) {
                 filteredAssets.put(key, asset);
             }
         }
@@ -1715,99 +2067,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         Collator collator = Collator.getInstance(locale);
         collator.setStrength(Collator.SECONDARY);
         return collator;
-    }
-
-    /**
-     * Get an adapter containing all objects related to the experiment program
-     * flow. The objects are grouped by kind in the adapter.
-     * 
-     * @param sceneId Scene defining scope of objects to gather into the
-     *            adapter.
-     * @return Program flow objects ListAdapter.
-     */
-    ExperimentObjectAdapter getExperimentControlsAdapter(long sceneId, int filter) {
-        SortedSet<Pair<ExperimentObject, Long>> experimentControls = new TreeSet<Pair<ExperimentObject, Long>>(
-                new Comparator<Pair<ExperimentObject, Long>>() {
-                    @Override
-                    public int compare(Pair<ExperimentObject, Long> lhs,
-                            Pair<ExperimentObject, Long> rhs) {
-                        Collator collator = getCollater();
-                        return collator.compare(
-                                lhs.first.getExperimentObjectName(ExperimentDesignerActivity.this),
-                                rhs.first.getExperimentObjectName(ExperimentDesignerActivity.this));
-                    }
-                });
-
-        ExperimentObjectFilter objectFilter = ExperimentObjectReference.getFilter(filter);
-
-        Scene scene = mExperiment.scenes.get(sceneId);
-        if (objectFilter.filter(scene)) {
-            experimentControls.add(new Pair<ExperimentObject, Long>(scene, sceneId));
-        }
-
-        int i = 0;
-        for (Entry<Long, Loop> entry : mExperiment.loops.entrySet()) {
-            Loop loop = entry.getValue();
-            if (loop.contains(sceneId)) {
-                if (objectFilter.filter(loop)) {
-                    experimentControls.add(new Pair<ExperimentObject, Long>(loop, (long)i));
-                }
-                break;
-            }
-            i++;
-        }
-
-        // TODO: Records and Stores.
-        // experimentControls.add(mExperiment.stores);
-        // experimentControls.add(mExperiment.records);
-
-        i = 0;
-        for (Entry<Long, Generator> entry : mExperiment.generators.entrySet()) {
-            Generator generator = entry.getValue();
-            if (objectFilter.filter(generator)) {
-                experimentControls.add(new Pair<ExperimentObject, Long>(generator, (long)i));
-            }
-            i++;
-        }
-
-        return new ExperimentControlAdapter(this, new ArrayList<Pair<ExperimentObject, Long>>(
-                experimentControls));
-    }
-
-    /**
-     * Get an adapter for all props in the given scene.
-     * 
-     * @param sceneId Id of the scene to gather props for.
-     * @return ListAdapter of all props in the given scene.
-     */
-    ListAdapter getPropsAdapter(long sceneId) {
-        LongSparseArray<Prop> props = new LongSparseArray<Prop>();
-
-        for (Long propId : mExperiment.scenes.get(sceneId).props) {
-            props.put(propId, mExperiment.props.get(propId));
-        }
-
-        return new LongSparseArrayAdapter<Prop>(this, android.R.layout.simple_list_item_1, props);
-    }
-
-    /**
-     * Get an adapter for all props in the given scene.
-     * 
-     * @param sceneId Id of the scene to gather props for.
-     * @return ListAdapter of all props in the given scene.
-     */
-    ListAdapter getPropsAdapter(long sceneId, int filter) {
-        LongSparseArray<Prop> props = new LongSparseArray<Prop>();
-
-        for (Long propId : mExperiment.scenes.get(sceneId).props) {
-            Prop prop = mExperiment.props.get(propId);
-            ExperimentObjectFilter objectFilter = ExperimentObjectReference.getFilter(filter);
-            if (objectFilter.filter(prop)) {
-                props.put(propId, prop);
-            }
-        }
-
-        return new LongSparseArrayAdapter<Prop>(this, android.R.layout.simple_list_item_1, props);
     }
 
     public interface ActionDataChangeListener {
@@ -1887,59 +2146,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 listener.onDrawerStateChanged(newState);
             }
         }
-    }
-
-    class ExperimentControlAdapter extends BaseAdapter implements ExperimentObjectAdapter {
-        private Context mContext;
-
-        private LayoutInflater mInflater;
-
-        private List<Pair<ExperimentObject, Long>> mItems;
-
-        public ExperimentControlAdapter(Context context, List<Pair<ExperimentObject, Long>> items) {
-            mContext = context;
-            mItems = items;
-            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
-        @Override
-        public int getCount() {
-            return mItems.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return mItems.get(position).first;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return mItems.get(position).second;
-        }
-
-        @Override
-        public int getObjectKind(int position) {
-            return mItems.get(position).first.kind();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            TextViewHolder holder;
-            if (convertView == null) {
-                convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-                holder = new TextViewHolder(1);
-                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-                convertView.setTag(holder);
-            } else {
-                holder = (TextViewHolder)convertView.getTag();
-            }
-
-            holder.textViews[0].setText(mItems.get(position).first
-                    .getExperimentObjectName(mContext));
-
-            return convertView;
-        }
-
     }
 
     class SectionAdapter extends ArrayAdapter<EditorSectionItem> {

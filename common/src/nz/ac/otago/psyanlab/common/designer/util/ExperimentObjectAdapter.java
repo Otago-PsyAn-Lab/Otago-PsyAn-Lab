@@ -1,119 +1,142 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import android.database.DataSetObserver;
+import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
+import nz.ac.otago.psyanlab.common.util.TextViewHolder;
+
+import android.content.Context;
+import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
-public interface ExperimentObjectAdapter extends ListAdapter {
-    int getObjectKind(int position);
+import java.util.ArrayList;
+import java.util.List;
 
-    /**
-     * Helper class to easily convert any list adapter into an experiment object
-     * adapter which provides object kind data.
-     */
-    public class Wrapper implements ExperimentObjectAdapter {
-        private ListAdapter mAdapter;
+public class ExperimentObjectAdapter extends BaseAdapter implements ListAdapter {
+    private Context mContext;
 
-        private int mKind;
+    private LayoutInflater mInflater;
 
-        private KindBinder mKindBinder;
+    private List<Pair<ExperimentObject, Long>> mObjects = new ArrayList<Pair<ExperimentObject, Long>>();
 
-        /**
-         * Wrap a ListAdapter to provide addition kind data.
-         * 
-         * @param kind All data in the wrapped ListAdapter is of this kind.
-         * @param adapter ListAdapter to wrap.
-         */
-        public Wrapper(int kind, ListAdapter adapter) {
-            mKind = kind;
-            mAdapter = adapter;
-        }
-
-        /**
-         * Wrap a ListAdapter to provide additional kind data.
-         * 
-         * @param kindBinder Binder which provides the kind data which may
-         *            differ per entry in the wrapped adapter.
-         * @param adapter ListAdapter to wrap.
-         */
-        public Wrapper(KindBinder kindBinder, ListAdapter adapter) {
-            mKindBinder = kindBinder;
-            mAdapter = adapter;
-        }
-
+    private final ViewBinder sDefaultBinder = new ViewBinder() {
         @Override
-        public boolean areAllItemsEnabled() {
-            return mAdapter.areAllItemsEnabled();
-        }
+        public View bind(LayoutInflater inflater, Pair<ExperimentObject, Long> item, int position,
+                View convertView, ViewGroup parent) {
+            TextViewHolder holder;
 
-        @Override
-        public int getCount() {
-            return mAdapter.getCount();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return mAdapter.getItem(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return mAdapter.getItemId(position);
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return mAdapter.getItemViewType(position);
-        }
-
-        @Override
-        public int getObjectKind(int position) {
-            if (mKindBinder == null) {
-                return mKind;
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.list_item_experiment_object, parent, false);
+                holder = new TextViewHolder(12);
+                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+                holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
+                convertView.setTag(holder);
+            } else {
+                holder = (TextViewHolder)convertView.getTag();
             }
 
-            return mKindBinder.getKind(position);
+            holder.textViews[0].setText(item.first.getExperimentObjectName(mContext));
+            holder.textViews[1].setText(ExperimentObject.kindToResId(item.first.kind()));
+
+            return convertView;
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return mAdapter.getView(position, convertView, parent);
+        public int getItemViewType(int position, ExperimentObject item) {
+            return 0;
         }
 
         @Override
         public int getViewTypeCount() {
-            return mAdapter.getViewTypeCount();
+            return 1;
+        }
+    };
+
+    private ViewBinder mViewBinder = sDefaultBinder;
+
+    public ExperimentObjectAdapter(Context context, List<Pair<ExperimentObject, Long>> objects) {
+        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContext = context;
+        mObjects = objects;
+    }
+
+    public ExperimentObjectAdapter(Context context, List<Pair<ExperimentObject, Long>> objects,
+            ViewBinder viewBinder) {
+        this(context, objects);
+        mViewBinder = viewBinder;
+    }
+
+    @Override
+    public int getCount() {
+        return mObjects.size();
+    }
+
+    @Override
+    public ExperimentObject getItem(int position) {
+        return mObjects.get(position).first;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mObjects.get(position).second;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return mViewBinder.getItemViewType(position, getItem(position));
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        return mViewBinder.bind(mInflater, mObjects.get(position), position, convertView, parent);
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return mViewBinder.getViewTypeCount();
+    }
+
+    public void setViewBinder(ViewBinder viewBinder) {
+        if (viewBinder == null) {
+            mViewBinder = sDefaultBinder;
+            return;
         }
 
-        @Override
-        public boolean hasStableIds() {
-            return mAdapter.hasStableIds();
-        }
+        mViewBinder = viewBinder;
+    }
 
-        @Override
-        public boolean isEmpty() {
-            return mAdapter.isEmpty();
-        }
+    public interface ViewBinder {
+        /**
+         * Bind data to a view.
+         * 
+         * @param inflater View inflater.
+         * @param object The object data to bind.
+         * @param convertView Previous view for this type, can be null.
+         * @param parent Parent to which the returned view will be attached.
+         * @return View.
+         */
+        public View bind(LayoutInflater inflater, Pair<ExperimentObject, Long> item, int position,
+                View convertView, ViewGroup parent);
 
-        @Override
-        public boolean isEnabled(int position) {
-            return mAdapter.isEnabled(position);
-        }
+        /**
+         * Get the view type for the current position.
+         * 
+         * @param position
+         * @param item
+         * @return
+         */
+        public int getItemViewType(int position, ExperimentObject item);
 
-        @Override
-        public void registerDataSetObserver(DataSetObserver observer) {
-            mAdapter.registerDataSetObserver(observer);
-        }
-
-        @Override
-        public void unregisterDataSetObserver(DataSetObserver observer) {
-            mAdapter.unregisterDataSetObserver(observer);
-        }
-
-        public interface KindBinder {
-            public int getKind(int position);
-        }
+        /**
+         * Get the total number of different view types this binder returns.
+         * 
+         * @return Count of maximum view types returned.
+         */
+        public int getViewTypeCount();
     }
 }

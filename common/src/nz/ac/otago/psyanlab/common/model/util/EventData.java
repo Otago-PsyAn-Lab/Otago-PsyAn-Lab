@@ -30,6 +30,14 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EventId {
-    int value();
+public @interface EventData {
+    public static final int EVENT_TOUCH = 0x01;
+
+    public static final int EVENT_TOUCH_MOTION = 0x02;
+
+    public static final int EVENT_NO_OBJECT = 0x00;
+
+    int id();
+
+    int type();
 }

@@ -228,8 +228,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         public void onClick(View v) {
             // Once the user has picked an experiment object we will be notified
             // through our listener, mDialogueResultListener.
-            mCallbacks.pickExperimentObject(mSceneId, ExperimentObjectReference.EMITS_EVENTS,
-                    RequestCodes.RULE_TRIGGER_OBJECT);
+            mCallbacks.pickExperimentObject(ExperimentObject.KIND_RULE, mObjectId,
+                    ExperimentObject.EMITS_EVENTS, RequestCodes.RULE_TRIGGER_OBJECT);
         }
     };
 
@@ -308,7 +308,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     protected void onNewAction() {
         Action action = new Action();
         Operand condition = new CallValue();
-        condition.type = ExperimentObjectReference.HAS_SETTERS;
+        condition.type = ExperimentObject.HAS_SETTERS;
         action.operandId = mCallbacks.addOperand(condition);
         final long newActionId = mCallbacks.addAction(action);
         action.name = "Action " + (newActionId + 1);
@@ -334,8 +334,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             mActionMode.finish();
         }
 
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mSceneId,
-                mRule.conditionId, Type.TYPE_BOOLEAN,
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(
+                ExperimentObject.KIND_RULE, mObjectId, mRule.conditionId, Type.TYPE_BOOLEAN,
                 getActivity().getString(R.string.title_edit_condition));
         dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
     }

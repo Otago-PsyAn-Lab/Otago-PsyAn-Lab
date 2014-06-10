@@ -10,7 +10,7 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-public class Loop implements ExperimentObject {
+public class Loop extends ExperimentObject {
     public static NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
     }
@@ -48,7 +48,7 @@ public class Loop implements ExperimentObject {
 
     @Override
     public int kind() {
-        return ExperimentObjectReference.KIND_LOOP;
+        return ExperimentObject.KIND_LOOP;
     }
 
     protected static class MethodNameFactory implements NameResolverFactory {

@@ -9,13 +9,13 @@ import android.util.SparseArray;
 import java.util.List;
 
 public class ArrayFragmentMapAdapter extends FragmentPagerAdapter {
-    private List<String> mItems;
-
-    private Factory mFactory;
+    private FragmentFactory mFactory;
 
     private SparseArray<Fragment> mFragments;
 
-    public ArrayFragmentMapAdapter(FragmentManager fm, Factory factory, List<String> items) {
+    private List<PageData> mItems;
+
+    public ArrayFragmentMapAdapter(FragmentManager fm, FragmentFactory factory, List<PageData> items) {
         super(fm);
         mFactory = factory;
         mItems = items;
@@ -28,21 +28,39 @@ public class ArrayFragmentMapAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
-        return (String)mItems.get(position);
-    }
-
-    @Override
     public Fragment getItem(int position) {
         Fragment f = mFragments.get(position);
         if (f == null) {
-            f = mFactory.getFragment(mItems.get(position), position);
+            String pageName = mItems.get(position).pageName;
+            int scopeLevel = mItems.get(position).scopeLevel;
+            f = mFactory.getFragment(pageName, scopeLevel);
             mFragments.put(position, f);
         }
         return f;
     }
 
-    public interface Factory {
-        Fragment getFragment(String title, int position);
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return mItems.get(position).pageName;
+    }
+
+    /**
+     * A factory that produces fragments based on the contents of an
+     * ArrayFragmentMapAdapter.
+     */
+    public interface FragmentFactory {
+        Fragment getFragment(String title, int scopeLevel);
+    }
+
+    public static class PageData {
+        public String pageName;
+
+        public int scopeLevel;
+
+        public PageData(String pageName, int scopeLevel) {
+            this.pageName = pageName;
+            // TODO Auto-generated constructor stub
+            this.scopeLevel = scopeLevel;
+        }
     }
 }

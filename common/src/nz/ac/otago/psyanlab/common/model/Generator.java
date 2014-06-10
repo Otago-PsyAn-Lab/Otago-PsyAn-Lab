@@ -4,11 +4,14 @@ package nz.ac.otago.psyanlab.common.model;
 import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
 
-public abstract class Generator implements ExperimentObject {
+public abstract class Generator extends ExperimentObject {
+    private static final int METHOD_GENERATE_NUMBER = 0x01;
+
     @Expose
     public int end;
 
@@ -29,13 +32,20 @@ public abstract class Generator implements ExperimentObject {
 
     @Override
     public int kind() {
-        return ExperimentObjectReference.KIND_GENERATOR;
+        return ExperimentObject.KIND_GENERATOR;
+    }
+
+    @MethodId(METHOD_GENERATE_NUMBER)
+    public int generateNumber() {
+        return 0;
     }
 
     protected static class MethodNameFactory implements NameResolverFactory {
         @Override
         public int getResId(int lookup) {
             switch (lookup) {
+                case METHOD_GENERATE_NUMBER:
+                    return R.string.method_generator_generate_number;
                 default:
                     return R.string.method_missing_string;
             }

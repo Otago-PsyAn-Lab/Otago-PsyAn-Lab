@@ -38,7 +38,9 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     private static final String ARG_OPERAND_ID = "arg_operand_id";
 
-    private static final String ARG_SCENE_ID = "arg_scene_id";
+    private static final String ARG_CALLER_ID = "arg_caller_id";
+
+    private static final String ARG_CALLER_KIND = "arg_caller_kind";
 
     private static final String ARG_TITLE = "arg_title";
 
@@ -61,12 +63,13 @@ public class EditOperandDialogFragment extends DialogFragment {
      * @param type Type the operand should match.
      * @return Initialised fragment.
      */
-    public static EditOperandDialogFragment newDialog(long sceneId, long operandId, int type,
-            String title) {
+    public static EditOperandDialogFragment newDialog(int callerKind, long callerId,
+            long operandId, int type, String title) {
         EditOperandDialogFragment f = new EditOperandDialogFragment();
         Bundle args = new Bundle();
-        args.putLong(ARG_SCENE_ID, sceneId);
+        args.putLong(ARG_CALLER_ID, callerId);
         args.putLong(ARG_OPERAND_ID, operandId);
+        args.putInt(ARG_CALLER_KIND, callerKind);
         args.putInt(ARG_TYPE, type);
         args.putString(ARG_TITLE, title);
         f.setArguments(args);
@@ -84,11 +87,12 @@ public class EditOperandDialogFragment extends DialogFragment {
      * @param editName Whether to make name editable.
      * @return Initialised fragment.
      */
-    public static EditOperandDialogFragment newDialog(long sceneId, long operandId, int type,
-            String title, boolean hideName, boolean editName) {
+    public static EditOperandDialogFragment newDialog(int callerKind, long callerId,
+            long operandId, int type, String title, boolean hideName, boolean editName) {
         EditOperandDialogFragment f = new EditOperandDialogFragment();
         Bundle args = new Bundle();
-        args.putLong(ARG_SCENE_ID, sceneId);
+        args.putLong(ARG_CALLER_ID, callerId);
+        args.putInt(ARG_CALLER_KIND, callerKind);
         args.putLong(ARG_OPERAND_ID, operandId);
         args.putInt(ARG_TYPE, type);
         args.putString(ARG_TITLE, title);
@@ -130,7 +134,9 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     protected int mOperandType;
 
-    protected long mSceneId;
+    protected long mCallerId;
+
+    protected int mCallerKind;
 
     @Override
     public void onAttach(Activity activity) {
@@ -158,14 +164,18 @@ public class EditOperandDialogFragment extends DialogFragment {
             if (!args.containsKey(ARG_TYPE)) {
                 throw new RuntimeException("Expected operand type request.");
             }
-            if (!args.containsKey(ARG_SCENE_ID)) {
-                throw new RuntimeException("Expected scene id.");
+            if (!args.containsKey(ARG_CALLER_KIND)) {
+                throw new RuntimeException("Expected caller kind.");
+            }
+            if (!args.containsKey(ARG_CALLER_ID)) {
+                throw new RuntimeException("Expected caller id.");
             }
             if (!args.containsKey(ARG_OPERAND_ID)) {
                 throw new RuntimeException("Expected operand id.");
             }
 
-            mSceneId = args.getLong(ARG_SCENE_ID, INVALID_ID);
+            mCallerId = args.getLong(ARG_CALLER_ID, INVALID_ID);
+            mCallerKind = args.getInt(ARG_CALLER_KIND);
             mOperandId = args.getLong(ARG_OPERAND_ID, INVALID_ID);
             mOperandType = args.getInt(ARG_TYPE);
             mTitle = args.getString(ARG_TITLE);
@@ -225,8 +235,8 @@ public class EditOperandDialogFragment extends DialogFragment {
 
                 while (offset < s.length()) {
                     final int codePoint = s.codePointAt(offset);
-                    if ((offset == 0 && isAllowedAsFirst(codePoint))
-                            || (offset > 0 && isAllowed(codePoint))) {
+                    if (offset == 0 && isAllowedAsFirst(codePoint) || offset > 0
+                            && isAllowed(codePoint)) {
                         sb.appendCodePoint(codePoint);
                     } else {
                         keepOriginal = false;
@@ -234,9 +244,9 @@ public class EditOperandDialogFragment extends DialogFragment {
                     offset += Character.charCount(codePoint);
                 }
 
-                if (keepOriginal)
+                if (keepOriginal) {
                     return null;
-                else {
+                } else {
                     if (source instanceof Spanned) {
                         SpannableString sp = new SpannableString(sb);
                         TextUtils.copySpansFrom((Spanned)source, start, sb.length(), null, sp, 0);
@@ -268,13 +278,13 @@ public class EditOperandDialogFragment extends DialogFragment {
                 switch (position) {
                     case 0:
                         return EditLiteralOperandFragment.init(new EditLiteralOperandFragment(),
-                                mSceneId, mOperandId, mOperandType);
+                                mCallerKind, mCallerId, mOperandId, mOperandType);
                     case 1:
                         return EditCallOperandFragment.init(new EditCallOperandFragment(),
-                                mSceneId, mOperandId, mOperandType);
+                                mCallerKind, mCallerId, mOperandId, mOperandType);
                     case 2:
                         return EditAssetOperandFragment.init(new EditAssetOperandFragment(),
-                                mSceneId, mOperandId, mOperandType);
+                                mCallerKind, mCallerId, mOperandId, mOperandType);
                     default:
                         throw new RuntimeException("Invalid fragment position " + position);
                 }

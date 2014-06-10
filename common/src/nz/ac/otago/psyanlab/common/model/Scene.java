@@ -10,7 +10,7 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-public class Scene implements ExperimentObject {
+public class Scene extends ExperimentObject {
     public static final int ORIENTATION_LANDSCAPE = 0;
 
     public static final int ORIENTATION_PORTRAIT = 1;
@@ -53,7 +53,7 @@ public class Scene implements ExperimentObject {
 
     @Override
     public int kind() {
-        return ExperimentObjectReference.KIND_SCENE;
+        return ExperimentObject.KIND_SCENE;
     }
 
     protected static class EventNameFactory implements NameResolverFactory {

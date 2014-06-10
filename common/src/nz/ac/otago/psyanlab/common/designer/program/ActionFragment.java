@@ -5,7 +5,7 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.ActionDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.operand.EditCallOperandFragment;
 import nz.ac.otago.psyanlab.common.model.Action;
-import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -94,8 +94,9 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         Bundle args = getArguments();
         mSceneId = args.getLong(ARG_SCENE_ID);
 
-        mOperandFragment = EditCallOperandFragment.init(new EditCallOperandFragment(), mSceneId,
-                mAction.operandId, ExperimentObjectReference.HAS_SETTERS);
+        mOperandFragment = EditCallOperandFragment.init(new EditCallOperandFragment(),
+                ExperimentObject.KIND_ACTION, mObjectId, mAction.operandId,
+                ExperimentObject.HAS_SETTERS);
 
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         ft.replace(R.id.operand_fragment_container, mOperandFragment, "OperandFragment");

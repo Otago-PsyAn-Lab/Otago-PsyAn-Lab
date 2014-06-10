@@ -11,9 +11,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
 
-
-
-
 import java.lang.reflect.Type;
 
 public abstract class Operand {

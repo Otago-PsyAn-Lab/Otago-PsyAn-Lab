@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:divider="?android:dividerHorizontal"
+    android:orientation="vertical"
+    android:showDividers="middle" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +34,7 @@
 
                     <TextView
                         android:layout_gravity="end"
-                        android:text="Short name:" />
+                        android:text="@string/label_record_name" />
 
                     <EditText
                         android:id="@+id/name"
@@ -49,12 +51,12 @@
                         android:layout_height="wrap_content"
                         android:layout_column="3"
                         android:layout_gravity="center_vertical"
-                        android:text="is required" />
+                        android:text="@string/label_is_required" />
 
                     <TextView
                         android:layout_column="0"
                         android:layout_gravity="center_vertical|end"
-                        android:text="Input type:" />
+                        android:text="@string/label_subject_question_type" />
 
                     <Spinner
                         android:id="@+id/type"
@@ -78,36 +80,28 @@
     </LinearLayout>
 
     <LinearLayout
+        style="?android:buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="?android:dividerHorizontal"
-        android:orientation="vertical"
-        android:showDividers="beginning|end" >
+        android:divider="?android:dividerVertical"
+        android:orientation="horizontal"
+        android:showDividers="middle" >
 
-        <LinearLayout
-            style="?android:buttonBarStyle"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/discard"
+            style="?android:buttonBarButtonStyle"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:divider="?android:dividerVertical"
-            android:orientation="horizontal"
-            android:showDividers="middle" >
+            android:layout_weight="1"
+            android:text="@string/action_discard" />
 
-            <Button
-                android:id="@+id/discard"
-                style="?android:buttonBarButtonStyle"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Discard" />
-
-            <Button
-                android:id="@+id/confirm"
-                style="?android:buttonBarButtonStyle"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Confirm" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/confirm"
+            style="?android:buttonBarButtonStyle"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_confirm" />
     </LinearLayout>
 
 </LinearLayout>

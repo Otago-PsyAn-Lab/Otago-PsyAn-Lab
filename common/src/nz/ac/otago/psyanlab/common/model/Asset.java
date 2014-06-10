@@ -8,14 +8,13 @@ import nz.ac.otago.psyanlab.common.model.asset.Csv;
 import nz.ac.otago.psyanlab.common.model.asset.Image;
 import nz.ac.otago.psyanlab.common.model.asset.Sound;
 import nz.ac.otago.psyanlab.common.model.asset.Video;
-import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
 
 import java.io.File;
 import java.util.regex.Pattern;
 
-public abstract class Asset implements ExperimentObject {
+public abstract class Asset extends ExperimentObject {
     private static final String FILE_ENDINGS_CSV_DATA = ".*\\.csv";
 
     private static final String FILE_ENDINGS_IMAGES = ".*\\.jpg|.*\\.jpeg|.*\\.png|.*\\.bmp|.*\\.webp";
@@ -48,13 +47,13 @@ public abstract class Asset implements ExperimentObject {
 
     protected long mTypeId = 0x00;
 
-    public int getHeaderResId() {
-        return mHeaderResId;
-    }
-
     @Override
     public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_asset_class_name, name);
+    }
+
+    public int getHeaderResId() {
+        return mHeaderResId;
     }
 
     public long getTypeId() {
@@ -67,7 +66,7 @@ public abstract class Asset implements ExperimentObject {
 
     @Override
     public int kind() {
-        return ExperimentObjectReference.KIND_ASSET;
+        return ExperimentObject.KIND_ASSET;
     }
 
     public void setExternalFile(File file) {
@@ -114,16 +113,6 @@ public abstract class Asset implements ExperimentObject {
                 return lhs.name.compareToIgnoreCase(rhs.name);
             }
             return cmpr;
-        }
-    }
-
-    protected static class MethodNameFactory implements NameResolverFactory {
-        @Override
-        public int getResId(int lookup) {
-            switch (lookup) {
-                default:
-                    return R.string.method_missing_string;
-            }
         }
     }
 }

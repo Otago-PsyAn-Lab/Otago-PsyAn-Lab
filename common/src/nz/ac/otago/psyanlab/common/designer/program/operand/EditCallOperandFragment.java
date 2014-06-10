@@ -207,6 +207,16 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
         }
     };
 
+    protected OnClickListener mOnPickObjectClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mCallbacks.registerDialogueResultListener(RequestCodes.OPERAND_ACTION_OBJECT,
+                    mOperandActionDialogueResultListener);
+            mCallbacks.pickExperimentObject(mCallerKind, mCallerId, mCallValue.type,
+                    RequestCodes.OPERAND_ACTION_OBJECT);
+        }
+    };
+
     protected DialogueResultListener mOperandActionDialogueResultListener = new DialogueResultListener() {
         @Override
         public void onResult(Bundle data) {
@@ -217,14 +227,6 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             mCallValue.object = new ExperimentObjectReference(objectKind, objectId);
 
             mViews.updateViews(mCallValue);
-        }
-    };
-
-    protected OnClickListener mOnPickObjectClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            mCallbacks.pickExperimentObject(mSceneId, mCallValue.type,
-                    RequestCodes.OPERAND_ACTION_OBJECT);
         }
     };
 
@@ -294,9 +296,6 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
         mViews = new ViewHolder(view);
         mViews.initViews();
         mViews.setViewValues(mCallValue);
-
-        mCallbacks.registerDialogueResultListener(RequestCodes.OPERAND_ACTION_OBJECT,
-                mOperandActionDialogueResultListener);
     }
 
     @Override
@@ -314,7 +313,8 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
     }
 
     protected void showEditOperandDialogue(long id, int type) {
-        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mSceneId, id, type,
+        EditOperandDialogFragment dialog = EditOperandDialogFragment.newDialog(mCallerKind,
+                mCallerId, id, type,
                 getString(R.string.title_edit_operand, Type.getTypeString(getActivity(), type)));
         dialog.show(getChildFragmentManager(), "dialog_edit_operand");
     }
@@ -359,6 +359,14 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             }
         }
 
+        public void updateParameterTitleVisibility() {
+            if (mParameterAdapter.getCount() == 0) {
+                mParameterTitle.setVisibility(View.GONE);
+            } else {
+                mParameterTitle.setVisibility(View.VISIBLE);
+            }
+        }
+
         public void updateViews(CallValue callValue) {
             if (callValue.object != null) {
                 setAction(callValue);
@@ -368,14 +376,6 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             mParameterAdapter.setKeys(mCallValue.getOperands());
 
             updateParameterTitleVisibility();
-        }
-
-        public void updateParameterTitleVisibility() {
-            if (mParameterAdapter.getCount() == 0) {
-                mParameterTitle.setVisibility(View.GONE);
-            } else {
-                mParameterTitle.setVisibility(View.VISIBLE);
-            }
         }
 
         private void setAction(CallOperand operand) {

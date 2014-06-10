@@ -84,29 +84,23 @@ public class Text extends Prop {
     }
 
     @MethodId(METHOD_GET_TEXT2)
-    public String getText(@ParameterId(PARAM_TEST_INT)
-    int a) {
+    public String getText(@ParameterId(PARAM_TEST_INT) int a) {
         return text;
     }
 
     @MethodId(METHOD_SET_TEXT)
-    public void setText(@ParameterId(PARAM_TEXT)
-    String text) {
+    public void setText(@ParameterId(PARAM_TEXT) String text) {
         this.text = text;
     }
 
     @MethodId(METHOD_SET_TEXT2)
-    public void setText2(@ParameterId(PARAM_TEST_INT)
-    int a, @ParameterId(PARAM_TEXT)
-    String text) {
+    public void setText2(@ParameterId(PARAM_TEST_INT) int a, @ParameterId(PARAM_TEXT) String text) {
         this.text = text;
     }
 
     @MethodId(METHOD_SET_TEXT3)
-    public void setText3(@ParameterId(PARAM_TEST_FLOAT)
-    float ab, @ParameterId(PARAM_TEST_INT)
-    int a, @ParameterId(PARAM_TEXT)
-    String text) {
+    public void setText3(@ParameterId(PARAM_TEST_FLOAT) float ab,
+            @ParameterId(PARAM_TEST_INT) int a, @ParameterId(PARAM_TEXT) String text) {
         this.text = text;
     }
 

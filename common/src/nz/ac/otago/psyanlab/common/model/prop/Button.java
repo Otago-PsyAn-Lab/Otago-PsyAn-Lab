@@ -3,7 +3,7 @@ package nz.ac.otago.psyanlab.common.model.prop;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Prop;
-import nz.ac.otago.psyanlab.common.model.util.EventId;
+import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
@@ -28,23 +28,17 @@ public class Button extends Text {
 
     public Button(Context context, Prop prop, int defaultSuffix) {
         super(context, prop, defaultSuffix);
-
-        // if (TextUtils.isEmpty(name)
-        // || TextUtils.equals(name,
-        // context.getString(R.string.default_text_prop_name))) {
-        // name = context.getString(R.string.default_button_prop_name);
-        // }
     }
 
     public Button(Parcel in) {
         super(in);
     }
 
-    @EventId(EVENT_ON_CLICK)
+    @EventData(id = EVENT_ON_CLICK, type = EventData.EVENT_TOUCH)
     public void onClickStub() {
     }
 
-    @EventId(EVENT_ON_LONG_CLICK)
+    @EventData(id = EVENT_ON_LONG_CLICK, type = EventData.EVENT_TOUCH)
     public void onLongClickStub() {
     }
 

@@ -28,30 +28,38 @@ public class PickObjectDialogueFragment extends DialogFragment {
 
     public static final String TAG = "PickObjectDialogue";
 
+    private static final String ARG_CALLER_ID = "arg_caller_id";
+
+    private static final String ARG_CALLER_KIND = "arg_caller_kind";
+
     private static final String ARG_FILTER = "arg_filter";
 
     private static final String ARG_REQUEST_CODE = "arg_request_code";
-
-    private static final String ARG_SCENE_ID = "arg_scene_id";
 
     private static final long INVALID_ID = -1;
 
     /**
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
-    public static PickObjectDialogueFragment newDialog(long sceneId, int filter, int requestCode) {
+    public static PickObjectDialogueFragment newDialog(int callerKind, long callerId, int filter,
+            int requestCode) {
         PickObjectDialogueFragment f = new PickObjectDialogueFragment();
         Bundle args = new Bundle();
-        args.putLong(ARG_SCENE_ID, sceneId);
         args.putInt(ARG_FILTER, filter);
         args.putInt(ARG_REQUEST_CODE, requestCode);
+        args.putInt(ARG_CALLER_KIND, callerKind);
+        args.putLong(ARG_CALLER_ID, callerId);
         f.setArguments(args);
         return f;
     }
 
-    public ArrayFragmentMapAdapter.Factory mFragmentFactory;
+    public ArrayFragmentMapAdapter.FragmentFactory mFragmentFactory;
 
     private ProgramCallbacks mCallbacks;
+
+    private long mCallerId;
+
+    private int mCallerKind;
 
     private DialogueResultCallbacks mDialogueCallbacks;
 
@@ -65,8 +73,6 @@ public class PickObjectDialogueFragment extends DialogFragment {
     };
 
     private int mRequestCode;
-
-    private long mSceneId;
 
     private ViewHolder mViews;
 
@@ -108,33 +114,37 @@ public class PickObjectDialogueFragment extends DialogFragment {
 
         Bundle args = getArguments();
         if (args != null) {
-            mSceneId = args.getLong(ARG_SCENE_ID, INVALID_ID);
+            mCallerId = args.getLong(ARG_CALLER_ID, INVALID_ID);
+            mCallerKind = args.getInt(ARG_CALLER_KIND);
             mFilter = args.getInt(ARG_FILTER);
             mRequestCode = args.getInt(ARG_REQUEST_CODE);
         }
 
-        if (mSceneId == INVALID_ID) {
-            throw new RuntimeException("Invalid scene id given.");
+        if (mCallerId == INVALID_ID) {
+            throw new RuntimeException("Invalid caller object id given.");
         }
 
-        mFragmentFactory = new FragmentFactory(mSceneId, mFilter);
+        mFragmentFactory = new FragmentFactory(mCallerKind, mCallerId, mFilter);
         mViews = new ViewHolder(view);
         mViews.initViews();
     }
 
-    static final class FragmentFactory implements ArrayFragmentMapAdapter.Factory {
+    static final class FragmentFactory implements ArrayFragmentMapAdapter.FragmentFactory {
+        private long mCallerId;
+
+        private int mCallerKind;
+
         private int mFilter;
 
-        private long mSceneId;
-
-        public FragmentFactory(long sceneId, int filter) {
-            mSceneId = sceneId;
+        public FragmentFactory(int callerKind, long callerId, int filter) {
+            mCallerKind = callerKind;
+            mCallerId = callerId;
             mFilter = filter;
         }
 
         @Override
-        public Fragment getFragment(String fragmentTitle, int section) {
-            return PickObjectListFragment.newInstance(mSceneId, section, mFilter);
+        public Fragment getFragment(String fragmentTitle, int scopeLevel) {
+            return PickObjectListFragment.newInstance(mCallerKind, mCallerId, scopeLevel, mFilter);
         }
     };
 
@@ -153,8 +163,8 @@ public class PickObjectDialogueFragment extends DialogFragment {
 
         public void initViews() {
             // Set the pager with an adapter
-            pager.setAdapter(mCallbacks.getObjectsPagerAdapter(getChildFragmentManager(), mSceneId,
-                    mFragmentFactory));
+            pager.setAdapter(mCallbacks.getObjectBrowserPagerAdapter(getChildFragmentManager(),
+                    mCallerKind, mCallerId, mFilter, mFragmentFactory));
 
             cancel.setOnClickListener(mOnCancelListener);
 

@@ -396,5 +396,9 @@
     <string name="method_get_video">Get Video</string>
     <string name="method_get_sound">Get Sound</string>
     <string name="method_get_font">Get Font</string>
+    <string name="label_no_scenes">No Scenes</string>
+    <string name="label_no_rules">No Rules</string>
+    <string name="label_no_actions">No Actions</string>
+    <string name="default_condition_name">Condition</string>
 
 </resources>

@@ -372,6 +372,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         private DragSortListView actionsList;
 
+        private View mEmpty;
+
         private View newAction;
 
         public ViewHolder(View view) {
@@ -382,6 +384,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             editCondition = view.findViewById(R.id.edit_condition);
             conditionDetails = (TextView)view.findViewById(R.id.condition_detail);
             actionsList = (DragSortListView)view.findViewById(R.id.actions);
+            mEmpty = view.findViewById(android.R.id.empty);
             newAction = view.findViewById(R.id.new_action);
         }
 
@@ -402,6 +405,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             actionsList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             actionsList.setOnItemClickListener(mActionItemClickListener);
             actionsList.setOnItemLongClickListener(mActionItemLongClickListener);
+            actionsList.setEmptyView(mEmpty);
 
             triggerObject.setOnClickListener(mTriggerObjectClickListener);
             triggerEvent.setOnItemSelectedListener(mTriggerEventItemSelectedListener);

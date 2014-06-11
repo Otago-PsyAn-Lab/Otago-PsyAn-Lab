@@ -201,6 +201,18 @@
         app:remove_enabled="false"
         app:use_default_controller="true" />
 
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
+        android:layout_alignLeft="@+id/new_rule_container"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/new_rule_container"
+        android:layout_below="@+id/divide"
+        android:fontFamily="sans-serif-thin"
+        android:gravity="center"
+        android:text="@string/label_no_rules" />
+
     <View
         android:layout_width="0dip"
         android:layout_height="8dip"

@@ -416,9 +416,12 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         public DragSortListView scenesList;
 
+        private View mEmptyScenes;
+
         public ViewHolder(View view) {
             super(view);
             generatorsList = (ListView)view.findViewById(R.id.generators);
+            mEmptyScenes = view.findViewById(android.R.id.empty);
 
             iterations = (Button)view.findViewById(R.id.iterations);
             name = (EditText)view.findViewById(R.id.name);
@@ -446,6 +449,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             scenesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             scenesList.setOnItemClickListener(mOnSceneItemClickListener);
             scenesList.setOnItemLongClickListener(mItemLongClickListener);
+            scenesList.setEmptyView(mEmptyScenes);
 
             generatorsList.setAdapter(mGeneratorAdapter);
             generatorsList.setOnItemClickListener(mOnGeneratorItemClickListener);

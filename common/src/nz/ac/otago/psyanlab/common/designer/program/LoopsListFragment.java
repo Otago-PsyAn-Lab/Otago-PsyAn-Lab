@@ -118,7 +118,7 @@ public class LoopsListFragment extends BaseProgramFragment {
             mViews.loops.post(new Runnable() {
                 @Override
                 public void run() {
-                    mLoopsAdapter.fixItemBackground(R.drawable.loop_activated_background_arrow);
+                    mLoopsAdapter.fixItemBackground(R.drawable.loops_activated_background_arrow);
                     mViews.loops.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                     mViews.loops.setDragEnabled(true);
                 }
@@ -200,13 +200,14 @@ public class LoopsListFragment extends BaseProgramFragment {
     protected class ViewHolder extends BaseProgramFragment.ViewHolder<Object> {
         public DragSortListView loops;
 
-        private View mNew;
-
         private View mEmpty;
+
+        private View mNew;
 
         public ViewHolder(View view) {
             super(view);
             loops = (DragSortListView)view.findViewById(android.R.id.list);
+            mEmpty = view.findViewById(android.R.id.empty);
             mNew = view.findViewById(R.id.new_loop);
         }
 
@@ -222,6 +223,7 @@ public class LoopsListFragment extends BaseProgramFragment {
             loops.setFloatViewManager(controller);
             loops.setOnTouchListener(controller);
             loops.setAdapter(mLoopsAdapter);
+            loops.setEmptyView(mEmpty);
 
             mNew.setOnClickListener(mNewLoopClickListener);
         }

@@ -75,13 +75,13 @@
             app:float_background_color="@android:color/transparent"
             app:remove_enabled="false" />
 
-<!--         <TextView -->
-<!--             android:id="@android:id/empty" -->
-<!--             android:layout_width="match_parent" -->
-<!--             android:layout_height="match_parent" -->
-<!--             android:fontFamily="sans-serif-thin" -->
-<!--             android:gravity="center" -->
-<!--             android:text="@string/label_no_loops" /> -->
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-thin"
+            android:gravity="center"
+            android:text="@string/label_no_loops" />
     </LinearLayout>
 
     <View

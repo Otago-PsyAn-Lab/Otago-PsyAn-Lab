@@ -9,11 +9,9 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneData
 import nz.ac.otago.psyanlab.common.designer.program.stage.PropAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
-import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
-import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
-import nz.ac.otago.psyanlab.common.model.util.Type;
+import nz.ac.otago.psyanlab.common.model.operand.BooleanValue;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -256,9 +254,11 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         Rule rule = new Rule();
         final long newRuleId = mCallbacks.addRule(rule);
         rule.name = "Rule " + (newRuleId + 1);
-        Operand condition = new StubOperand("Condition");
-        condition.attemptRestrictType(Type.TYPE_BOOLEAN);
-        rule.conditionId = mCallbacks.addOperand(condition);
+
+        BooleanValue defaultCondition = new BooleanValue();
+        defaultCondition.name = getString(R.string.default_condition_name);
+        defaultCondition.value = true;
+        rule.conditionId = mCallbacks.addOperand(defaultCondition);
 
         mScene.rules.add(newRuleId);
         mCallbacks.putScene(mObjectId, mScene);
@@ -296,12 +296,15 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
         public StageView stageThumb;
 
+        private View mEmpty;
+
         public ViewHolder(View view) {
             super(view);
             editStage = view.findViewById(R.id.edit_stage);
             name = (EditText)view.findViewById(R.id.name);
             newRule = view.findViewById(R.id.new_rule);
             rulesList = (DragSortListView)view.findViewById(R.id.rules);
+            mEmpty = view.findViewById(android.R.id.empty);
             stageThumb = (StageView)view.findViewById(R.id.stage);
             stageDetail = (TextView)view.findViewById(R.id.stage_detail);
             editStagePsuedoButton = (TextView)view.findViewById(R.id.edit_stage_psudeo_button);
@@ -326,6 +329,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
             rulesList.setOnItemClickListener(mOnRuleItemClickListener);
             rulesList.setOnItemLongClickListener(mItemLongClickListener);
+            rulesList.setEmptyView(mEmpty);
         }
 
         @Override

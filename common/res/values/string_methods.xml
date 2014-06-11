@@ -41,7 +41,7 @@
     <string name="method_set_colour_tint_html">Set Colour Tint HTML</string>
     <string name="method_set_colour_tint_rgb">Set Colour Tint RGB</string>
     <string name="method_set_colour_tint">Set Colour Tint</string>
-    <string name="method_set_font_colour_rgb">Set Font Colour_RGB</string>
+    <string name="method_set_font_colour_rgb">Set Font Colour RGB</string>
     <string name="method_set_font_colour">Set Font Colour</string>
     <string name="method_set_font">Set Font</string>
     <string name="method_set_height">Set Height</string>

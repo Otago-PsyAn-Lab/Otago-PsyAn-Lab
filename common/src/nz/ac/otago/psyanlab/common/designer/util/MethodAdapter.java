@@ -1,7 +1,6 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
@@ -41,6 +40,15 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
     }
 
     @Override
+    public String toString() {
+        String s = "";
+        for (MethodData md : mMethods) {
+            s += md.method + " ";
+        }
+        return s;
+    }
+
+    @Override
     public int getCount() {
         return mMethods.length;
     }
@@ -57,8 +65,8 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
             holder = (TextViewHolder)convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mMethods[position].id
-                .value())));
+        holder.textViews[0]
+                .setText(mContext.getString(mNameFactory.getResId(mMethods[position].id)));
 
         return convertView;
     }
@@ -70,7 +78,7 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
 
     @Override
     public long getItemId(int position) {
-        return mMethods[position].id.value();
+        return mMethods[position].id;
     }
 
     @Override
@@ -85,8 +93,8 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
             holder = (TextViewHolder)convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mMethods[position].id
-                .value())));
+        holder.textViews[0]
+                .setText(mContext.getString(mNameFactory.getResId(mMethods[position].id)));
 
         return convertView;
     }
@@ -97,7 +105,7 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
     }
 
     public static class MethodData {
-        public MethodId id;
+        public int id;
 
         public Method method;
     }

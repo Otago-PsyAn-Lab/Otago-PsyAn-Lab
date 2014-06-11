@@ -14,59 +14,61 @@ import android.content.Context;
 import android.os.Parcel;
 
 public class Text extends Prop {
-    protected static final int METHOD_SET_FONT_COLOUR_HTML = 0x14;
+    private static final int PROP_SPACE = 0x100;
 
-    protected static final int METHOD_GET_CHARACTER_AT_POSITION = 0x01;
+    protected static final int METHOD_GET_CHARACTER_AT_POSITION = 0x01 + PROP_SPACE;
 
-    protected static final int METHOD_GET_CHARACTER_AT_X_POSITION = 0x02;
+    protected static final int METHOD_GET_CHARACTER_AT_X_POSITION = 0x02 + PROP_SPACE;
 
-    protected static final int METHOD_GET_CHARACTER_INDEX_AT_POSITION = 0x03;
+    protected static final int METHOD_GET_CHARACTER_INDEX_AT_POSITION = 0x03 + PROP_SPACE;
 
-    protected static final int METHOD_GET_CHARACTER_INDEX_AT_X_POSITION = 0x04;
+    protected static final int METHOD_GET_CHARACTER_INDEX_AT_X_POSITION = 0x04 + PROP_SPACE;
 
-    protected static final int METHOD_GET_TEXT = 0x05;
+    protected static final int METHOD_GET_TEXT = 0x05 + PROP_SPACE;
 
-    protected static final int METHOD_GET_TEXT_SIZE = 0x06;
+    protected static final int METHOD_GET_TEXT_SIZE = 0x06 + PROP_SPACE;
 
-    protected static final int METHOD_GET_WORD_AT_POSITION = 0x07;
+    protected static final int METHOD_GET_WORD_AT_POSITION = 0x07 + PROP_SPACE;
 
-    protected static final int METHOD_GET_WORD_AT_X_POSITION = 0x08;
+    protected static final int METHOD_GET_WORD_AT_X_POSITION = 0x08 + PROP_SPACE;
 
-    protected static final int METHOD_GET_WORD_INDEX_AT_POSITION = 0x09;
+    protected static final int METHOD_GET_WORD_INDEX_AT_POSITION = 0x09 + PROP_SPACE;
 
-    protected static final int METHOD_GET_WORD_INDEX_AT_X_POSITION = 0x0a;
+    protected static final int METHOD_GET_WORD_INDEX_AT_X_POSITION = 0x0a + PROP_SPACE;
 
-    protected static final int METHOD_IS_POSITION_ABOVE_TEXT = 0x0b;
+    protected static final int METHOD_IS_POSITION_ABOVE_TEXT = 0x0b + PROP_SPACE;
 
-    protected static final int METHOD_IS_POSITION_BELOW_TEXT = 0x0c;
+    protected static final int METHOD_IS_POSITION_BELOW_TEXT = 0x0c + PROP_SPACE;
 
-    protected static final int METHOD_IS_POSITION_TO_LEFT_OF_TEXT = 0x0d;
+    protected static final int METHOD_IS_POSITION_TO_LEFT_OF_TEXT = 0x0d + PROP_SPACE;
 
-    protected static final int METHOD_IS_POSITION_TO_RIGHT_OF_TEXT = 0x0e;
+    protected static final int METHOD_IS_POSITION_TO_RIGHT_OF_TEXT = 0x0e + PROP_SPACE;
 
-    protected static final int METHOD_SET_FONT = 0x0f;
+    protected static final int METHOD_SET_FONT = 0x0f + PROP_SPACE;
 
-    protected static final int METHOD_SET_FONT_COLOUR = 0x10;
+    protected static final int METHOD_SET_FONT_COLOUR = 0x10 + PROP_SPACE;
 
-    protected static final int METHOD_SET_FONT_COLOUR_RGB = 0x11;
+    protected static final int METHOD_SET_FONT_COLOUR_HTML = 0x14 + PROP_SPACE;
 
-    protected static final int METHOD_SET_TEXT = 0x12;
+    protected static final int METHOD_SET_FONT_COLOUR_RGB = 0x11 + PROP_SPACE;
 
-    protected static final int METHOD_SET_TEXT_SIZE = 0x13;
+    protected static final int METHOD_SET_TEXT = 0x12 + PROP_SPACE;
 
-    protected static final int PARAM_BLUE = 0x102;
+    protected static final int METHOD_SET_TEXT_SIZE = 0x13 + PROP_SPACE;
 
-    protected static final int PARAM_COLOUR = 0x104;
+    protected static final int PARAM_BLUE = 0x102 + PROP_SPACE;
 
-    protected static final int PARAM_COLOUR_HTML = 0x106;
+    protected static final int PARAM_COLOUR = 0x104 + PROP_SPACE;
 
-    protected static final int PARAM_GREEN = 0x101;
+    protected static final int PARAM_COLOUR_HTML = 0x106 + PROP_SPACE;
 
-    protected static final int PARAM_RED = 0x100;
+    protected static final int PARAM_GREEN = 0x101 + PROP_SPACE;
 
-    protected static final int PARAM_TEXT = 0x103;
+    protected static final int PARAM_RED = 0x100 + PROP_SPACE;
 
-    protected static final int PARAM_TEXT_SIZE = 0x105;
+    protected static final int PARAM_TEXT = 0x103 + PROP_SPACE;
+
+    protected static final int PARAM_TEXT_SIZE = 0x105 + PROP_SPACE;
 
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
@@ -243,7 +245,7 @@ public class Text extends Prop {
         public int getResId(int lookup) {
             switch (lookup) {
                 case METHOD_SET_TEXT:
-                    return R.string.method_set_string;
+                    return R.string.method_set_text;
                 case METHOD_GET_TEXT:
                     return R.string.method_get_text;
                 case METHOD_SET_TEXT_SIZE:

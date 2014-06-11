@@ -606,8 +606,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             @Override
             public int compare(MethodData lhs, MethodData rhs) {
                 Collator collator = getCollater();
-                return collator.compare(getString(nameFactory.getResId(lhs.id.value())),
-                        getString(nameFactory.getResId(rhs.id.value())));
+                return collator.compare(getString(nameFactory.getResId(lhs.id)),
+                        getString(nameFactory.getResId(rhs.id)));
             }
         });
 
@@ -619,7 +619,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             MethodId annotation = method.getAnnotation(MethodId.class);
             if (annotation != null && returnTypeIntersects(method, returnTypes)) {
                 MethodData data = new MethodData();
-                data.id = annotation;
+                data.id = annotation.value();
                 data.method = method;
                 filteredMethods.add(data);
             }

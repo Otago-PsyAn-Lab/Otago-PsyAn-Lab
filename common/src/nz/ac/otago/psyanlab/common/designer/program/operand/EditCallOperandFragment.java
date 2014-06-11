@@ -384,6 +384,8 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             mMethod.setEnabled(true);
             SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(mCallbacks
                     .getExperimentObject(operand.getObject()).getClass(), mOperandType);
+
+
             mMethod.setAdapter(methodsAdapter);
 
             for (int i = 0; i < methodsAdapter.getCount(); i++) {

@@ -223,7 +223,7 @@
     <string name="event_on_click">On Click</string>
     <string name="event_on_long_click">On Long Click</string>
     <string name="method_missing_string">Missing String</string>
-    <string name="method_set_string">Set String</string>
+    <string name="method_set_text">Set Text</string>
     <string name="generator_kind_random">random</string>
     <string name="generator_kind_shuffle">shuffle</string>
     <string name="label_generator_range">Range</string>

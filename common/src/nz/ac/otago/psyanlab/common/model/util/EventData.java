@@ -31,11 +31,15 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EventData {
+    public static final int EVENT_NO_OBJECT = 0x00;
+
+    public static final int EVENT_SCENE_FINISH = 0x004;
+
+    public static final int EVENT_SCENE_START = 0x03;
+
     public static final int EVENT_TOUCH = 0x01;
 
     public static final int EVENT_TOUCH_MOTION = 0x02;
-
-    public static final int EVENT_NO_OBJECT = 0x00;
 
     int id();
 

@@ -3,24 +3,24 @@ package nz.ac.otago.psyanlab.common.model.asset;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Asset;
-import nz.ac.otago.psyanlab.common.model.typestub.VideoStub;
+import nz.ac.otago.psyanlab.common.model.typestub.FontStub;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
-public class Video extends Asset {
-    protected static final int METHOD_GET_VIDEO = 0x01;
+public class Font extends Asset {
+    protected static final int METHOD_GET_FONT = 0x01;
 
     public static NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
     }
 
-    public Video() {
-        mTypeId = 0x04;
-        mHeaderResId = R.string.header_videos;
+    public Font() {
+        mTypeId = 0x05;
+        mHeaderResId = R.string.header_fonts;
     }
 
-    @MethodId(METHOD_GET_VIDEO)
-    public VideoStub stubGetVideo() {
+    @MethodId(METHOD_GET_FONT)
+    public FontStub stubGetFont() {
         return null;
     }
 
@@ -28,8 +28,8 @@ public class Video extends Asset {
         @Override
         public int getResId(int lookup) {
             switch (lookup) {
-                case METHOD_GET_VIDEO:
-                    return R.string.method_get_video;
+                case METHOD_GET_FONT:
+                    return R.string.method_get_font;
                 default:
                     return super.getResId(lookup);
             }

@@ -17,10 +17,6 @@ public abstract class Variable extends ExperimentObject {
 
     protected static final int PARAM_VALUE = 0x01;
 
-    public static NameResolverFactory getEventNameFactory() {
-        return new EventNameFactory();
-    }
-
     public static NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
     }

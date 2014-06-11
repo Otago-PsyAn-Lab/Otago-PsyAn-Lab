@@ -3,16 +3,19 @@ package nz.ac.otago.psyanlab.common.model.prop;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Prop;
-import nz.ac.otago.psyanlab.common.model.util.EventData;
+import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.util.ParameterId;
 
 import android.content.Context;
 import android.os.Parcel;
 
 public class Button extends Text {
-    private static final int EVENT_ON_CLICK = 0x01;
+    protected static final int METHOD_SET_COLOUR_TINT = 0x201;
 
-    private static final int EVENT_ON_LONG_CLICK = 0x02;
+    protected static final int METHOD_SET_COLOUR_TINT_HTML = 0x202;
+
+    protected static final int METHOD_SET_COLOUR_TINT_RGB = 0x203;
 
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
@@ -34,33 +37,30 @@ public class Button extends Text {
         super(in);
     }
 
-    @EventData(id = EVENT_ON_CLICK, type = EventData.EVENT_TOUCH)
-    public void onClickStub() {
+    @MethodId(METHOD_SET_COLOUR_TINT)
+    public void stubSetColourTint(@ParameterId(PARAM_COLOUR) int colour) {
     }
 
-    @EventData(id = EVENT_ON_LONG_CLICK, type = EventData.EVENT_TOUCH)
-    public void onLongClickStub() {
+    @MethodId(METHOD_SET_COLOUR_TINT_HTML)
+    public void stubSetColourTintHTML(@ParameterId(PARAM_COLOUR_HTML) String htmlColourCode) {
     }
 
-    protected static class EventNameFactory extends Text.EventNameFactory {
-        @Override
-        public int getResId(int lookup) {
-            switch (lookup) {
-                case EVENT_ON_CLICK:
-                    return R.string.event_on_click;
-                case EVENT_ON_LONG_CLICK:
-                    return R.string.event_on_long_click;
-
-                default:
-                    return R.string.event_missing_string;
-            }
-        }
+    @MethodId(METHOD_SET_COLOUR_TINT_RGB)
+    public void stubSetColourTintRGB(@ParameterId(PARAM_RED) int red,
+            @ParameterId(PARAM_GREEN) int green, @ParameterId(PARAM_BLUE) int blue) {
     }
 
     protected static class MethodNameFactory extends Text.MethodNameFactory {
         @Override
         public int getResId(int lookup) {
             switch (lookup) {
+                case METHOD_SET_COLOUR_TINT_HTML:
+                    return R.string.method_set_colour_tint_html;
+                case METHOD_SET_COLOUR_TINT_RGB:
+                    return R.string.method_set_colour_tint_rgb;
+                case METHOD_SET_COLOUR_TINT:
+                    return R.string.method_set_colour_tint;
+
                 default:
                     return super.getResId(lookup);
             }
@@ -68,6 +68,7 @@ public class Button extends Text {
     }
 
     protected static class ParameterNameFactory extends Text.ParameterNameFactory {
+
         @Override
         public int getResId(int lookup) {
             switch (lookup) {

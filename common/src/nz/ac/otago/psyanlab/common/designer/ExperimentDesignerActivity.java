@@ -533,8 +533,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 return mExperiment.props.get(object.id);
             case ExperimentObject.KIND_SCENE:
                 return mExperiment.scenes.get(object.id);
-            default:
+            case ExperimentObject.KIND_EVENT:
+                if (object.id == EventData.EVENT_TOUCH) {
+                    return new TouchEvent();
+                } else if (object.id == EventData.EVENT_TOUCH_MOTION) {
+                    return new TouchMotionEvent();
+                }
             case ExperimentObject.KIND_EXPERIMENT:
+            default:
                 return null;
         }
     }
@@ -1540,8 +1546,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             Rule rule = mExperiment.rules.get(ruleId);
             // Presently, there are only trigger events in the rule scope level.
             ExperimentObject eventObject = getTriggerEventDataForRule(rule);
-            if (eventObject.satisfiesFilter(filter)) {
-                objects.add(new Pair<ExperimentObject, Long>(eventObject, -1l));
+            if (eventObject != null && eventObject.satisfiesFilter(filter)) {
+                // Fake an id from the tagged event data kind so we can later
+                // rebuild the right kind of event.
+                Long fakeId = (long)eventObject.getTag();
+                objects.add(new Pair<ExperimentObject, Long>(eventObject, fakeId));
             }
         } else if (scopeLevel == SCOPE_SCENE) {
             final long sceneId = findSceneIdForDescendant(callerKind, callerId);
@@ -1609,11 +1618,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         for (Method method : getExperimentObject(rule.triggerObject).getClass().getMethods()) {
             EventData eventData = method.getAnnotation(EventData.class);
             if (eventData != null && eventData.id() == rule.triggerEvent) {
-                if (eventData.type() == EventData.EVENT_TOUCH_MOTION) {
-                    eventObject = new TouchMotionEvent();
-                }
                 if (eventData.type() == EventData.EVENT_TOUCH) {
                     eventObject = new TouchEvent();
+                } else if (eventData.type() == EventData.EVENT_TOUCH_MOTION) {
+                    eventObject = new TouchMotionEvent();
                 }
                 break;
             }
@@ -1886,11 +1894,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         // Find the referenced trigger event, and pull the object that describes
         // the event, if any.
         ExperimentObject eventObject = null;
-        for (Method method : getExperimentObject(rule.triggerObject).getClass().getMethods()) {
+        ExperimentObject experimentObject = getExperimentObject(rule.triggerObject);
+        Method[] methods = experimentObject.getClass().getMethods();
+        for (Method method : methods) {
             EventData eventData = method.getAnnotation(EventData.class);
             if (eventData != null && eventData.id() == rule.triggerEvent) {
                 if (eventData.type() == EventData.EVENT_TOUCH) {
                     eventObject = new TouchEvent();
+                } else if (eventData.type() == EventData.EVENT_TOUCH_MOTION) {
+                    eventObject = new TouchMotionEvent();
                 }
                 break;
             }

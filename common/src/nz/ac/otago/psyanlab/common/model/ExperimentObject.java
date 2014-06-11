@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.model;
 
+import com.google.gson.annotations.Expose;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
@@ -25,62 +27,62 @@ public abstract class ExperimentObject {
     /**
      * An object which is a kind of action.
      */
-    public static final int KIND_ACTION = 0x0c;
+    public static final int KIND_ACTION = 0x01;
 
     /**
      * An object which is a kind of asset.
      */
-    public static final int KIND_ASSET = 0x01;
+    public static final int KIND_ASSET = 0x02;
 
     /**
      * An object which describes how to store collected experiment records.
      */
-    public static final int KIND_DATA_CHANNEL = 0x08;
+    public static final int KIND_DATA_CHANNEL = 0x03;
 
     /**
-     * A generated object which makes event data accessible.
+     * An virtual object which is a kind of event.
      */
-    public static final int KIND_EVENT = 0x09;
+    public static final int KIND_EVENT = 0x04;
 
     /**
      * An object which is a kind of experiment.
      */
-    public static final int KIND_EXPERIMENT = 0x02;
+    public static final int KIND_EXPERIMENT = 0x05;
 
     /**
      * An object which is a kind of generator.
      */
-    public static final int KIND_GENERATOR = 0x03;
+    public static final int KIND_GENERATOR = 0x06;
 
     /**
      * An object which is a kind of loop.
      */
-    public static final int KIND_LOOP = 0x04;
+    public static final int KIND_LOOP = 0x07;
 
     /**
      * An object which is a king of operand.
      */
-    public static final int KIND_OPERAND = 0x05;
+    public static final int KIND_OPERAND = 0x08;
 
     /**
      * An object which is a kind of prop.
      */
-    public static final int KIND_PROP = 0x06;
+    public static final int KIND_PROP = 0x09;
 
     /**
      * An object which is a kind of rule.
      */
-    public static final int KIND_RULE = 0x0d;
+    public static final int KIND_RULE = 0x0a;
 
     /**
      * An object which is a kind of scene.
      */
-    public static final int KIND_SCENE = 0x07;
+    public static final int KIND_SCENE = 0x0b;
 
     /**
      * An object which acts as a source of data.
      */
-    public static final int KIND_SOURCE = 0x0b;
+    public static final int KIND_SOURCE = 0x0c;
 
     /**
      * An object which is a kind of a global variable.
@@ -107,8 +109,6 @@ public abstract class ExperimentObject {
                 return R.string.label_asset;
             case KIND_DATA_CHANNEL:
                 return R.string.label_data_channel;
-            case KIND_EVENT:
-                return R.string.label_event;
             case KIND_EXPERIMENT:
                 return R.string.label_experiment;
             case KIND_GENERATOR:
@@ -125,11 +125,16 @@ public abstract class ExperimentObject {
                 return R.string.label_scene;
             case KIND_SOURCE:
                 return R.string.label_data_source;
+            case KIND_EVENT:
+                return R.string.label_event;
 
             default:
                 throw new RuntimeException("Unknown experiment object kind " + kind);
         }
     }
+
+    @Expose
+    public int tag;
 
     /**
      * A formatted, readable name for the object.
@@ -145,6 +150,10 @@ public abstract class ExperimentObject {
      * @return The kind of object.
      */
     abstract public int kind();
+
+    public int getTag() {
+        return tag;
+    }
 
     public boolean satisfiesFilter(int filter) {
         switch (filter) {

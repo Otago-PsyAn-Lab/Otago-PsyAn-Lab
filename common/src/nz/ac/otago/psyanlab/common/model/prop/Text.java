@@ -14,21 +14,59 @@ import android.content.Context;
 import android.os.Parcel;
 
 public class Text extends Prop {
-    private static final int METHOD_GET_TEXT = 0x04;
+    protected static final int METHOD_SET_FONT_COLOUR_HTML = 0x14;
 
-    private static final int METHOD_GET_TEXT2 = 0x05;
+    protected static final int METHOD_GET_CHARACTER_AT_POSITION = 0x01;
 
-    private static final int METHOD_SET_TEXT = 0x01;
+    protected static final int METHOD_GET_CHARACTER_AT_X_POSITION = 0x02;
 
-    private static final int METHOD_SET_TEXT2 = 0x02;
+    protected static final int METHOD_GET_CHARACTER_INDEX_AT_POSITION = 0x03;
 
-    private static final int METHOD_SET_TEXT3 = 0x03;
+    protected static final int METHOD_GET_CHARACTER_INDEX_AT_X_POSITION = 0x04;
 
-    private static final int PARAM_TEST_FLOAT = 0x03;
+    protected static final int METHOD_GET_TEXT = 0x05;
 
-    private static final int PARAM_TEST_INT = 0x02;
+    protected static final int METHOD_GET_TEXT_SIZE = 0x06;
 
-    private static final int PARAM_TEXT = 0x01;
+    protected static final int METHOD_GET_WORD_AT_POSITION = 0x07;
+
+    protected static final int METHOD_GET_WORD_AT_X_POSITION = 0x08;
+
+    protected static final int METHOD_GET_WORD_INDEX_AT_POSITION = 0x09;
+
+    protected static final int METHOD_GET_WORD_INDEX_AT_X_POSITION = 0x0a;
+
+    protected static final int METHOD_IS_POSITION_ABOVE_TEXT = 0x0b;
+
+    protected static final int METHOD_IS_POSITION_BELOW_TEXT = 0x0c;
+
+    protected static final int METHOD_IS_POSITION_TO_LEFT_OF_TEXT = 0x0d;
+
+    protected static final int METHOD_IS_POSITION_TO_RIGHT_OF_TEXT = 0x0e;
+
+    protected static final int METHOD_SET_FONT = 0x0f;
+
+    protected static final int METHOD_SET_FONT_COLOUR = 0x10;
+
+    protected static final int METHOD_SET_FONT_COLOUR_RGB = 0x11;
+
+    protected static final int METHOD_SET_TEXT = 0x12;
+
+    protected static final int METHOD_SET_TEXT_SIZE = 0x13;
+
+    protected static final int PARAM_BLUE = 0x102;
+
+    protected static final int PARAM_COLOUR = 0x104;
+
+    protected static final int PARAM_COLOUR_HTML = 0x106;
+
+    protected static final int PARAM_GREEN = 0x101;
+
+    protected static final int PARAM_RED = 0x100;
+
+    protected static final int PARAM_TEXT = 0x103;
+
+    protected static final int PARAM_TEXT_SIZE = 0x105;
 
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
@@ -53,10 +91,6 @@ public class Text extends Prop {
     public Text(Context context, Prop prop, int defaultSuffix) {
         super(context, prop, defaultSuffix);
 
-        // if (TextUtils.isEmpty(name)) {
-        // name = context.getString(R.string.default_text_prop_name);
-        // }
-
         fontSize = context.getResources().getDimensionPixelSize(R.dimen.default_text_size);
 
         if (prop == null) {
@@ -78,30 +112,111 @@ public class Text extends Prop {
         fontSize = in.readInt();
     }
 
-    @MethodId(METHOD_GET_TEXT)
     public String getText() {
         return text;
     }
 
-    @MethodId(METHOD_GET_TEXT2)
-    public String getText(@ParameterId(PARAM_TEST_INT) int a) {
-        return text;
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    @MethodId(METHOD_GET_CHARACTER_AT_POSITION)
+    public String stubGetCharacterAtPosition(@ParameterId(PARAM_X_COORDINATE) int x,
+            @ParameterId(PARAM_Y_COORDINATE) int y) {
+        return null;
+    }
+
+    @MethodId(METHOD_GET_CHARACTER_AT_X_POSITION)
+    public String stubGetCharacterAtXPosition(@ParameterId(PARAM_X_COORDINATE) int x) {
+        return null;
+    }
+
+    @MethodId(METHOD_GET_CHARACTER_INDEX_AT_POSITION)
+    public int stubGetCharacterIndexAtPosition(@ParameterId(PARAM_X_COORDINATE) int x,
+            @ParameterId(PARAM_Y_COORDINATE) int y) {
+        return 0;
+    }
+
+    @MethodId(METHOD_GET_CHARACTER_INDEX_AT_X_POSITION)
+    public int stubGetCharacterIndexAtXPosition(@ParameterId(PARAM_X_COORDINATE) int x) {
+        return 0;
+    }
+
+    @MethodId(METHOD_GET_TEXT)
+    public String stubGetText() {
+        return null;
+    }
+
+    @MethodId(METHOD_GET_TEXT_SIZE)
+    public int stubGetTextSize() {
+        return 0;
+    }
+
+    @MethodId(METHOD_GET_WORD_AT_POSITION)
+    public String stubGetWordAtPosition(@ParameterId(PARAM_X_COORDINATE) int x,
+            @ParameterId(PARAM_Y_COORDINATE) int y) {
+        return null;
+    }
+
+    @MethodId(METHOD_GET_WORD_AT_X_POSITION)
+    public String stubGetWordAtXPosition(@ParameterId(PARAM_X_COORDINATE) int x) {
+        return null;
+    }
+
+    @MethodId(METHOD_GET_WORD_INDEX_AT_POSITION)
+    public int stubGetWordIndexAtPosition(@ParameterId(PARAM_X_COORDINATE) int x,
+            @ParameterId(PARAM_Y_COORDINATE) int y) {
+        return 0;
+    }
+
+    @MethodId(METHOD_GET_WORD_INDEX_AT_X_POSITION)
+    public int stubGetWordIndexAtXPosition(@ParameterId(PARAM_X_COORDINATE) int x) {
+        return 0;
+    }
+
+    @MethodId(METHOD_IS_POSITION_ABOVE_TEXT)
+    public boolean stubIsPositionAboveText(@ParameterId(PARAM_Y_COORDINATE) int y) {
+        return false;
+    }
+
+    @MethodId(METHOD_IS_POSITION_BELOW_TEXT)
+    public boolean stubIsPositionBelowText(@ParameterId(PARAM_Y_COORDINATE) int y) {
+        return false;
+    }
+
+    @MethodId(METHOD_IS_POSITION_TO_LEFT_OF_TEXT)
+    public boolean stubIsPositionToLeftOfText(@ParameterId(PARAM_X_COORDINATE) int x) {
+        return false;
+    }
+
+    @MethodId(METHOD_IS_POSITION_TO_RIGHT_OF_TEXT)
+    public boolean stubIsPositionToRightOfText(@ParameterId(PARAM_X_COORDINATE) int x) {
+        return false;
+    }
+
+    @MethodId(METHOD_SET_FONT)
+    public void stubSetFont() {
+    }
+
+    @MethodId(METHOD_SET_FONT_COLOUR)
+    public void stubSetFontColour(@ParameterId(PARAM_COLOUR) int colour) {
+    }
+
+    @MethodId(METHOD_SET_FONT_COLOUR_HTML)
+    public void stubSetFontColourHTML(@ParameterId(PARAM_COLOUR_HTML) String colour) {
+    }
+
+    @MethodId(METHOD_SET_FONT_COLOUR_RGB)
+    public void stubSetFontColourRGB(@ParameterId(PARAM_RED) int red,
+            @ParameterId(PARAM_GREEN) int green, @ParameterId(PARAM_BLUE) int blue) {
     }
 
     @MethodId(METHOD_SET_TEXT)
-    public void setText(@ParameterId(PARAM_TEXT) String text) {
-        this.text = text;
+    public void stubSetText(@ParameterId(PARAM_TEXT) String text) {
     }
 
-    @MethodId(METHOD_SET_TEXT2)
-    public void setText2(@ParameterId(PARAM_TEST_INT) int a, @ParameterId(PARAM_TEXT) String text) {
-        this.text = text;
-    }
-
-    @MethodId(METHOD_SET_TEXT3)
-    public void setText3(@ParameterId(PARAM_TEST_FLOAT) float ab,
-            @ParameterId(PARAM_TEST_INT) int a, @ParameterId(PARAM_TEXT) String text) {
-        this.text = text;
+    @MethodId(METHOD_SET_TEXT_SIZE)
+    public void stubSetTextSize(@ParameterId(PARAM_TEXT_SIZE) int size) {
     }
 
     @Override
@@ -123,19 +238,51 @@ public class Text extends Prop {
     }
 
     protected static class MethodNameFactory extends Prop.MethodNameFactory {
+
         @Override
         public int getResId(int lookup) {
             switch (lookup) {
                 case METHOD_SET_TEXT:
                     return R.string.method_set_string;
-                case METHOD_SET_TEXT2:
-                    return R.string.test_method_2;
-                case METHOD_SET_TEXT3:
-                    return R.string.test_method_3;
                 case METHOD_GET_TEXT:
-                    return R.string.test_method_get_text;
-                case METHOD_GET_TEXT2:
-                    return R.string.method_get_text_2;
+                    return R.string.method_get_text;
+                case METHOD_SET_TEXT_SIZE:
+                    return R.string.method_set_text_size;
+                case METHOD_GET_TEXT_SIZE:
+                    return R.string.method_get_text_size;
+                case METHOD_SET_FONT:
+                    return R.string.method_set_font;
+                case METHOD_SET_FONT_COLOUR_HTML:
+                    return R.string.method_set_colour_font_html;
+                case METHOD_SET_FONT_COLOUR_RGB:
+                    return R.string.method_set_font_colour_rgb;
+                case METHOD_SET_FONT_COLOUR:
+                    return R.string.method_set_font_colour;
+                case METHOD_IS_POSITION_ABOVE_TEXT:
+                    return R.string.method_is_position_above_text;
+                case METHOD_IS_POSITION_BELOW_TEXT:
+                    return R.string.method_is_position_below_text;
+                case METHOD_IS_POSITION_TO_LEFT_OF_TEXT:
+                    return R.string.method_is_position_to_left_of_text;
+                case METHOD_IS_POSITION_TO_RIGHT_OF_TEXT:
+                    return R.string.method_is_position_to_right_of_text;
+                case METHOD_GET_CHARACTER_AT_POSITION:
+                    return R.string.method_get_character_at_position;
+                case METHOD_GET_CHARACTER_AT_X_POSITION:
+                    return R.string.method_get_character_at_x_position;
+                case METHOD_GET_CHARACTER_INDEX_AT_POSITION:
+                    return R.string.method_get_character_index_at_position;
+                case METHOD_GET_CHARACTER_INDEX_AT_X_POSITION:
+                    return R.string.method_get_character_index_at_x_position;
+                case METHOD_GET_WORD_AT_POSITION:
+                    return R.string.method_get_word_at_position;
+                case METHOD_GET_WORD_AT_X_POSITION:
+                    return R.string.method_get_word_at_x_position;
+                case METHOD_GET_WORD_INDEX_AT_POSITION:
+                    return R.string.method_get_word_index_at_position;
+                case METHOD_GET_WORD_INDEX_AT_X_POSITION:
+                    return R.string.method_get_word_index_at_x_position;
+
                 default:
                     return super.getResId(lookup);
             }
@@ -146,12 +293,21 @@ public class Text extends Prop {
         @Override
         public int getResId(int lookup) {
             switch (lookup) {
+                case PARAM_COLOUR_HTML:
+                    return R.string.parameter_html_colour_code;
                 case PARAM_TEXT:
                     return R.string.parameter_text;
-                case PARAM_TEST_FLOAT:
-                    return R.string.parameter_test_float;
-                case PARAM_TEST_INT:
-                    return R.string.parameter_test_integer;
+                case PARAM_RED:
+                    return R.string.parameter_red;
+                case PARAM_GREEN:
+                    return R.string.parameter_green;
+                case PARAM_BLUE:
+                    return R.string.parameter_blue;
+                case PARAM_COLOUR:
+                    return R.string.paramter_colour;
+                case PARAM_TEXT_SIZE:
+                    return R.string.parameter_size;
+
                 default:
                     return super.getResId(lookup);
             }

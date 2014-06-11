@@ -67,6 +67,7 @@ public class ProgramFragment extends Fragment implements ScrollerManager {
         super.onViewCreated(view, savedInstanceState);
 
         mScroller = (HorizontalScrollView)view.findViewById(R.id.scroll);
+        mScroller.setSmoothScrollingEnabled(true);
 
         mFragments = new ArrayList<BaseProgramFragment>();
 

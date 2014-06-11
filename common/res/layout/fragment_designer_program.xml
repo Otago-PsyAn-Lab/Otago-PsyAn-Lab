@@ -9,11 +9,11 @@
         android:background="#ffbbbbbb" >
     </View>
 
-    <HorizontalScrollView
+    <nz.ac.otago.psyanlab.common.view.ManualHorizontalScrollView
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:descendantFocusability="blocksDescendants" >
+        android:descendantFocusability="beforeDescendants" >
 
         <LinearLayout
             android:id="@+id/program_container"
@@ -21,6 +21,6 @@
             android:layout_height="match_parent"
             android:orientation="horizontal" >
         </LinearLayout>
-    </HorizontalScrollView>
+    </nz.ac.otago.psyanlab.common.view.ManualHorizontalScrollView>
 
 </FrameLayout>

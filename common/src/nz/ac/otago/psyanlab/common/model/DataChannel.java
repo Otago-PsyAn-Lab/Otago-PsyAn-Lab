@@ -4,7 +4,6 @@ package nz.ac.otago.psyanlab.common.model;
 import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.model.Asset.AssetFactory;
 import nz.ac.otago.psyanlab.common.model.channel.Field;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
@@ -18,13 +17,7 @@ import java.util.ArrayList;
  * type data structure.
  */
 public class DataChannel extends ExperimentObject {
-    private static AssetFactory mFactory = new AssetFactory();
-
     protected static final int METHOD_WRITE = 0x01;
-
-    public static AssetFactory getFactory() {
-        return mFactory;
-    }
 
     public static NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
@@ -60,6 +53,11 @@ public class DataChannel extends ExperimentObject {
     @Override
     public int kind() {
         return ExperimentObject.KIND_DATA_CHANNEL;
+    }
+
+    @Override
+    public boolean satisfiesFilter(int filter) {
+        return filter == HAS_SETTERS;
     }
 
     public static class Comparator implements java.util.Comparator<DataChannel> {

@@ -8,19 +8,16 @@
     <string name="label_asset">Asset</string>
     <string name="label_assets">Assets</string>
     <string name="label_authors">Authors</string>
-    <string name="label_authors">Authors:</string>
     <string name="label_column_names">Names</string>
     <string name="label_column_start">Start</string>
     <string name="label_condition">Condition</string>
     <string name="label_data_channel">Data Channel</string>
     <string name="label_data_source">Data Source</string>
     <string name="label_date_created">Date Created</string>
-    <string name="label_date_created">Date Created:</string>
     <string name="label_dimensions">Dimensions</string>
     <string name="label_event">Event</string>
     <string name="label_experiment">Experiment</string>
     <string name="label_file_size">File Size</string>
-    <string name="label_file_size">File Size:</string>
     <string name="label_format_iterations">%d cycles</string>
     <string name="label_generator">Generator</string>
     <string name="label_generator_range">Range</string>
@@ -34,8 +31,8 @@
     <string name="label_is_required">is required</string>
     <string name="label_iteration">1 cycle</string>
     <string name="label_last_run">Last Run</string>
-    <string name="label_last_run">Last Run:</string>
     <string name="label_loop">Loop</string>
+    <string name="label_loop_cycles">Iterations</string>
     <string name="label_modified">Modified</string>
     <string name="label_name">Name</string>
     <string name="label_no_actions">No Actions</string>
@@ -47,7 +44,6 @@
     <string name="label_no_rules">No Rules</string>
     <string name="label_no_scenes">No Scenes</string>
     <string name="label_number_subjects">Total Subjects</string>
-    <string name="label_number_subjects">Total Subjects:</string>
     <string name="label_operand">Operand</string>
     <string name="label_operands">Operands</string>
     <string name="label_orientation">Orientation</string>
@@ -62,7 +58,6 @@
     <string name="label_range_start">Start</string>
     <string name="label_record_name">Record name</string>
     <string name="label_record_size">Records</string>
-    <string name="label_record_size">Records:</string>
     <string name="label_records">Records</string>
     <string name="label_row_number">Number</string>
     <string name="label_row_start">Start</string>

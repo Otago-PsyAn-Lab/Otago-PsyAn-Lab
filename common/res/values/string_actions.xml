@@ -12,6 +12,8 @@
     <string name="action_discard">Discard</string>
     <string name="action_done">Done</string>
     <string name="action_edit">Edit</string>
+    <string name="action_import">Import</string>
+    <string name="action_new">New</string>
     <string name="action_new_loop">New Loop</string>
     <string name="action_new_rule">New Rule</string>
     <string name="action_remove">Remove</string>

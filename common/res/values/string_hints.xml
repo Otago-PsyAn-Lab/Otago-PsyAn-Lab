@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string name="hint_action_name">Action name</string>
+    <string name="hint_asset_name">Asset name</string>
+    <string name="hint_authors">Authors</string>
+    <string name="hint_column_names">Column names, comma separated.</string>
+    <string name="hint_data_channel_description">Notes</string>
+    <string name="hint_description">Description</string>
+    <string name="hint_description_subject">Description and assistance Text</string>
+    <string name="hint_experiment_name">Name</string>
+    <string name="hint_expression_input">Expression or literal</string>
+    <string name="hint_field_name">Field name</string>
+    <string name="hint_formula">Conditional formula</string>
+    <string name="hint_landing_page_description">Introduction, description, subject instructions, and anything else…</string>
+    <string name="hint_landing_page_title">Title</string>
+    <string name="hint_loop_name">Loop name</string>
+    <string name="hint_name">Name</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_prop_name">Prop name</string>
+    <string name="hint_rule_name">Rule name</string>
+    <string name="hint_scene_name">Scene name</string>
+    <string name="hint_subject_question">Question</string>
+    <string name="hint_title_subject">Title</string>
+    <string name="hint_username">Username</string>
+
+</resources>

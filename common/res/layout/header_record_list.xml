@@ -13,7 +13,6 @@
         android:gravity="left"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
-        android:text="@string/filler_record_header_count"
         android:textColor="@android:color/darker_gray"
         android:textIsSelectable="false"
         android:textSize="12sp"

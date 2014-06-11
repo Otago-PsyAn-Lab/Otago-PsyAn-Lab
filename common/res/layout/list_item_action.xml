@@ -15,7 +15,7 @@
             android:layout_height="16dip"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="8dip"
-            android:contentDescription="@string/accessibility_content_drag_handle"
+            android:contentDescription="@string/image_desc_drag_handle"
             android:src="@drawable/ic_handle_dark" />
     </FrameLayout>
     

@@ -1,6 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer.program.object;
 
+import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
 import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
@@ -57,7 +58,7 @@ public class PickObjectListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.fragment_pick_object_list, container, false);
     }
 
     @Override

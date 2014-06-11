@@ -400,5 +400,6 @@
     <string name="label_no_rules">No Rules</string>
     <string name="label_no_actions">No Actions</string>
     <string name="default_condition_name">Condition</string>
+    <string name="label_no_experiment_objects">Nothing here!</string>
 
 </resources>

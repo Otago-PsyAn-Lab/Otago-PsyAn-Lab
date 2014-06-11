@@ -13,7 +13,8 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dip"
         android:fontFamily="sans-serif-light"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@android:id/text1"

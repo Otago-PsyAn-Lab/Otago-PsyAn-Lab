@@ -25,6 +25,7 @@
         android:layout_marginLeft="16dip"
         android:fontFamily="sans-serif-light"
         android:singleLine="true"
+        android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>

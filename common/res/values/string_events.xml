@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string name="event_clicked">Clicked</string>
+    <string name="event_finger_down">Finger Down</string>
+    <string name="event_finger_drag_released">Finger Drag Released</string>
+    <string name="event_finger_drag_started">Finger Drag Started</string>
+    <string name="event_finger_motion">Finger Motion</string>
+    <string name="event_finger_up">Finger Up</string>
+    <string name="event_long_clicked">Long Clicked</string>
+    <string name="event_missing_string">Missing String</string>
+    <string name="event_on_click">On Click</string>
+    <string name="event_on_long_click">On Long Click</string>
+    <string name="event_scene_finish">Scene Finish</string>
+    <string name="event_scene_start">Scene Start</string>
+
+</resources>

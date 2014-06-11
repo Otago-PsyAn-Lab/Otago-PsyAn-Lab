@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string name="parameter_blue">Blue</string>
+    <string name="parameter_green">Green</string>
+    <string name="parameter_height">Height</string>
+    <string name="parameter_html_colour_code">HTML Colour Code</string>
+    <string name="parameter_image">Image</string>
+    <string name="parameter_missing_string">Missing parameter name</string>
+    <string name="parameter_opacity">Opacity</string>
+    <string name="parameter_red">Red</string>
+    <string name="parameter_size">Size</string>
+    <string name="parameter_text">Text</string>
+    <string name="parameter_variable_value">Value</string>
+    <string name="parameter_width">Width</string>
+    <string name="parameter_x">X</string>
+    <string name="parameter_y">Y</string>
+    <string name="paramter_colour">Colour</string>
+
+</resources>

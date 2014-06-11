@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string name="action_add_field">Add Field</string>
+    <string name="action_add_new">Add New</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_create">Create</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_discard_changes">Discard Changes</string>
+    <string name="action_discard">Discard</string>
+    <string name="action_done">Done</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_new_loop">New Loop</string>
+    <string name="action_new_rule">New Rule</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_save_exit">Save &amp; Exit</string>
+    <string name="action_save">Save</string>
+
+</resources>

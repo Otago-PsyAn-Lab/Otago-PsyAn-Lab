@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/loop_activated_background"
+    android:fontFamily="sans-serif-light"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingEnd="8dip"
     android:paddingStart="8dip"
-    android:textAppearance="?android:attr/textAppearanceListItemSmall" />
+    android:textAppearance="?android:attr/textAppearanceMedium" />

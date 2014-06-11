@@ -62,6 +62,7 @@
         android:background="?android:attr/listDivider" />
 
     <LinearLayout
+        android:layout_marginTop="16dip"
         android:id="@+id/operand_fragment_container"
         android:layout_width="0dip"
         android:layout_height="0dip"

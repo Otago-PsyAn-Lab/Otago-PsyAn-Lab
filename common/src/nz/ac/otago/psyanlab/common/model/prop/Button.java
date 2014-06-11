@@ -11,11 +11,11 @@ import android.content.Context;
 import android.os.Parcel;
 
 public class Button extends Text {
-    protected static final int METHOD_SET_COLOUR_TINT = 0x201;
+    protected static final int METHOD_SET_COLOUR_TINT = 0x01 + Prop.BUTTON_NS_OFFSET;
 
-    protected static final int METHOD_SET_COLOUR_TINT_HTML = 0x202;
+    protected static final int METHOD_SET_COLOUR_TINT_HTML = 0x02 + Prop.BUTTON_NS_OFFSET;
 
-    protected static final int METHOD_SET_COLOUR_TINT_RGB = 0x203;
+    protected static final int METHOD_SET_COLOUR_TINT_RGB = 0x03 + Prop.BUTTON_NS_OFFSET;
 
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();

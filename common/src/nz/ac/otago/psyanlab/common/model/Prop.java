@@ -16,6 +16,8 @@ import android.os.Parcelable;
 import java.lang.reflect.InvocationTargetException;
 
 public abstract class Prop extends ExperimentObject implements Parcelable {
+    public static final int BUTTON_NS_OFFSET = 0x200;
+
     public static final Parcelable.Creator<Prop> CREATOR = new Parcelable.Creator<Prop>() {
         @Override
         public Prop createFromParcel(Parcel in) {
@@ -46,7 +48,11 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
         }
     };
 
+    public static final int IMAGE_NS_OFFSET = 0x300;
+
     public static final String NAMESPACE = "nz.ac.otago.psyanlab.common.model.prop.";
+
+    public static final int TEXT_NS_OFFSET = 0x100;
 
     protected static final int EVENT_CLICKED = 0x01;
 

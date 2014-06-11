@@ -12,11 +12,11 @@ import android.content.Context;
 import android.os.Parcel;
 
 public class Image extends Prop {
-    protected static final int METHOD_GET_IMAGE = 0x101;
+    protected static final int METHOD_GET_IMAGE = 0x01 + Prop.IMAGE_NS_OFFSET;
 
-    protected static final int METHOD_SET_IMAGE = 0x102;
+    protected static final int METHOD_SET_IMAGE = 0x02 + Prop.IMAGE_NS_OFFSET;
 
-    protected static final int PARAM_IMAGE = 0x101;
+    protected static final int PARAM_IMAGE = 0x01 + Prop.IMAGE_NS_OFFSET;
 
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();

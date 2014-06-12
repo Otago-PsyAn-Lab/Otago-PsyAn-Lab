@@ -30,11 +30,19 @@ public class ChannelsFragment extends Fragment implements ShowChannelListener,
 
     private ChannelDetailFragment mDetailFragment;
 
-    private ChannelListFragment mListFragment;
-
-    private SlidingPaneLayout mSlidingContainer;
-
     private DrawerListener mDrawerListener = new DrawerListener() {
+        @Override
+        public void onDrawerClosed(View arg0) {
+        }
+
+        @Override
+        public void onDrawerOpened(View arg0) {
+        }
+
+        @Override
+        public void onDrawerSlide(View arg0, float arg1) {
+        }
+
         @Override
         public void onDrawerStateChanged(final int newState) {
             if (mSlidingContainer.isOpen()) {
@@ -44,19 +52,11 @@ public class ChannelsFragment extends Fragment implements ShowChannelListener,
                 }
             }
         }
-
-        @Override
-        public void onDrawerSlide(View arg0, float arg1) {
-        }
-
-        @Override
-        public void onDrawerOpened(View arg0) {
-        }
-
-        @Override
-        public void onDrawerClosed(View arg0) {
-        }
     };
+
+    private ChannelListFragment mListFragment;
+
+    private SlidingPaneLayout mSlidingContainer;
 
     @Override
     public void onAttach(Activity activity) {
@@ -65,6 +65,18 @@ public class ChannelsFragment extends Fragment implements ShowChannelListener,
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
         mCallbacks = (ChannelCallbacks)activity;
+    }
+
+    @Override
+    public void onChannelDeleted() {
+        FragmentManager fm = getChildFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(mDetailFragment);
+        ft.commit();
+
+        mDetailFragment = null;
+        mSlidingContainer.removeView(mDetailContainer);
+        mListFragment.deselectItem();
     }
 
     @Override
@@ -80,17 +92,6 @@ public class ChannelsFragment extends Fragment implements ShowChannelListener,
     }
 
     @Override
-    public void onChannelDeleted() {
-        FragmentManager fm = getChildFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.remove(mDetailFragment);
-        ft.commit();
-
-        mDetailFragment = null;
-        mSlidingContainer.removeView(mDetailContainer);
-    }
-
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -99,7 +100,6 @@ public class ChannelsFragment extends Fragment implements ShowChannelListener,
         mSlidingContainer = (SlidingPaneLayout)view.findViewById(R.id.sliding_container);
         mSlidingContainer.setParallaxDistance((int)getResources().getDimension(
                 R.dimen.sliding_container_parallax));
-        mSlidingContainer.setShadowResource(R.drawable.opal_list_background);
 
         mDetailContainer = view.findViewById(R.id.asset_detail_container);
 
@@ -127,6 +127,19 @@ public class ChannelsFragment extends Fragment implements ShowChannelListener,
         // Register listener so we can push asset selection through to the
         // detail view.
         mListFragment.setShowChannelListener(this);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mSlidingContainer.isSlideable()) {
+                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background);
+                    mSlidingContainer.invalidate();
+                } else {
+                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background_flat);
+                    mSlidingContainer.invalidate();
+                }
+            }
+        }, 100);
     }
 
     @Override
@@ -146,6 +159,14 @@ public class ChannelsFragment extends Fragment implements ShowChannelListener,
             @Override
             public void run() {
                 mSlidingContainer.closePane();
+
+                if (mSlidingContainer.isSlideable()) {
+                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background);
+                    mSlidingContainer.invalidate();
+                } else {
+                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background_flat);
+                    mSlidingContainer.invalidate();
+                }
             }
         });
     }

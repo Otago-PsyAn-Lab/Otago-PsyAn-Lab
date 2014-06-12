@@ -26,6 +26,8 @@ public class ChannelListFragment extends Fragment {
 
     private ChannelCallbacks mCallbacks;
 
+    private View mRootView;
+
     private ShowChannelListener mShowChannelListener = sDummy;
 
     private ViewHolder mViews;
@@ -54,8 +56,13 @@ public class ChannelListFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mShowChannelListener.showChannel(id);
+            mRootView.setBackgroundResource(R.color.card_background);
         }
     };
+
+    public void deselectItem() {
+        mRootView.setBackgroundResource(R.drawable.background_designer_program_default);
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -75,12 +82,23 @@ public class ChannelListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mRootView = view;
+
         mViews = new ViewHolder(view);
         mViews.initViews();
+        updateBackground();
     }
 
     public void setShowChannelListener(ShowChannelListener listener) {
         mShowChannelListener = listener;
+    }
+
+    private void updateBackground() {
+        if (mViews.mList.getCheckedItemPosition() == ListView.INVALID_POSITION) {
+            mRootView.setBackgroundResource(R.drawable.background_designer_program_default);
+        } else {
+            mRootView.setBackgroundResource(R.color.card_background);
+        }
     }
 
     public interface ShowChannelListener {

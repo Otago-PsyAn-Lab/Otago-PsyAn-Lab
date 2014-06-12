@@ -92,5 +92,9 @@
     <string name="label_user_records">Records</string>
     <string name="label_user_subjects">Total Subjects</string>
     <string name="label_variables">Variables</string>
+    <string name="label_scope_global">Global</string>
+    <string name="label_scope_loop">Loop</string>
+    <string name="label_scope_rule">Rule</string>
+    <string name="label_scope_scene">Scene</string>
 
 </resources>

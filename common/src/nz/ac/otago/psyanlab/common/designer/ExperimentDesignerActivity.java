@@ -675,24 +675,24 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             switch (scopeLevel) {
                 case SCOPE_RULE:
                     if (anyObjectsMatching(scopeLevel, callerKind, callerId, filter)) {
-                        Rule rule = mExperiment.rules.get(callerId);
-                        stubs.add(new PageData(rule.name, scopeLevel));
+                        stubs.add(new PageData(getString(R.string.label_scope_rule), scopeLevel));
                     }
                     scopeLevel = SCOPE_SCENE;
                 case SCOPE_SCENE:
                     if (anyObjectsMatching(scopeLevel, callerKind, callerId, filter)) {
-                        Scene scene = mExperiment.scenes.get(callerId);
-                        stubs.add(new PageData(scene.name, scopeLevel));
+                        stubs.add(new PageData(getString(R.string.label_scope_scene), scopeLevel));
                     }
                     scopeLevel = SCOPE_LOOP;
                 case SCOPE_LOOP:
                     if (anyObjectsMatching(scopeLevel, callerKind, callerId, filter)) {
-                        Loop loop = mExperiment.loops.get(callerId);
-                        stubs.add(new PageData(loop.name, scopeLevel));
+                        stubs.add(new PageData(getString(R.string.label_scope_loop), scopeLevel));
                     }
 
                     scopeLevel = SCOPE_EXPERIMENT;
                 case SCOPE_EXPERIMENT:
+                    if (anyObjectsMatching(scopeLevel, callerKind, callerId, filter)) {
+                        stubs.add(new PageData(getString(R.string.label_scope_global), scopeLevel));
+                    }
                 default:
                     scopeLevel = SCOPE_NONE;
                     break;

@@ -385,8 +385,8 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             mObject.setText(mCallbacks.getExperimentObject(operand.getObject())
                     .getExperimentObjectName(getActivity()));
             mMethod.setEnabled(true);
-            SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(mCallbacks
-                    .getExperimentObject(operand.getObject()).getClass(), mOperandType);
+            SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(
+                    mCallbacks.getExperimentObject(operand.getObject()), mOperandType);
 
             mMethod.setAdapter(methodsAdapter);
 

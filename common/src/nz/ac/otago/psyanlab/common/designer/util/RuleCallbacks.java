@@ -7,7 +7,6 @@ import nz.ac.otago.psyanlab.common.model.Rule;
 import android.widget.SpinnerAdapter;
 
 public interface RuleCallbacks {
-
     void addRuleDataChangeListener(RuleDataChangeListener listener);
 
     long addRule(Rule rule);
@@ -15,8 +14,6 @@ public interface RuleCallbacks {
     void deleteRule(long id);
 
     SpinnerAdapter getEventsAdapter(Class<?> clazz);
-
-    SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes);
 
     Rule getRule(long ruleId);
 

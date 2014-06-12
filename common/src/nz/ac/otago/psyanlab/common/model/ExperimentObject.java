@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.model;
 import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
@@ -12,6 +13,7 @@ import nz.ac.otago.psyanlab.common.model.util.Type;
 import android.content.Context;
 
 import java.lang.reflect.Method;
+import java.util.SortedSet;
 
 public abstract class ExperimentObject {
     /**
@@ -93,10 +95,6 @@ public abstract class ExperimentObject {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public static NameResolverFactory getParameterNameFactory() {
         return new ParameterNameFactory();
     }
@@ -144,6 +142,14 @@ public abstract class ExperimentObject {
      */
     abstract public String getExperimentObjectName(Context context);
 
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
+
+    public int getTag() {
+        return tag;
+    }
+
     /**
      * The kind of object this experiment object is.
      * 
@@ -151,8 +157,21 @@ public abstract class ExperimentObject {
      */
     abstract public int kind();
 
-    public int getTag() {
-        return tag;
+    public void loadInMatchingMethods(int returnType, SortedSet<MethodData> out) {
+        Class<? extends ExperimentObject> clazz = getClass();
+        Method[] methods = clazz.getMethods();
+
+        // Filter methods for those which register listeners for events.
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            MethodId annotation = method.getAnnotation(MethodId.class);
+            if (annotation != null && returnTypeIntersects(method, returnType)) {
+                MethodData data = new MethodData();
+                data.id = annotation.value();
+                data.method = method;
+                out.add(data);
+            }
+        }
     }
 
     public boolean satisfiesFilter(int filter) {
@@ -204,6 +223,33 @@ public abstract class ExperimentObject {
                 return false;
             }
         }
+    }
+
+    /**
+     * Checks to see the given ored set of return types intersects with the
+     * given method's return type.
+     * 
+     * @param method Method to test.
+     * @param returnTypes Ored set of return types.
+     * @return True if intersection.
+     */
+    private boolean returnTypeIntersects(Method method, int returnTypes) {
+        if ((returnTypes & Type.TYPE_BOOLEAN) != 0 && method.getReturnType().equals(Boolean.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Type.TYPE_INTEGER) != 0 && method.getReturnType().equals(Integer.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Type.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Type.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
+            return true;
+        }
+        if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
+            return true;
+        }
+        return false;
     }
 
     public static class EventNameFactory implements NameResolverFactory {

@@ -5,11 +5,12 @@ import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 public class Random extends Generator {
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
+    public Random() {
     }
 
-    public Random() {
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     protected static class MethodNameFactory extends Generator.MethodNameFactory {

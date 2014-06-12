@@ -21,10 +21,6 @@ public class Button extends Text {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public static NameResolverFactory getParameterNameFactory() {
         return new ParameterNameFactory();
     }
@@ -35,6 +31,11 @@ public class Button extends Text {
 
     public Button(Parcel in) {
         super(in);
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT)

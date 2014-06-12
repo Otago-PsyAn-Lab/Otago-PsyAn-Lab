@@ -10,13 +10,14 @@ import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 public class Font extends Asset {
     protected static final int METHOD_GET_FONT = 0x01;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public Font() {
         mTypeId = 0x05;
         mHeaderResId = R.string.header_fonts;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @MethodId(METHOD_GET_FONT)

@@ -17,13 +17,14 @@ public class TouchEvent extends ExperimentObject {
 
     private static final int METHOD_GET_Y = 0x03;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     @Override
     public String getExperimentObjectName(Context context) {
         return context.getString(R.string.label_touch_event);
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @Override

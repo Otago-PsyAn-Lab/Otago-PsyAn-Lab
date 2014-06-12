@@ -29,10 +29,6 @@ public class Scene extends ExperimentObject {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     @Expose
     public String name;
 
@@ -71,6 +67,11 @@ public class Scene extends ExperimentObject {
     @Override
     public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_scene_class_name, name);
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @Override

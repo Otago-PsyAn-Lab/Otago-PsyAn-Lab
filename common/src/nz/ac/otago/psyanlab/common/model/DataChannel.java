@@ -19,10 +19,6 @@ import java.util.ArrayList;
 public class DataChannel extends ExperimentObject {
     protected static final int METHOD_WRITE = 0x01;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     /**
      * User notes or description of the data channel.
      */
@@ -48,6 +44,11 @@ public class DataChannel extends ExperimentObject {
     @Override
     public String getExperimentObjectName(Context context) {
         return name;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @Override

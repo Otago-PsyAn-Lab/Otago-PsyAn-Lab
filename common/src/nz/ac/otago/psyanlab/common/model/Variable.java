@@ -17,10 +17,6 @@ public abstract class Variable extends ExperimentObject {
 
     protected static final int PARAM_VALUE = 0x01;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public static NameResolverFactory getParameterNameFactory() {
         return new ParameterNameFactory();
     }
@@ -31,6 +27,11 @@ public abstract class Variable extends ExperimentObject {
     @Override
     public String getExperimentObjectName(Context context) {
         return name;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     public String getName() {

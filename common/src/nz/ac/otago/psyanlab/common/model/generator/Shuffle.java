@@ -5,7 +5,8 @@ import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 public class Shuffle extends Generator {
-    public static NameResolverFactory getMethodNameFactory() {
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
     }
 

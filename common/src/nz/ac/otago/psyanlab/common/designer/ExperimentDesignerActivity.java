@@ -70,11 +70,9 @@ import nz.ac.otago.psyanlab.common.model.channel.Field;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
-import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.OperandHolder;
-import nz.ac.otago.psyanlab.common.model.util.Type;
 import nz.ac.otago.psyanlab.common.util.Args;
 import nz.ac.otago.psyanlab.common.util.ConfirmDialogFragment;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
@@ -596,11 +594,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      * @return
      */
     @Override
-    public SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes) {
+    public SpinnerAdapter getMethodsAdapter(ExperimentObject object, int returnTypes) {
         // Obtain the name factory to pull the internationalised event names.
         SortedSet<MethodData> filteredMethods;
 
-        final NameResolverFactory nameFactory = ModelUtils.getMethodNameFactory(clazz);
+        final NameResolverFactory nameFactory = object.getMethodNameFactory();
 
         filteredMethods = new TreeSet<MethodData>(new Comparator<MethodData>() {
             @Override
@@ -611,19 +609,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             }
         });
 
-        Method[] methods = clazz.getMethods();
-
-        // Filter methods for those which register listeners for events.
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            MethodId annotation = method.getAnnotation(MethodId.class);
-            if (annotation != null && returnTypeIntersects(method, returnTypes)) {
-                MethodData data = new MethodData();
-                data.id = annotation.value();
-                data.method = method;
-                filteredMethods.add(data);
-            }
-        }
+        object.loadInMatchingMethods(returnTypes, filteredMethods);
 
         return new MethodAdapter(this, filteredMethods, nameFactory);
     }
@@ -1843,33 +1829,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         return experiment;
-    }
-
-    /**
-     * Checks to see the given ored set of return types intersects with the
-     * given method's return type.
-     * 
-     * @param method Method to test.
-     * @param returnTypes Ored set of return types.
-     * @return True if intersection.
-     */
-    private boolean returnTypeIntersects(Method method, int returnTypes) {
-        if ((returnTypes & Type.TYPE_BOOLEAN) != 0 && method.getReturnType().equals(Boolean.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Type.TYPE_INTEGER) != 0 && method.getReturnType().equals(Integer.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Type.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Type.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
-            return true;
-        }
-        if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
-            return true;
-        }
-        return false;
     }
 
     private void selectSection(int section) {

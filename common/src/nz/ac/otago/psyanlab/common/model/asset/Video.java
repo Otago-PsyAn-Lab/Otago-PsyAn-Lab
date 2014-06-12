@@ -10,13 +10,14 @@ import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 public class Video extends Asset {
     protected static final int METHOD_GET_VIDEO = 0x01;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public Video() {
         mTypeId = 0x04;
         mHeaderResId = R.string.header_videos;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @MethodId(METHOD_GET_VIDEO)

@@ -10,13 +10,14 @@ import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 public class Sound extends Asset {
     protected static final int METHOD_GET_SOUND = 0x01;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public Sound() {
         mTypeId = 0x03;
         mHeaderResId = R.string.header_sounds;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @MethodId(METHOD_GET_SOUND)

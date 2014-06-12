@@ -72,10 +72,6 @@ public class Text extends Prop {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public static NameResolverFactory getParameterNameFactory() {
         return new ParameterNameFactory();
     }
@@ -110,6 +106,11 @@ public class Text extends Prop {
 
         text = in.readString();
         fontSize = in.readInt();
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     public String getText() {

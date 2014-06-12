@@ -10,13 +10,14 @@ import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 public class Image extends Asset {
     protected static final int METHOD_GET_IMAGE = 0x01;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     public Image() {
         mTypeId = 0x02;
         mHeaderResId = R.string.header_images;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @MethodId(METHOD_GET_IMAGE)

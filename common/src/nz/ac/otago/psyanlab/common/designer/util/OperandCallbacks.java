@@ -2,6 +2,7 @@
 package nz.ac.otago.psyanlab.common.designer.util;
 
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDataChangeListener;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Operand;
 
 import android.widget.SpinnerAdapter;
@@ -90,5 +91,5 @@ public interface OperandCallbacks {
      * @return An adapter that mediates access to the desired set of methods
      *         defined on the given class.
      */
-    SpinnerAdapter getMethodsAdapter(Class<?> clazz, int returnTypes);
+    SpinnerAdapter getMethodsAdapter(ExperimentObject object, int returnTypes);
 }

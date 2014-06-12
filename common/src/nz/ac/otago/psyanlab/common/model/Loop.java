@@ -20,10 +20,6 @@ public class Loop extends ExperimentObject {
 
     protected static final int METHOD_GET_TOTAL_ITERATIONS = 0x103;
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     @Expose
     public ArrayList<Long> generators;
 
@@ -53,6 +49,11 @@ public class Loop extends ExperimentObject {
     @Override
     public String getExperimentObjectName(Context context) {
         return context.getString(R.string.format_loop_class_name, name);
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @Override

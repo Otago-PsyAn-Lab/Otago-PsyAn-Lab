@@ -33,10 +33,6 @@ public class Csv extends Asset {
         csv.mFileCounted = true;
     }
 
-    public static NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
     @Expose
     public int colStart = 0;
 
@@ -63,6 +59,11 @@ public class Csv extends Asset {
 
     public boolean fileCounted() {
         return mFileCounted;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     public int getTotalCols() {

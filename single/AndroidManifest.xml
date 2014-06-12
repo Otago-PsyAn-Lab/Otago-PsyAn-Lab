@@ -28,11 +28,16 @@
         <activity android:name="nz.ac.otago.psyanlab.common.PaleDetailActivity" />
         <activity android:name="nz.ac.otago.psyanlab.common.ImportPaleActivity" />
         <activity android:name="nz.ac.otago.psyanlab.common.runtime.ExperimentRuntimeActivity" />
-        <activity android:name="nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity" />
-        <activity android:name="nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity" />
+        <activity
+            android:name="nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity"
+            android:theme="@style/DesignerTheme" />
+        <activity
+            android:name="nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity"
+            android:theme="@style/DesignerTheme" />
         <activity
             android:name="nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity"
             android:configChanges="orientation|screenSize"
+            android:theme="@style/DesignerTheme"
             android:windowSoftInputMode="adjustResize" />
 
         <provider

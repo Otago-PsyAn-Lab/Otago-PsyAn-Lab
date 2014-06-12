@@ -284,6 +284,9 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mCallbacks.registerDialogueResultListener(RequestCodes.OPERAND_ACTION_OBJECT,
+                mOperandActionDialogueResultListener);
+
         Operand operand = mCallbacks.getOperand(mObjectId);
         if (operand instanceof CallValue) {
             mCallValue = (CallValue)operand;
@@ -384,7 +387,6 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
             mMethod.setEnabled(true);
             SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(mCallbacks
                     .getExperimentObject(operand.getObject()).getClass(), mOperandType);
-
 
             mMethod.setAdapter(methodsAdapter);
 

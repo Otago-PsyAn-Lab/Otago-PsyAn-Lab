@@ -10,6 +10,8 @@ import android.support.v4.app.DialogFragment;
 public class ConfirmDialogFragment extends DialogFragment {
     public static final String TAG = "ConfirmDialogFragment";
 
+    private static final String ARG_MESSAGE = "arg_message";
+
     private static final String ARG_NEGATIVE = "arg_negative";
 
     private static final String ARG_NEUTRAL = "arg_neutral";
@@ -24,15 +26,61 @@ public class ConfirmDialogFragment extends DialogFragment {
         }
     };
 
-    public static ConfirmDialogFragment newInstance(int title, int positive, int negative,
-            int neutral, OnClickListener positiveClickListener,
+    public static ConfirmDialogFragment newInstance(int title, int message, int positiveLabel,
+            int negativeLabel, int neutralLabel, OnClickListener positiveClickListener,
+            OnClickListener negativeClickListener, OnClickListener neutralClickListener) {
+        ConfirmDialogFragment fragment = ConfirmDialogFragment.newInstance(positiveLabel,
+                negativeLabel, neutralLabel, positiveClickListener, negativeClickListener,
+                neutralClickListener);
+        Bundle args = fragment.getArguments();
+        args.putInt(ARG_MESSAGE, message);
+        args.putInt(ARG_TITLE, title);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static DialogFragment newInstance(int title, int message, int positiveLabel,
+            int negativeLabel, OnClickListener positiveClickListener,
+            OnClickListener negativeClickListener) {
+        ConfirmDialogFragment fragment = ConfirmDialogFragment.newInstance(positiveLabel,
+                negativeLabel, positiveClickListener, negativeClickListener);
+        Bundle args = fragment.getArguments();
+        args.putInt(ARG_MESSAGE, message);
+        args.putInt(ARG_TITLE, title);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static ConfirmDialogFragment newInstance(int title, int positiveLabel,
+            int negativeLabel, int neutralLabel, OnClickListener positiveClickListener,
+            OnClickListener negativeClickListener, OnClickListener neutralClickListener) {
+        ConfirmDialogFragment fragment = ConfirmDialogFragment.newInstance(positiveLabel,
+                negativeLabel, neutralLabel, positiveClickListener, negativeClickListener,
+                neutralClickListener);
+        Bundle args = fragment.getArguments();
+        args.putInt(ARG_TITLE, title);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static DialogFragment newInstance(int title, int positiveLabel, int negativeLabel,
+            OnClickListener positiveClickListener, OnClickListener negativeClickListener) {
+        ConfirmDialogFragment fragment = ConfirmDialogFragment.newInstance(positiveLabel,
+                negativeLabel, positiveClickListener, negativeClickListener);
+        Bundle args = fragment.getArguments();
+        args.putInt(ARG_TITLE, title);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static ConfirmDialogFragment newInstance(int positiveLabel, int negativeLabel,
+            int neutralLabel, OnClickListener positiveClickListener,
             OnClickListener negativeClickListener, OnClickListener neutralClickListener) {
         ConfirmDialogFragment fragment = new ConfirmDialogFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_TITLE, title);
-        args.putInt(ARG_POSITIVE, positive);
-        args.putInt(ARG_NEGATIVE, negative);
-        args.putInt(ARG_NEUTRAL, neutral);
+        args.putInt(ARG_POSITIVE, positiveLabel);
+        args.putInt(ARG_NEGATIVE, negativeLabel);
+        args.putInt(ARG_NEUTRAL, neutralLabel);
         fragment.setArguments(args);
         fragment.setOnPositiveClickListener(positiveClickListener);
         fragment.setOnNegativeClickListener(negativeClickListener);
@@ -40,13 +88,12 @@ public class ConfirmDialogFragment extends DialogFragment {
         return fragment;
     }
 
-    public static ConfirmDialogFragment newInstance(int title, int positive, int negative,
+    public static ConfirmDialogFragment newInstance(int positiveLabel, int negativeLabel,
             OnClickListener positiveClickListener, OnClickListener negativeClickListener) {
         ConfirmDialogFragment fragment = new ConfirmDialogFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_TITLE, title);
-        args.putInt(ARG_POSITIVE, positive);
-        args.putInt(ARG_NEGATIVE, negative);
+        args.putInt(ARG_POSITIVE, positiveLabel);
+        args.putInt(ARG_NEGATIVE, negativeLabel);
         fragment.setArguments(args);
         fragment.setOnPositiveClickListener(positiveClickListener);
         fragment.setOnNegativeClickListener(negativeClickListener);
@@ -62,16 +109,23 @@ public class ConfirmDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle arguments = getArguments();
-        int title = arguments.getInt(ARG_TITLE);
         int positive = arguments.getInt(ARG_POSITIVE);
         int negative = arguments.getInt(ARG_NEGATIVE);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(title).setPositiveButton(positive, new DialogInterface.OnClickListener() {
+        if (arguments.containsKey(ARG_TITLE)) {
+            builder.setTitle(arguments.getInt(ARG_TITLE));
+        }
+        if (arguments.containsKey(ARG_MESSAGE)) {
+            builder.setMessage(arguments.getInt(ARG_MESSAGE));
+        }
+        builder.setPositiveButton(positive, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
                 mPositiveListener.onClick(getDialog());
             }
         }).setNegativeButton(negative, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
                 mNegativeListener.onClick(getDialog());
             }

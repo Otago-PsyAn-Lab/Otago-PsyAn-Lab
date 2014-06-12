@@ -95,8 +95,7 @@ public class ClearOperandDialogueFragment extends DialogFragment {
 
         // Build dialogue.
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(getString(mTitleResId, mOperand.getName()))
-                .setMessage(getString(R.string.message_clear_operand, mOperand.getName()))
+        builder.setMessage(getString(R.string.message_clear_operand, mOperand.getName()))
                 .setPositiveButton(R.string.action_clear, mPositiveListener)
                 .setNegativeButton(R.string.action_cancel, mNegativeListener);
 

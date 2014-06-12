@@ -53,7 +53,7 @@
     <string name="image_desc_drag_handle">Drag Handle</string>
     <string name="image_desc_remove_question">Remove</string>
     <string name="message_auth_failure">Sorry, try again.</string>
-    <string name="message_clear_operand">Clear value for \'%1$s\'?</string>
+    <string name="message_clear_operand">Clear variable \'%1$s\'?</string>
     <string name="message_error">An error has occurred.</string>
     <string name="message_name_empty">The user must have a name.</string>
     <string name="message_password_mismatch">Password mismatch.</string>
@@ -94,5 +94,7 @@
         <item quantity="one">got type %s</item>
         <item quantity="other">got types %s</item>
     </plurals>
+
+    <string name="message_exit_designer">Are you sure you want to exit? Exiting the designer now will save all changes up to this point. To discard changes please select the discard option from the menu.</string>
 
 </resources>

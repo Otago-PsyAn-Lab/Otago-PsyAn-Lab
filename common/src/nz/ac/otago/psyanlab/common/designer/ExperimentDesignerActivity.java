@@ -848,7 +848,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public void onBackPressed() {
         DialogFragment dialog = ConfirmDialogFragment.newInstance(R.string.title_exit_designer,
-                R.string.action_save_exit, R.string.action_cancel,
+                R.string.message_exit_designer, R.string.action_save_exit, R.string.action_cancel,
                 new ConfirmDialogFragment.OnClickListener() {
                     @Override
                     public void onClick(Dialog dialog) {

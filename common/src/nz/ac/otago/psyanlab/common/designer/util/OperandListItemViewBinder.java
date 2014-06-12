@@ -8,7 +8,6 @@ import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
-import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.Type;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
@@ -43,8 +42,7 @@ final public class OperandListItemViewBinder extends AbsViewBinder implements Vi
             CallOperand callOperand = (CallOperand)operand;
             ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
                     .getObject());
-            final NameResolverFactory nameFactory = ModelUtils
-                    .getMethodNameFactory(experimentObject.getClass());
+            final NameResolverFactory nameFactory = experimentObject.getMethodNameFactory();
 
             holder.textViews[1].setVisibility(View.VISIBLE);
             holder.textViews[1].setText(mActivity.getString(R.string.format_call_operand_value,

@@ -6,19 +6,17 @@ import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.OperandDa
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.operand.ClearOperandDialogueFragment.OnClearListener;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
-import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.RequestCodes;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject.MethodData;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject.ParameterData;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
-import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
-import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
-import nz.ac.otago.psyanlab.common.model.util.ParameterId;
 import nz.ac.otago.psyanlab.common.model.util.Type;
 import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
@@ -36,8 +34,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
@@ -54,44 +50,14 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
         public void onItemSelected(AdapterView<?> parent, View view, int position, long methodId) {
             if (mCallValue.method != (int)methodId) {
                 // Update operands for newly selected method.
-                MethodData data = (MethodData)parent.getAdapter().getItem(position);
-                Class<?>[] params = data.method.getParameterTypes();
+                MethodData methodData = (MethodData)parent.getAdapter().getItem(position);
+                ExperimentObject object = mCallbacks.getExperimentObject(mCallValue.object);
 
-                // Get the prop and instantiate our parameter name factory.
-                ExperimentObject actionObject = mCallbacks.getExperimentObject(mCallValue.object);
-                final NameResolverFactory parameterNameFactory = ModelUtils
-                        .getParameterNameFactory(actionObject.getClass());
+                ParameterData[] parameters = object.getParameters(methodData.id);
 
                 ArrayList<Long> operands = new ArrayList<Long>();
-
-                for (int parameterPosition = 0; parameterPosition < params.length; parameterPosition++) {
-                    Class<?> parameterType = params[parameterPosition];
-
-                    final ParameterId paramAnnotation = getParameterIdAnnotation(parameterPosition,
-                            data.method);
-
-                    // Sanity check; expect annotation is present for parameter.
-                    if (paramAnnotation == null) {
-                        throw new RuntimeException("Missing annotation for parameter "
-                                + parameterPosition + " of method " + methodId + " on class "
-                                + actionObject.getClass().getName());
-                    }
-
-                    final int parameterId = paramAnnotation.value();
-
-                    // Switch upon the parameter type and reuse the old operand
-                    // if it fits, or create a new operand to fill it.
-
-                    if (parameterType.isAssignableFrom(float.class)) {
-                        operands.add(createParameterOperand(parameterId, Type.TYPE_FLOAT,
-                                parameterNameFactory));
-                    } else if (parameterType.isAssignableFrom(int.class)) {
-                        operands.add(createParameterOperand(parameterId, Type.TYPE_INTEGER,
-                                parameterNameFactory));
-                    } else if (parameterType.isAssignableFrom(String.class)) {
-                        operands.add(createParameterOperand(parameterId, Type.TYPE_STRING,
-                                parameterNameFactory));
-                    }
+                for (ParameterData parameter : parameters) {
+                    operands.add(createParameterOperand(parameter));
                 }
 
                 // Cleanup operands orphaned by matching process.
@@ -104,16 +70,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
 
                 // Update operand with new method and type.
                 mCallValue.method = (int)methodId;
-                Class<?> returnType = data.method.getReturnType();
-                if (returnType.equals(Boolean.TYPE)) {
-                    mCallValue.type = Type.TYPE_BOOLEAN;
-                } else if (returnType.equals(Integer.TYPE)) {
-                    mCallValue.type = Type.TYPE_INTEGER;
-                } else if (returnType.equals(Float.TYPE)) {
-                    mCallValue.type = Type.TYPE_FLOAT;
-                } else if (returnType.equals(String.class)) {
-                    mCallValue.type = Type.TYPE_STRING;
-                }
+                mCallValue.type = methodData.returnType;
 
                 mViews.updateViews(mCallValue);
             }
@@ -121,81 +78,6 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
 
         @Override
         public void onNothingSelected(AdapterView<?> parent) {
-        }
-
-        /**
-         * Finds any existing operand assigned to the given parameter id and
-         * attempts to reuse it for the given parameter. Otherwise, the supplied
-         * operand is used.
-         * 
-         * @param parameterId Parameter id to match on.
-         * @param newOperand New operand to use if the parameter doesn't have an
-         *            existing operand, or the old operand can not be coerced to
-         *            the required type.
-         * @param desiredType Desired type for the final operand as required by
-         *            the parameter.
-         * @param nameFactory
-         * @return Id of the operand that filled the parameter.
-         */
-        private long createParameterOperand(int parameterId, int desiredType,
-                NameResolverFactory nameFactory) {
-            String paramName = getString(nameFactory.getResId(parameterId));
-
-            long operandId = -1;
-            Operand operand = null;
-            for (int i = 0; i < mCallValue.parameters.size(); i++) {
-                long currentId = mCallValue.parameters.get(i);
-                Operand currentOperand = mCallbacks.getOperand(currentId);
-                if (currentOperand.getTag() == parameterId) {
-                    operand = currentOperand;
-                    operandId = currentId;
-                    break;
-                }
-            }
-
-            // Couldn't find a match so create a stub and use that.
-            if (operand == null) {
-                operand = new StubOperand(paramName);
-            }
-
-            // Try to coerce the type of the operand. If it fails create a new
-            // stub one instead of reusing the old one.
-            if (!operand.attemptRestrictType(desiredType)) {
-                operandId = -1;
-                operand = new StubOperand(paramName);
-                if (!operand.attemptRestrictType(desiredType)) {
-                    // If stub operands are failing to coerce correctly then we
-                    // will actually attempt twice, ohwell.
-                    throw new RuntimeException("Stub operand failed to bind to requested type "
-                            + desiredType + ". This should not be possible.");
-                }
-            }
-
-            operand.setTag(parameterId);
-            if (operandId == -1) {
-                return mCallbacks.addOperand(operand);
-            }
-
-            mCallbacks.putOperand(operandId, operand);
-            return operandId;
-        }
-
-        /**
-         * Get the parameter id annotation for a parameter of the given method.
-         * 
-         * @param parameterPosition Position of parameter in method.
-         * @param method Method to query.
-         * @return
-         */
-        private ParameterId getParameterIdAnnotation(int parameterPosition, Method method) {
-            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-            for (int j = 0; j < parameterAnnotations.length; j++) {
-                Annotation annotation = parameterAnnotations[parameterPosition][j];
-                if (annotation instanceof ParameterId) {
-                    return (ParameterId)annotation;
-                }
-            }
-            return null;
         }
     };
 
@@ -306,6 +188,62 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
         if (mCallValue.method != CallValue.INVALID_METHOD) {
             mCallbacks.putOperand(mObjectId, mCallValue);
         }
+    }
+
+    /**
+     * Finds any existing operand assigned to the given parameter id and
+     * attempts to reuse it for the given parameter. Otherwise, the supplied
+     * operand is used.
+     * 
+     * @param parameterId Parameter id to match on.
+     * @param newOperand New operand to use if the parameter doesn't have an
+     *            existing operand, or the old operand can not be coerced to the
+     *            required type.
+     * @param desiredType Desired type for the final operand as required by the
+     *            parameter.
+     * @param nameFactory
+     * @return Id of the operand that filled the parameter.
+     */
+    protected long createParameterOperand(final ParameterData parameter) {
+        final String paramName = getString(parameter.nameResId);
+
+        long operandId = -1;
+        Operand operand = null;
+        for (int i = 0; i < mCallValue.parameters.size(); i++) {
+            long currentId = mCallValue.parameters.get(i);
+            Operand currentOperand = mCallbacks.getOperand(currentId);
+            if (currentOperand.getTag() == parameter.id) {
+                operand = currentOperand;
+                operandId = currentId;
+                break;
+            }
+        }
+
+        // Couldn't find a match so create a stub and use that.
+        if (operand == null) {
+            operand = new StubOperand(paramName);
+        }
+
+        // Try to coerce the type of the operand. If it fails create a new
+        // stub one instead of reusing the old one.
+        if (!operand.attemptRestrictType(parameter.type)) {
+            operandId = -1;
+            operand = new StubOperand(paramName);
+            if (!operand.attemptRestrictType(parameter.type)) {
+                // If stub operands are failing to coerce correctly then we
+                // will actually attempt twice, ohwell.
+                throw new RuntimeException("Stub operand failed to bind to requested type "
+                        + parameter.type + ". This should not be possible.");
+            }
+        }
+
+        operand.setTag(parameter.id);
+        if (operandId == -1) {
+            return mCallbacks.addOperand(operand);
+        }
+
+        mCallbacks.putOperand(operandId, operand);
+        return operandId;
     }
 
     protected void showClearOperandDialogue(long id) {

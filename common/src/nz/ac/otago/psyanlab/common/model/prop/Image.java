@@ -22,10 +22,6 @@ public class Image extends Prop {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
     public Image(Context context, Prop prop, int defaultSuffix) {
         super(context, prop, defaultSuffix);
     }
@@ -37,6 +33,11 @@ public class Image extends Prop {
     @Override
     public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
     }
 
     @MethodId(METHOD_GET_IMAGE)

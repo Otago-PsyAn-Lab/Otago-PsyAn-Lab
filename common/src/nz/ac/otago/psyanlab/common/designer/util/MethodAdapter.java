@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
-import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject.MethodData;
 import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
 import android.content.Context;
@@ -13,7 +13,6 @@ import android.widget.ListAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import java.lang.reflect.Method;
 import java.util.SortedSet;
 
 public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAdapter {
@@ -23,12 +22,8 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
 
     private MethodData[] mMethods;
 
-    private NameResolverFactory mNameFactory;
-
-    public MethodAdapter(Context context, SortedSet<MethodData> methods,
-            NameResolverFactory nameFactory) {
+    public MethodAdapter(Context context, SortedSet<MethodData> methods) {
         mContext = context;
-        mNameFactory = nameFactory;
         mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mMethods = new MethodData[methods.size()];
@@ -37,15 +32,6 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
             mMethods[i] = method;
             i++;
         }
-    }
-
-    @Override
-    public String toString() {
-        String s = "";
-        for (MethodData md : mMethods) {
-            s += md.method + " ";
-        }
-        return s;
     }
 
     @Override
@@ -65,8 +51,7 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
             holder = (TextViewHolder)convertView.getTag();
         }
 
-        holder.textViews[0]
-                .setText(mContext.getString(mNameFactory.getResId(mMethods[position].id)));
+        holder.textViews[0].setText(mContext.getString(mMethods[position].nameResId));
 
         return convertView;
     }
@@ -93,8 +78,7 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
             holder = (TextViewHolder)convertView.getTag();
         }
 
-        holder.textViews[0]
-                .setText(mContext.getString(mNameFactory.getResId(mMethods[position].id)));
+        holder.textViews[0].setText(mContext.getString(mMethods[position].nameResId));
 
         return convertView;
     }
@@ -102,11 +86,5 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
     @Override
     public boolean hasStableIds() {
         return true;
-    }
-
-    public static class MethodData {
-        public int id;
-
-        public Method method;
     }
 }

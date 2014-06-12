@@ -21,10 +21,6 @@ public class Button extends Text {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
     public Button(Context context, Prop prop, int defaultSuffix) {
         super(context, prop, defaultSuffix);
     }
@@ -36,6 +32,11 @@ public class Button extends Text {
     @Override
     public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT)

@@ -46,7 +46,6 @@ import nz.ac.otago.psyanlab.common.designer.util.ExperimentObjectAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.GeneratorListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.LoopListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter;
-import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.RuleListItemViewBinder;
@@ -56,6 +55,7 @@ import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.DataChannel;
 import nz.ac.otago.psyanlab.common.model.Experiment;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject.MethodData;
 import nz.ac.otago.psyanlab.common.model.ExperimentObjectReference;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.LandingPage;
@@ -598,20 +598,17 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         // Obtain the name factory to pull the internationalised event names.
         SortedSet<MethodData> filteredMethods;
 
-        final NameResolverFactory nameFactory = object.getMethodNameFactory();
-
         filteredMethods = new TreeSet<MethodData>(new Comparator<MethodData>() {
             @Override
             public int compare(MethodData lhs, MethodData rhs) {
                 Collator collator = getCollater();
-                return collator.compare(getString(nameFactory.getResId(lhs.id)),
-                        getString(nameFactory.getResId(rhs.id)));
+                return collator.compare(getString(lhs.nameResId), getString(rhs.nameResId));
             }
         });
 
         object.loadInMatchingMethods(returnTypes, filteredMethods);
 
-        return new MethodAdapter(this, filteredMethods, nameFactory);
+        return new MethodAdapter(this, filteredMethods);
     }
 
     @Override

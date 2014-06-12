@@ -17,10 +17,6 @@ public abstract class Variable extends ExperimentObject {
 
     protected static final int PARAM_VALUE = 0x01;
 
-    public static NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
     @Expose
     String name;
 
@@ -36,6 +32,11 @@ public abstract class Variable extends ExperimentObject {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
     }
 
     abstract public String getValue();

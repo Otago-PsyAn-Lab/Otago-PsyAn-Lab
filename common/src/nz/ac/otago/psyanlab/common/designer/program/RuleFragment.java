@@ -20,7 +20,6 @@ import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
-import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.Type;
 
@@ -464,8 +463,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                 CallOperand callOperand = (CallOperand)condition;
                 ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
                         .getObject());
-                final NameResolverFactory nameFactory = ModelUtils
-                        .getMethodNameFactory(experimentObject.getClass());
+                final NameResolverFactory nameFactory = experimentObject.getMethodNameFactory();
                 operandDetail = getString(R.string.format_call_operand_value,
                         experimentObject.getExperimentObjectName(getActivity()),
                         getString(nameFactory.getResId(callOperand.getMethod())));

@@ -10,6 +10,7 @@ import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.SortedSet;
 
 /**
  * A DataChannel is the description of a record type the user wants to collect
@@ -59,6 +60,13 @@ public class DataChannel extends ExperimentObject {
     @Override
     public boolean satisfiesFilter(int filter) {
         return filter == HAS_SETTERS;
+    }
+
+    @Override
+    public void loadInMatchingMethods(int returnType, SortedSet<MethodData> out) {
+        MethodData methodData = new MethodData();
+        methodData.id = METHOD_WRITE;
+        out.add(methodData);
     }
 
     public static class Comparator implements java.util.Comparator<DataChannel> {

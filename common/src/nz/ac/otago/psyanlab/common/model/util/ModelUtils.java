@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -72,46 +73,74 @@ public class ModelUtils {
         return nameFactory;
     }
 
-    public static NameResolverFactory getMethodNameFactory(final Class<?> clazz) {
-        Method m;
-        try {
-            m = clazz.getMethod("getMethodNameFactory", (Class<?>[])null);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Error getting method name factory for " + clazz, e);
-        }
+    // public static NameResolverFactory getMethodNameFactory(final Class<?>
+    // clazz) {
+    // Method m;
+    // try {
+    // m = clazz.getMethod("getMethodNameFactory", (Class<?>[])null);
+    // } catch (NoSuchMethodException e) {
+    // throw new RuntimeException("Error getting method name factory for " +
+    // clazz, e);
+    // }
+    //
+    // final NameResolverFactory nameFactory;
+    // try {
+    // nameFactory = (NameResolverFactory)m.invoke(null, (Object[])null);
+    // } catch (IllegalAccessException e) {
+    // throw new RuntimeException("Error getting method name factory for " +
+    // clazz, e);
+    // } catch (IllegalArgumentException e) {
+    // throw new RuntimeException("Error getting method name factory for " +
+    // clazz, e);
+    // } catch (InvocationTargetException e) {
+    // throw new RuntimeException("Error getting method name factory for " +
+    // clazz, e);
+    // }
+    // return nameFactory;
+    // }
+    //
+    // public static NameResolverFactory getParameterNameFactory(final Class<?>
+    // clazz) {
+    // Method m;
+    // try {
+    // m = clazz.getMethod("getParameterNameFactory", (Class<?>[])null);
+    // } catch (NoSuchMethodException e) {
+    // throw new RuntimeException("Error getting parameter name factory for " +
+    // clazz, e);
+    // }
+    //
+    // final NameResolverFactory nameFactory;
+    // try {
+    // nameFactory = (NameResolverFactory)m.invoke(null, (Object[])null);
+    // } catch (IllegalAccessException e) {
+    // throw new RuntimeException("Error getting parameter name factory for " +
+    // clazz, e);
+    // } catch (IllegalArgumentException e) {
+    // throw new RuntimeException("Error getting parameter name factory for " +
+    // clazz, e);
+    // } catch (InvocationTargetException e) {
+    // throw new RuntimeException("Error getting parameter name factory for " +
+    // clazz, e);
+    // }
+    // return nameFactory;
+    // }
 
-        final NameResolverFactory nameFactory;
-        try {
-            nameFactory = (NameResolverFactory)m.invoke(null, (Object[])null);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Error getting method name factory for " + clazz, e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Error getting method name factory for " + clazz, e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Error getting method name factory for " + clazz, e);
+    /**
+     * Get the parameter id annotation for a parameter of the given method.
+     * 
+     * @param parameterPosition Position of parameter in method.
+     * @param method Method to query.
+     * @return
+     */
+    public static ParameterId getParameterIdAnnotation(int parameterPosition, Method method) {
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        for (int j = 0; j < parameterAnnotations.length; j++) {
+            Annotation annotation = parameterAnnotations[parameterPosition][j];
+            if (annotation instanceof ParameterId) {
+                return (ParameterId)annotation;
+            }
         }
-        return nameFactory;
-    }
-
-    public static NameResolverFactory getParameterNameFactory(final Class<?> clazz) {
-        Method m;
-        try {
-            m = clazz.getMethod("getParameterNameFactory", (Class<?>[])null);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
-        }
-
-        final NameResolverFactory nameFactory;
-        try {
-            nameFactory = (NameResolverFactory)m.invoke(null, (Object[])null);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Error getting parameter name factory for " + clazz, e);
-        }
-        return nameFactory;
+        return null;
     }
 
     public static Experiment readDefinition(String paleDefinition) {
@@ -122,5 +151,32 @@ public class ModelUtils {
     public static Experiment readFile(File paleFile) throws FileNotFoundException {
         return ModelUtils.getDataReaderWriter().fromJson(new JsonReader(new FileReader(paleFile)),
                 Experiment.class);
+    }
+
+    /**
+     * Checks to see the given ored set of return types intersects with the
+     * given method's return type.
+     * 
+     * @param method Method to test.
+     * @param returnTypes Ored set of return types.
+     * @return True if intersection.
+     */
+    public static boolean returnTypeIntersects(Method method, int returnTypes) {
+        if ((returnTypes & Type.TYPE_BOOLEAN) != 0 && method.getReturnType().equals(Boolean.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Type.TYPE_INTEGER) != 0 && method.getReturnType().equals(Integer.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Type.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
+            return true;
+        }
+        if ((returnTypes & Type.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
+            return true;
+        }
+        if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
+            return true;
+        }
+        return false;
     }
 }

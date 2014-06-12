@@ -9,13 +9,14 @@ public class Seekbar extends Prop {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
     @Override
     public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
     }
 
     protected static class EventNameFactory extends Prop.EventNameFactory {

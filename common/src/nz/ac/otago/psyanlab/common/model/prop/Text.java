@@ -72,10 +72,6 @@ public class Text extends Prop {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
     @Expose
     @PALEPropProperty(value = "Font Size")
     public int fontSize = -1;
@@ -111,6 +107,11 @@ public class Text extends Prop {
     @Override
     public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
     }
 
     public String getText() {

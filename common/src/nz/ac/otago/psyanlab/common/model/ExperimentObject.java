@@ -4,10 +4,14 @@ package nz.ac.otago.psyanlab.common.model;
 import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter.MethodData;
+import nz.ac.otago.psyanlab.common.model.typestub.ImageStub;
+import nz.ac.otago.psyanlab.common.model.typestub.SoundStub;
+import nz.ac.otago.psyanlab.common.model.typestub.VideoStub;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
+import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.util.ParameterId;
 import nz.ac.otago.psyanlab.common.model.util.Type;
 
 import android.content.Context;
@@ -95,7 +99,7 @@ public abstract class ExperimentObject {
         return new EventNameFactory();
     }
 
-    public static NameResolverFactory getParameterNameFactory() {
+    public NameResolverFactory getParameterNameFactory() {
         return new ParameterNameFactory();
     }
 
@@ -161,14 +165,39 @@ public abstract class ExperimentObject {
         Class<? extends ExperimentObject> clazz = getClass();
         Method[] methods = clazz.getMethods();
 
+        NameResolverFactory nameFactory = getMethodNameFactory();
+
         // Filter methods for those which register listeners for events.
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
             MethodId annotation = method.getAnnotation(MethodId.class);
-            if (annotation != null && returnTypeIntersects(method, returnType)) {
+            if (annotation != null && ModelUtils.returnTypeIntersects(method, returnType)) {
                 MethodData data = new MethodData();
                 data.id = annotation.value();
-                data.method = method;
+                data.nameResId = nameFactory.getResId(data.id);
+
+                Class<?> rt = method.getReturnType();
+                if (rt.equals(Void.TYPE)) {
+                    data.returnType = Type.TYPE_VOID;
+                } else if (rt.equals(Boolean.TYPE)) {
+                    data.returnType = Type.TYPE_BOOLEAN;
+                } else if (rt.equals(Integer.TYPE)) {
+                    data.returnType = Type.TYPE_INTEGER;
+                } else if (rt.equals(Float.TYPE)) {
+                    data.returnType = Type.TYPE_FLOAT;
+                } else if (rt.equals(String.class)) {
+                    data.returnType = Type.TYPE_STRING;
+                } else if (rt.equals(ImageStub.class)) {
+                    data.returnType = Type.TYPE_IMAGE;
+                } else if (rt.equals(SoundStub.class)) {
+                    data.returnType = Type.TYPE_SOUND;
+                } else if (rt.equals(VideoStub.class)) {
+                    data.returnType = Type.TYPE_VIDEO;
+                } else {
+                    throw new RuntimeException("Unknown return type for method " + data.id
+                            + " for class " + getClass().getName());
+                }
+
                 out.add(data);
             }
         }
@@ -225,33 +254,6 @@ public abstract class ExperimentObject {
         }
     }
 
-    /**
-     * Checks to see the given ored set of return types intersects with the
-     * given method's return type.
-     * 
-     * @param method Method to test.
-     * @param returnTypes Ored set of return types.
-     * @return True if intersection.
-     */
-    private boolean returnTypeIntersects(Method method, int returnTypes) {
-        if ((returnTypes & Type.TYPE_BOOLEAN) != 0 && method.getReturnType().equals(Boolean.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Type.TYPE_INTEGER) != 0 && method.getReturnType().equals(Integer.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Type.TYPE_FLOAT) != 0 && method.getReturnType().equals(Float.TYPE)) {
-            return true;
-        }
-        if ((returnTypes & Type.TYPE_STRING) != 0 && method.getReturnType().equals(String.class)) {
-            return true;
-        }
-        if (returnTypes == 0 && method.getReturnType().equals(Void.TYPE)) {
-            return true;
-        }
-        return false;
-    }
-
     public static class EventNameFactory implements NameResolverFactory {
         @Override
         public int getResId(int lookup) {
@@ -271,5 +273,86 @@ public abstract class ExperimentObject {
         public int getResId(int lookup) {
             return R.string.parameter_missing_string;
         }
+    }
+
+    public ParameterData[] getParameters(int methodId) {
+        final Method method = getMethod(methodId);
+
+        // Get name factory to generate localised parameter names later.
+        final NameResolverFactory nameFactory = getParameterNameFactory();
+
+        final Class<?>[] parameterReflections = method.getParameterTypes();
+        final ParameterData[] parameters = new ParameterData[parameterReflections.length];
+
+        // Load in all parameters.
+        for (int i = 0; i < parameterReflections.length; i++) {
+            // Expect annotation is present for parameter.
+            final ParameterId paramAnnotation = ModelUtils.getParameterIdAnnotation(i, method);
+            if (paramAnnotation == null) {
+                throw new RuntimeException("Missing annotation for parameter " + i + " of method "
+                        + methodId + " on class " + getClass().getName());
+            }
+
+            ParameterData parameter = new ParameterData();
+            parameter.id = paramAnnotation.value();
+            parameter.nameResId = nameFactory.getResId(parameter.id);
+
+            Class<?> parameterReflection = parameterReflections[i];
+            if (parameterReflection.isAssignableFrom(float.class)) {
+                parameter.type = Type.TYPE_FLOAT;
+            } else if (parameterReflection.isAssignableFrom(int.class)) {
+                parameter.type = Type.TYPE_INTEGER;
+            } else if (parameterReflection.isAssignableFrom(String.class)) {
+                parameter.type = Type.TYPE_STRING;
+            } else if (parameterReflection.isAssignableFrom(boolean.class)) {
+                parameter.type = Type.TYPE_BOOLEAN;
+            } else if (parameterReflection.isAssignableFrom(ImageStub.class)) {
+                parameter.type = Type.TYPE_IMAGE;
+            } else if (parameterReflection.isAssignableFrom(SoundStub.class)) {
+                parameter.type = Type.TYPE_SOUND;
+            } else if (parameterReflection.isAssignableFrom(VideoStub.class)) {
+                parameter.type = Type.TYPE_VIDEO;
+            } else {
+                throw new RuntimeException("Unknown type for parameter " + parameter.id
+                        + " on method " + methodId + " for class " + getClass().getName());
+            }
+
+            parameters[i] = parameter;
+        }
+        return parameters;
+    }
+
+    private Method getMethod(int methodId) {
+        Method method = null;
+
+        Method[] methods = getClass().getMethods();
+        for (Method m : methods) {
+            MethodId annoData = m.getAnnotation(MethodId.class);
+            if (annoData != null && annoData.value() == methodId) {
+                method = m;
+                break;
+            }
+        }
+
+        if (method == null) {
+            throw new RuntimeException("Unknown method id " + methodId);
+        }
+        return method;
+    }
+
+    public static class MethodData {
+        public int id;
+
+        public int returnType;
+
+        public int nameResId;
+    }
+
+    public static class ParameterData {
+        public int id;
+
+        public int type;
+
+        public int nameResId;
     }
 }

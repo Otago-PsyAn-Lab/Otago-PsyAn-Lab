@@ -17,13 +17,15 @@ public class Type {
 
     public static final int TYPE_INTEGER = 0x04;
 
-    public static final int TYPE_NUMBER = TYPE_FLOAT | TYPE_INTEGER;
-
     public static final int TYPE_SOUND = 0x40;
 
     public static final int TYPE_STRING = 0x08;
 
     public static final int TYPE_VIDEO = 0x20;
+
+    public static final int TYPE_VOID = 0;
+
+    public static final int TYPE_NUMBER = TYPE_FLOAT | TYPE_INTEGER;
 
     public static final int TYPE_NON_ASSETS = TYPE_BOOLEAN | TYPE_NUMBER | TYPE_STRING;
 

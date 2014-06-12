@@ -14,6 +14,7 @@ import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.ParameterId;
 import nz.ac.otago.psyanlab.common.model.util.Type;
 
+import android.app.Activity;
 import android.content.Context;
 
 import java.lang.reflect.Method;
@@ -43,7 +44,7 @@ public abstract class ExperimentObject {
     /**
      * An object which describes how to store collected experiment records.
      */
-    public static final int KIND_DATA_CHANNEL = 0x03;
+    public static final int KIND_CHANNEL = 0x03;
 
     /**
      * An virtual object which is a kind of event.
@@ -109,7 +110,7 @@ public abstract class ExperimentObject {
                 return R.string.label_action;
             case KIND_ASSET:
                 return R.string.label_asset;
-            case KIND_DATA_CHANNEL:
+            case KIND_CHANNEL:
                 return R.string.label_data_channel;
             case KIND_EXPERIMENT:
                 return R.string.label_experiment;
@@ -275,7 +276,7 @@ public abstract class ExperimentObject {
         }
     }
 
-    public ParameterData[] getParameters(int methodId) {
+    public ParameterData[] getParameters(Activity activity, int methodId) {
         final Method method = getMethod(methodId);
 
         // Get name factory to generate localised parameter names later.
@@ -295,7 +296,7 @@ public abstract class ExperimentObject {
 
             ParameterData parameter = new ParameterData();
             parameter.id = paramAnnotation.value();
-            parameter.nameResId = nameFactory.getResId(parameter.id);
+            parameter.name = activity.getString(nameFactory.getResId(parameter.id));
 
             Class<?> parameterReflection = parameterReflections[i];
             if (parameterReflection.isAssignableFrom(float.class)) {
@@ -353,6 +354,6 @@ public abstract class ExperimentObject {
 
         public int type;
 
-        public int nameResId;
+        public String name;
     }
 }

@@ -53,7 +53,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                 MethodData methodData = (MethodData)parent.getAdapter().getItem(position);
                 ExperimentObject object = mCallbacks.getExperimentObject(mCallValue.object);
 
-                ParameterData[] parameters = object.getParameters(methodData.id);
+                ParameterData[] parameters = object.getParameters(getActivity(), methodData.id);
 
                 ArrayList<Long> operands = new ArrayList<Long>();
                 for (ParameterData parameter : parameters) {
@@ -205,7 +205,7 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
      * @return Id of the operand that filled the parameter.
      */
     protected long createParameterOperand(final ParameterData parameter) {
-        final String paramName = getString(parameter.nameResId);
+        final String paramName = parameter.name;
 
         long operandId = -1;
         Operand operand = null;

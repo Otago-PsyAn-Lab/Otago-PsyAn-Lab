@@ -6,7 +6,9 @@ import com.google.gson.annotations.Expose;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.channel.Field;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
+import android.app.Activity;
 import android.content.Context;
 
 import java.util.ArrayList;
@@ -53,20 +55,41 @@ public class DataChannel extends ExperimentObject {
     }
 
     @Override
-    public int kind() {
-        return ExperimentObject.KIND_DATA_CHANNEL;
+    public NameResolverFactory getParameterNameFactory() {
+        throw new RuntimeException("Unsupported method");
     }
 
     @Override
-    public boolean satisfiesFilter(int filter) {
-        return filter == HAS_SETTERS;
+    public ParameterData[] getParameters(Activity activity, int methodId) {
+        ParameterData[] parameters = new ParameterData[fields.size()];
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = fields.get(i);
+            ParameterData data = new ParameterData();
+            data.id = i;
+            data.type = field.type;
+            data.name = field.name;
+            parameters[i] = data;
+        }
+        return parameters;
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObject.KIND_CHANNEL;
     }
 
     @Override
     public void loadInMatchingMethods(int returnType, SortedSet<MethodData> out) {
         MethodData methodData = new MethodData();
         methodData.id = METHOD_WRITE;
+        methodData.nameResId = R.string.method_data_channel_write;
+        methodData.returnType = Type.TYPE_VOID;
         out.add(methodData);
+    }
+
+    @Override
+    public boolean satisfiesFilter(int filter) {
+        return filter == HAS_SETTERS;
     }
 
     public static class Comparator implements java.util.Comparator<DataChannel> {
@@ -81,7 +104,6 @@ public class DataChannel extends ExperimentObject {
     }
 
     protected static class MethodNameFactory implements NameResolverFactory {
-
         @Override
         public int getResId(int lookup) {
             switch (lookup) {

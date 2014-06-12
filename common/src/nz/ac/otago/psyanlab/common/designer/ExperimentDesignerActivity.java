@@ -369,7 +369,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         DataChannel dataChannel = mExperiment.dataChannels.remove(id);
 
         deleteDataChannelData(dataChannel);
-        removeReferencesTo(ExperimentObject.KIND_DATA_CHANNEL, id);
+        removeReferencesTo(ExperimentObject.KIND_CHANNEL, id);
 
         notifyDataChannelDataChange();
     }
@@ -537,6 +537,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 } else if (object.id == EventData.EVENT_TOUCH_MOTION) {
                     return new TouchMotionEvent();
                 }
+            case ExperimentObject.KIND_CHANNEL:
+                return mExperiment.dataChannels.get(object.id);
+            case ExperimentObject.KIND_VARIABLE:
+                // return mExperiment.variables.get(object.id);
+            case ExperimentObject.KIND_SOURCE:
+                // return mExperiment.sources.get(object.id);
+
             case ExperimentObject.KIND_EXPERIMENT:
             default:
                 return null;
@@ -979,7 +986,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public void putDataChannel(long id, DataChannel dataChannel) {
         mExperiment.dataChannels.put(id, dataChannel);
-        updateReferencesTo(ExperimentObject.KIND_DATA_CHANNEL, id);
+        updateReferencesTo(ExperimentObject.KIND_CHANNEL, id);
         notifyDataChannelDataChange();
     }
 
@@ -1897,7 +1904,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             case ExperimentObject.KIND_ASSET:
                 updateReferencesToAsset(id);
                 return;
-            case ExperimentObject.KIND_DATA_CHANNEL:
+            case ExperimentObject.KIND_CHANNEL:
                 updateReferencesToDataChannel(id);
                 return;
             case ExperimentObject.KIND_GENERATOR:
@@ -1918,7 +1925,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     private void updateReferencesToDataChannel(long id) {
         DataChannel dataChannel = mExperiment.dataChannels.get(id);
-        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_DATA_CHANNEL, id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_CHANNEL, id);
 
         for (Long callId : calls) {
             CallValue call = (CallValue)mExperiment.operands.get(callId);

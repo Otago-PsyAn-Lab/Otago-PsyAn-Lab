@@ -83,6 +83,7 @@ public class ChannelDetailFragment extends Fragment {
             newField.name = getString(R.string.default_name_data_channel_field, newField.id + 1);
             newField.type = Type.TYPE_STRING;
             mDataChannel.fields.add(newField);
+            mCallbacks.putDataChannel(mDataChannelId, mDataChannel);
             mAdapter.notifyDataSetChanged();
         }
     };

@@ -1936,13 +1936,17 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             ArrayList<Long> discardedParameterIds = new ArrayList<Long>();
             for (Long parameterId : call.parameters) {
                 Operand parameter = mExperiment.operands.get(parameterId);
+                Field matchedField = null;
                 for (Field field : dataChannel.fields) {
                     if (parameter.tag == field.id) {
-                        // Store parameters indexed by field id.
-                        retainedParameterIds.put(field.id, parameterId);
-                    } else {
-                        discardedParameterIds.add(parameterId);
+                        matchedField = field;
+                        break;
                     }
+                }
+                if (matchedField != null) {
+                    retainedParameterIds.put(matchedField.id, parameterId);
+                } else {
+                    discardedParameterIds.add(parameterId);
                 }
             }
 
@@ -1955,11 +1959,21 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             // fields in the data channel.
             call.parameters = new ArrayList<Long>();
             for (Field field : dataChannel.fields) {
-                // Attempt to update type of parameters to match fields,
-                // otherwise replace parameters with stubs.
-                long parameterId = retainedParameterIds.get(field.id);
-                Operand parameter = mExperiment.operands.get(parameterId);
-                parameter.name = field.name;
+                // Create a new stub, or attempt to update parameters to match
+                // field, otherwise replace the parameter with a stub.
+                Operand parameter;
+                long parameterId;
+                if (retainedParameterIds.indexOfKey(field.id) < 0) {
+                    parameter = new StubOperand(field.name);
+                    parameter.tag = field.id;
+                    parameterId = addOperand(parameter);
+                } else {
+                    parameterId = retainedParameterIds.get(field.id);
+                    parameter = mExperiment.operands.get(parameterId);
+                    parameter.name = field.name;
+                }
+                // Dictate type, if that fails replace the operand with a stub
+                // and force the new type.
                 if (!parameter.attemptRestrictType(field.type)) {
                     deleteOperandData(parameter);
                     StubOperand replacement = new StubOperand(field.name);

@@ -3,32 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/designer_window_background" >
+    android:background="@color/designer_window_background"
+    android:fitsSystemWindows="true" >
 
     <!-- Hack to make sure the screen is never viewed all dark in transition from launcher. -->
 
-    <FrameLayout
+    <android.support.v4.widget.SlidingPaneLayout
+        android:id="@+id/sliding_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true" >
+        android:layout_height="match_parent" >
 
-        <android.support.v4.widget.SlidingPaneLayout
-            android:id="@+id/sliding_container"
+        <fragment
+            android:id="@+id/pale_list_fragment"
+            android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent" />
 
-            <fragment
-                android:id="@+id/pale_list_fragment"
-                android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <fragment
-                android:id="@+id/pale_detail_fragment"
-                android:name="nz.ac.otago.psyanlab.common.PaleDetailFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </android.support.v4.widget.SlidingPaneLayout>
-    </FrameLayout>
+        <fragment
+            android:id="@+id/pale_detail_fragment"
+            android:name="nz.ac.otago.psyanlab.common.PaleDetailFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.v4.widget.SlidingPaneLayout>
 
 </FrameLayout>

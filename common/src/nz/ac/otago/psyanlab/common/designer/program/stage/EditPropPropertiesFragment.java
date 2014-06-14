@@ -127,7 +127,7 @@ public class EditPropPropertiesFragment extends Fragment {
         if (args.containsKey(ARG_PROP)) {
             mProp = args.getParcelable(ARG_PROP);
         } else {
-            mProp = mCallbacks.getProp(args.getInt(ARG_PROP_ID));
+            mProp = mCallbacks.getProp(args.getInt(ARG_PROP_ID)).getProp();
         }
 
         mFieldMap = new HashMap<String, Field>();

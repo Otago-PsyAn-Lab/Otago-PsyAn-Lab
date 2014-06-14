@@ -158,8 +158,15 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
 
     @Override
     public void onOperandDataChange() {
-        mParameterAdapter.notifyDataSetChanged();
-        mViews.updateParameterTitleVisibility();
+        // Reload changes.
+        Operand operand = mCallbacks.getOperand(mObjectId);
+        if (operand instanceof CallValue) {
+            mCallValue = (CallValue)operand;
+        } else {
+            mCallValue = new CallValue(operand);
+        }
+
+        mViews.updateViews(mCallValue);
     }
 
     @Override

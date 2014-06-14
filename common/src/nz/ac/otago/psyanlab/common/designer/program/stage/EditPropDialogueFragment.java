@@ -189,7 +189,7 @@ public class EditPropDialogueFragment extends DialogFragment {
 
         Prop prop = null;
         if (mPropId != INVALID_ID) {
-            prop = mCallbacks.getProp(mPropId);
+            prop = mCallbacks.getProp(mPropId).getProp();
         }
 
         mViews = new ViewHolder(view);
@@ -207,7 +207,7 @@ public class EditPropDialogueFragment extends DialogFragment {
 
         if (mIsDialogue) {
             getDialog().setTitle(
-                    (mPropId == INVALID_ID) ? R.string.title_new_prop : R.string.title_edit_prop);
+                    mPropId == INVALID_ID ? R.string.title_new_prop : R.string.title_edit_prop);
         }
 
         return view;

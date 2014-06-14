@@ -1,6 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer.program.stage;
 
+import nz.ac.otago.psyanlab.common.designer.util.PropIdPair;
 import nz.ac.otago.psyanlab.common.model.Prop;
 
 import android.widget.ArrayAdapter;
@@ -8,9 +9,9 @@ import android.widget.ArrayAdapter;
 public interface StageCallbacks {
     void deleteProp(int propId);
 
-    Prop getProp(int id);
+    PropIdPair getProp(int id);
 
-    ArrayAdapter<Prop> getPropAdapter();
+    ArrayAdapter<PropIdPair> getPropAdapter();
 
     int getStageHeight();
 

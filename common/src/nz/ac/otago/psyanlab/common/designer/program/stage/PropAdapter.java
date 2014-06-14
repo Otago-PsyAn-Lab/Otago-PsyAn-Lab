@@ -2,6 +2,7 @@
 package nz.ac.otago.psyanlab.common.designer.program.stage;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.designer.util.PropIdPair;
 import nz.ac.otago.psyanlab.common.model.Prop;
 
 import android.app.Activity;
@@ -15,14 +16,14 @@ import java.util.ArrayList;
 public class PropAdapter extends BaseAdapter implements StageView.StageAdapter {
     private final Activity mActivity;
 
-    private ArrayList<Prop> mProps;
+    private ArrayList<PropIdPair> mProps;
 
-    public PropAdapter(Activity activity, ArrayList<Prop> props) {
+    public PropAdapter(Activity activity, ArrayList<PropIdPair> props) {
         mActivity = activity;
         mProps = props;
     }
 
-    public void setProps(ArrayList<Prop> props) {
+    public void setProps(ArrayList<PropIdPair> props) {
         mProps = props;
         notifyDataSetChanged();
     }
@@ -48,7 +49,7 @@ public class PropAdapter extends BaseAdapter implements StageView.StageAdapter {
             convertView = mActivity.getLayoutInflater().inflate(R.layout.stage_prop, parent, false);
         }
 
-        Prop prop = mProps.get(position);
+        Prop prop = mProps.get(position).getProp();
         ((TextView)convertView).setText(prop.name);
         convertView.setLayoutParams(new StageView.LayoutParams(prop.xPos, prop.yPos, prop.width,
                 prop.height));

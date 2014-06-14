@@ -48,6 +48,7 @@ import nz.ac.otago.psyanlab.common.designer.util.LoopListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
+import nz.ac.otago.psyanlab.common.designer.util.PropIdPair;
 import nz.ac.otago.psyanlab.common.designer.util.RuleListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.SceneListItemViewBinder;
 import nz.ac.otago.psyanlab.common.model.Action;
@@ -389,6 +390,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public void deleteOperand(long id) {
+        deleteOperand(id, true);
+    }
+
+    private void deleteOperand(long id, boolean notify) {
         if (!mExperiment.operands.containsKey(id)) {
             // Nothing to do because we already don't have the indicated
             // operand.
@@ -396,8 +401,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         deleteOperandData(mExperiment.operands.remove(id));
-        ;
-        notifyOperandDataChangeListeners();
+
+        if (notify) {
+            notifyOperandDataChangeListeners();
+        }
     }
 
     @Override
@@ -603,15 +610,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public SpinnerAdapter getMethodsAdapter(ExperimentObject object, int returnTypes) {
         // Obtain the name factory to pull the internationalised event names.
-        SortedSet<MethodData> filteredMethods;
-
-        filteredMethods = new TreeSet<MethodData>(new Comparator<MethodData>() {
-            @Override
-            public int compare(MethodData lhs, MethodData rhs) {
-                Collator collator = getCollater();
-                return collator.compare(getString(lhs.nameResId), getString(rhs.nameResId));
-            }
-        });
+        SortedSet<MethodData> filteredMethods = new TreeSet<MethodData>(
+                new Comparator<MethodData>() {
+                    @Override
+                    public int compare(MethodData lhs, MethodData rhs) {
+                        Collator collator = getCollater();
+                        return collator.compare(getString(lhs.nameResId), getString(rhs.nameResId));
+                    }
+                });
 
         object.loadInMatchingMethods(returnTypes, filteredMethods);
 
@@ -740,10 +746,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
-    public ArrayList<Prop> getPropsArray(long stageId) {
-        ArrayList<Prop> props = new ArrayList<Prop>();
+    public ArrayList<PropIdPair> getPropsArray(long stageId) {
+        ArrayList<PropIdPair> props = new ArrayList<PropIdPair>();
         for (Long propId : mExperiment.scenes.get(stageId).props) {
-            props.add(mExperiment.props.get(propId));
+            props.add(new PropIdPair(propId, mExperiment.props.get(propId)));
         }
         return props;
     }
@@ -798,7 +804,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             case REQUEST_EDIT_STAGE: {
                 switch (resultCode) {
                     case RESULT_OK:
-                        ArrayList<Prop> props = data
+                        ArrayList<PropIdPair> props = data
                                 .getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
                         long sceneId = data.getLongExtra(Args.SCENE_ID, -1);
 
@@ -1015,7 +1021,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
-    public void putOperand(long id, Operand operand) {
+    public void putOperand(final long id, final Operand operand) {
         mExperiment.operands.put(id, operand);
 
         if (operand instanceof OperandHolder) {
@@ -1024,7 +1030,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         notifyOperandAdapters(id);
-
         notifyOperandDataChangeListeners();
     }
 
@@ -1903,16 +1908,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         switch (kind) {
             case ExperimentObject.KIND_ASSET:
                 updateReferencesToAsset(id);
-                return;
+                break;
             case ExperimentObject.KIND_CHANNEL:
                 updateReferencesToDataChannel(id);
-                return;
-            case ExperimentObject.KIND_GENERATOR:
-                // Nothing to do because generators always have the same type
-                // and
-                // calling interface.
-                return;
+                break;
+            case ExperimentObject.KIND_PROP:
+                updateReferencesToProp(id);
+                break;
 
+            case ExperimentObject.KIND_GENERATOR:
+                // Generators always have the same interface.
             default:
                 break;
         }
@@ -1929,6 +1934,25 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
         for (Long callId : calls) {
             CallValue call = (CallValue)mExperiment.operands.get(callId);
+
+            if (call == null) {
+                // It is possible we might be trying to update a call we have
+                // already obliterated due to removing a parent operand, so we
+                // just skip the missing operand and continue processing the
+                // list.
+                continue;
+            }
+
+            if (dataChannel == null) {
+                // The prop was actually deleted so we just need to remove the
+                // reference.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId);
+                putOperand(callId, replacement);
+                continue;
+            }
 
             // Separate the parameters that will be retained from those that
             // will be discarded.
@@ -1977,7 +2001,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 if (!parameter.attemptRestrictType(field.type)) {
                     deleteOperandData(parameter);
                     StubOperand replacement = new StubOperand(field.name);
-                    replacement.attemptRestrictType(field.type);
+                    replacement.type = field.type;
                     replacement.tag = field.id;
                     putOperand(parameterId, replacement);
                 }
@@ -1986,31 +2010,112 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
-    private void updateStageInScene(long sceneId, ArrayList<Prop> props, int orientation,
+    private void updateReferencesToProp(long id) {
+        Prop prop = mExperiment.props.get(id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_PROP, id);
+
+        for (Long callId : calls) {
+            // The kind of the prop may have changed, as such there may be a
+            // different set of calls that can be made. The job here is to
+            // identify if an incorrect call is referenced, if this is the case,
+            // throw away the call operand.
+            CallValue call = (CallValue)mExperiment.operands.get(callId);
+
+            if (call == null) {
+                // It is possible we might be trying to update a call we have
+                // already obliterated due to removing a parent operand, so we
+                // just skip the missing operand and continue processing the
+                // list.
+                continue;
+            }
+
+            if (prop == null) {
+                // The prop was actually deleted so we just need to remove the
+                // reference.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId, false);
+                putOperand(callId, replacement);
+                continue;
+            }
+
+            SortedSet<MethodData> filteredMethods = new TreeSet<MethodData>(
+                    new Comparator<MethodData>() {
+                        @Override
+                        public int compare(MethodData lhs, MethodData rhs) {
+                            Collator collator = getCollater();
+                            return collator.compare(getString(lhs.nameResId),
+                                    getString(rhs.nameResId));
+                        }
+                    });
+
+            prop.loadInMatchingMethods(call.type, filteredMethods);
+
+            boolean foundMethod = false;
+            for (MethodData methodData : filteredMethods) {
+                if (methodData.id == call.method) {
+                    foundMethod = true;
+                    break;
+                }
+            }
+
+            if (!foundMethod) {
+                // Obliterate the operand and replace it with a stub. We throw
+                // away the call value because we don't want a reference to an
+                // object without a matching method.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId, false);
+                putOperand(callId, replacement);
+            } else {
+                notifyOperandAdapters(callId);
+                notifyOperandDataChangeListeners();
+            }
+        }
+    }
+
+    private void updateStageInScene(long sceneId, ArrayList<PropIdPair> props, int orientation,
             int width, int height) {
-        /*
-         * Refresh all props by first removing the old versions from the prop
-         * map and then adding the new ones. The new versions may actually be
-         * completely unchanged but there is currently no mechanism to check
-         * this.
-         */
         Scene scene = mExperiment.scenes.get(sceneId);
 
+        // Load prop/id pairs into a map for easy processing.
+        LongSparseArray<Prop> toBeProcessed = new LongSparseArray<Prop>();
+        for (PropIdPair pair : props) {
+            toBeProcessed.put(pair.getId(), pair.getProp());
+        }
+
+        ArrayList<Long> sceneProps = new ArrayList<Long>();
+        for (long propId : scene.props) {
+            Prop replacement = toBeProcessed.get(propId);
+
+            if (replacement == null) {
+                // Prop was removed.
+                mExperiment.props.remove(propId);
+                updateReferencesToProp(propId);
+            } else {
+                // Prop might have been updated.
+                mExperiment.props.put(propId, replacement);
+                updateReferencesToProp(propId);
+                sceneProps.add(propId);
+            }
+
+            toBeProcessed.remove(propId);
+        }
+
+        // All props remaining to be processed must be new.
+        for (int i = 0; i < toBeProcessed.size(); i++) {
+            Long key = findUnusedKey(mExperiment.props);
+            mExperiment.props.put(key, toBeProcessed.valueAt(i));
+            sceneProps.add(key);
+        }
+
+        // Update scene and notify listeners.
         scene.orientation = orientation;
         scene.stageWidth = width;
         scene.stageHeight = height;
-
-        for (Long propId : scene.props) {
-            mExperiment.props.remove(propId);
-        }
-        scene.props = new ArrayList<Long>();
-
-        for (Prop prop : props) {
-            Long key = findUnusedKey(mExperiment.props);
-            mExperiment.props.put(key, prop);
-            scene.props.add(key);
-        }
-
+        scene.props = sceneProps;
         notifySceneDataChangeListeners();
     }
 

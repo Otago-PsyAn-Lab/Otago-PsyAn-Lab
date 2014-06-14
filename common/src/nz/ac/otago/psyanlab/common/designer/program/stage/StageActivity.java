@@ -3,6 +3,7 @@ package nz.ac.otago.psyanlab.common.designer.program.stage;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView.OnStageClickListener;
+import nz.ac.otago.psyanlab.common.designer.util.PropIdPair;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.util.Args;
@@ -67,9 +68,9 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         }
     };
 
-    private ArrayAdapter<Prop> mPropListAdapter;
+    private ArrayAdapter<PropIdPair> mPropListAdapter;
 
-    private ArrayList<Prop> mProps;
+    private ArrayList<PropIdPair> mProps;
 
     private OnStageClickListener mSelectClickListener = new OnStageClickListener() {
         @Override
@@ -97,14 +98,14 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
     }
 
     @Override
-    public Prop getProp(int id) {
+    public PropIdPair getProp(int id) {
         return mProps.get(id);
     }
 
     @Override
-    public ArrayAdapter<Prop> getPropAdapter() {
+    public ArrayAdapter<PropIdPair> getPropAdapter() {
         if (mPropListAdapter == null) {
-            mPropListAdapter = new ArrayAdapter<Prop>(this,
+            mPropListAdapter = new ArrayAdapter<PropIdPair>(this,
                     android.R.layout.simple_list_item_activated_1, mProps);
         }
         return mPropListAdapter;
@@ -185,7 +186,7 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
 
     @Override
     public void saveProp(int propId, Prop prop) {
-        mProps.set(propId, prop);
+        mProps.set(propId, new PropIdPair(propId, prop));
 
         if (mPropAdapter != null) {
             mPropAdapter.notifyDataSetChanged();
@@ -197,7 +198,7 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
 
     @Override
     public void saveProp(Prop prop) {
-        mProps.add(prop);
+        mProps.add(new PropIdPair(-1l, prop));
 
         if (mPropAdapter != null) {
             mPropAdapter.notifyDataSetChanged();
@@ -214,9 +215,9 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
 
     private int findUnusedKey() {
         int currKey = 1;
-        for (Prop prop : mProps) {
+        for (PropIdPair prop : mProps) {
             if (TextUtils.equals(
-                    prop.name,
+                    prop.getProp().name,
                     getString(R.string.format_default_prop_name,
                             getString(R.string.default_prop_name), currKey))) {
                 currKey++;
@@ -273,13 +274,13 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
 
             mOrientation = extras
                     .getInt(Args.STAGE_ORIENTATION,
-                            (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ? Scene.ORIENTATION_LANDSCAPE
+                            getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? Scene.ORIENTATION_LANDSCAPE
                                     : Scene.ORIENTATION_PORTRAIT);
 
             mSpecifiedWidth = extras.getInt(Args.STAGE_WIDTH, -1);
             mSpecifiedHeight = extras.getInt(Args.STAGE_HEIGHT, -1);
         } else {
-            mProps = new ArrayList<Prop>();
+            mProps = new ArrayList<PropIdPair>();
         }
 
         refreshStage();

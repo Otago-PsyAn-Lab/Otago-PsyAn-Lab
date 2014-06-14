@@ -21,8 +21,11 @@
         <item name="android:spinnerDropDownItemStyle">@style/DropDownItem</item>
     </style>
 
-    <style name="DesignerBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-    </style>
+    <style name="StageBaseTheme" parent="android:Theme.Holo.Light"></style>
+
+    <style name="StageTheme" parent="StageBaseTheme"></style>
+
+    <style name="DesignerBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar"></style>
 
     <style name="DesignerTheme" parent="DesignerBaseTheme"></style>
 

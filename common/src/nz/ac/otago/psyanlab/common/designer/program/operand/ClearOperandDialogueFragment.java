@@ -64,6 +64,7 @@ public class ClearOperandDialogueFragment extends DialogFragment {
             mCallbacks.deleteOperand(mOperandId);
             // Put the replacement into the known position (id).
             mCallbacks.putOperand(mOperandId, mOnClearListener.initReplacement(mOperand));
+            mOnClearListener.onOperandCleared();
             dismiss();
         }
     };

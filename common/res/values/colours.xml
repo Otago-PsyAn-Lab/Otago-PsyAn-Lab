@@ -10,7 +10,8 @@
     <color name="scene_accent">#ff99cc00</color>
     <color name="rule_accent">#ffffbb33</color>
     <color name="action_accent">#ffff5a00</color>
-    <color name="designer_window_background">#ff222222</color>
+    <color name="designer_window_background">#ff292929</color>
+    <color name="opal_window_background">#ffefefef</color>
     <color name="inactive_background">#ffefefef</color>
 
 </resources>

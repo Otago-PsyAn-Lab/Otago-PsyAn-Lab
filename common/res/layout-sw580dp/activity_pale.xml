@@ -1,23 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/sliding_container"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@color/designer_window_background" >
 
-    <fragment
-        android:id="@+id/pale_list_fragment"
-        android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
-        android:layout_width="370dp"
+    <!-- Hack to make sure the screen is never viewed all dark in transition from launcher. -->
+
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="left" />
+        android:fitsSystemWindows="true" >
 
-    <fragment
-        android:id="@+id/pale_detail_fragment"
-        android:name="nz.ac.otago.psyanlab.common.PaleDetailFragment"
-        android:layout_width="480dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        android:layout_marginLeft="120dip"
-        android:layout_weight="1" />
+        <android.support.v4.widget.SlidingPaneLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/sliding_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
 
-</android.support.v4.widget.SlidingPaneLayout>
+            <fragment
+                android:id="@+id/pale_list_fragment"
+                android:name="nz.ac.otago.psyanlab.common.PaleListFragment"
+                android:layout_width="370dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left" />
+
+            <fragment
+                android:id="@+id/pale_detail_fragment"
+                android:name="nz.ac.otago.psyanlab.common.PaleDetailFragment"
+                android:layout_width="480dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_marginLeft="120dip"
+                android:layout_weight="1" />
+        </android.support.v4.widget.SlidingPaneLayout>
+    </FrameLayout>
+
+</FrameLayout>

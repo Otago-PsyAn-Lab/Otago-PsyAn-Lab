@@ -3,27 +3,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true" >
+    android:background="@color/designer_window_background" >
 
-    <android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+    <!-- Hack to make sure the screen is never viewed all dark in transition from launcher. -->
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true" >
 
-        <FrameLayout
-            android:id="@+id/content_frame"
+        <android.support.v4.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" >
 
-        <ListView
-            android:id="@+id/left_drawer"
-            android:layout_width="240dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:background="@color/card_background"
-            android:choiceMode="singleChoice"
-            android:divider="@drawable/divider_inset"
-            android:listSelector="@drawable/loop_list_selector_holo_light" />
-    </android.support.v4.widget.DrawerLayout>
+            <FrameLayout
+                android:id="@+id/content_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ListView
+                android:id="@+id/left_drawer"
+                android:layout_width="240dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:background="@color/card_background"
+                android:choiceMode="singleChoice"
+                android:divider="@drawable/divider_inset"
+                android:listSelector="@drawable/loop_list_selector_holo_light" />
+        </android.support.v4.widget.DrawerLayout>
+    </FrameLayout>
 
 </FrameLayout>

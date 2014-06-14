@@ -4,11 +4,17 @@ package nz.ac.otago.psyanlab.common.model;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
+import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
 
 public class TouchMotionEvent extends TouchEvent {
     private static final int METHOD_GET_MOTION_TYPE = 0x10;
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
 
     @Override
     public String getExperimentObjectName(Context context) {

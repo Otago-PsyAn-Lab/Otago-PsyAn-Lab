@@ -13,15 +13,15 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
     public String expression;
 
     @Expose
-    public ArrayList<Long> operands;
+    public ArrayList<Long> variables;
 
     public ExpressionValue() {
-        operands = new ArrayList<Long>();
+        variables = new ArrayList<Long>();
     }
 
     public ExpressionValue(Operand operand) {
         super(operand);
-        operands = new ArrayList<Long>();
+        variables = new ArrayList<Long>();
     }
 
     @Override
@@ -31,6 +31,6 @@ public class ExpressionValue extends Operand implements ExpressionOperand {
 
     @Override
     public ArrayList<Long> getOperands() {
-        return operands;
+        return variables;
     }
 }

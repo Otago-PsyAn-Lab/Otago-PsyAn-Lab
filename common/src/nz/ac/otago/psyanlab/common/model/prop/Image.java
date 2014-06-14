@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.model.prop;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.typestub.ImageStub;
+import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.ParameterId;
@@ -43,6 +44,10 @@ public class Image extends Prop {
     @MethodId(METHOD_GET_IMAGE)
     public ImageStub stubGetImage() {
         return null;
+    }
+
+    @EventData(id = 0x10000, type = EventData.EVENT_TOUCH)
+    public void eventDummy() {
     }
 
     @MethodId(METHOD_SET_IMAGE)

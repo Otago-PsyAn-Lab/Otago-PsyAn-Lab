@@ -225,7 +225,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
             mOperand = (ExpressionValue)operand;
             final ExpressionValue expression = (ExpressionValue)operand;
             mOperandMap = new HashMap<String, Long>();
-            for (Long operandId : expression.operands) {
+            for (Long operandId : expression.variables) {
                 mOperandMap.put(mCallbacks.getOperand(operandId).getName(), operandId);
             }
         } else if (operand instanceof LiteralOperand) {
@@ -371,9 +371,9 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
         HashMap<String, Long> operandMap = typeCheck.getOperandsMentioned();
         mOperand = new ExpressionValue((Operand)mOperand);
         final ExpressionValue expressionValue = (ExpressionValue)mOperand;
-        expressionValue.operands.clear();
-        expressionValue.operands.addAll(operandMap.values());
-        Collections.sort(expressionValue.operands, new Comparator<Long>() {
+        expressionValue.variables.clear();
+        expressionValue.variables.addAll(operandMap.values());
+        Collections.sort(expressionValue.variables, new Comparator<Long>() {
             @Override
             public int compare(Long lhs, Long rhs) {
                 return mCallbacks.getOperand(lhs).getName()
@@ -433,7 +433,7 @@ public class EditLiteralOperandFragment extends AbsOperandFragment implements
             operandsTitle.setVisibility(View.GONE);
             if (mOperand instanceof ExpressionValue) {
                 final ExpressionValue expression = (ExpressionValue)mOperand;
-                expression.operands.clear();
+                expression.variables.clear();
                 mOperandAdapter.notifyDataSetChanged();
             }
         }

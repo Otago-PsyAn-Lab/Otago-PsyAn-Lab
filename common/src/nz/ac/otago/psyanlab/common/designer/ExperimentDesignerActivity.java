@@ -69,6 +69,7 @@ import nz.ac.otago.psyanlab.common.model.TouchEvent;
 import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
 import nz.ac.otago.psyanlab.common.model.channel.Field;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
+import nz.ac.otago.psyanlab.common.model.operand.ExpressionValue;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
@@ -2010,8 +2011,103 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    /**
+     * Look through all rules for a reference to the given object. For any
+     * matching rule check the event is valid and modify it if necessary. This
+     * has to cascade for virtual event objects that may be referenced
+     * elsewhere.
+     * 
+     * @param id Id of object.
+     * @param kind Kind of object.
+     */
+    private void updateRuleReferencesToObject(long id, int kind, ExperimentObject object) {
+        final Method[] methods;
+        if (object == null) {
+            methods = new Method[] {};
+        } else {
+            methods = object.getClass().getMethods();
+        }
+
+        for (Entry<Long, Rule> entry : mExperiment.rules.entrySet()) {
+            long ruleId = entry.getKey();
+            Rule rule = entry.getValue();
+            if (rule.triggerObject != null && rule.triggerObject.kind == kind
+                    && rule.triggerObject.id == id) {
+
+                EventData eventData = null;
+                for (int i = 0; i < methods.length; i++) {
+                    eventData = methods[i].getAnnotation(EventData.class);
+                    if (eventData != null && eventData.id() == rule.triggerEvent) {
+                        break;
+                    }
+                }
+
+                if (eventData != null) {
+                    // Matched event was found so we can leave the rule alone.
+                    // Trigger an update anyway, in case the set of events
+                    // available has changed.
+                    putRule(ruleId, rule);
+                    continue;
+                }
+
+                // No matching event found, so clear trigger and any virtual
+                // event objects.
+                rule.triggerEvent = 0;
+                rule.triggerObject = null;
+                putRule(ruleId, rule);
+                removeReferencesToTriggerEventForRule(rule);
+            }
+        }
+    }
+
+    /**
+     * Look through the components of a rule to
+     * 
+     * @param ruleId
+     */
+    private void removeReferencesToTriggerEventForRule(Rule rule) {
+        removeReferencesToTriggerEvent(rule.conditionId);
+
+        for (long actionId : rule.actions) {
+            removeReferencesToTriggerEvent(mExperiment.actions.get(actionId).operandId);
+        }
+    }
+
+    private void removeReferencesToTriggerEvent(long operandId) {
+        Operand operand = mExperiment.operands.get(operandId);
+
+        if (operand instanceof ExpressionValue) {
+            for (long varId : ((ExpressionValue)operand).variables) {
+                removeReferencesToTriggerEvent(varId);
+            }
+            return;
+        }
+
+        if (operand instanceof CallValue) {
+            CallValue call = (CallValue)operand;
+            if (call.object.kind != ExperimentObject.KIND_EVENT) {
+                for (long paramId : call.parameters) {
+                    removeReferencesToTriggerEvent(paramId);
+                }
+            } else {
+                // Stub'ise operand because it calls an event which is about to
+                // not be accessible anymore.
+                StubOperand replacement = new StubOperand(operand.name);
+                replacement.tag = operand.tag;
+                replacement.type = operand.type;
+
+                deleteOperand(operandId);
+                putOperand(operandId, replacement);
+            }
+
+            return;
+        }
+    }
+
     private void updateReferencesToProp(long id) {
         Prop prop = mExperiment.props.get(id);
+        updateRuleReferencesToObject(id, ExperimentObject.KIND_PROP, prop);
+
         ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_PROP, id);
 
         for (Long callId : calls) {

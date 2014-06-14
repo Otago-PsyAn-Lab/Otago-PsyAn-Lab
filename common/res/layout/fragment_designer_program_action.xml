@@ -62,7 +62,6 @@
         android:background="?android:attr/listDivider" />
 
     <LinearLayout
-        android:layout_marginTop="16dip"
         android:id="@+id/operand_fragment_container"
         android:layout_width="0dip"
         android:layout_height="0dip"
@@ -70,7 +69,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/name_container"
         android:layout_below="@+id/divide"
-        android:orientation="vertical" />
+        android:background="@color/card_background"
+        android:orientation="vertical"
+        android:paddingTop="16dip" />
 
     <View
         android:layout_width="0dip"

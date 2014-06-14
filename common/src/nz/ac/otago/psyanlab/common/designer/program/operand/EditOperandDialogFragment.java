@@ -10,6 +10,7 @@ import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -206,6 +207,13 @@ public class EditOperandDialogFragment extends DialogFragment {
 
     public void setOnDoneListener(OnDoneListener listener) {
         mOnDoneListener = listener;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+
+        mCallbacks.putOperand(mOperandId, mOperand);
     }
 
     public interface OnDoneListener {

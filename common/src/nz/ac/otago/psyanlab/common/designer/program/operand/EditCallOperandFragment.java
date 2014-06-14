@@ -53,6 +53,11 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                 MethodData methodData = (MethodData)parent.getAdapter().getItem(position);
                 ExperimentObject object = mCallbacks.getExperimentObject(mCallValue.object);
 
+                // Update operand with new method and type.
+                mCallValue.method = (int)methodId;
+                mCallValue.type = methodData.returnType;
+                saveOperand();
+
                 ParameterData[] parameters = object.getParameters(getActivity(), methodData.id);
 
                 ArrayList<Long> operands = new ArrayList<Long>();
@@ -67,10 +72,6 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
                     }
                 }
                 mCallValue.parameters = operands;
-
-                // Update operand with new method and type.
-                mCallValue.method = (int)methodId;
-                mCallValue.type = methodData.returnType;
 
                 mViews.updateViews(mCallValue);
             }

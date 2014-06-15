@@ -3,26 +3,27 @@ package nz.ac.otago.psyanlab.common.view;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
-public class ManualHorizontalScrollView extends HorizontalScrollView {
+public class ProgramScrollView extends HorizontalScrollView {
 
     // true if we can scroll (not locked)
     // false if we cannot scroll (locked)
     private boolean mScrollable = true;
 
-    public ManualHorizontalScrollView(Context context) {
+    private boolean mSizedOnce = false;
+
+    public ProgramScrollView(Context context) {
         super(context);
     }
 
-    public ManualHorizontalScrollView(Context context, AttributeSet attrs) {
+    public ProgramScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ManualHorizontalScrollView(Context context, AttributeSet attrs, int defStyle) {
+    public ProgramScrollView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -56,11 +57,15 @@ public class ManualHorizontalScrollView extends HorizontalScrollView {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mScrollable = false;
+        if (mSizedOnce) {
+            mScrollable = false;
+        }
         super.onSizeChanged(w, h, oldw, oldh);
 
+        mSizedOnce = true;
+
         // No scrolling while the view is resizing.
-        new Handler().postDelayed(new Runnable() {
+        postDelayed(new Runnable() {
             @Override
             public void run() {
                 mScrollable = true;

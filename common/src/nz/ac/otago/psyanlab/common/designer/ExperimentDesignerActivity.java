@@ -72,6 +72,7 @@ import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.ExpressionValue;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
+import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.OperandHolder;
@@ -1041,6 +1042,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         if (mCurrentActionAdapter != null && mCurrentActionAdapter.first == id) {
             notifyActionAdapter();
         }
+
+        updateReferencesToTriggerEventForRule(rule);
         notifyRuleDataChangeListeners();
     }
 
@@ -2060,11 +2063,87 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    private void updateReferencesToTriggerEventForRule(Rule rule) {
+        ExperimentObject trigger = getExperimentObject(rule.triggerObject);
+
+        Method[] methods = trigger.getClass().getMethods();
+        EventData event = null;
+        for (Method method : methods) {
+            EventData eventData = method.getAnnotation(EventData.class);
+            if (eventData != null && eventData.id() == rule.triggerEvent) {
+                event = eventData;
+            }
+        }
+
+        if (event == null) {
+            // Nothing to do.
+            return;
+        }
+
+        updateReferencesToTriggerEvent(rule.conditionId, event);
+
+        for (long actionId : rule.actions) {
+            updateReferencesToTriggerEvent(mExperiment.actions.get(actionId).operandId, event);
+        }
+    }
+
     /**
-     * Look through the components of a rule to
+     * If the trigger event kind is of the same type as what was there before,
+     * we can leave it alone. Otherwise, it'll have to be removed.
      * 
-     * @param ruleId
+     * @param operandId
+     * @param event
      */
+    private void updateReferencesToTriggerEvent(long operandId, EventData event) {
+        Operand operand = mExperiment.operands.get(operandId);
+
+        if (operand instanceof ExpressionValue) {
+            for (long varId : ((ExpressionValue)operand).variables) {
+                updateReferencesToTriggerEvent(varId, event);
+            }
+            return;
+        }
+
+        if (operand instanceof CallValue) {
+            CallValue call = (CallValue)operand;
+            if (call.object.kind != ExperimentObject.KIND_EVENT) {
+                for (long paramId : call.parameters) {
+                    updateReferencesToTriggerEvent(paramId, event);
+                }
+            } else {
+                if (call.object.id != event.type()) {
+                    // Check to see if we can convert the registered method to
+                    // the new event type using a matched id.
+                    ExperimentObject eventObject = ModelUtils.getEventObject(event);
+                    if (eventObject != null) {
+                        Method[] methods = eventObject.getClass().getMethods();
+                        for (Method method : methods) {
+                            MethodId methodData = method.getAnnotation(MethodId.class);
+                            if (methodData != null && methodData.value() == call.method) {
+                                // Have match for an object in the new event
+                                // object so we just need to save the operand to
+                                // trigger a UI refresh.
+                                putOperand(operandId, call);
+                                return;
+                            }
+                        }
+                    }
+
+                    // Stub'ise operand because it calls a method not available
+                    // on our new event.
+                    StubOperand replacement = new StubOperand(operand.name);
+                    replacement.tag = operand.tag;
+                    replacement.type = operand.type;
+
+                    deleteOperand(operandId);
+                    putOperand(operandId, replacement);
+                }
+            }
+
+            return;
+        }
+    }
+
     private void removeReferencesToTriggerEventForRule(Rule rule) {
         removeReferencesToTriggerEvent(rule.conditionId);
 

@@ -8,10 +8,13 @@ import com.google.gson.stream.JsonReader;
 import nz.ac.otago.psyanlab.common.BuildConfig;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Subject;
+import nz.ac.otago.psyanlab.common.model.TouchEvent;
+import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -124,6 +127,18 @@ public class ModelUtils {
     // }
     // return nameFactory;
     // }
+
+    public static ExperimentObject getEventObject(EventData event) {
+        switch (event.type()) {
+            case EventData.EVENT_TOUCH:
+                return new TouchEvent();
+            case EventData.EVENT_TOUCH_MOTION:
+                return new TouchMotionEvent();
+
+            default:
+                return null;
+        }
+    }
 
     /**
      * Get the parameter id annotation for a parameter of the given method.

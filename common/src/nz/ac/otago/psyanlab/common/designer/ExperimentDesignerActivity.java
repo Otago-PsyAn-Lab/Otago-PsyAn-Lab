@@ -28,8 +28,8 @@ import nz.ac.otago.psyanlab.common.designer.EditorSectionManager.EditorSectionIt
 import nz.ac.otago.psyanlab.common.designer.assets.AssetCallbacks;
 import nz.ac.otago.psyanlab.common.designer.assets.AssetsFragment;
 import nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity;
-import nz.ac.otago.psyanlab.common.designer.channels.ChannelCallbacks;
-import nz.ac.otago.psyanlab.common.designer.channels.ChannelsFragment;
+import nz.ac.otago.psyanlab.common.designer.channel.ChannelCallbacks;
+import nz.ac.otago.psyanlab.common.designer.channel.ChannelFragment;
 import nz.ac.otago.psyanlab.common.designer.meta.MetaFragment;
 import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
@@ -885,7 +885,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mSectionManager.addSection(R.string.designer_tab_assets, AssetsFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_sources, AssetsFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_variables, AssetsFragment.class, null);
-        mSectionManager.addSection(R.string.designer_tab_data_channels, ChannelsFragment.class,
+        mSectionManager.addSection(R.string.designer_tab_data_channels, ChannelFragment.class,
                 null);
         mSectionManager.addSection(R.string.designer_tab_program, ProgramFragment.class, null);
 

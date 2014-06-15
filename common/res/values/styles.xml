@@ -17,8 +17,8 @@
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
 
-        <item name="android:spinnerItemStyle">@style/SpinnerItem</item>
-        <item name="android:spinnerDropDownItemStyle">@style/DropDownItem</item>
+<!--         <item name="android:spinnerItemStyle">@style/SpinnerItem</item> -->
+<!--         <item name="android:spinnerDropDownItemStyle">@style/DropDownItem</item> -->
     </style>
 
     <style name="StageBaseTheme" parent="android:Theme.Holo.Light"></style>

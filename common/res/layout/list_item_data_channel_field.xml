@@ -17,39 +17,24 @@
         android:scaleType="centerInside"
         android:src="@drawable/ic_handle" />
 
-    <EditText
-        android:id="@+id/text"
+    <TextView
+        android:id="@+id/name"
         android:layout_width="0dip"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginRight="16dip"
         android:layout_weight="1"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:hint="@string/hint_field_name"
-        android:inputType="textCapSentences|textNoSuggestions"
-        android:selectAllOnFocus="true"
-        android:singleLine="true" />
+        android:fontFamily="sans-serif-light"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Spinner
+    <TextView
         android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginRight="0dip"
-        android:enabled="false"
-        android:paddingRight="0dip" />
-
-    <ImageButton
-        android:id="@+id/remove"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="48dip"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:contentDescription="@string/content_description_remove_row"
-        android:padding="8dip"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_remove"
-        android:visibility="invisible" />
+        android:layout_marginLeft="16dip"
+        android:fontFamily="sans-serif-light"
+        android:paddingRight="16dip"
+        android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>

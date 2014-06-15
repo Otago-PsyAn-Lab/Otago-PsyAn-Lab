@@ -16,6 +16,7 @@
     <string name="title_description">Description</string>
     <string name="title_details">Details</string>
     <string name="title_dialogue_pick_object">Pick Object</string>
+    <string name="title_edit_channel_field">Edit Field</string>
     <string name="title_edit_condition">Edit Condition</string>
     <string name="title_edit_generator">Edit Generator</string>
     <string name="title_edit_iterations">Set Number of Cycles</string>

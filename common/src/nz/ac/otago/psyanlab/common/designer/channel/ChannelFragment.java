@@ -1,9 +1,9 @@
 
-package nz.ac.otago.psyanlab.common.designer.channels;
+package nz.ac.otago.psyanlab.common.designer.channel;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.designer.channels.ChannelDetailFragment.OnChannelDeletedListener;
-import nz.ac.otago.psyanlab.common.designer.channels.ChannelListFragment.ShowChannelListener;
+import nz.ac.otago.psyanlab.common.designer.channel.ChannelDetailFragment.OnChannelDeletedListener;
+import nz.ac.otago.psyanlab.common.designer.channel.ChannelListFragment.ShowChannelListener;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -18,7 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class ChannelsFragment extends Fragment implements ShowChannelListener,
+public class ChannelFragment extends Fragment implements ShowChannelListener,
         OnChannelDeletedListener {
     private static final String TAG_DETAIL_FRAGMENT = "channel_detail_fragment";
 

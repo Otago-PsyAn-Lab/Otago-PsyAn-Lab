@@ -1,5 +1,5 @@
 
-package nz.ac.otago.psyanlab.common.designer.channels;
+package nz.ac.otago.psyanlab.common.designer.channel;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.DataChannel;

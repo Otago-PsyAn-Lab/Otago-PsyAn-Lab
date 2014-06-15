@@ -2,13 +2,22 @@
 package nz.ac.otago.psyanlab.common.model.util;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Type {
+
     public static final int TYPE_BOOLEAN = 0x01;
 
     public static final int TYPE_FLOAT = 0x02;
@@ -55,6 +64,30 @@ public class Type {
         }
     }
 
+    public static CharSequence getTypeString(int type) {
+        if (type == Type.TYPE_INTEGER) {
+            return "integer";
+        } else if (type == Type.TYPE_FLOAT) {
+            return "float";
+        } else if (type == Type.TYPE_STRING) {
+            return "string";
+        } else if (type == Type.TYPE_BOOLEAN) {
+            return "boolean";
+        } else if (type == Type.TYPE_IMAGE) {
+            return "image";
+        } else if (type == Type.TYPE_SOUND) {
+            return "sound";
+        } else if (type == Type.TYPE_VIDEO) {
+            return "video";
+        } else if (type == Type.TYPE_NUMBER) {
+            return "number";
+        } else if (type == Type.TYPE_NON_ASSETS) {
+            return "non asset";
+        } else {
+            return "unknown";
+        }
+    }
+
     public static List<String> typeToStringArray(Context context, int type) {
         ArrayList<String> types = new ArrayList<String>();
         if ((type & Type.TYPE_BOOLEAN) != 0) {
@@ -82,4 +115,80 @@ public class Type {
         return types;
     }
 
+    public static class TypeAdapter extends BaseAdapter implements ListAdapter, SpinnerAdapter {
+        final static private int[] sTypes = new int[] {
+                Type.TYPE_BOOLEAN, Type.TYPE_INTEGER, Type.TYPE_NUMBER, Type.TYPE_FLOAT,
+                Type.TYPE_STRING
+        };
+
+        public static int positionOf(int type) {
+            for (int i = 0; i < sTypes.length; i++) {
+                if (sTypes[i] == type) {
+                    return i;
+                }
+            }
+            throw new RuntimeException("Unknown or unsupported field type " + type
+                    + " for data channels.");
+        }
+
+        private Context mContext;
+
+        private LayoutInflater mInflater;
+
+        public TypeAdapter(Context context) {
+            mContext = context;
+            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public int getCount() {
+            return sTypes.length;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            TextViewHolder holder;
+            if (convertView == null) {
+                convertView = mInflater.inflate(R.layout.list_item, parent, false);
+                holder = new TextViewHolder(1);
+                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+                convertView.setTag(holder);
+            } else {
+                holder = (TextViewHolder)convertView.getTag();
+            }
+
+            CharSequence typeString = getTypeString(mContext, sTypes[position]);
+
+            holder.textViews[0].setText(typeString);
+
+            return convertView;
+        }
+
+        @Override
+        public Integer getItem(int position) {
+            return sTypes[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextViewHolder holder;
+            if (convertView == null) {
+                convertView = mInflater.inflate(R.layout.list_item, parent, false);
+                holder = new TextViewHolder(1);
+                holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+                convertView.setTag(holder);
+            } else {
+                holder = (TextViewHolder)convertView.getTag();
+            }
+
+            holder.textViews[0].setText(getTypeString(mContext, sTypes[position]));
+
+            return convertView;
+        }
+    }
 }

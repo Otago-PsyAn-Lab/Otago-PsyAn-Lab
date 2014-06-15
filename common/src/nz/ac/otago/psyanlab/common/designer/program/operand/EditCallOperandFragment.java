@@ -161,6 +161,10 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
     public void onOperandDataChange() {
         // Reload changes.
         Operand operand = mCallbacks.getOperand(mObjectId);
+        if (operand == null) {
+            return;
+        }
+
         if (operand instanceof CallValue) {
             mCallValue = (CallValue)operand;
         } else {
@@ -328,18 +332,24 @@ public class EditCallOperandFragment extends AbsOperandFragment implements
         }
 
         private void setAction(CallOperand operand) {
-            mObject.setText(mCallbacks.getExperimentObject(operand.getObject())
-                    .getExperimentObjectName(getActivity()));
-            mMethod.setEnabled(true);
-            SpinnerAdapter methodsAdapter = mCallbacks.getMethodsAdapter(
-                    mCallbacks.getExperimentObject(operand.getObject()), mOperandType);
+            ExperimentObject object = mCallbacks.getExperimentObject(operand.getObject());
+            SpinnerAdapter methodsAdapter = null;
+            if (object == null) {
+                mObject.setText(null);
+                mMethod.setEnabled(false);
+            } else {
+                mObject.setText(object.getExperimentObjectName(getActivity()));
+                mMethod.setEnabled(true);
+                methodsAdapter = mCallbacks.getMethodsAdapter(object, mOperandType);
+            }
 
             mMethod.setAdapter(methodsAdapter);
-
-            for (int i = 0; i < methodsAdapter.getCount(); i++) {
-                if ((int)methodsAdapter.getItemId(i) == operand.getMethod()) {
-                    mMethod.setSelection(i);
-                    break;
+            if (methodsAdapter != null) {
+                for (int i = 0; i < methodsAdapter.getCount(); i++) {
+                    if ((int)methodsAdapter.getItemId(i) == operand.getMethod()) {
+                        mMethod.setSelection(i);
+                        break;
+                    }
                 }
             }
 

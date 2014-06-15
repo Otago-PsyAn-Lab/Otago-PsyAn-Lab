@@ -2064,20 +2064,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     private void updateReferencesToTriggerEventForRule(Rule rule) {
-        ExperimentObject trigger = getExperimentObject(rule.triggerObject);
+        Method[] methods;
+        if (rule.triggerObject == null) {
+            methods = new Method[] {};
+        } else {
+            ExperimentObject trigger = getExperimentObject(rule.triggerObject);
+            methods = trigger.getClass().getMethods();
+        }
 
-        Method[] methods = trigger.getClass().getMethods();
         EventData event = null;
         for (Method method : methods) {
             EventData eventData = method.getAnnotation(EventData.class);
             if (eventData != null && eventData.id() == rule.triggerEvent) {
                 event = eventData;
             }
-        }
-
-        if (event == null) {
-            // Nothing to do.
-            return;
         }
 
         updateReferencesToTriggerEvent(rule.conditionId, event);
@@ -2106,12 +2106,23 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
         if (operand instanceof CallValue) {
             CallValue call = (CallValue)operand;
-            if (call.object.kind != ExperimentObject.KIND_EVENT) {
+            if (call.object == null) {
+                return;
+            } else if (call.object.kind != ExperimentObject.KIND_EVENT) {
                 for (long paramId : call.parameters) {
                     updateReferencesToTriggerEvent(paramId, event);
                 }
             } else {
-                if (call.object.id != event.type()) {
+                if (event == null) {
+                    // Stub'ise operand because we don't have an event object to
+                    // call against.
+                    StubOperand replacement = new StubOperand(operand.name);
+                    replacement.tag = operand.tag;
+                    replacement.type = operand.type;
+
+                    deleteOperand(operandId);
+                    putOperand(operandId, replacement);
+                } else if (call.object.id != event.type()) {
                     // Check to see if we can convert the registered method to
                     // the new event type using a matched id.
                     ExperimentObject eventObject = ModelUtils.getEventObject(event);
@@ -2121,7 +2132,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                             MethodId methodData = method.getAnnotation(MethodId.class);
                             if (methodData != null && methodData.value() == call.method) {
                                 // Have match for an object in the new event
-                                // object so we just need to save the operand to
+                                // object so we just need to save the
+                                // operand to
                                 // trigger a UI refresh.
                                 putOperand(operandId, call);
                                 return;

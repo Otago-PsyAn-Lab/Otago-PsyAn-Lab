@@ -25,6 +25,7 @@ public class OpalExpressionParser extends Parser {
 
         // Register the ones that need special parselets.
         register(TokenType.NAME, new NameParselet());
+        register(TokenType.NOT_EQUALS, new ComparisonParselet());
         register(TokenType.EQUALS, new ComparisonParselet());
         register(TokenType.MORE_THAN, new ComparisonParselet());
         register(TokenType.MORE_THAN_OR_EQUAL_TO, new ComparisonParselet());

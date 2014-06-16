@@ -63,6 +63,7 @@ public class OperatorExpression {
             case MORE_THAN:
             case MORE_THAN_OR_EQUAL_TO:
                 return Type.TYPE_NUMBER;
+            case NOT_EQUALS:
             case EQUALS:
                 return Type.TYPE_NON_ASSETS;
 
@@ -116,6 +117,7 @@ public class OperatorExpression {
             case LESS_THAN_OR_EQUAL_TO:
             case MORE_THAN:
             case MORE_THAN_OR_EQUAL_TO:
+            case NOT_EQUALS:
             case EQUALS:
                 return Type.TYPE_BOOLEAN;
 

@@ -29,7 +29,8 @@ public enum TokenType {
     SLASH,
     STRING,
     TILDE,
-    XOR;
+    XOR,
+    NOT_EQUALS;
 
     public static final int LONGEST_PUNCTUATOR_LENGTH = 3;
 
@@ -59,6 +60,8 @@ public enum TokenType {
                 return "]";
             case COMMA:
                 return ",";
+            case NOT_EQUALS:
+                return "<>";
             case EQUALS:
                 return "=";
             case LESS_THAN:

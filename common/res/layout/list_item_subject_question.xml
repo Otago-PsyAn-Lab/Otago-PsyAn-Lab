@@ -1,49 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/opal_activated_background" >
+    android:background="@drawable/opal_activated_background"
+    android:minHeight="48dip"
+    android:paddingBottom="16dip"
+    android:paddingRight="16dip"
+    android:paddingTop="16dip" >
 
     <ImageView
         android:id="@+id/handle"
-        android:layout_width="36dip"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
+        android:layout_width="40dip"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:contentDescription="@string/content_description_drag_handle"
         android:paddingLeft="12dip"
-        android:paddingRight="8dip"
+        android:paddingRight="12dip"
         android:scaleType="centerInside"
         android:src="@drawable/ic_handle" />
+
+    <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@android:id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@android:id/text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
         android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
         android:fontFamily="sans-serif-light"
         android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <TextView
-        android:id="@android:id/text1"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/type"
-        android:layout_toRightOf="@+id/handle"
-        android:fontFamily="sans-serif-light"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@android:id/text2"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_below="@android:id/text1"
-        android:layout_toLeftOf="@+id/type"
-        android:layout_toRightOf="@+id/handle"
-        android:fontFamily="sans-serif-light"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-</RelativeLayout>
+</LinearLayout>

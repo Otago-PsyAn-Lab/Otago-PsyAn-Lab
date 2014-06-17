@@ -49,6 +49,7 @@ import nz.ac.otago.psyanlab.common.designer.util.MethodAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.OperandListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.designer.util.PropIdPair;
+import nz.ac.otago.psyanlab.common.designer.util.QuestionListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.RuleListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.util.SceneListItemViewBinder;
 import nz.ac.otago.psyanlab.common.model.Action;
@@ -63,6 +64,7 @@ import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
+import nz.ac.otago.psyanlab.common.model.Question;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.model.TouchEvent;
@@ -201,6 +203,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     private ArrayList<OperandDataChangeListener> mOperandDataChangeListeners;
 
+    private ArrayList<QuestionDataChangeListener> mQuestionDataChangeListeners;
+
     private ArrayList<RuleDataChangeListener> mRuleDataChangeListeners;
 
     private ArrayList<SceneDataChangeListener> mSceneDataChangeListeners;
@@ -211,9 +215,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     protected DrawerLayout mDrawerLayout;
 
+    private ProgramComponentAdapter<Question> mQuestionAdapter;
+
     @Override
     public long addAction(Action action) {
-        long unusedKey = findUnusedKey(mExperiment.actions);
+        long unusedKey = ModelUtils.findUnusedKey(mExperiment.actions);
         mExperiment.actions.put(unusedKey, action);
         notifyActionDataChangeListeners();
         return unusedKey;
@@ -237,7 +243,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public long addDataChannel(DataChannel dataChannel) {
-        Long unusedKey = findUnusedKey(mExperiment.dataChannels);
+        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.dataChannels);
         mExperiment.dataChannels.put(unusedKey, dataChannel);
         notifyDataChannelDataChange();
         return unusedKey;
@@ -258,7 +264,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public long addGenerator(Generator generator) {
-        Long unusedKey = findUnusedKey(mExperiment.generators);
+        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.generators);
         mExperiment.generators.put(unusedKey, generator);
         notifyGeneratorDataChangeListeners();
         return unusedKey;
@@ -282,7 +288,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public long addLoop(Loop loop) {
-        Long key = findUnusedKey(mExperiment.loops);
+        Long key = ModelUtils.findUnusedKey(mExperiment.loops);
         mExperiment.loops.put(key, loop);
         mExperiment.program.loops.add(key);
         notifyLoopAdapter();
@@ -300,7 +306,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public long addOperand(Operand operand) {
-        Long key = findUnusedKey(mExperiment.operands);
+        Long key = ModelUtils.findUnusedKey(mExperiment.operands);
         mExperiment.operands.put(key, operand);
         notifyOperandDataChangeListeners();
         return key;
@@ -315,8 +321,24 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public long addQuestion(Question question) {
+        long unusedKey = ModelUtils.findUnusedKey(mExperiment.questions);
+        mExperiment.questions.put(unusedKey, question);
+        notifyActionDataChangeListeners();
+        return unusedKey;
+    }
+
+    @Override
+    public void addQuestionDataChangeListener(QuestionDataChangeListener listener) {
+        if (mQuestionDataChangeListeners == null) {
+            mQuestionDataChangeListeners = new ArrayList<QuestionDataChangeListener>();
+        }
+        mQuestionDataChangeListeners.add(listener);
+    }
+
+    @Override
     public long addRule(Rule rule) {
-        Long unusedKey = findUnusedKey(mExperiment.rules);
+        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.rules);
         mExperiment.rules.put(unusedKey, rule);
         notifyRuleDataChangeListeners();
         return unusedKey;
@@ -332,7 +354,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public long addScene(Scene scene) {
-        Long unusedKey = findUnusedKey(mExperiment.scenes);
+        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.scenes);
         mExperiment.scenes.put(unusedKey, scene);
         notifySceneDataChangeListeners();
         return unusedKey;
@@ -395,18 +417,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         deleteOperand(id, true);
     }
 
-    private void deleteOperand(long id, boolean notify) {
-        if (!mExperiment.operands.containsKey(id)) {
-            // Nothing to do because we already don't have the indicated
-            // operand.
-            return;
-        }
-
-        deleteOperandData(mExperiment.operands.remove(id));
-
-        if (notify) {
-            notifyOperandDataChangeListeners();
-        }
+    @Override
+    public void deleteQuestion(long id) {
+        mExperiment.questions.remove(id);
     }
 
     @Override
@@ -601,6 +614,19 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         return mLoopAdapter;
     }
 
+    @Override
+    public ProgramComponentAdapter<Question> getQuestionAdapter() {
+        if (mQuestionAdapter != null) {
+            return mQuestionAdapter;
+        }
+
+        mQuestionAdapter = new ProgramComponentAdapter<Question>(mExperiment.questions,
+                mExperiment.landingPage.questions, new QuestionListItemViewBinder(this, this));
+        mQuestionAdapter.setOnlySingleGrabbable(false);
+
+        return mQuestionAdapter;
+    }
+
     /**
      * Get an adapter for all methods in given class hierarchy which return a
      * given type.
@@ -757,6 +783,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public Question getQuestion(long id) {
+        return mExperiment.questions.get(id);
+    }
+
+    @Override
     public Rule getRule(long id) {
         return mExperiment.rules.get(id);
     }
@@ -829,7 +860,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                         String[] paths = data.getStringArrayExtra(Args.ASSET_PATHS);
                         Time t = new Time();
                         t.setToNow();
-                        mExperiment.assets.put(findUnusedKey(mExperiment.assets), Asset
+                        mExperiment.assets.put(ModelUtils.findUnusedKey(mExperiment.assets), Asset
                                 .getFactory().newAsset(paths[0]));
                         mAssetsAdapter.notifyDataSetChanged();
                         break;
@@ -885,8 +916,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mSectionManager.addSection(R.string.designer_tab_assets, AssetsFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_sources, AssetsFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_variables, AssetsFragment.class, null);
-        mSectionManager.addSection(R.string.designer_tab_data_channels, ChannelFragment.class,
-                null);
+        mSectionManager
+                .addSection(R.string.designer_tab_data_channels, ChannelFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_program, ProgramFragment.class, null);
 
         ArrayAdapter<EditorSectionItem> adapter = new SectionAdapter(this,
@@ -1036,6 +1067,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public void putQuestion(long id, Question question) {
+        mExperiment.questions.put(id, question);
+
+        notifyQuestionDataChangeListeners();
+    }
+
+    @Override
     public void putRule(long id, Rule rule) {
         mExperiment.rules.put(id, rule);
         notifyRuleAdapter();
@@ -1094,6 +1132,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public void removeLandingPageDataChangeListener(LandingPageDataChangeListener listener) {
+        mLandingPageDataChangeListeners.remove(listener);
+    }
+
+    @Override
     public void removeLoopDataChangeListener(LoopDataChangeListener listener) {
         mLoopDataChangeListeners.remove(listener);
     }
@@ -1101,6 +1144,11 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public void removeOperandDataChangeListener(OperandDataChangeListener listener) {
         mOperandDataChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void removeQuestionDataChangeListener(QuestionDataChangeListener listener) {
+        mQuestionDataChangeListeners.remove(listener);
     }
 
     @Override
@@ -1282,6 +1330,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    private void deleteOperand(long id, boolean notify) {
+        if (!mExperiment.operands.containsKey(id)) {
+            return;
+        }
+
+        deleteOperandData(mExperiment.operands.remove(id));
+
+        if (notify) {
+            notifyOperandDataChangeListeners();
+        }
+    }
+
     private void deleteOperandData(Operand operand) {
         if (operand == null) {
             return;
@@ -1428,7 +1488,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         throw new RuntimeException("Did not find rule for child. Must have been orphaned.");
-    }
+    };
 
     private long findSceneIdForDescendant(final int callingComponentKind, final long componentId) {
         final long childId;
@@ -1456,28 +1516,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         throw new RuntimeException("Did not find scene for child. Must have been orphaned.");
-    }
-
-    private Long findUnusedKey(HashMap<Long, ?> map) {
-        Long currKey = 0l;
-        while (true) {
-            if (!map.keySet().contains(currKey)) {
-                break;
-            }
-            currKey++;
-        }
-        return currKey;
-    }
-
-    private Long findUnusedKey(LongSparseArray<?> map) {
-        Long currKey = 0l;
-        while (true) {
-            if (map.indexOfKey(currKey) < 0) {
-                break;
-            }
-            currKey++;
-        }
-        return currKey;
     }
 
     private int getEffectiveScopeLevel(int callerKind, int relativeScope) {
@@ -1532,7 +1570,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-    };
+    }
 
     private List<Pair<ExperimentObject, Long>> getObjectsMatching(int scopeLevel, int callerKind,
             long callerId, int filter) {
@@ -1740,6 +1778,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    private void notifyQuestionDataChangeListeners() {
+        if (mActionDataChangeListeners == null) {
+            return;
+        }
+
+        for (ActionDataChangeListener l : mActionDataChangeListeners) {
+            l.onActionDataChange();
+        }
+    }
+
     private void notifyRuleAdapter() {
         if (mCurrentRuleAdapter == null) {
             return;
@@ -1804,6 +1852,45 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             }
             deleteOperand(key);
             putOperand(key, replacement);
+        }
+    }
+
+    private void removeReferencesToTriggerEvent(long operandId) {
+        Operand operand = mExperiment.operands.get(operandId);
+
+        if (operand instanceof ExpressionValue) {
+            for (long varId : ((ExpressionValue)operand).variables) {
+                removeReferencesToTriggerEvent(varId);
+            }
+            return;
+        }
+
+        if (operand instanceof CallValue) {
+            CallValue call = (CallValue)operand;
+            if (call.object.kind != ExperimentObject.KIND_EVENT) {
+                for (long paramId : call.parameters) {
+                    removeReferencesToTriggerEvent(paramId);
+                }
+            } else {
+                // Stub'ise operand because it calls an event which is about to
+                // not be accessible anymore.
+                StubOperand replacement = new StubOperand(operand.name);
+                replacement.tag = operand.tag;
+                replacement.type = operand.type;
+
+                deleteOperand(operandId);
+                putOperand(operandId, replacement);
+            }
+
+            return;
+        }
+    }
+
+    private void removeReferencesToTriggerEventForRule(Rule rule) {
+        removeReferencesToTriggerEvent(rule.conditionId);
+
+        for (long actionId : rule.actions) {
+            removeReferencesToTriggerEvent(mExperiment.actions.get(actionId).operandId);
         }
     }
 
@@ -2014,76 +2101,71 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
-    /**
-     * Look through all rules for a reference to the given object. For any
-     * matching rule check the event is valid and modify it if necessary. This
-     * has to cascade for virtual event objects that may be referenced
-     * elsewhere.
-     * 
-     * @param id Id of object.
-     * @param kind Kind of object.
-     */
-    private void updateRuleReferencesToObject(long id, int kind, ExperimentObject object) {
-        final Method[] methods;
-        if (object == null) {
-            methods = new Method[] {};
-        } else {
-            methods = object.getClass().getMethods();
-        }
+    private void updateReferencesToProp(long id) {
+        Prop prop = mExperiment.props.get(id);
+        updateRuleReferencesToObject(id, ExperimentObject.KIND_PROP, prop);
 
-        for (Entry<Long, Rule> entry : mExperiment.rules.entrySet()) {
-            long ruleId = entry.getKey();
-            Rule rule = entry.getValue();
-            if (rule.triggerObject != null && rule.triggerObject.kind == kind
-                    && rule.triggerObject.id == id) {
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_PROP, id);
 
-                EventData eventData = null;
-                for (int i = 0; i < methods.length; i++) {
-                    eventData = methods[i].getAnnotation(EventData.class);
-                    if (eventData != null && eventData.id() == rule.triggerEvent) {
-                        break;
-                    }
-                }
+        for (Long callId : calls) {
+            // The kind of the prop may have changed, as such there may be a
+            // different set of calls that can be made. The job here is to
+            // identify if an incorrect call is referenced, if this is the case,
+            // throw away the call operand.
+            CallValue call = (CallValue)mExperiment.operands.get(callId);
 
-                if (eventData != null) {
-                    // Matched event was found so we can leave the rule alone.
-                    // Trigger an update anyway, in case the set of events
-                    // available has changed.
-                    putRule(ruleId, rule);
-                    continue;
-                }
-
-                // No matching event found, so clear trigger and any virtual
-                // event objects.
-                rule.triggerEvent = 0;
-                rule.triggerObject = null;
-                putRule(ruleId, rule);
-                removeReferencesToTriggerEventForRule(rule);
+            if (call == null) {
+                // It is possible we might be trying to update a call we have
+                // already obliterated due to removing a parent operand, so we
+                // just skip the missing operand and continue processing the
+                // list.
+                continue;
             }
-        }
-    }
 
-    private void updateReferencesToTriggerEventForRule(Rule rule) {
-        Method[] methods;
-        if (rule.triggerObject == null) {
-            methods = new Method[] {};
-        } else {
-            ExperimentObject trigger = getExperimentObject(rule.triggerObject);
-            methods = trigger.getClass().getMethods();
-        }
-
-        EventData event = null;
-        for (Method method : methods) {
-            EventData eventData = method.getAnnotation(EventData.class);
-            if (eventData != null && eventData.id() == rule.triggerEvent) {
-                event = eventData;
+            if (prop == null) {
+                // The prop was actually deleted so we just need to remove the
+                // reference.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId, false);
+                putOperand(callId, replacement);
+                continue;
             }
-        }
 
-        updateReferencesToTriggerEvent(rule.conditionId, event);
+            SortedSet<MethodData> filteredMethods = new TreeSet<MethodData>(
+                    new Comparator<MethodData>() {
+                        @Override
+                        public int compare(MethodData lhs, MethodData rhs) {
+                            Collator collator = getCollater();
+                            return collator.compare(getString(lhs.nameResId),
+                                    getString(rhs.nameResId));
+                        }
+                    });
 
-        for (long actionId : rule.actions) {
-            updateReferencesToTriggerEvent(mExperiment.actions.get(actionId).operandId, event);
+            prop.loadInMatchingMethods(call.type, filteredMethods);
+
+            boolean foundMethod = false;
+            for (MethodData methodData : filteredMethods) {
+                if (methodData.id == call.method) {
+                    foundMethod = true;
+                    break;
+                }
+            }
+
+            if (!foundMethod) {
+                // Obliterate the operand and replace it with a stub. We throw
+                // away the call value because we don't want a reference to an
+                // object without a matching method.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId, false);
+                putOperand(callId, replacement);
+            } else {
+                notifyOperandAdapters(callId);
+                notifyOperandDataChangeListeners();
+            }
         }
     }
 
@@ -2156,109 +2238,75 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
-    private void removeReferencesToTriggerEventForRule(Rule rule) {
-        removeReferencesToTriggerEvent(rule.conditionId);
+    private void updateReferencesToTriggerEventForRule(Rule rule) {
+        Method[] methods;
+        if (rule.triggerObject == null) {
+            methods = new Method[] {};
+        } else {
+            ExperimentObject trigger = getExperimentObject(rule.triggerObject);
+            methods = trigger.getClass().getMethods();
+        }
+
+        EventData event = null;
+        for (Method method : methods) {
+            EventData eventData = method.getAnnotation(EventData.class);
+            if (eventData != null && eventData.id() == rule.triggerEvent) {
+                event = eventData;
+            }
+        }
+
+        updateReferencesToTriggerEvent(rule.conditionId, event);
 
         for (long actionId : rule.actions) {
-            removeReferencesToTriggerEvent(mExperiment.actions.get(actionId).operandId);
+            updateReferencesToTriggerEvent(mExperiment.actions.get(actionId).operandId, event);
         }
     }
 
-    private void removeReferencesToTriggerEvent(long operandId) {
-        Operand operand = mExperiment.operands.get(operandId);
-
-        if (operand instanceof ExpressionValue) {
-            for (long varId : ((ExpressionValue)operand).variables) {
-                removeReferencesToTriggerEvent(varId);
-            }
-            return;
+    /**
+     * Look through all rules for a reference to the given object. For any
+     * matching rule check the event is valid and modify it if necessary. This
+     * has to cascade for virtual event objects that may be referenced
+     * elsewhere.
+     * 
+     * @param id Id of object.
+     * @param kind Kind of object.
+     */
+    private void updateRuleReferencesToObject(long id, int kind, ExperimentObject object) {
+        final Method[] methods;
+        if (object == null) {
+            methods = new Method[] {};
+        } else {
+            methods = object.getClass().getMethods();
         }
 
-        if (operand instanceof CallValue) {
-            CallValue call = (CallValue)operand;
-            if (call.object.kind != ExperimentObject.KIND_EVENT) {
-                for (long paramId : call.parameters) {
-                    removeReferencesToTriggerEvent(paramId);
+        for (Entry<Long, Rule> entry : mExperiment.rules.entrySet()) {
+            long ruleId = entry.getKey();
+            Rule rule = entry.getValue();
+            if (rule.triggerObject != null && rule.triggerObject.kind == kind
+                    && rule.triggerObject.id == id) {
+
+                EventData eventData = null;
+                for (int i = 0; i < methods.length; i++) {
+                    eventData = methods[i].getAnnotation(EventData.class);
+                    if (eventData != null && eventData.id() == rule.triggerEvent) {
+                        break;
+                    }
                 }
-            } else {
-                // Stub'ise operand because it calls an event which is about to
-                // not be accessible anymore.
-                StubOperand replacement = new StubOperand(operand.name);
-                replacement.tag = operand.tag;
-                replacement.type = operand.type;
 
-                deleteOperand(operandId);
-                putOperand(operandId, replacement);
-            }
-
-            return;
-        }
-    }
-
-    private void updateReferencesToProp(long id) {
-        Prop prop = mExperiment.props.get(id);
-        updateRuleReferencesToObject(id, ExperimentObject.KIND_PROP, prop);
-
-        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_PROP, id);
-
-        for (Long callId : calls) {
-            // The kind of the prop may have changed, as such there may be a
-            // different set of calls that can be made. The job here is to
-            // identify if an incorrect call is referenced, if this is the case,
-            // throw away the call operand.
-            CallValue call = (CallValue)mExperiment.operands.get(callId);
-
-            if (call == null) {
-                // It is possible we might be trying to update a call we have
-                // already obliterated due to removing a parent operand, so we
-                // just skip the missing operand and continue processing the
-                // list.
-                continue;
-            }
-
-            if (prop == null) {
-                // The prop was actually deleted so we just need to remove the
-                // reference.
-                StubOperand replacement = new StubOperand(call.getName());
-                replacement.type = call.type;
-                replacement.tag = call.tag;
-                deleteOperand(callId, false);
-                putOperand(callId, replacement);
-                continue;
-            }
-
-            SortedSet<MethodData> filteredMethods = new TreeSet<MethodData>(
-                    new Comparator<MethodData>() {
-                        @Override
-                        public int compare(MethodData lhs, MethodData rhs) {
-                            Collator collator = getCollater();
-                            return collator.compare(getString(lhs.nameResId),
-                                    getString(rhs.nameResId));
-                        }
-                    });
-
-            prop.loadInMatchingMethods(call.type, filteredMethods);
-
-            boolean foundMethod = false;
-            for (MethodData methodData : filteredMethods) {
-                if (methodData.id == call.method) {
-                    foundMethod = true;
-                    break;
+                if (eventData != null) {
+                    // Matched event was found so we can leave the rule alone.
+                    // Trigger an update anyway, in case the set of events
+                    // available has changed.
+                    putRule(ruleId, rule);
+                    continue;
                 }
-            }
 
-            if (!foundMethod) {
-                // Obliterate the operand and replace it with a stub. We throw
-                // away the call value because we don't want a reference to an
-                // object without a matching method.
-                StubOperand replacement = new StubOperand(call.getName());
-                replacement.type = call.type;
-                replacement.tag = call.tag;
-                deleteOperand(callId, false);
-                putOperand(callId, replacement);
-            } else {
-                notifyOperandAdapters(callId);
-                notifyOperandDataChangeListeners();
+                // No matching event found, so clear trigger and any virtual
+                // event objects.
+                rule.triggerEvent = 0;
+                rule.triggerObject = null;
+                putRule(ruleId, rule);
+                removeReferencesToTriggerEventForRule(rule);
             }
         }
     }
@@ -2293,7 +2341,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
         // All props remaining to be processed must be new.
         for (int i = 0; i < toBeProcessed.size(); i++) {
-            Long key = findUnusedKey(mExperiment.props);
+            Long key = ModelUtils.findUnusedKey(mExperiment.props);
             mExperiment.props.put(key, toBeProcessed.valueAt(i));
             sceneProps.add(key);
         }
@@ -2376,6 +2424,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     public interface OperandDataChangeListener {
         void onOperandDataChange();
+    }
+
+    public interface QuestionDataChangeListener {
+        void onQuestionDataChange();
     }
 
     public interface RuleDataChangeListener {

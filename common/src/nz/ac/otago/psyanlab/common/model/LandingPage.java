@@ -7,15 +7,15 @@ import java.util.ArrayList;
 
 public class LandingPage {
     @Expose
-    public String title;
-
-    @Expose
     public String introduction;
 
     @Expose
-    public ArrayList<Subject> subjectDetails;
+    public ArrayList<Long> questions;
+
+    @Expose
+    public String title;
 
     public LandingPage() {
-        subjectDetails = new ArrayList<Subject>();
+        questions = new ArrayList<Long>();
     }
 }

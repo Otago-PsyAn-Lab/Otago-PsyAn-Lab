@@ -28,6 +28,8 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
 
     private ViewBinder<T> mViewBinder;
 
+    private boolean mOnlySingleGrabbable = true;
+
     public ProgramComponentAdapter(HashMap<Long, T> map, List<Long> keys, ViewBinder<T> viewBinder) {
         mMap = map;
         mViewBinder = viewBinder;
@@ -99,7 +101,7 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
         }
 
         View handle = view.findViewById(R.id.handle);
-        if (handle != null) {
+        if (handle != null && mOnlySingleGrabbable) {
             if (list.getChoiceMode() == ListView.CHOICE_MODE_SINGLE && list.isItemChecked(position)) {
                 handle.setEnabled(true);
                 handle.setVisibility(View.VISIBLE);
@@ -110,6 +112,10 @@ public class ProgramComponentAdapter<T> extends BaseAdapter implements DragSortL
         }
 
         return view;
+    }
+
+    public void setOnlySingleGrabbable(boolean onlySingleGrabbable) {
+        mOnlySingleGrabbable = onlySingleGrabbable;
     }
 
     @Override

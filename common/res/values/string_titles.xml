@@ -23,6 +23,7 @@
     <string name="title_edit_operand">Edit Operand</string>
     <string name="title_edit_operand">Input %s</string>
     <string name="title_edit_prop">Edit Prop</string>
+    <string name="title_edit_question">Edit Question</string>
     <string name="title_edit_stage_properties">Edit Properties</string>
     <string name="title_exit_designer">Exit Designer</string>
     <string name="title_experiment">Experiment</string>
@@ -34,9 +35,11 @@
     <string name="title_landing_page_description">Body</string>
     <string name="title_landing_page_title">Title</string>
     <string name="title_loops">Loops</string>
+    <string name="title_new_channel_field">New Field</string>
     <string name="title_new_experiment">New Experiment</string>
     <string name="title_new_generator">New Generator</string>
     <string name="title_new_prop">New Prop</string>
+    <string name="title_new_question">New Question</string>
     <string name="title_pick_number">Pick Number</string>
     <string name="title_props">Props</string>
     <string name="title_rename_variable">Rename variable %1$s</string>

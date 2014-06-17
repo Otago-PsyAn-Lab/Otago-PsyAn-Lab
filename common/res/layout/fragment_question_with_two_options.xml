@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:padding="16dip"
+    android:scrollbarStyle="outsideOverlay" >
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:useDefaultMargins="false" >
+
+        <TextView
+            android:layout_gravity="center_vertical|start"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/label_prop_name"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:hint="@string/hint_question_name"
+            android:imeOptions="actionNext"
+            android:inputType="textNoSuggestions"
+            android:minHeight="48dip"
+            android:selectAllOnFocus="true"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_gravity="center_vertical|start"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/label_question_kind"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/kind"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal" />
+
+        <TextView
+            android:layout_gravity="center_vertical|start"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/label_hint"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/hint"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:hint="@string/hint_input_hint"
+            android:imeOptions="actionNext"
+            android:inputType="textNoSuggestions"
+            android:minHeight="48dip"
+            android:selectAllOnFocus="true"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:fontFamily="sans-serif-light"
+            android:paddingBottom="16dip"
+            android:paddingTop="32dip"
+            android:text="@string/label_question"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <CheckBox
+            android:id="@+id/required"
+            android:layout_gravity="right"
+            android:text="@string/label_question_is_required" />
+
+        <EditText
+            android:id="@+id/text"
+            android:layout_columnSpan="3"
+            android:layout_gravity="fill_horizontal"
+            android:hint="@string/hint_subject_question"
+            android:imeOptions="actionNext"
+            android:inputType="textNoSuggestions"
+            android:minHeight="48dip"
+            android:selectAllOnFocus="true"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_columnSpan="3"
+            android:layout_gravity="center_vertical"
+            android:fontFamily="sans-serif-light"
+            android:paddingBottom="16dip"
+            android:paddingTop="32dip"
+            android:text="@string/label_options"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:layout_gravity="center_vertical|start"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/label_option_one"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/option_one"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:hint="@string/hint_option_one"
+            android:imeOptions="actionNext"
+            android:inputType="textNoSuggestions"
+            android:minHeight="48dip"
+            android:selectAllOnFocus="true"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_gravity="center_vertical|start"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/label_option_two"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/option_two"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:hint="@string/hint_option_two"
+            android:imeOptions="actionNext"
+            android:inputType="textNoSuggestions"
+            android:minHeight="48dip"
+            android:selectAllOnFocus="true"
+            android:singleLine="true" />
+    </GridLayout>
+
+</ScrollView>

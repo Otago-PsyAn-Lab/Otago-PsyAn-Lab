@@ -14,6 +14,7 @@
     <string name="default_name_new_csv">Data Sources %1$d</string>
     <string name="default_name_new_experiment">New Experiment</string>
     <string name="default_name_new_loop">Loop %1$d</string>
+    <string name="default_name_new_question">Question %1$d</string>
     <string name="default_name_new_rule">Rule %1$d</string>
     <string name="default_name_new_scene">Scene %1$d</string>
     <string name="default_prop_name">Prop</string>
@@ -96,5 +97,18 @@
     </plurals>
 
     <string name="message_exit_designer">Are you sure you want to exit? Exiting the designer now will save all changes up to this point. To discard changes please select the discard option from the menu.</string>
+    <string name="label_question">Question</string>
+    <string name="label_question_is_required">is required</string>
+    <string name="hint_question_name">Question name</string>
+    <string name="label_question_kind">Kind</string>
+    <string name="label_options">Options</string>
+    <string name="label_hint">Hint</string>
+    <string name="hint_input_hint">Input hint</string>
+    <string name="label_option_one">First</string>
+    <string name="label_option_two">Second</string>
+    <string name="title_new_option">New Option</string>
+    <string name="title_edit_option">Edit Option</string>
+    <string name="hint_option_two">No</string>
+    <string name="hint_option_one">Yes</string>
 
 </resources>

@@ -1,19 +1,25 @@
 
 package nz.ac.otago.psyanlab.common.model.subject;
 
-import java.util.ArrayList;
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.Question;
 
-public class Dropdown extends SubjectDetailWithOptions {
-    public static final int ID = 0x02;
-
+public class Dropdown extends Question {
     public Dropdown() {
-        this(null);
+        super();
     }
 
-    public Dropdown(ArrayList<String> list) {
-        super(list);
-        mTypeId = ID;
-        mTypeLabelResId = R.string.label_subject_detail_dropdown;
+    public Dropdown(Question q) {
+        super(q);
+    }
+
+    @Override
+    public int getKind() {
+        return Question.KIND_DROPDOWN;
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_subject_detail_dropdown;
     }
 }

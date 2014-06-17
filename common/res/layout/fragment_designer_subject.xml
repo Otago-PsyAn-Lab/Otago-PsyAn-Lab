@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.mobeta.android.dslv.DragSortListView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
     android:background="@color/card_background"
-    android:orientation="vertical" >
-
-    <com.mobeta.android.dslv.DragSortListView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:divider="@null"
-        android:footerDividersEnabled="false"
-        android:headerDividersEnabled="false"
-        android:paddingBottom="16dip"
-        android:paddingTop="32dip"
-        android:scrollbarStyle="outsideOverlay"
-        app:drag_enabled="true"
-        app:drag_handle_id="@+id/handle"
-        app:drag_start_mode="onDown"
-        app:float_background_color="@android:color/transparent"
-        app:remove_enabled="false" />
-
-</LinearLayout>
+    android:clipToPadding="false"
+    android:divider="@null"
+    android:headerDividersEnabled="false"
+    android:paddingBottom="32dip"
+    android:paddingTop="32dip"
+    android:scrollbarStyle="outsideOverlay"
+    app:drag_enabled="true"
+    app:drag_handle_id="@+id/handle"
+    app:drag_start_mode="onDown"
+    app:float_background_color="@android:color/transparent"
+    app:remove_enabled="false" />

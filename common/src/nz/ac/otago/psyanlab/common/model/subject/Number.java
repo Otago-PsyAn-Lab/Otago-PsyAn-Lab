@@ -2,13 +2,25 @@
 package nz.ac.otago.psyanlab.common.model.subject;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.model.Subject;
+import nz.ac.otago.psyanlab.common.model.Question;
 
-public class Number extends Subject {
-    public static final int ID = 0x04;
-
+public class Number extends Question {
     public Number() {
-        mTypeId = ID;
-        mTypeLabelResId = R.string.label_subject_detail_number;
+        super();
+    }
+
+    public Number(Question q) {
+        super(q);
+        options.clear();
+    }
+
+    @Override
+    public int getKind() {
+        return Question.KIND_NUMBER;
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_subject_detail_number;
     }
 }

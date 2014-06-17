@@ -2,19 +2,24 @@
 package nz.ac.otago.psyanlab.common.model.subject;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.Question;
 
-import java.util.ArrayList;
-
-public class MultiChoice extends SubjectDetailWithOptions {
-    public static final int ID = 0x03;
-
+public class MultiChoice extends Question {
     public MultiChoice() {
-        this(null);
+        super();
     }
 
-    public MultiChoice(ArrayList<String> options) {
-        super(options);
-        mTypeId = ID;
-        mTypeLabelResId = R.string.label_subject_detail_multiple_choice;
+    public MultiChoice(Question q) {
+        super(q);
+    }
+
+    @Override
+    public int getKind() {
+        return Question.KIND_MULTI_CHOICE;
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_subject_detail_multiple_choice;
     }
 }

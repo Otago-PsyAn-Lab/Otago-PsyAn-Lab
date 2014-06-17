@@ -50,6 +50,9 @@ public class Experiment {
     public HashMap<Long, Prop> props;
 
     @Expose
+    public HashMap<Long, Question> questions;
+
+    @Expose
     public HashMap<Long, Rule> rules;
 
     @Expose
@@ -73,6 +76,7 @@ public class Experiment {
         rules = new HashMap<Long, Rule>();
         scenes = new HashMap<Long, Scene>();
         dataChannels = new HashMap<Long, DataChannel>();
+        questions = new HashMap<Long, Question>();
 
         landingPage = new LandingPage();
         program = new Program();

@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
+import android.support.v4.util.LongSparseArray;
+
 import nz.ac.otago.psyanlab.common.BuildConfig;
 import nz.ac.otago.psyanlab.common.model.Asset;
 import nz.ac.otago.psyanlab.common.model.Experiment;
@@ -12,7 +14,7 @@ import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
-import nz.ac.otago.psyanlab.common.model.Subject;
+import nz.ac.otago.psyanlab.common.model.Question;
 import nz.ac.otago.psyanlab.common.model.TouchEvent;
 import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
 
@@ -23,6 +25,7 @@ import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class ModelUtils {
     private static Gson mGson;
@@ -40,7 +43,7 @@ public class ModelUtils {
                     AbsModelGsonAdapter.NS_MODEL_OPERAND));
             gson.registerTypeAdapter(Generator.class, new AbsModelGsonAdapter<Generator>(
                     AbsModelGsonAdapter.NS_MODEL_GENERATOR));
-            gson.registerTypeAdapter(Subject.class, new AbsModelGsonAdapter<Subject>(
+            gson.registerTypeAdapter(Question.class, new AbsModelGsonAdapter<Question>(
                     AbsModelGsonAdapter.NS_MODEL_SUBJECT));
             gson.registerTypeAdapter(Prop.class, new AbsModelGsonAdapter<Prop>(
                     AbsModelGsonAdapter.NS_MODEL_PROP));
@@ -193,5 +196,27 @@ public class ModelUtils {
             return true;
         }
         return false;
+    }
+
+    public static Long findUnusedKey(HashMap<Long, ?> map) {
+        Long currKey = 0l;
+        while (true) {
+            if (!map.keySet().contains(currKey)) {
+                break;
+            }
+            currKey++;
+        }
+        return currKey;
+    }
+
+    public static Long findUnusedKey(LongSparseArray<?> map) {
+        Long currKey = 0l;
+        while (true) {
+            if (map.indexOfKey(currKey) < 0) {
+                break;
+            }
+            currKey++;
+        }
+        return currKey;
     }
 }

@@ -21,7 +21,7 @@
     <string name="hint_prop_name">Prop name</string>
     <string name="hint_rule_name">Rule name</string>
     <string name="hint_scene_name">Scene name</string>
-    <string name="hint_subject_question">Question</string>
+    <string name="hint_subject_question">Question of subject</string>
     <string name="hint_title_subject">Title</string>
     <string name="hint_username">Username</string>
 

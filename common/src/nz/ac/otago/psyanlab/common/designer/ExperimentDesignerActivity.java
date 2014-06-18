@@ -1070,6 +1070,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     public void putQuestion(long id, Question question) {
         mExperiment.questions.put(id, question);
 
+        mQuestionAdapter.notifyDataSetChanged();
         notifyQuestionDataChangeListeners();
     }
 
@@ -1779,12 +1780,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     private void notifyQuestionDataChangeListeners() {
-        if (mActionDataChangeListeners == null) {
+        if (mQuestionDataChangeListeners == null) {
             return;
         }
 
-        for (ActionDataChangeListener l : mActionDataChangeListeners) {
-            l.onActionDataChange();
+        for (QuestionDataChangeListener l : mQuestionDataChangeListeners) {
+            l.onQuestionDataChange();
         }
     }
 

@@ -110,5 +110,7 @@
     <string name="title_edit_option">Edit Option</string>
     <string name="hint_option_two">No</string>
     <string name="hint_option_one">Yes</string>
+    <string name="default_entry_option_yes">Yes</string>
+    <string name="default_entry_option_no">No</string>
 
 </resources>

@@ -11,6 +11,10 @@ public class Number extends Question {
 
     public Number(Question q) {
         super(q);
+    }
+
+    @Override
+    public void cleanForStorage() {
         options.clear();
     }
 

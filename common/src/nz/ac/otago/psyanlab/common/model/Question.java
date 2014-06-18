@@ -58,6 +58,12 @@ public abstract class Question {
         return kinds;
     }
 
+    /**
+     * Clean away any unneeded fields.
+     */
+    public void cleanForStorage() {
+    }
+
     public static Question getNewInstance(int kind) {
         switch (kind) {
             case Question.KIND_DATE:
@@ -84,8 +90,8 @@ public abstract class Question {
         }
     }
 
-    public static Question getNewInstance(Question q) {
-        switch (q.getKind()) {
+    public static Question getNewInstance(int newKind, Question q) {
+        switch (newKind) {
             case Question.KIND_DATE:
                 return new Date(q);
             case Question.KIND_DATE_TIME:
@@ -106,7 +112,7 @@ public abstract class Question {
                 return new Toggle(q);
 
             default:
-                throw new RuntimeException("Unknown question kind " + q.getKind());
+                throw new RuntimeException("Unknown question kind " + newKind);
         }
     }
 
@@ -123,10 +129,9 @@ public abstract class Question {
     public String hint;
 
     @Expose
-    public ArrayList<String> options;
+    public ArrayList<String> options = new ArrayList<String>();
 
     public Question() {
-        options = new ArrayList<String>();
     }
 
     public Question(Question q) {

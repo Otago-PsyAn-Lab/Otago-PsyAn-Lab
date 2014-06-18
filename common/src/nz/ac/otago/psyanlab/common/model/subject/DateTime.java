@@ -10,6 +10,10 @@ public class DateTime extends Question {
 
     public DateTime(Question q) {
         super(q);
+    }
+
+    @Override
+    public void cleanForStorage() {
         options.clear();
     }
 

@@ -10,6 +10,10 @@ public class Date extends Question {
 
     public Date(Question q) {
         super(q);
+    }
+
+    @Override
+    public void cleanForStorage() {
         options.clear();
     }
 

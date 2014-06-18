@@ -104,7 +104,7 @@ public class EditQuestionDialogueFragment extends DialogFragment implements
 
     @Override
     public void onQuestionKindChange(int newKind) {
-        Question q = Question.getNewInstance(newKind);
+        Question q = Question.getNewInstance(newKind, mFragment.getQuestion());
         FragmentManager fragmentManager = getChildFragmentManager();
         fragmentManager.beginTransaction().remove(mFragment).commit();
         mFragment = getOptionsFragment(mQuestionId, q);

@@ -11,6 +11,10 @@ public class Time extends Question {
 
     public Time(Question q) {
         super(q);
+    }
+
+    @Override
+    public void cleanForStorage() {
         options.clear();
     }
 

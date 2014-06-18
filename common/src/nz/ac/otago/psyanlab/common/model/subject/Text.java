@@ -11,6 +11,10 @@ public class Text extends Question {
 
     public Text(Question q) {
         super(q);
+    }
+
+    @Override
+    public void cleanForStorage() {
         options.clear();
     }
 

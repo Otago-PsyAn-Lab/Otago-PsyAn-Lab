@@ -14,6 +14,7 @@
     android:scrollbarStyle="outsideOverlay"
     app:drag_enabled="true"
     app:drag_handle_id="@+id/handle"
+    app:long_click_anywhere="true"
     app:drag_start_mode="onDown"
     app:float_background_color="@android:color/transparent"
     app:remove_enabled="false" />

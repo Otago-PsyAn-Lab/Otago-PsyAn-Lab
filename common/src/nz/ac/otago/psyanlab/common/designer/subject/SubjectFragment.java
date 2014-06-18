@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.designer.subject;
 
+import com.mobeta.android.dslv.DragSortListView;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.LandingPageDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.QuestionDataChangeListener;
@@ -158,14 +160,14 @@ public class SubjectFragment extends Fragment implements LandingPageDataChangeLi
 
         private EditText mIntroduction;
 
-        private ListView mList;
+        private DragSortListView mList;
 
         private EditText mTitle;
 
         public ViewHolder(View view) {
             mTitle = (EditText)view.findViewById(R.id.title);
             mIntroduction = (EditText)view.findViewById(R.id.description);
-            mList = (ListView)view.findViewById(R.id.list);
+            mList = (DragSortListView)view.findViewById(R.id.list);
             mAdd = view.findViewById(R.id.add);
         }
 

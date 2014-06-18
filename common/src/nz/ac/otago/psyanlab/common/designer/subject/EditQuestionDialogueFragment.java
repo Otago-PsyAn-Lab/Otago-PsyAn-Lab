@@ -4,6 +4,7 @@ package nz.ac.otago.psyanlab.common.designer.subject;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.subject.OptionsFragment.OnQuestionKindChangeListener;
 import nz.ac.otago.psyanlab.common.designer.subject.SubjectFragment.Callbacks;
+import nz.ac.otago.psyanlab.common.model.LandingPage;
 import nz.ac.otago.psyanlab.common.model.Question;
 
 import android.app.Activity;
@@ -57,9 +58,38 @@ public class EditQuestionDialogueFragment extends DialogFragment implements
         }
     };
 
+    private View.OnClickListener mDeleteButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mCallbacks.deleteQuestion(mQuestionId);
+            removeQuestionFromLandingPage(mQuestionId);
+
+            dismiss();
+        }
+
+    };
+
+    protected void removeQuestionFromLandingPage(final long questionId) {
+        LandingPage landingPage = mCallbacks.getLandingPage();
+        int selectedPos = -1;
+        for (int i = 0; i < landingPage.questions.size(); i++) {
+            if (landingPage.questions.get(i) == questionId) {
+                selectedPos = i;
+                break;
+            }
+        }
+        if (selectedPos > -1) {
+            landingPage.questions.remove(selectedPos);
+        }
+    }
+
     private View.OnClickListener mDiscardButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (getArguments().getBoolean(ARG_IS_NEW, false)) {
+                mCallbacks.deleteQuestion(mQuestionId);
+            }
+            removeQuestionFromLandingPage(mQuestionId);
             dismiss();
         }
     };
@@ -86,7 +116,7 @@ public class EditQuestionDialogueFragment extends DialogFragment implements
         Bundle args = getArguments();
         mQuestionId = args.getLong(ARG_QUESTION_ID);
         mViews = new ViewHolder(view);
-        mViews.initViews(args.getBoolean(ARG_IS_NEW));
+        mViews.initViews(args.getBoolean(ARG_IS_NEW, false));
 
         Question q = mCallbacks.getQuestion(mQuestionId);
 
@@ -144,9 +174,12 @@ public class EditQuestionDialogueFragment extends DialogFragment implements
 
         private Button mDiscard;
 
+        private Button mDelete;
+
         public ViewHolder(View view) {
             mConfirm = (Button)view.findViewById(R.id.confirm);
             mDiscard = (Button)view.findViewById(R.id.discard);
+            mDelete = (Button)view.findViewById(R.id.delete);
         }
 
         public void initViews(boolean isNew) {
@@ -154,11 +187,13 @@ public class EditQuestionDialogueFragment extends DialogFragment implements
                 getDialog().setTitle(R.string.title_new_question);
 
                 mConfirm.setText(R.string.action_create);
+                mDelete.setVisibility(View.GONE);
             } else {
                 getDialog().setTitle(R.string.title_edit_question);
 
                 mConfirm.setText(R.string.action_confirm);
             }
+            mDelete.setOnClickListener(mDeleteButtonClickListener);
             mConfirm.setOnClickListener(mConfirmButtonClickListener);
             mDiscard.setOnClickListener(mDiscardButtonClickListener);
         }

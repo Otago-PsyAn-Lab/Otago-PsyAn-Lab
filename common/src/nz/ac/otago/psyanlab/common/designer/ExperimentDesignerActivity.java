@@ -324,6 +324,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     public long addQuestion(Question question) {
         long unusedKey = ModelUtils.findUnusedKey(mExperiment.questions);
         mExperiment.questions.put(unusedKey, question);
+        if (mQuestionAdapter != null) {
+            mQuestionAdapter.notifyDataSetChanged();
+        }
         notifyActionDataChangeListeners();
         return unusedKey;
     }
@@ -420,6 +423,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public void deleteQuestion(long id) {
         mExperiment.questions.remove(id);
+        if (mQuestionAdapter != null) {
+            mQuestionAdapter.notifyDataSetChanged();
+        }
+        notifyQuestionDataChangeListeners();
     }
 
     @Override
@@ -1069,8 +1076,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     @Override
     public void putQuestion(long id, Question question) {
         mExperiment.questions.put(id, question);
-
-        mQuestionAdapter.notifyDataSetChanged();
+        if (mQuestionAdapter != null) {
+            mQuestionAdapter.notifyDataSetChanged();
+        }
         notifyQuestionDataChangeListeners();
     }
 

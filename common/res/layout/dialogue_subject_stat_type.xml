@@ -29,6 +29,14 @@
             android:text="@string/action_discard" />
 
         <Button
+            android:id="@+id/delete"
+            style="?android:buttonBarButtonStyle"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_delete" />
+
+        <Button
             android:id="@+id/confirm"
             style="?android:buttonBarButtonStyle"
             android:layout_width="0dip"

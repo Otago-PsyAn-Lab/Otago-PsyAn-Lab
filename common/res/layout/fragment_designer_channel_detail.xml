@@ -85,6 +85,7 @@
         app:drag_handle_id="@+id/handle"
         app:drag_start_mode="onDown"
         app:float_background_color="@android:color/transparent"
+        app:long_click_anywhere="true"
         app:remove_enabled="false" />
 
 </LinearLayout>

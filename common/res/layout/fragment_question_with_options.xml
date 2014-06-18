@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
-    android:divider="@drawable/divider_inset"
+    android:divider="@null"
     android:paddingBottom="16dip"
     android:paddingTop="16dip"
     android:scrollbarStyle="outsideOverlay"
@@ -13,4 +13,5 @@
     app:drag_handle_id="@+id/handle"
     app:drag_start_mode="onDown"
     app:float_background_color="@android:color/transparent"
+    app:long_click_anywhere="true"
     app:remove_enabled="false" />

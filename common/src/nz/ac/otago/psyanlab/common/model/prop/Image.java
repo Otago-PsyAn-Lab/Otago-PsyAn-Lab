@@ -22,8 +22,8 @@ public class Image extends Prop {
         return new EventNameFactory();
     }
 
-    public Image(Context context, Prop prop, int defaultSuffix) {
-        super(context, prop, defaultSuffix);
+    public Image(Context context, Prop prop) {
+        super(context, prop);
     }
 
     public Image(Parcel in) {

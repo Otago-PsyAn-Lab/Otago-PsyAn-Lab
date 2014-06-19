@@ -32,5 +32,5 @@ public interface StageCallbacks {
 
     void setStageOrientation(int orientation);
 
-    int getPropNumber();
+    long getNewPropKey();
 }

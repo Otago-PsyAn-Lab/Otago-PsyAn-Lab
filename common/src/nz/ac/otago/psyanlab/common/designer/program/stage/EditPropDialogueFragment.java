@@ -111,11 +111,11 @@ public class EditPropDialogueFragment extends DialogFragment {
             mProp = getConfiguredProp();
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
             if (TextUtils.equals(kind, "Text")) {
-                mProp = new Text(getActivity(), mProp, mCallbacks.getPropNumber());
+                mProp = new Text(getActivity(), mProp);
             } else if (TextUtils.equals(kind, "Image")) {
-                mProp = new Image(getActivity(), mProp, mCallbacks.getPropNumber());
+                mProp = new Image(getActivity(), mProp);
             } else if (TextUtils.equals(kind, "Button")) {
-                mProp = new Button(getActivity(), mProp, mCallbacks.getPropNumber());
+                mProp = new Button(getActivity(), mProp);
             } else {
                 if (mPropertiesFragment != null) {
                     ft.remove(mPropertiesFragment);

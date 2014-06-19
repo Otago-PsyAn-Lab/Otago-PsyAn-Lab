@@ -17,8 +17,7 @@
     <string name="default_name_new_question">Question %1$d</string>
     <string name="default_name_new_rule">Rule %1$d</string>
     <string name="default_name_new_scene">Scene %1$d</string>
-    <string name="default_prop_name">Prop</string>
-    <string name="default_text_prop_name">Text Prop</string>
+    <string name="default_name_prop">New Prop</string>
     <string name="designer_tab_assets">Assets</string>
     <string name="designer_tab_data_channels">Data Channels</string>
     <string name="designer_tab_program">Program</string>
@@ -33,7 +32,6 @@
     <string name="format_asset_class_name">%1$s</string>
     <string name="format_call_operand_value">Call «%2$s» on %1$s</string>
     <string name="format_condition_details">Rule will execute if the following is true at point of evaluation.\n\n %1$s</string>
-    <string name="format_default_prop_name">%1$s %2$d</string>
     <string name="format_error_importing">Errors were encountered while reading %s.</string>
     <string name="format_generator_class_name">%1$s</string>
     <string name="format_header_record_count">%d records</string>

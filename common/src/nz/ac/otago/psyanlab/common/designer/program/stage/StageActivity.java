@@ -16,7 +16,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -112,7 +111,7 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
     }
 
     @Override
-    public int getPropNumber() {
+    public long getNewPropKey() {
         return findUnusedKey();
     }
 
@@ -198,7 +197,7 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
 
     @Override
     public void saveProp(Prop prop) {
-        mProps.add(new PropIdPair(-1l, prop));
+        mProps.add(new PropIdPair(findUnusedKey(), prop));
 
         if (mPropAdapter != null) {
             mPropAdapter.notifyDataSetChanged();
@@ -213,13 +212,15 @@ public class StageActivity extends FragmentActivity implements StageCallbacks {
         mOrientation = orientation;
     }
 
-    private int findUnusedKey() {
-        int currKey = 1;
+    /**
+     * Looks through prop names for an unused default prop name.
+     * 
+     * @return An unused suffix for a default prop name.
+     */
+    private long findUnusedKey() {
+        long currKey = 0;
         for (PropIdPair prop : mProps) {
-            if (TextUtils.equals(
-                    prop.getProp().name,
-                    getString(R.string.format_default_prop_name,
-                            getString(R.string.default_prop_name), currKey))) {
+            if (prop.getId() == currKey) {
                 currKey++;
             }
         }

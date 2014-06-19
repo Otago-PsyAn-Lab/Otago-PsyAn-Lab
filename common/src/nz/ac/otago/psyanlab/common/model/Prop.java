@@ -118,9 +118,8 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     public Prop() {
     }
 
-    public Prop(Context context, Prop prop, int defaultSuffix) {
-        name = context.getString(R.string.format_default_prop_name,
-                context.getString(R.string.default_prop_name), defaultSuffix);
+    public Prop(Context context, Prop prop) {
+        name = context.getString(R.string.default_name_prop);
 
         if (prop == null) {
             return;
@@ -209,20 +208,24 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     }
 
     @MethodId(METHOD_SET_HEIGHT)
-    public void stubSetHeight(@ParameterId(PARAM_HEIGHT) int height) {
+    public void stubSetHeight(@ParameterId(PARAM_HEIGHT)
+    int height) {
     }
 
     @MethodId(METHOD_SET_OPACITY)
-    public void stubSetOpacity(@ParameterId(PARAM_OPACITY) int opacity) {
+    public void stubSetOpacity(@ParameterId(PARAM_OPACITY)
+    int opacity) {
     }
 
     @MethodId(METHOD_SET_POSITION)
-    public void stubSetPosition(@ParameterId(PARAM_X_COORDINATE) int x,
-            @ParameterId(PARAM_Y_COORDINATE) int y) {
+    public void stubSetPosition(@ParameterId(PARAM_X_COORDINATE)
+    int x, @ParameterId(PARAM_Y_COORDINATE)
+    int y) {
     }
 
     @MethodId(METHOD_SET_WIDTH)
-    public void stubSetWidth(@ParameterId(PARAM_WIDTH) int width) {
+    public void stubSetWidth(@ParameterId(PARAM_WIDTH)
+    int width) {
     }
 
     @MethodId(METHOD_SHOW)

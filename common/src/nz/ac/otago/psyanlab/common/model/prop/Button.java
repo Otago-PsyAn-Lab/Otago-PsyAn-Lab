@@ -21,8 +21,8 @@ public class Button extends Text {
         return new EventNameFactory();
     }
 
-    public Button(Context context, Prop prop, int defaultSuffix) {
-        super(context, prop, defaultSuffix);
+    public Button(Context context, Prop prop) {
+        super(context, prop);
     }
 
     public Button(Parcel in) {
@@ -40,16 +40,20 @@ public class Button extends Text {
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT)
-    public void stubSetColourTint(@ParameterId(PARAM_COLOUR) int colour) {
+    public void stubSetColourTint(@ParameterId(PARAM_COLOUR)
+    int colour) {
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT_HTML)
-    public void stubSetColourTintHTML(@ParameterId(PARAM_COLOUR_HTML) String htmlColourCode) {
+    public void stubSetColourTintHTML(@ParameterId(PARAM_COLOUR_HTML)
+    String htmlColourCode) {
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT_RGB)
-    public void stubSetColourTintRGB(@ParameterId(PARAM_RED) int red,
-            @ParameterId(PARAM_GREEN) int green, @ParameterId(PARAM_BLUE) int blue) {
+    public void stubSetColourTintRGB(@ParameterId(PARAM_RED)
+    int red, @ParameterId(PARAM_GREEN)
+    int green, @ParameterId(PARAM_BLUE)
+    int blue) {
     }
 
     protected static class MethodNameFactory extends Text.MethodNameFactory {

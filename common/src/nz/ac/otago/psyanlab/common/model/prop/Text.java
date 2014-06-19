@@ -80,8 +80,8 @@ public class Text extends Prop {
     @PALEPropProperty(value = "String")
     public String text;
 
-    public Text(Context context, Prop prop, int defaultSuffix) {
-        super(context, prop, defaultSuffix);
+    public Text(Context context, Prop prop) {
+        super(context, prop);
 
         fontSize = context.getResources().getDimensionPixelSize(R.dimen.default_text_size);
 

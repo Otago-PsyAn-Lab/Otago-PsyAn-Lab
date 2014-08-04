@@ -1,7 +1,7 @@
 
 package nz.ac.otago.psyanlab.common.designer.program.object;
 
-import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
+import com.astuetz.PagerSlidingTabStrip;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;

@@ -9,10 +9,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/common" />
-            <option value="$PROJECT_DIR$/dragSortListView" />
-            <option value="$PROJECT_DIR$/filePicker" />
-            <option value="$PROJECT_DIR$/pagerSlidingTabStrip" />
-            <option value="$PROJECT_DIR$/single" />
+            <option value="$PROJECT_DIR$/frontend" />
+            <option value="$PROJECT_DIR$/libraries" />
+            <option value="$PROJECT_DIR$/libraries/dragSortListView" />
+            <option value="$PROJECT_DIR$/libraries/filePicker" />
           </set>
         </option>
       </GradleProjectSettings>

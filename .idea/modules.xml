@@ -6,8 +6,8 @@
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/dragSortListView/dragSortListView.iml" filepath="$PROJECT_DIR$/dragSortListView/dragSortListView.iml" />
       <module fileurl="file://$PROJECT_DIR$/filePicker/filePicker.iml" filepath="$PROJECT_DIR$/filePicker/filePicker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/frontend/frontend.iml" filepath="$PROJECT_DIR$/frontend/frontend.iml" />
       <module fileurl="file://$PROJECT_DIR$/pagerSlidingTabStrip/pagerSlidingTabStrip.iml" filepath="$PROJECT_DIR$/pagerSlidingTabStrip/pagerSlidingTabStrip.iml" />
-      <module fileurl="file://$PROJECT_DIR$/single/single.iml" filepath="$PROJECT_DIR$/single/single.iml" />
     </modules>
   </component>
 </project>

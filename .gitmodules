@@ -1,0 +1,3 @@
+[submodule "PagerSlidingTabStrip"]
+	path = PagerSlidingTabStrip
+	url = git@github.com:TonicArtos/PagerSlidingTabStrip.git

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:divider="?android:dividerHorizontal"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/button_add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dip"
+        android:background="@drawable/card_item_background_holo_light"
+        android:orientation="horizontal"
+        android:padding="16dip"
+        android:showDividers="none" >
+
+        <TextView
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-light"
+            android:paddingRight="8dip"
+            android:text="@string/title_data_sources"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            style="@style/header_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/action_add_new" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@drawable/divider_inset"
+        android:drawSelectorOnTop="true"
+        android:listSelector="@drawable/loop_list_selector_holo_light" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fontFamily="sans-serif-thin"
+        android:gravity="center"
+        android:text="@string/label_no_data_sources" />
+
+</LinearLayout>

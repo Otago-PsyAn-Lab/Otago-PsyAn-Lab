@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="stickygridheaders">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/common/libs/stickygridheaders.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

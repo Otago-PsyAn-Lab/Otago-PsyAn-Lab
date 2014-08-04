@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string name="title_actions">Actions</string>
+    <string name="title_admin_password">Set Administrator Password</string>
+    <string name="title_assets">Assets</string>
+    <string name="title_authenticate">Authorisation Required</string>
+    <string name="title_authors">Authors</string>
+    <string name="title_clear_variable">Clear variable %1$s</string>
+    <string name="title_column_rows">Rows</string>
+    <string name="title_columns">Columns</string>
+    <string name="title_confirm_delete_asset">Delete Asset?</string>
+    <string name="title_data_channel_description">Notes</string>
+    <string name="title_data_channel_fields">Fields</string>
+    <string name="title_data_channels">Data Channels</string>
+    <string name="title_description">Description</string>
+    <string name="title_details">Details</string>
+    <string name="title_dialogue_pick_object">Pick Object</string>
+    <string name="title_edit_channel_field">Edit Field</string>
+    <string name="title_edit_condition">Edit Condition</string>
+    <string name="title_edit_generator">Edit Generator</string>
+    <string name="title_edit_iterations">Set Number of Cycles</string>
+    <string name="title_edit_operand">Edit Operand</string>
+    <string name="title_edit_prop">Edit Prop</string>
+    <string name="title_edit_question">Edit Question</string>
+    <string name="title_edit_stage_properties">Edit Properties</string>
+    <string name="title_exit_designer">Exit Designer</string>
+    <string name="title_experiment">Experiment</string>
+    <string name="title_experiment_name">Experiment Name</string>
+    <string name="title_experiments">Experiments</string>
+    <string name="title_generators">Generators</string>
+    <string name="title_import_asset">Import Asset</string>
+    <string name="title_import">Import Experiment</string>
+    <string name="title_landing_page_description">Body</string>
+    <string name="title_landing_page_title">Title</string>
+    <string name="title_loops">Loops</string>
+    <string name="title_new_channel_field">New Field</string>
+    <string name="title_new_experiment">New Experiment</string>
+    <string name="title_new_generator">New Generator</string>
+    <string name="title_new_prop">New Prop</string>
+    <string name="title_new_question">New Question</string>
+    <string name="title_pick_number">Pick Number</string>
+    <string name="title_props">Props</string>
+    <string name="title_rename_variable">Rename variable %1$s</string>
+    <string name="title_rules">Rules</string>
+    <string name="title_save_changes">Save Changes?</string>
+    <string name="title_scenes">Scenes</string>
+    <string name="title_select_actions">Select Actions</string>
+    <string name="title_select_generators">Select Generators</string>
+    <string name="title_select_loops">Select Loops</string>
+    <string name="title_select_prop">Select Prop</string>
+    <string name="title_select_rules">Select Rules</string>
+    <string name="title_select_scenes">Select Scenes</string>
+    <string name="title_select_users">Select Users</string>
+    <string name="title_set_number_of_rows">Set Number of Rows</string>
+    <string name="title_set_password">Set Password</string>
+    <string name="title_set_start_column">Set Start Column</string>
+    <string name="title_set_start_row">Set Start Row</string>
+    <string name="title_set_type">Configure</string>
+    <string name="title_stage">Stage</string>
+    <string name="title_subject_questions">Questions</string>
+    <string name="title_data_sources">Data Sources</string>
+
+</resources>

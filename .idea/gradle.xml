@@ -10,7 +10,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/frontend" />
-            <option value="$PROJECT_DIR$/libraries" />
             <option value="$PROJECT_DIR$/libraries/dragSortListView" />
             <option value="$PROJECT_DIR$/libraries/filePicker" />
           </set>

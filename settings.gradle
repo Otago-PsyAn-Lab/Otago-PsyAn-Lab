@@ -1,4 +1,4 @@
-include ':libraries:dragSortListView'
-include ':libraries:filePicker'
+include ':libraries/dragSortListView'
+include ':libraries/filePicker'
 include ':common'
 include ':frontend'

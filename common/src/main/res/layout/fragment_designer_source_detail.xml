@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/card_background"
+    android:clickable="true"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:id="@+id/title_spacer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dip"
+            android:showDividers="none" >
+
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/title_spacer"
+            android:layout_alignTop="@+id/title_spacer"
+            android:columnCount="2" >
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_gravity="fill_horizontal|center_vertical"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/hint_source_name"
+                android:imeOptions="actionNext"
+                android:inputType="text|textNoSuggestions|textCapSentences"
+                android:nextFocusDown="@+id/description"
+                android:nextFocusForward="@+id/description"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <FrameLayout
+                android:id="@+id/button_delete"
+                android:layout_gravity="fill_vertical"
+                android:background="@drawable/card_item_background_holo_light"
+                android:padding="16dip" >
+
+                <TextView
+                    android:id="@+id/text_delete"
+                    style="@style/header_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/action_remove" />
+            </FrameLayout>
+        </GridLayout>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
+
+    <com.mobeta.android.dslv.DragSortListView
+        android:id="@+id/columns"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:divider="@null"
+        android:headerDividersEnabled="false"
+        android:paddingBottom="16dip"
+        android:scrollbarStyle="outsideOverlay"
+        app:drag_enabled="true"
+        app:drag_handle_id="@+id/handle"
+        app:drag_start_mode="onDown"
+        app:float_background_color="@android:color/transparent"
+        app:long_click_anywhere="true"
+        app:remove_enabled="false" />
+
+</LinearLayout>

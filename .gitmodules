@@ -1,6 +1,0 @@
-[submodule "FilePicker"]
-	path = FilePicker
-	url = git@github.com:TonicArtos/FilePicker.git
-[submodule "DragSortListView"]
-	path = DragSortListView
-	url = git@github.com:Otago-PsyAn-Lab/drag-sort-listview.git

@@ -432,6 +432,10 @@ public class DragSortListView extends ListView {
     public DragSortListView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        if (isInEditMode()) {
+            return;
+        }
+
         int defaultDuration = 150;
         int removeAnimDuration = defaultDuration; // ms
         int dropAnimDuration = defaultDuration; // ms

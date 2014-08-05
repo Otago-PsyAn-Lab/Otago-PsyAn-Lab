@@ -4,8 +4,27 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity android:name="nz.ac.otago.psyanlab.common.PaleActivity" />
+        <activity android:name="nz.ac.otago.psyanlab.common.ImportPaleActivity" />
+        <activity
+            android:name="nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity"
+            android:theme="@style/DesignerTheme" />
+        <activity
+            android:name="nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity"
+            android:theme="@style/DesignerTheme" />
+        <activity
+            android:name="nz.ac.otago.psyanlab.common.designer.source.ImportSourceActivity"
+            android:theme="@style/DesignerTheme" />
+        <activity
+            android:name="nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/StageTheme"
+            android:windowSoftInputMode="adjustResize" />
 
+    </application>
 </manifest>

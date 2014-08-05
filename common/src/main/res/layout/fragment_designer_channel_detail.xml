@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     android:background="@color/card_background"
     android:clickable="true"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/title_spacer"
@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="16dip"
-            android:showDividers="none" >
+            android:showDividers="none">
 
             <TextView
                 android:layout_width="0dip"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/title_spacer"
             android:layout_alignTop="@+id/title_spacer"
-            android:columnCount="2" >
+            android:columnCount="2">
 
             <EditText
                 android:id="@+id/name"
@@ -53,7 +53,7 @@
                 android:id="@+id/button_delete"
                 android:layout_gravity="fill_vertical"
                 android:background="@drawable/card_item_background_holo_light"
-                android:padding="16dip" >
+                android:padding="16dip">
 
                 <TextView
                     android:id="@+id/text_delete"

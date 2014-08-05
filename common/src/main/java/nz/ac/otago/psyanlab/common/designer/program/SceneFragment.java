@@ -35,11 +35,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class SceneFragment extends BaseProgramFragment implements SceneDataChangeListener {
-    public static BaseProgramFragment newInstance(long id) {
-        return init(new SceneFragment(), id);
-    }
-
-    protected ActionMode mActionMode;
 
     protected final OnClickListener mEditStageClickListener = new OnClickListener() {
         @Override
@@ -48,7 +43,36 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
-    protected final OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
+    protected final OnClickListener mNewRuleClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onNewRule();
+        }
+    };
+
+    protected final OnItemClickListener mRuleItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
+                mViews.rulesList.setItemChecked(position, true);
+            } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
+                onRuleClick(id);
+
+                View handle = mViews.rulesList.getChildAt(
+                        position - mViews.rulesList.getFirstVisiblePosition()
+                                + mViews.rulesList.getHeaderViewsCount()).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(true);
+                    handle.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    };
+
+    protected ActionMode mActionMode;
+
+    protected final OnItemLongClickListener mRuleItemLongClickListener
+            = new OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
             if (mActionMode != null) {
@@ -73,7 +97,14 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
-    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
+    protected PropAdapter mPropAdapter;
+
+    protected ProgramComponentAdapter<Rule> mRulesAdapter;
+
+    protected Scene mScene;
+
+    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks
+            = new MultiChoiceModeListener() {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
@@ -161,42 +192,15 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     };
 
-    protected final OnClickListener mNewRuleClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            onNewRule();
-        }
-    };
-
-    protected final OnItemClickListener mOnRuleItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
-                mViews.rulesList.setItemChecked(position, true);
-            } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
-                onRuleClick(id);
-
-                View handle = mViews.rulesList.getChildAt(
-                        position - mViews.rulesList.getFirstVisiblePosition()
-                                + mViews.rulesList.getHeaderViewsCount()).findViewById(R.id.handle);
-                if (handle != null) {
-                    handle.setEnabled(true);
-                    handle.setVisibility(View.VISIBLE);
-                }
-            }
-        }
-    };
-
-    protected PropAdapter mPropAdapter;
-
-    protected ProgramComponentAdapter<Rule> mRulesAdapter;
-
-    protected Scene mScene;
-
     protected ViewHolder mViews;
 
+    public static BaseProgramFragment newInstance(long id) {
+        return init(new SceneFragment(), id);
+    }
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_scene, container, false);
     }
 
@@ -205,11 +209,14 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         super.onDetach();
 
         mCallbacks.removeSceneDataChangeListener(this);
-        saveChanges();
     }
 
     @Override
     public void onSceneDataChange() {
+        if (isDetached()) {
+            return;
+        }
+
         Scene old = mScene;
         mScene = mCallbacks.getScene(mObjectId);
         if (mScene == null) {
@@ -282,6 +289,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Scene> {
+
         public View editStage;
 
         public TextView editStagePsuedoButton;
@@ -301,13 +309,13 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         public ViewHolder(View view) {
             super(view);
             editStage = view.findViewById(R.id.edit_stage);
-            name = (EditText)view.findViewById(R.id.name);
+            name = (EditText) view.findViewById(R.id.name);
             newRule = view.findViewById(R.id.new_rule);
-            rulesList = (DragSortListView)view.findViewById(R.id.rules);
+            rulesList = (DragSortListView) view.findViewById(R.id.rules);
             mEmpty = view.findViewById(android.R.id.empty);
-            stageThumb = (StageView)view.findViewById(R.id.stage);
-            stageDetail = (TextView)view.findViewById(R.id.stage_detail);
-            editStagePsuedoButton = (TextView)view.findViewById(R.id.edit_stage_psudeo_button);
+            stageThumb = (StageView) view.findViewById(R.id.stage);
+            stageDetail = (TextView) view.findViewById(R.id.stage_detail);
+            editStagePsuedoButton = (TextView) view.findViewById(R.id.edit_stage_psudeo_button);
         }
 
         @Override
@@ -327,8 +335,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             rulesList.setAdapter(mRulesAdapter);
             rulesList.setMultiChoiceModeListener(mMultiChoiceModeCallbacks);
             rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            rulesList.setOnItemClickListener(mOnRuleItemClickListener);
-            rulesList.setOnItemLongClickListener(mItemLongClickListener);
+            rulesList.setOnItemClickListener(mRuleItemClickListener);
+            rulesList.setOnItemLongClickListener(mRuleItemLongClickListener);
             rulesList.setEmptyView(mEmpty);
         }
 
@@ -364,7 +372,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
                                         R.string.format_stage_detail,
                                         mScene.stageWidth,
                                         mScene.stageHeight,
-                                        getResources().getStringArray(R.array.orientation_options)[scene.orientation],
+                                        getResources().getStringArray(
+                                                R.array.orientation_options)[scene.orientation],
                                         mScene.props.size()));
             }
             stageThumb.setNativeWidth(mScene.stageWidth);

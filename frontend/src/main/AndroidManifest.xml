@@ -4,10 +4,6 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="17" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -24,24 +20,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="nz.ac.otago.psyanlab.common.PaleActivity" />
-        <activity android:name="nz.ac.otago.psyanlab.common.PaleDetailActivity" />
-        <activity android:name="nz.ac.otago.psyanlab.common.ImportPaleActivity" />
-        <activity android:name="nz.ac.otago.psyanlab.common.runtime.ExperimentRuntimeActivity" />
-        <activity
-            android:name="nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity"
-            android:theme="@style/DesignerTheme" />
-        <activity
-            android:name="nz.ac.otago.psyanlab.common.designer.assets.ImportAssetActivity"
-            android:theme="@style/DesignerTheme" />
-        <activity
-            android:name="nz.ac.otago.psyanlab.common.designer.source.ImportSourceActivity"
-            android:theme="@style/DesignerTheme" />
-        <activity
-            android:name="nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/StageTheme"
-            android:windowSoftInputMode="adjustResize" />
 
         <provider
             android:name="nz.ac.otago.psyanlab.single.DataProvider"

@@ -61,14 +61,14 @@
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 20 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-20.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-20.0.0" level="project" />
     <orderEntry type="library" exported="" name="stickygridheaders" level="project" />
-    <orderEntry type="library" exported="" name="filePicker" level="project" />
-    <orderEntry type="library" exported="" name="dragSortListView" level="project" />
+    <orderEntry type="module" module-name="dragSortListView" exported="" />
+    <orderEntry type="module" module-name="filePicker" exported="" />
   </component>
 </module>
 

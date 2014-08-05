@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public final class SceneListItemViewBinder extends AbsViewBinder implements ViewBinder<Scene> {
+
     public SceneListItemViewBinder(Activity activity, ProgramCallbacks callbacks) {
         super(activity, callbacks);
     }
@@ -23,10 +24,10 @@ public final class SceneListItemViewBinder extends AbsViewBinder implements View
             convertView = mActivity.getLayoutInflater().inflate(R.layout.list_item_scene,
                     parent, false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+            holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
-            holder = (TextViewHolder)convertView.getTag();
+            holder = (TextViewHolder) convertView.getTag();
         }
 
         holder.textViews[0].setText(scene.name);

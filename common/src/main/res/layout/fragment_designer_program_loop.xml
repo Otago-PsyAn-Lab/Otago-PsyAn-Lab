@@ -1,53 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout
+    android:id="@+id/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/background"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
+    android:columnCount="2"
     android:focusable="true"
-    android:focusableInTouchMode="true" >
+    android:focusableInTouchMode="true"
+    android:orientation="horizontal"
+    android:useDefaultMargins="false">
 
     <View
-        android:id="@+id/colour_bar_spacer"
-        android:layout_width="0dip"
-        android:layout_height="8dip" />
-
-    <LinearLayout
-        android:id="@+id/title_spacer"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:orientation="horizontal"
-        android:padding="16dip"
-        android:showDividers="none" >
-
-        <TextView
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-light"
-            android:paddingRight="8dip"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-    </LinearLayout>
+        android:layout_height="8dip"
+        android:layout_columnSpan="2"
+        android:layout_gravity="fill_horizontal"
+        android:layout_marginRight="1dip"
+        android:background="@color/loop_accent" />
 
     <FrameLayout
         android:id="@+id/name_container"
-        android:layout_width="wrap_content"
-        android:layout_height="0dip"
-        android:layout_alignBottom="@+id/title_spacer"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/colour_bar_spacer"
+        android:layout_gravity="center_vertical"
         android:background="@color/card_background"
         android:paddingLeft="16dip"
-        android:paddingRight="16dip" >
+        android:paddingRight="16dip">
 
         <EditText
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:hint="@string/hint_loop_name"
             android:inputType="text|textNoSuggestions"
             android:maxEms="24"
@@ -58,11 +40,7 @@
 
     <FrameLayout
         android:id="@+id/new_scene_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:layout_toRightOf="@+id/name_container"
-        android:paddingRight="1dip" >
+        android:paddingRight="1dip">
 
         <LinearLayout
             android:id="@+id/new_scene"
@@ -72,7 +50,7 @@
             android:orientation="horizontal"
             android:padding="16dip"
             android:showDividers="none"
-            tools:ignore="UselessParent" >
+            tools:ignore="UselessParent">
 
             <TextView
                 android:layout_width="0dip"
@@ -103,21 +81,15 @@
 
     <View
         android:id="@+id/divide"
-        android:layout_width="0dip"
         android:layout_height="1dip"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/new_scene_container"
-        android:layout_below="@+id/name_container"
+        android:layout_columnSpan="2"
+        android:layout_gravity="fill_horizontal"
         android:background="?android:attr/listDivider" />
 
     <ListView
         android:id="@+id/generators"
         style="@style/column"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/name_container"
-        android:layout_below="@+id/divide"
+        android:layout_gravity="fill_horizontal"
         android:clipToPadding="false"
         android:divider="@drawable/divider_inset"
         android:drawSelectorOnTop="true"
@@ -126,40 +98,31 @@
         android:listSelector="@drawable/loop_list_selector_holo_light"
         android:scrollbarStyle="outsideOverlay" />
 
-    <com.mobeta.android.dslv.DragSortListView
-        android:id="@+id/scenes"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/new_scene_container"
-        android:layout_alignRight="@+id/new_scene_container"
-        android:layout_below="@+id/divide"
-        android:divider="@drawable/divider_inset"
-        android:drawSelectorOnTop="false"
-        android:listSelector="@drawable/loop_list_selector_holo_light"
-        app:drag_enabled="true"
-        app:drag_handle_id="@+id/handle"
-        app:drag_start_mode="onDown"
-        app:float_background_color="@android:color/transparent"
-        app:remove_enabled="false" />
+    <FrameLayout
+        android:layout_gravity="fill"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="0dip"
-        android:layout_height="0dip"
-        android:layout_alignLeft="@+id/new_scene_container"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/new_scene_container"
-        android:layout_below="@+id/divide"
-        android:fontFamily="sans-serif-thin"
-        android:gravity="center"
-        android:text="@string/label_no_scenes" />
+        <com.mobeta.android.dslv.DragSortListView
+            android:id="@+id/scenes"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@drawable/divider_inset"
+            android:drawSelectorOnTop="false"
+            android:listSelector="@drawable/loop_list_selector_holo_light"
+            app:drag_enabled="true"
+            app:drag_handle_id="@+id/handle"
+            app:drag_start_mode="onDown"
+            app:float_background_color="@android:color/transparent"
+            app:remove_enabled="false" />
 
-    <View
-        android:layout_width="0dip"
-        android:layout_height="8dip"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/new_scene_container"
-        android:layout_marginRight="1dip"
-        android:background="@color/loop_accent" />
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-thin"
+            android:gravity="center"
+            android:text="@string/label_no_scenes" />
+    </FrameLayout>
 
-</RelativeLayout>
+</GridLayout>

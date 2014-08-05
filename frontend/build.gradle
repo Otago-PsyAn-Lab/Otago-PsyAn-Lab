@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 20
+    compileSdkVersion 19
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "nz.ac.otago.psyanlab.single"
         minSdkVersion 16
-        targetSdkVersion 20
+        targetSdkVersion 19
 
         testApplicationId "nz.ac.otago.psyanlab.single.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"

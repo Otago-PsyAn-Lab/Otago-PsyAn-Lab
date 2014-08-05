@@ -1258,77 +1258,77 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public void removeActionDataChangeListener(ActionDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mActionDataChangeListeners != null) {
             mActionDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeAssetDataChangeListener(AssetDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mAssetDataChangeListeners!= null) {
             mAssetDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeDataChannelDataChangeListener(DataChannelDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mDataChannelDataChangeListeners != null) {
             mDataChannelDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeDrawerListener(DrawerListener drawerListener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mDrawerListeners != null) {
             mDrawerListeners.remove(drawerListener);
         }
     }
 
     @Override
     public void removeGeneratorDataChangeListener(GeneratorDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mGeneratorDataChangeListeners != null) {
             mGeneratorDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeLandingPageDataChangeListener(LandingPageDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mLandingPageDataChangeListeners != null) {
             mLandingPageDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeLoopDataChangeListener(LoopDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mLoopDataChangeListeners != null) {
             mLoopDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeOperandDataChangeListener(OperandDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mOperandDataChangeListeners != null) {
             mOperandDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeQuestionDataChangeListener(QuestionDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mQuestionDataChangeListeners != null) {
             mQuestionDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeRuleDataChangeListener(RuleDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mRuleDataChangeListeners != null) {
             mRuleDataChangeListeners.remove(listener);
         }
     }
 
     @Override
     public void removeSceneDataChangeListener(SceneDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
+        if (mSceneDataChangeListeners != null) {
             mSceneDataChangeListeners.remove(listener);
         }
     }

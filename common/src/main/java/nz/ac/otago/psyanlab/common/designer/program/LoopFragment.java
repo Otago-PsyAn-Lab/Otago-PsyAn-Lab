@@ -39,24 +39,29 @@ import android.widget.ListView;
 
 public class LoopFragment extends BaseProgramFragment implements LoopDataChangeListener,
         OnGeneratorCreatedListener {
-    public static BaseProgramFragment newInstance(long id) {
-        return init(new LoopFragment(), id);
-    }
 
-    public OnItemClickListener mOnGeneratorItemClickListener = new OnItemClickListener() {
+    protected OnItemClickListener mGeneratorItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             onGeneratorClick(id);
         }
     };
 
-    public OnItemClickListener mOnSceneItemClickListener = new OnItemClickListener() {
+    protected OnItemClickListener mSceneItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (mViews.scenesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
                 mViews.scenesList.setItemChecked(position, true);
             } else if (mViews.scenesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
                 onSceneClick(id);
+
+                for (int i = 0; i < mViews.scenesList.getChildCount(); i++) {
+                    View handle = mViews.scenesList.getChildAt(i).findViewById(R.id.handle);
+                    if (handle != null) {
+                        handle.setEnabled(false);
+                        handle.setVisibility(View.GONE);
+                    }
+                }
 
                 View handle = mViews.scenesList.getChildAt(
                         position - mViews.scenesList.getFirstVisiblePosition()
@@ -69,6 +74,35 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             }
         }
     };
+
+    protected ActionMode mActionMode;
+
+    protected OnItemLongClickListener mSceneItemLongClickListener = new OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
+            if (mActionMode != null) {
+                return false;
+            }
+            mViews.scenesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+            mViews.scenesList.setItemChecked(position, true);
+            mScenesAdapter.fixItemBackground(R.drawable.loop_activated_background);
+            setNextFragment(null);
+
+            for (int i = 0; i < mViews.scenesList.getChildCount(); i++) {
+                View handle = mViews.scenesList.getChildAt(i).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(false);
+                    handle.setVisibility(View.GONE);
+                }
+            }
+
+            mViews.scenesList.setDragEnabled(false);
+
+            return true;
+        }
+    };
+
+    protected ProgramComponentAdapter<Scene> mScenesAdapter;
 
     private ListAdapter mGeneratorAdapter;
 
@@ -100,20 +134,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    private OnClickListener mNewGeneratorClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            showNewGeneratorDialogue();
-        }
-    };
-
-    private OnClickListener mNewSceneClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            onNewScene();
-        }
-    };
-
     private DialogueResultListener mOnIterationPickedListener = new DialogueResultListener() {
         @Override
         public void onResult(Bundle data) {
@@ -130,23 +150,19 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    private ViewHolder mViews;
-
-    protected ActionMode mActionMode;
-
-    protected MultiChoiceModeListener mGeneratorMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
+    protected MultiChoiceModeListener mGeneratorMultiChoiceModeCallbacks
+            = new MultiChoiceModeListener() {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
             boolean loopIsDirty = false;
             if (itemId == R.id.menu_delete) {
                 long[] checkedItemIds = mViews.generatorsList.getCheckedItemIds();
-                for (int i = 0; i < checkedItemIds.length; i++) {
-                    mCallbacks.deleteGenerator(checkedItemIds[i]);
-                    mLoop.generators.remove(checkedItemIds[i]);
+                for (long checkedItemId : checkedItemIds) {
+                    mCallbacks.deleteGenerator(checkedItemId);
+                    mLoop.generators.remove(checkedItemId);
                     loopIsDirty = true;
                 }
-            } else {
             }
             if (loopIsDirty) {
                 mCallbacks.putLoop(mObjectId, mLoop);
@@ -192,44 +208,19 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    protected OnItemLongClickListener mItemLongClickListener = new OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
-            if (mActionMode != null) {
-                return false;
-            }
-            mViews.scenesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-            mViews.scenesList.setItemChecked(position, true);
-            mScenesAdapter.fixItemBackground(R.drawable.loop_activated_background);
-            setNextFragment(null);
-
-            for (int i = 0; i < mViews.scenesList.getChildCount(); i++) {
-                View handle = mViews.scenesList.getChildAt(i).findViewById(R.id.handle);
-                if (handle != null) {
-                    handle.setEnabled(false);
-                    handle.setVisibility(View.GONE);
-                }
-            }
-
-            mViews.scenesList.setDragEnabled(false);
-
-            return true;
-        }
-    };
-
-    protected MultiChoiceModeListener mSceneMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
+    protected MultiChoiceModeListener mSceneMultiChoiceModeCallbacks
+            = new MultiChoiceModeListener() {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
             boolean loopIsDirty = false;
             if (itemId == R.id.menu_delete) {
                 long[] checkedItemIds = mViews.scenesList.getCheckedItemIds();
-                for (int i = 0; i < checkedItemIds.length; i++) {
-                    mCallbacks.deleteScene(checkedItemIds[i]);
-                    mLoop.scenes.remove(checkedItemIds[i]);
+                for (long checkedItemId : checkedItemIds) {
+                    mCallbacks.deleteScene(checkedItemId);
+                    mLoop.scenes.remove(checkedItemId);
                     loopIsDirty = true;
                 }
-            } else {
             }
             if (loopIsDirty) {
                 mCallbacks.putLoop(mObjectId, mLoop);
@@ -286,12 +277,31 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    ProgramComponentAdapter<Scene> mScenesAdapter;
+    private OnClickListener mNewGeneratorClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showNewGeneratorDialogue();
+        }
+    };
+
+    private OnClickListener mNewSceneClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onNewScene();
+        }
+    };
+
+    private ViewHolder mViews;
+
+    public static BaseProgramFragment newInstance(long id) {
+        return init(new LoopFragment(), id);
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
-        ListView list = (ListView)v.findViewById(R.id.generators);
+        ListView list = (ListView) v.findViewById(R.id.generators);
         list.addHeaderView(inflater.inflate(R.layout.header_loop_content, list, false));
         return v;
     }
@@ -413,6 +423,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
     }
 
     public class ViewHolder extends BaseProgramFragment.ViewHolder<Loop> {
+
         public ListView generatorsList;
 
         public Button iterations;
@@ -429,14 +440,14 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         public ViewHolder(View view) {
             super(view);
-            generatorsList = (ListView)view.findViewById(R.id.generators);
+            generatorsList = (ListView) view.findViewById(R.id.generators);
             mEmptyScenes = view.findViewById(android.R.id.empty);
 
-            iterations = (Button)view.findViewById(R.id.iterations);
-            name = (EditText)view.findViewById(R.id.name);
+            iterations = (Button) view.findViewById(R.id.iterations);
+            name = (EditText) view.findViewById(R.id.name);
             newGenerator = view.findViewById(R.id.new_generator);
             newScene = view.findViewById(R.id.new_scene);
-            scenesList = (DragSortListView)view.findViewById(R.id.scenes);
+            scenesList = (DragSortListView) view.findViewById(R.id.scenes);
         }
 
         @Override
@@ -456,12 +467,12 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             scenesList.setAdapter(mScenesAdapter);
             scenesList.setMultiChoiceModeListener(mSceneMultiChoiceModeCallbacks);
             scenesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-            scenesList.setOnItemClickListener(mOnSceneItemClickListener);
-            scenesList.setOnItemLongClickListener(mItemLongClickListener);
+            scenesList.setOnItemClickListener(mSceneItemClickListener);
+            scenesList.setOnItemLongClickListener(mSceneItemLongClickListener);
             scenesList.setEmptyView(mEmptyScenes);
 
             generatorsList.setAdapter(mGeneratorAdapter);
-            generatorsList.setOnItemClickListener(mOnGeneratorItemClickListener);
+            generatorsList.setOnItemClickListener(mGeneratorItemClickListener);
             generatorsList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             generatorsList.setMultiChoiceModeListener(mGeneratorMultiChoiceModeCallbacks);
         }

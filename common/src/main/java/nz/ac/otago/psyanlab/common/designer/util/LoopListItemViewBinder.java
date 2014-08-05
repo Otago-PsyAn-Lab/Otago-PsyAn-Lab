@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public final class LoopListItemViewBinder extends AbsViewBinder implements ViewBinder<Loop> {
+
     public LoopListItemViewBinder(Activity activity, ProgramCallbacks callbacks) {
         super(activity, callbacks);
     }
@@ -23,10 +24,10 @@ public final class LoopListItemViewBinder extends AbsViewBinder implements ViewB
             convertView = mActivity.getLayoutInflater().inflate(R.layout.list_item_loop, parent,
                     false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+            holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
-            holder = (TextViewHolder)convertView.getTag();
+            holder = (TextViewHolder) convertView.getTag();
         }
 
         holder.textViews[0].setText(loop.name);

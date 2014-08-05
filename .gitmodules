@@ -1,3 +1,3 @@
 [submodule "libraries/filePicker"]
-	path = libraries/filePicker
+	path = filePicker
 	url = git@github.com:TonicArtos/FilePicker.git

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout
+    android:id="@+id/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:layout_column="1"
@@ -13,9 +15,7 @@
         android:layout_gravity="fill_horizontal"
         android:background="@color/action_accent" />
 
-    <RelativeLayout
-        android:id="@+id/background"
-        android:layout_width="wrap_content">
+    <RelativeLayout android:layout_width="wrap_content">
 
 
         <LinearLayout
@@ -69,7 +69,5 @@
         android:id="@+id/operand_fragment_container"
         android:layout_gravity="fill"
         android:background="@color/card_background"
-        android:orientation="vertical"
-        android:paddingTop="16dip" />
-
+        android:orientation="vertical" />
 </GridLayout>

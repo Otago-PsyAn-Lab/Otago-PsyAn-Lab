@@ -139,7 +139,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <nz.ac.otago.psyanlab.common.designer.program.stage.StageView
+                <nz.ac.otago.psyanlab.common.designer.program.stage.StageThumbnailView
                     android:id="@+id/stage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -13,7 +13,9 @@ import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.model.operand.BooleanValue;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -31,6 +33,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -316,6 +319,18 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             stageThumb = (StageView) view.findViewById(R.id.stage);
             stageDetail = (TextView) view.findViewById(R.id.stage_detail);
             editStagePsuedoButton = (TextView) view.findViewById(R.id.edit_stage_psudeo_button);
+
+            @SuppressLint("WrongViewCast")
+            final GridLayout gridLayout = (GridLayout) view.findViewById(R.id.background);
+            final View rulesListContainer = view.findViewById(R.id.rules_list_container);
+            final View column = view.findViewById(R.id.column);
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    fixGridLayoutOverflow(gridLayout, rulesListContainer);
+                    fixGridLayoutOverflow(gridLayout, column);
+                }
+            });
         }
 
         @Override

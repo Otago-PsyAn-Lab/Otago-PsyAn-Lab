@@ -6,23 +6,32 @@ import nz.ac.otago.psyanlab.common.util.TonicFragment;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.GridLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
 public abstract class BaseProgramFragment extends TonicFragment {
+
     private static final String ARG_BACKGROUND = "arg_background";
+
+    protected int mBackgroundResource;
 
     private ScrollerManager mScrollerManager;
 
     private int mScrollerPosition;
-
-    protected int mBackgroundResource;
 
     /**
      * Get the position of this fragment in the scroller.
      */
     public int getScrollerPos() {
         return mScrollerPosition;
+    }
+
+    /**
+     * Set the position of this fragment in the scroller.
+     */
+    public void setScrollerPos(int position) {
+        mScrollerPosition = position;
     }
 
     public void hide() {
@@ -65,15 +74,6 @@ public abstract class BaseProgramFragment extends TonicFragment {
     }
 
     /**
-     * Set the manager for the scroller.
-     * 
-     * @param scrollerManager Scroller Manager.
-     */
-    public void setScrollerManager(ScrollerManager scrollerManager) {
-        mScrollerManager = scrollerManager;
-    }
-
-    /**
      * Called should the Fragment be passed an invalid object id, thereby
      * indicating the fragment should create a new object to back its views.
      */
@@ -81,10 +81,12 @@ public abstract class BaseProgramFragment extends TonicFragment {
     // }
 
     /**
-     * Set the position of this fragment in the scroller.
+     * Set the manager for the scroller.
+     *
+     * @param scrollerManager Scroller Manager.
      */
-    public void setScrollerPos(int position) {
-        mScrollerPosition = position;
+    public void setScrollerManager(ScrollerManager scrollerManager) {
+        mScrollerManager = scrollerManager;
     }
 
     protected int getFavouredBackground() {
@@ -95,7 +97,7 @@ public abstract class BaseProgramFragment extends TonicFragment {
 
     /**
      * Ask the manager to hide the next fragment after this one.
-     * 
+     *
      * @param f Fragment to be next in the scroller.
      */
     protected void hideNextFragment() {
@@ -129,9 +131,8 @@ public abstract class BaseProgramFragment extends TonicFragment {
     }
 
     /**
-     * Ask the manager to set the next fragment after this one as the given
-     * fragment.
-     * 
+     * Ask the manager to set the next fragment after this one as the given fragment.
+     *
      * @param f Fragment to be next in the scroller.
      */
     protected void setNextFragment(BaseProgramFragment f) {
@@ -139,6 +140,7 @@ public abstract class BaseProgramFragment extends TonicFragment {
     }
 
     public interface ScrollerManager {
+
         void hideNextFragment(BaseProgramFragment baseProgramFragment);
 
         void removeFragment(BaseProgramFragment f);
@@ -149,6 +151,7 @@ public abstract class BaseProgramFragment extends TonicFragment {
     }
 
     public abstract class ViewHolder<T> extends TonicFragment.ViewHolder<T> {
+
         public View background;
 
         public ViewHolder(View view) {
@@ -156,6 +159,16 @@ public abstract class BaseProgramFragment extends TonicFragment {
             if (mBackgroundResource != -1) {
                 background.setBackgroundResource(mBackgroundResource);
             }
+        }
+
+        protected void fixGridLayoutOverflow(GridLayout gridLayout, View view) {
+            int margin = view.getBottom() - gridLayout.getHeight();
+
+            GridLayout.LayoutParams params = (GridLayout.LayoutParams) view.getLayoutParams();
+
+            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, margin);
+            view.setLayoutParams(params);
+            view.requestLayout();
         }
 
         @Override

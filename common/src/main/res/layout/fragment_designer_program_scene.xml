@@ -91,7 +91,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="fill_horizontal">
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -159,6 +158,8 @@
     </ScrollView>
 
     <FrameLayout
+        android:id="@+id/rules_list_container"
+        android:layout_height="match_parent"
         android:layout_gravity="fill"
         android:focusable="true"
         android:focusableInTouchMode="true">

@@ -23,7 +23,9 @@ import nz.ac.otago.psyanlab.common.model.operand.kind.LiteralOperand;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 import nz.ac.otago.psyanlab.common.model.util.Type;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -43,6 +45,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -50,15 +53,8 @@ import android.widget.TextView;
 
 public class RuleFragment extends BaseProgramFragment implements RuleDataChangeListener,
         OperandDataChangeListener {
-    private static final String ARG_SCENE_ID = "arg_scene_id";
 
-    public static BaseProgramFragment newInstance(long id, long sceneId) {
-        RuleFragment fragment = init(new RuleFragment(), id);
-        Bundle args = fragment.getArguments();
-        args.putLong(ARG_SCENE_ID, sceneId);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private static final String ARG_SCENE_ID = "arg_scene_id";
 
     protected final OnItemClickListener mActionItemClickListener = new OnItemClickListener() {
         @Override
@@ -80,7 +76,34 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    protected final OnItemLongClickListener mActionItemLongClickListener = new OnItemLongClickListener() {
+    protected final OnClickListener mConditionClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showEditConditionDialogue();
+        }
+    };
+
+    protected final OnClickListener mNewActionClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onNewAction();
+        }
+    };
+
+    protected final OnClickListener mTriggerObjectClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // Once the user has picked an experiment object we will be notified
+            // through our listener, mDialogueResultListener.
+            mCallbacks.pickExperimentObject(ExperimentObject.KIND_RULE, mObjectId,
+                    ExperimentObject.EMITS_EVENTS, DialogueRequestCodes.RULE_TRIGGER_OBJECT);
+        }
+    };
+
+    protected ActionMode mActionMode;
+
+    protected final OnItemLongClickListener mActionItemLongClickListener
+            = new OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
             if (mActionMode != null) {
@@ -105,16 +128,9 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    protected ActionMode mActionMode;
-
     protected ProgramComponentAdapter<Action> mActionsAdapter;
 
-    protected final OnClickListener mConditionClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            showEditConditionDialogue();
-        }
-    };
+    protected Rule mRule;
 
     protected final DialogueResultListener mDialogueResultListener = new DialogueResultListener() {
         @Override
@@ -136,7 +152,8 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks = new MultiChoiceModeListener() {
+    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks
+            = new MultiChoiceModeListener() {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
@@ -205,22 +222,12 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    protected final OnClickListener mNewActionClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            onNewAction();
-        }
-    };
-
-    protected Rule mRule;
-
-    protected long mSceneId;
-
-    protected final OnItemSelectedListener mTriggerEventItemSelectedListener = new OnItemSelectedListener() {
+    protected final OnItemSelectedListener mTriggerEventItemSelectedListener
+            = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            if (mRule.triggerEvent != (int)id) {
-                mRule.triggerEvent = (int)id;
+            if (mRule.triggerEvent != (int) id) {
+                mRule.triggerEvent = (int) id;
                 mCallbacks.putRule(mObjectId, mRule);
             }
         }
@@ -230,20 +237,21 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
         }
     };
 
-    protected final OnClickListener mTriggerObjectClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            // Once the user has picked an experiment object we will be notified
-            // through our listener, mDialogueResultListener.
-            mCallbacks.pickExperimentObject(ExperimentObject.KIND_RULE, mObjectId,
-                    ExperimentObject.EMITS_EVENTS, DialogueRequestCodes.RULE_TRIGGER_OBJECT);
-        }
-    };
+    protected long mSceneId;
 
     protected ViewHolder mViews;
 
+    public static BaseProgramFragment newInstance(long id, long sceneId) {
+        RuleFragment fragment = init(new RuleFragment(), id);
+        Bundle args = fragment.getArguments();
+        args.putLong(ARG_SCENE_ID, sceneId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_rule, container, false);
     }
 
@@ -348,9 +356,12 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Rule> {
+
         public TextView conditionDetails;
 
         public View editCondition;
+
+        public TextView name;
 
         public TextWatcher mNameWatcher = new TextWatcher() {
             @Override
@@ -371,8 +382,6 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             }
         };
 
-        public TextView name;
-
         public Spinner triggerEvent;
 
         public Button triggerObject;
@@ -385,14 +394,26 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
         public ViewHolder(View view) {
             super(view);
-            name = (EditText)view.findViewById(R.id.name);
-            triggerObject = (Button)view.findViewById(R.id.trigger_object);
-            triggerEvent = (Spinner)view.findViewById(R.id.trigger_event);
+            name = (EditText) view.findViewById(R.id.name);
+            triggerObject = (Button) view.findViewById(R.id.trigger_object);
+            triggerEvent = (Spinner) view.findViewById(R.id.trigger_event);
             editCondition = view.findViewById(R.id.edit_condition);
-            conditionDetails = (TextView)view.findViewById(R.id.condition_detail);
-            actionsList = (DragSortListView)view.findViewById(R.id.actions);
+            conditionDetails = (TextView) view.findViewById(R.id.condition_detail);
+            actionsList = (DragSortListView) view.findViewById(R.id.actions);
             mEmpty = view.findViewById(android.R.id.empty);
             newAction = view.findViewById(R.id.new_action);
+
+            @SuppressLint("WrongViewCast")
+            final GridLayout gridLayout = (GridLayout) view.findViewById(R.id.background);
+            final View actionsListContainer = view.findViewById(R.id.actions_list_container);
+            final View column = view.findViewById(R.id.column);
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    fixGridLayoutOverflow(gridLayout, actionsListContainer);
+                    fixGridLayoutOverflow(gridLayout, column);
+                }
+            });
         }
 
         @Override
@@ -451,7 +472,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                     .getExperimentObject(rule.triggerObject).getClass());
             triggerEvent.setAdapter(eventsAdapter);
             for (int i = 0; i < eventsAdapter.getCount(); i++) {
-                if ((int)eventsAdapter.getItemId(i) == mRule.triggerEvent) {
+                if ((int) eventsAdapter.getItemId(i) == mRule.triggerEvent) {
                     triggerEvent.setSelection(i);
                     break;
                 }
@@ -468,7 +489,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
             Operand condition = mCallbacks.getOperand(rule.conditionId);
             String operandDetail = "";
             if (condition instanceof CallOperand) {
-                CallOperand callOperand = (CallOperand)condition;
+                CallOperand callOperand = (CallOperand) condition;
                 ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
                         .getObject());
                 final NameResolverFactory nameFactory = experimentObject.getMethodNameFactory();
@@ -476,7 +497,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
                         experimentObject.getExperimentObjectName(getActivity()),
                         getString(nameFactory.getResId(callOperand.getMethod())));
             } else if (condition instanceof LiteralOperand) {
-                operandDetail = ((LiteralOperand)condition).getValue();
+                operandDetail = ((LiteralOperand) condition).getValue();
             } else {
                 conditionDetails.setText(R.string.default_condition_details);
                 return;
@@ -484,5 +505,7 @@ public class RuleFragment extends BaseProgramFragment implements RuleDataChangeL
 
             conditionDetails.setText(getString(R.string.format_condition_details, operandDetail));
         }
+
+
     }
 }

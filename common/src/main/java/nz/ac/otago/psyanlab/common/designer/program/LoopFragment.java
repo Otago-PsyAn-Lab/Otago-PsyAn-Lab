@@ -15,10 +15,13 @@ import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.model.Loop;
 import nz.ac.otago.psyanlab.common.model.Scene;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,6 +37,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -448,7 +452,19 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             newGenerator = view.findViewById(R.id.new_generator);
             newScene = view.findViewById(R.id.new_scene);
             scenesList = (DragSortListView) view.findViewById(R.id.scenes);
+
+            @SuppressLint("WrongViewCast")
+            final GridLayout gridLayout = (GridLayout) view.findViewById(R.id.background);
+            final View scenesListContainer = view.findViewById(R.id.scenes_list_container);
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    fixGridLayoutOverflow(gridLayout, generatorsList);
+                    fixGridLayoutOverflow(gridLayout, scenesListContainer);
+                }
+            });
         }
+
 
         @Override
         public void initViews() {

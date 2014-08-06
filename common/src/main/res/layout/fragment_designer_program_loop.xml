@@ -13,6 +13,7 @@
     android:useDefaultMargins="false">
 
     <View
+        android:id="@+id/accent"
         android:layout_height="8dip"
         android:layout_columnSpan="2"
         android:layout_gravity="fill_horizontal"
@@ -89,7 +90,8 @@
     <ListView
         android:id="@+id/generators"
         style="@style/column"
-        android:layout_gravity="fill_horizontal"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill"
         android:clipToPadding="false"
         android:divider="@drawable/divider_inset"
         android:drawSelectorOnTop="true"
@@ -99,6 +101,8 @@
         android:scrollbarStyle="outsideOverlay" />
 
     <FrameLayout
+        android:id="@+id/scenes_list_container"
+        android:layout_height="match_parent"
         android:layout_gravity="fill"
         android:focusable="true"
         android:focusableInTouchMode="true">

@@ -19,15 +19,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class ActionFragment extends BaseProgramFragment implements ActionDataChangeListener {
+
     private static final String ARG_SCENE_ID = "arg_scene_id";
 
-    public static BaseProgramFragment newInstance(long id, long sceneId) {
-        ActionFragment fragment = init(new ActionFragment(), id);
-        Bundle args = fragment.getArguments();
-        args.putLong(ARG_SCENE_ID, sceneId);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private Action mAction;
 
     public TextWatcher mNameWatcher = new TextWatcher() {
         @Override
@@ -48,13 +43,19 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         }
     };
 
-    private Action mAction;
-
     private EditCallOperandFragment mOperandFragment;
 
     private long mSceneId;
 
     private ViewHolder mViews;
+
+    public static BaseProgramFragment newInstance(long id, long sceneId) {
+        ActionFragment fragment = init(new ActionFragment(), id);
+        Bundle args = fragment.getArguments();
+        args.putLong(ARG_SCENE_ID, sceneId);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onActionDataChange() {
@@ -68,7 +69,8 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_program_action, container, false);
     }
 
@@ -118,11 +120,12 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Action> {
+
         public TextView name;
 
         public ViewHolder(View view) {
             super(view);
-            name = (EditText)view.findViewById(R.id.name);
+            name = (EditText) view.findViewById(R.id.name);
         }
 
         @Override

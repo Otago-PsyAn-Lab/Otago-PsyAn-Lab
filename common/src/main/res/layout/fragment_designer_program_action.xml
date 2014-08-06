@@ -1,83 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/background"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:layout_column="1"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    android:useDefaultMargins="false">
 
     <View
-        android:id="@+id/colour_bar_spacer"
-        android:layout_width="0dip"
-        android:layout_height="8dip" />
+        android:layout_height="8dip"
+        android:layout_gravity="fill_horizontal"
+        android:background="@color/action_accent" />
 
-    <LinearLayout
-        android:id="@+id/title_spacer"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:orientation="horizontal"
-        android:padding="16dip"
-        android:showDividers="none" >
+    <RelativeLayout
+        android:id="@+id/background"
+        android:layout_width="wrap_content">
 
-        <TextView
+
+        <LinearLayout
+            android:id="@+id/title_spacer"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-light"
-            android:paddingRight="8dip"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-    </LinearLayout>
+            android:padding="16dip"
+            android:showDividers="none">
 
-    <FrameLayout
-        android:id="@+id/name_container"
-        android:layout_width="wrap_content"
-        android:layout_height="0dip"
-        android:layout_alignBottom="@+id/title_spacer"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/colour_bar_spacer"
-        android:background="@color/card_background"
-        android:paddingLeft="16dip"
-        android:paddingRight="16dip" >
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:paddingRight="8dip"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+        </LinearLayout>
 
-        <EditText
-            android:id="@+id/name"
+        <FrameLayout
+            android:id="@+id/name_container"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:hint="@string/hint_loop_name"
-            android:inputType="text|textNoSuggestions"
-            android:maxEms="24"
-            android:minEms="12"
-            android:singleLine="true"
-            android:textSize="24sp" />
-    </FrameLayout>
+            android:layout_height="0dip"
+            android:layout_alignBottom="@+id/title_spacer"
+            android:layout_alignParentTop="true"
+            android:background="@color/card_background"
+            android:paddingLeft="16dip"
+            android:paddingRight="16dip">
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:hint="@string/hint_loop_name"
+                android:inputType="text|textNoSuggestions"
+                android:maxEms="24"
+                android:minEms="12"
+                android:singleLine="true"
+                android:textSize="24sp" />
+        </FrameLayout>
+    </RelativeLayout>
 
     <View
         android:id="@+id/divide"
-        android:layout_width="0dip"
         android:layout_height="1dip"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/name_container"
-        android:layout_below="@+id/name_container"
+        android:layout_gravity="fill_horizontal"
         android:background="?android:attr/listDivider" />
 
     <LinearLayout
         android:id="@+id/operand_fragment_container"
-        android:layout_width="0dip"
-        android:layout_height="0dip"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/name_container"
-        android:layout_below="@+id/divide"
+        android:layout_gravity="fill"
         android:background="@color/card_background"
         android:orientation="vertical"
         android:paddingTop="16dip" />
 
-    <View
-        android:layout_width="0dip"
-        android:layout_height="8dip"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/name_container"
-        android:background="@color/action_accent" />
-
-</RelativeLayout>
+</GridLayout>

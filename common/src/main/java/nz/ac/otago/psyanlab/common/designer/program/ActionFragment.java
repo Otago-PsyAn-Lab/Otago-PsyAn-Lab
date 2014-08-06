@@ -7,7 +7,9 @@ import nz.ac.otago.psyanlab.common.designer.program.operand.EditCallOperandFragm
 import nz.ac.otago.psyanlab.common.model.Action;
 import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -16,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.TextView;
 
 public class ActionFragment extends BaseProgramFragment implements ActionDataChangeListener {
@@ -126,6 +129,17 @@ public class ActionFragment extends BaseProgramFragment implements ActionDataCha
         public ViewHolder(View view) {
             super(view);
             name = (EditText) view.findViewById(R.id.name);
+
+            @SuppressLint("WrongViewCast")
+            final GridLayout gridLayout = (GridLayout) view.findViewById(R.id.background);
+            final View operandFragmentContainer = view
+                    .findViewById(R.id.operand_fragment_container);
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    fixGridLayoutOverflow(gridLayout, operandFragmentContainer);
+                }
+            });
         }
 
         @Override

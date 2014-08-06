@@ -16,6 +16,7 @@ import android.os.Parcelable;
 import java.lang.reflect.InvocationTargetException;
 
 public abstract class Prop extends ExperimentObject implements Parcelable {
+
     public static final int BUTTON_NS_OFFSET = 0x200;
 
     public static final Parcelable.Creator<Prop> CREATOR = new Parcelable.Creator<Prop>() {
@@ -24,7 +25,7 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
             String propKind = in.readString();
 
             try {
-                return (Prop)getClass().getClassLoader().loadClass(NAMESPACE + propKind)
+                return (Prop) getClass().getClassLoader().loadClass(NAMESPACE + propKind)
                         .getConstructor(Parcel.class).newInstance(in);
 
             } catch (ClassNotFoundException e) {
@@ -208,24 +209,20 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     }
 
     @MethodId(METHOD_SET_HEIGHT)
-    public void stubSetHeight(@ParameterId(PARAM_HEIGHT)
-    int height) {
+    public void stubSetHeight(@ParameterId(PARAM_HEIGHT) int height) {
     }
 
     @MethodId(METHOD_SET_OPACITY)
-    public void stubSetOpacity(@ParameterId(PARAM_OPACITY)
-    int opacity) {
+    public void stubSetOpacity(@ParameterId(PARAM_OPACITY) int opacity) {
     }
 
     @MethodId(METHOD_SET_POSITION)
-    public void stubSetPosition(@ParameterId(PARAM_X_COORDINATE)
-    int x, @ParameterId(PARAM_Y_COORDINATE)
-    int y) {
+    public void stubSetPosition(@ParameterId(PARAM_X_COORDINATE) int x,
+            @ParameterId(PARAM_Y_COORDINATE) int y) {
     }
 
     @MethodId(METHOD_SET_WIDTH)
-    public void stubSetWidth(@ParameterId(PARAM_WIDTH)
-    int width) {
+    public void stubSetWidth(@ParameterId(PARAM_WIDTH) int width) {
     }
 
     @MethodId(METHOD_SHOW)
@@ -253,6 +250,7 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     }
 
     protected static class EventNameFactory implements NameResolverFactory {
+
         @Override
         public int getResId(int lookup) {
             switch (lookup) {
@@ -278,6 +276,7 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     }
 
     protected static class MethodNameFactory implements NameResolverFactory {
+
         @Override
         public int getResId(int lookup) {
             switch (lookup) {
@@ -311,6 +310,7 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     }
 
     protected static class ParameterNameFactory implements NameResolverFactory {
+
         @Override
         public int getResId(int lookup) {
             switch (lookup) {

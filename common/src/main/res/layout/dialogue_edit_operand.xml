@@ -28,7 +28,7 @@
             android:minHeight="48dip" />
     </GridLayout>
 
-    <com.astuetz.viewpager.extensions.PagerSlidingTabStrip
+    <com.astuetz.PagerSlidingTabStrip
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="48dip" />

@@ -1,3 +1,22 @@
+/*
+ Copyright (C) 2014 Tonic Artos <tonic.artos@gmail.com>
+
+ Otago PsyAn Lab is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+ In accordance with Section 7(b) of the GNU General Public License version 3,
+ all legal notices and author attributions must be preserved.
+ */
 
 package nz.ac.otago.psyanlab.common.designer.source;
 
@@ -18,7 +37,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class SourceFragment extends Fragment implements ShowSourceListener, OnSourceDeletedListener {
+public class SourceFragment extends Fragment
+        implements ShowSourceListener, OnSourceDeletedListener {
+
     private static final String TAG_DETAIL_FRAGMENT = "source_detail_fragment";
 
     private static final String TAG_LIST_FRAGMENT = "source_list_fragment";
@@ -63,7 +84,7 @@ public class SourceFragment extends Fragment implements ShowSourceListener, OnSo
         if (!(activity instanceof SourceCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (SourceCallbacks)activity;
+        mCallbacks = (SourceCallbacks) activity;
     }
 
     @Override
@@ -79,7 +100,8 @@ public class SourceFragment extends Fragment implements ShowSourceListener, OnSo
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_designer_assets, container, false);
     }
 
@@ -96,8 +118,8 @@ public class SourceFragment extends Fragment implements ShowSourceListener, OnSo
 
         mCallbacks.addDrawerListener(mDrawerListener);
 
-        mSlidingContainer = (SlidingPaneLayout)view.findViewById(R.id.sliding_container);
-        mSlidingContainer.setParallaxDistance((int)getResources().getDimension(
+        mSlidingContainer = (SlidingPaneLayout) view.findViewById(R.id.sliding_container);
+        mSlidingContainer.setParallaxDistance((int) getResources().getDimension(
                 R.dimen.sliding_container_parallax));
 
         mDetailContainer = view.findViewById(R.id.asset_detail_container);
@@ -105,7 +127,7 @@ public class SourceFragment extends Fragment implements ShowSourceListener, OnSo
         FragmentManager fm = getChildFragmentManager();
 
         // Attach asset list.
-        mListFragment = (SourceListFragment)getChildFragmentManager().findFragmentByTag(
+        mListFragment = (SourceListFragment) getChildFragmentManager().findFragmentByTag(
                 TAG_LIST_FRAGMENT);
         if (mListFragment == null) {
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
@@ -115,7 +137,7 @@ public class SourceFragment extends Fragment implements ShowSourceListener, OnSo
         }
 
         // Check to see if we have a detail panel.
-        mDetailFragment = (SourceDetailFragment)fm.findFragmentByTag(TAG_DETAIL_FRAGMENT);
+        mDetailFragment = (SourceDetailFragment) fm.findFragmentByTag(TAG_DETAIL_FRAGMENT);
         if (mDetailFragment != null) {
             mDetailFragment.setOnSourceDeletedListener(this);
             mSlidingContainer.closePane();
@@ -131,10 +153,12 @@ public class SourceFragment extends Fragment implements ShowSourceListener, OnSo
             @Override
             public void run() {
                 if (mSlidingContainer.isSlideable()) {
-                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background);
+                    mSlidingContainer.setShadowResourceLeft(R.drawable.opal_list_background);
+                    //TODO: Right shadow.
                     mSlidingContainer.invalidate();
                 } else {
-                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background_flat);
+                    mSlidingContainer.setShadowResourceLeft(R.drawable.opal_list_background_flat);
+                    //TODO: Right shadow.
                     mSlidingContainer.invalidate();
                 }
             }
@@ -160,10 +184,12 @@ public class SourceFragment extends Fragment implements ShowSourceListener, OnSo
                 mSlidingContainer.closePane();
 
                 if (mSlidingContainer.isSlideable()) {
-                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background);
+                    mSlidingContainer.setShadowResourceLeft(R.drawable.opal_list_background);
+                    //TODO: Right shadow.
                     mSlidingContainer.invalidate();
                 } else {
-                    mSlidingContainer.setShadowResource(R.drawable.opal_list_background_flat);
+                    mSlidingContainer.setShadowResourceLeft(R.drawable.opal_list_background_flat);
+                    //TODO: Right shadow.
                     mSlidingContainer.invalidate();
                 }
             }

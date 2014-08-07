@@ -138,8 +138,6 @@ public class SourceDetailFragment extends Fragment {
         }
     };
 
-    private static final String KEY_ASSET_ID = "key_asset_id";
-
     private static final OnSourceDeletedListener mDeletedDummy = new OnSourceDeletedListener() {
         @Override
         public void onSourceDeleted(long id) {
@@ -367,27 +365,14 @@ public class SourceDetailFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putLong(KEY_ASSET_ID, mSourceId);
-    }
-
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle args = getArguments();
-        if (args != null) {
-            if (!args.containsKey(ARG_SOURCE_ID)) {
-                throw new RuntimeException("Expected source id in arguments.");
-            }
-            mSourceId = args.getLong(ARG_SOURCE_ID);
+        if (!args.containsKey(ARG_SOURCE_ID)) {
+            throw new RuntimeException("Expected source id in arguments.");
         }
-
-        if (savedInstanceState != null) {
-            mSourceId = savedInstanceState.getLong(KEY_ASSET_ID);
-        }
+        mSourceId = args.getLong(ARG_SOURCE_ID);
 
         mSource = mCallbacks.getSource(mSourceId);
 

@@ -8,7 +8,6 @@ import java.util.HashMap;
 import nz.ac.otago.psyanlab.common.model.chansrc.Field;
 
 public class Experiment {
-    private File workingDirectory;
 
     @Expose
     public HashMap<Long, Action> actions;
@@ -70,7 +69,13 @@ public class Experiment {
     @Expose
     public int version;
 
+    @Expose
+    public HashMap<Long, Variable> variables;
+
+    private File workingDirectory;
+
     public Experiment() {
+        // Using HashMap instead of LongSparseArray for compatibility with Gson.
         actions = new HashMap<Long, Action>();
         assets = new HashMap<Long, Asset>();
         generators = new HashMap<Long, Generator>();
@@ -82,6 +87,7 @@ public class Experiment {
         dataChannels = new HashMap<Long, DataChannel>();
         questions = new HashMap<Long, Question>();
         sources = new HashMap<Long, Source>();
+        variables = new HashMap<Long, Variable>();
 
         landingPage = new LandingPage();
         program = new Program();

@@ -94,7 +94,7 @@ public abstract class ExperimentObject {
     /**
      * An object which is a kind of a global variable.
      */
-    public static final int KIND_VARIABLE = 0x0a;
+    public static final int KIND_VARIABLE = 0x0d;
 
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
@@ -122,6 +122,8 @@ public abstract class ExperimentObject {
                 return R.string.label_operand;
             case KIND_PROP:
                 return R.string.label_prop;
+            case KIND_VARIABLE:
+                return R.string.label_variable;
             case KIND_RULE:
                 return R.string.label_rule;
             case KIND_SCENE:

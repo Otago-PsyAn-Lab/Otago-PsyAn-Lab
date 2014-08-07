@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+ *
+ * Otago PsyAn Lab is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * In accordance with Section 7(b) of the GNU General Public License version 3,
+ * all legal notices and author attributions must be preserved.
+ */
 
 package nz.ac.otago.psyanlab.common.model;
 
@@ -7,6 +26,7 @@ import nz.ac.otago.psyanlab.common.model.chansrc.Field;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -17,25 +37,8 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 
 public class Source extends ExperimentObject implements Comparable<Source> {
+
     public static final String FILE_ENDINGS = ".*\\.csv";
-
-    public static void countRowsAndCols(Source csv, File file) throws IOException {
-        CSVReader reader = new CSVReader(new FileReader(file), ',', '\"', 0);
-        LineNumberReader lineCounter = new LineNumberReader(new FileReader(file));
-
-        // Read number of columns.
-        csv.mTotalCols = reader.readNext().length;
-
-        // Read number of rows.
-        while (lineCounter.readLine() != null) {
-        }
-        csv.mTotalRows = lineCounter.getLineNumber();
-
-        lineCounter.close();
-        reader.close();
-
-        csv.mFileCounted = true;
-    }
 
     @Expose
     public int colStart = 0;
@@ -73,9 +76,30 @@ public class Source extends ExperimentObject implements Comparable<Source> {
         columns = new ArrayList<Field>();
     }
 
+    public static void countRowsAndCols(Source csv, File file) throws IOException {
+        CSVReader reader = new CSVReader(new FileReader(file), ',', '\"', 0);
+        LineNumberReader lineCounter = new LineNumberReader(new FileReader(file));
+
+        // Read number of columns.
+        csv.mTotalCols = reader.readNext().length;
+
+        // Read number of rows.
+        while (true) {
+            if (lineCounter.readLine() == null) {
+                break;
+            }
+        }
+        csv.mTotalRows = lineCounter.getLineNumber();
+
+        lineCounter.close();
+        reader.close();
+
+        csv.mFileCounted = true;
+    }
+
     @Override
-    public int compareTo(Source another) {
-        if (name != null && another != null) {
+    public int compareTo(@NonNull Source another) {
+        if (name != null) {
             return name.compareToIgnoreCase(another.name);
         }
         return 0;
@@ -131,6 +155,7 @@ public class Source extends ExperimentObject implements Comparable<Source> {
     }
 
     protected static class MethodNameFactory extends Asset.MethodNameFactory {
+
         @Override
         public int getResId(int lookup) {
             switch (lookup) {

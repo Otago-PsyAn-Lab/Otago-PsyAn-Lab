@@ -10,7 +10,7 @@
     <string name="title_column_rows">Rows</string>
     <string name="title_columns">Columns</string>
     <string name="title_confirm_delete_asset">Delete Asset?</string>
-    <string name="title_data_channel_description">Notes</string>
+    <string name="title_experiment_object_description">Notes</string>
     <string name="title_data_channel_fields">Fields</string>
     <string name="title_data_channels">Data Channels</string>
     <string name="title_description">Description</string>
@@ -60,5 +60,6 @@
     <string name="title_stage">Stage</string>
     <string name="title_subject_questions">Questions</string>
     <string name="title_data_sources">Data Sources</string>
+    <string name="title_variables">Variables</string>
 
 </resources>

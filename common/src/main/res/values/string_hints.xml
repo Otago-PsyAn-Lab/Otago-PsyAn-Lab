@@ -5,7 +5,7 @@
     <string name="hint_asset_name">Asset name</string>
     <string name="hint_authors">Authors</string>
     <string name="hint_column_names">Column names, comma separated.</string>
-    <string name="hint_data_channel_description">Notes</string>
+    <string name="hint_experiment_object_description">Notes</string>
     <string name="hint_description">Description</string>
     <string name="hint_description_subject">Description and assistance Text</string>
     <string name="hint_experiment_name">Name</string>
@@ -24,5 +24,6 @@
     <string name="hint_subject_question">Question of subject</string>
     <string name="hint_title_subject">Title</string>
     <string name="hint_username">Username</string>
+    <string name="hint_variable_name">Variable name</string>
 
 </resources>

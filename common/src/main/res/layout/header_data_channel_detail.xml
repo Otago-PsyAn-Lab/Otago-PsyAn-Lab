@@ -12,7 +12,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginRight="16dip"
         android:fontFamily="sans-serif-light"
-        android:text="@string/title_data_channel_description"
+        android:text="@string/title_experiment_object_description"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="16dip"
         android:layout_marginTop="8dip"
-        android:hint="@string/hint_data_channel_description"
+        android:hint="@string/hint_experiment_object_description"
         android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
         android:nextFocusUp="@+id/name"
         android:singleLine="false"

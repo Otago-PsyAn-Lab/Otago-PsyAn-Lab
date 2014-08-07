@@ -97,5 +97,7 @@
     <string name="label_scope_rule">Rule</string>
     <string name="label_scope_scene">Scene</string>
     <string name="label_no_data_sources">No Data Sources</string>
+    <string name="label_variable">Variable</string>
+    <string name="label_variable_kind">Type</string>
 
 </resources>

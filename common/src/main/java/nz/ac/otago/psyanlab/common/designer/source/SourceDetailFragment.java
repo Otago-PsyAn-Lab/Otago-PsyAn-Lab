@@ -1,3 +1,23 @@
+/*
+ Copyright (C) 2014 Tonic Artos <tonic.artos@gmail.com>
+
+ Otago PsyAn Lab is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+ In accordance with Section 7(b) of the GNU General Public License version 3,
+ all legal notices and author attributions must be preserved.
+ */
+
 package nz.ac.otago.psyanlab.common.designer.source;
 
 import com.mobeta.android.dslv.DragSortListView.DragSortListener;
@@ -43,6 +63,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class SourceDetailFragment extends Fragment {
+
     private static final String DIALOG_EDIT_COL_NAME = "dialog_edit_col_name";
 
     public OnClickListener mAddColumnNameClickListener = new OnClickListener() {
@@ -72,6 +93,8 @@ public class SourceDetailFragment extends Fragment {
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_COL_NAME);
         }
     };
+
+    private static final String ARG_SOURCE_ID = "arg_source_id";
 
     private static final String DIALOG_EDIT_COL_START = "dialog_edit_col_start";
 
@@ -287,10 +310,11 @@ public class SourceDetailFragment extends Fragment {
 
     private ViewHolder mViews;
 
-    public static SourceDetailFragment newInstance(long assetId) {
+    public static SourceDetailFragment newInstance(long id) {
         SourceDetailFragment f = new SourceDetailFragment();
-        f.mSourceId = assetId;
-        Log.d("CSVDataDetailFragment", "Create for asset id " + assetId);
+        Bundle args = new Bundle();
+        args.putLong(ARG_SOURCE_ID, id);
+        f.setArguments(args);
         return f;
     }
 
@@ -352,6 +376,14 @@ public class SourceDetailFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            if (!args.containsKey(ARG_SOURCE_ID)) {
+                throw new RuntimeException("Expected source id in arguments.");
+            }
+            mSourceId = args.getLong(ARG_SOURCE_ID);
+        }
 
         if (savedInstanceState != null) {
             mSourceId = savedInstanceState.getLong(KEY_ASSET_ID);

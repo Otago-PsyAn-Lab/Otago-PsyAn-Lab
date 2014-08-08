@@ -11,8 +11,7 @@ public class IntegerVariable extends Variable {
     @Expose
     int value;
 
-    public IntegerVariable() {
-    }
+    public IntegerVariable() {}
 
     public IntegerVariable(IntegerVariable variable) {
         super(variable);
@@ -39,7 +38,5 @@ public class IntegerVariable extends Variable {
     }
 
     @MethodId(METHOD_SET)
-    public void setVariableValue(@ParameterId(PARAM_VALUE) int value) {
-
-    }
+    public void setVariableValue(@ParameterId(PARAM_VALUE) int value) {}
 }

@@ -11,8 +11,7 @@ public class FloatVariable extends Variable {
     @Expose
     float value;
 
-    public FloatVariable() {
-    }
+    public FloatVariable() {}
 
     public FloatVariable(FloatVariable variable) {
         super(variable);
@@ -39,7 +38,5 @@ public class FloatVariable extends Variable {
     }
 
     @MethodId(METHOD_SET)
-    public void setVariableValue(@ParameterId(PARAM_VALUE) float value) {
-
-    }
+    public void setVariableValue(@ParameterId(PARAM_VALUE) float value) {}
 }

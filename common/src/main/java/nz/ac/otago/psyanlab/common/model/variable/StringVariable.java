@@ -10,8 +10,7 @@ public class StringVariable extends Variable {
     @Expose
     String value;
 
-    public StringVariable() {
-    }
+    public StringVariable() {}
 
     public StringVariable(StringVariable variable) {
         super(variable);
@@ -38,7 +37,5 @@ public class StringVariable extends Variable {
     }
 
     @MethodId(METHOD_SET)
-    public void setVariableValue(@ParameterId(PARAM_VALUE) String value) {
-
-    }
+    public void setVariableValue(@ParameterId(PARAM_VALUE) String value) {}
 }

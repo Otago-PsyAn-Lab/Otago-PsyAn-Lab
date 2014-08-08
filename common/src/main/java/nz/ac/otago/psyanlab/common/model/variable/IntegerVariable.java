@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model.variable;
 
 import com.google.gson.annotations.Expose;
@@ -6,6 +5,7 @@ import com.google.gson.annotations.Expose;
 import nz.ac.otago.psyanlab.common.model.Variable;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.ParameterId;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 public class IntegerVariable extends Variable {
     @Expose
@@ -30,6 +30,11 @@ public class IntegerVariable extends Variable {
     @Override
     public String getValue() {
         return String.valueOf(value);
+    }
+
+    @Override
+    public int getType() {
+        return Type.TYPE_INTEGER;
     }
 
     @MethodId(METHOD_GET)

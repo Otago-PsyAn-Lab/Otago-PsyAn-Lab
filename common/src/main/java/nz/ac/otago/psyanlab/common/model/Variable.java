@@ -83,6 +83,8 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
         return 0;
     }
 
+    public abstract int getType();
+
     public static class MethodNameFactory extends ExperimentObject.MethodNameFactory {
 
         @Override

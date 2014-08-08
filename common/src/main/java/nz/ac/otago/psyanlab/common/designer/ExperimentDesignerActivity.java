@@ -565,8 +565,7 @@ public class ExperimentDesignerActivity extends FragmentActivity
     public void deleteVariable(long id) {
         Variable variable = mExperiment.variables.remove(id);
 
-        deleteVariableData(variable);
-        removeReferencesTo(ExperimentObject.KIND_SOURCE, id);
+        removeReferencesTo(ExperimentObject.KIND_VARIABLE, id);
 
         notifyVariableDataChange();
     }
@@ -575,7 +574,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
     public void deleteSource(long id) {
         Source source = mExperiment.sources.remove(id);
 
-        deleteSourceData(source);
         removeReferencesTo(ExperimentObject.KIND_SOURCE, id);
 
         notifySourceDataChange();
@@ -1676,12 +1674,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
         }
     }
 
-    private void deleteVariableData(Variable variable) {
-    }
-
-    private void deleteSourceData(Source source) {
-    }
-
     private boolean doDiscardAction() {
         Intent data = new Intent();
         data.putExtra(Args.EXPERIMENT_ID, mExperimentDelegate.getId());
@@ -2324,11 +2316,43 @@ public class ExperimentDesignerActivity extends FragmentActivity
             case ExperimentObject.KIND_PROP:
                 updateReferencesToProp(id);
                 break;
-
+            case ExperimentObject.KIND_SOURCE:
+                // updateReferencesToSource(id);
+                break;
+            case ExperimentObject.KIND_VARIABLE:
+                updateReferencesToVariable(id);
+                break;
             case ExperimentObject.KIND_GENERATOR:
                 // Generators always have the same interface.
             default:
                 break;
+        }
+    }
+
+    private void updateReferencesToVariable(long id) {
+        Variable variable = mExperiment.variables.get(id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_VARIABLE, id);
+
+        for (Long callId : calls) {
+            CallValue call = (CallValue) mExperiment.operands.get(callId);
+
+            if (call == null) {
+                // It is possible we might be trying to update a call we have
+                // already obliterated due to removing a parent operand, so we
+                // just skip the missing operand and continue processing the
+                // list.
+                continue;
+            }
+
+            if (variable == null || (call.getType() & variable.getType()) == 0) {
+                // The prop was actually deleted so we just need to remove the
+                // reference.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId);
+                putOperand(callId, replacement);
+            }
         }
     }
 

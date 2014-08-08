@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
@@ -96,12 +95,11 @@ public abstract class ExperimentObject {
      */
     public static final int KIND_VARIABLE = 0x0d;
 
+    @Expose
+    public int tag;
+
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
-    }
-
-    public NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
     }
 
     public static int kindToResId(int kind) {
@@ -138,12 +136,13 @@ public abstract class ExperimentObject {
         }
     }
 
-    @Expose
-    public int tag;
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
+    }
 
     /**
      * A formatted, readable name for the object.
-     * 
+     *
      * @param context Application context to pull i18n strings from.
      * @return I18n sensitive name of the object.
      */
@@ -159,12 +158,12 @@ public abstract class ExperimentObject {
 
     /**
      * The kind of object this experiment object is.
-     * 
+     *
      * @return The kind of object.
      */
     abstract public int kind();
 
-    public void loadInMatchingMethods(int returnType, SortedSet<MethodData> out) {
+    public void loadInMatchingMethods(Context context, int returnType, SortedSet<MethodData> out) {
         Class<? extends ExperimentObject> clazz = getClass();
         Method[] methods = clazz.getMethods();
 
@@ -177,7 +176,7 @@ public abstract class ExperimentObject {
             if (annotation != null && ModelUtils.returnTypeIntersects(method, returnType)) {
                 MethodData data = new MethodData();
                 data.id = annotation.value();
-                data.nameResId = nameFactory.getResId(data.id);
+                data.name = nameFactory.getName(context, data.id);
 
                 Class<?> rt = method.getReturnType();
                 if (rt.equals(Void.TYPE)) {
@@ -197,8 +196,9 @@ public abstract class ExperimentObject {
                 } else if (rt.equals(VideoStub.class)) {
                     data.returnType = Type.TYPE_VIDEO;
                 } else {
-                    throw new RuntimeException("Unknown return type for method " + data.id
-                            + " for class " + getClass().getName());
+                    throw new RuntimeException(
+                            "Unknown return type for method " + data.id + " for class " +
+                            getClass().getName());
                 }
 
                 out.add(data);
@@ -212,8 +212,8 @@ public abstract class ExperimentObject {
                 Method[] methods = getClass().getMethods();
                 for (int i = 0; i < methods.length; i++) {
                     Method method = methods[i];
-                    if (method.getReturnType().equals(Void.TYPE)
-                            && method.isAnnotationPresent(MethodId.class)) {
+                    if (method.getReturnType().equals(Void.TYPE) &&
+                        method.isAnnotationPresent(MethodId.class)) {
                         return true;
                     }
                 }
@@ -234,47 +234,26 @@ public abstract class ExperimentObject {
                 for (int i = 0; i < methods.length; i++) {
                     Method method = methods[i];
                     if (method.isAnnotationPresent(MethodId.class)) {
-                        if ((filter & Type.TYPE_BOOLEAN) != 0
-                                && method.getReturnType().equals(Boolean.TYPE)) {
+                        if ((filter & Type.TYPE_BOOLEAN) != 0 &&
+                            method.getReturnType().equals(Boolean.TYPE)) {
                             return true;
                         }
-                        if ((filter & Type.TYPE_STRING) != 0
-                                && method.getReturnType().equals(String.class)) {
+                        if ((filter & Type.TYPE_STRING) != 0 &&
+                            method.getReturnType().equals(String.class)) {
                             return true;
                         }
-                        if ((filter & Type.TYPE_INTEGER) != 0
-                                && method.getReturnType().equals(Integer.TYPE)) {
+                        if ((filter & Type.TYPE_INTEGER) != 0 &&
+                            method.getReturnType().equals(Integer.TYPE)) {
                             return true;
                         }
-                        if ((filter & Type.TYPE_FLOAT) != 0
-                                && method.getReturnType().equals(Float.TYPE)) {
+                        if ((filter & Type.TYPE_FLOAT) != 0 &&
+                            method.getReturnType().equals(Float.TYPE)) {
                             return true;
                         }
                     }
                 }
                 return false;
             }
-        }
-    }
-
-    public static class EventNameFactory implements NameResolverFactory {
-        @Override
-        public int getResId(int lookup) {
-            return R.string.event_missing_string;
-        }
-    }
-
-    public static class MethodNameFactory implements NameResolverFactory {
-        @Override
-        public int getResId(int lookup) {
-            return R.string.method_missing_string;
-        }
-    }
-
-    public static class ParameterNameFactory implements NameResolverFactory {
-        @Override
-        public int getResId(int lookup) {
-            return R.string.parameter_missing_string;
         }
     }
 
@@ -292,13 +271,14 @@ public abstract class ExperimentObject {
             // Expect annotation is present for parameter.
             final ParameterId paramAnnotation = ModelUtils.getParameterIdAnnotation(i, method);
             if (paramAnnotation == null) {
-                throw new RuntimeException("Missing annotation for parameter " + i + " of method "
-                        + methodId + " on class " + getClass().getName());
+                throw new RuntimeException(
+                        "Missing annotation for parameter " + i + " of method " + methodId +
+                        " on class " + getClass().getName());
             }
 
             ParameterData parameter = new ParameterData();
             parameter.id = paramAnnotation.value();
-            parameter.name = activity.getString(nameFactory.getResId(parameter.id));
+            parameter.name = nameFactory.getName(activity, parameter.id);
 
             Class<?> parameterReflection = parameterReflections[i];
             if (parameterReflection.isAssignableFrom(float.class)) {
@@ -316,8 +296,9 @@ public abstract class ExperimentObject {
             } else if (parameterReflection.isAssignableFrom(VideoStub.class)) {
                 parameter.type = Type.TYPE_VIDEO;
             } else {
-                throw new RuntimeException("Unknown type for parameter " + parameter.id
-                        + " on method " + methodId + " for class " + getClass().getName());
+                throw new RuntimeException(
+                        "Unknown type for parameter " + parameter.id + " on method " + methodId +
+                        " for class " + getClass().getName());
             }
 
             parameters[i] = parameter;
@@ -343,12 +324,33 @@ public abstract class ExperimentObject {
         return method;
     }
 
+    public static class EventNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            return context.getString(R.string.event_missing_string);
+        }
+    }
+
+    public static class MethodNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            return context.getString(R.string.method_missing_string);
+        }
+    }
+
+    public static class ParameterNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            return context.getString(R.string.parameter_missing_string);
+        }
+    }
+
     public static class MethodData {
         public int id;
 
         public int returnType;
 
-        public int nameResId;
+        public String name;
     }
 
     public static class ParameterData {

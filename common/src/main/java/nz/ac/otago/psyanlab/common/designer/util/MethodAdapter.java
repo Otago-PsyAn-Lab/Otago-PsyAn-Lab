@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.designer.util;
 
 import nz.ac.otago.psyanlab.common.model.ExperimentObject.MethodData;
@@ -24,7 +23,7 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
 
     public MethodAdapter(Context context, SortedSet<MethodData> methods) {
         mContext = context;
-        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mMethods = new MethodData[methods.size()];
         int i = 0;
@@ -45,13 +44,13 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
         if (convertView == null) {
             convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+            holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
-            holder = (TextViewHolder)convertView.getTag();
+            holder = (TextViewHolder) convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mMethods[position].nameResId));
+        holder.textViews[0].setText(mMethods[position].name);
 
         return convertView;
     }
@@ -72,13 +71,13 @@ public class MethodAdapter extends BaseAdapter implements SpinnerAdapter, ListAd
         if (convertView == null) {
             convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+            holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
-            holder = (TextViewHolder)convertView.getTag();
+            holder = (TextViewHolder) convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mMethods[position].nameResId));
+        holder.textViews[0].setText(mMethods[position].name);
 
         return convertView;
     }

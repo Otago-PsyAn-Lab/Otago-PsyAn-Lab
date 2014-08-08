@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
@@ -26,8 +25,7 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
 
             try {
                 return (Prop) getClass().getClassLoader().loadClass(NAMESPACE + propKind)
-                        .getConstructor(Parcel.class).newInstance(in);
-
+                                        .getConstructor(Parcel.class).newInstance(in);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Unknown prop type: " + propKind, e);
             } catch (IllegalArgumentException e) {
@@ -218,7 +216,7 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
 
     @MethodId(METHOD_SET_POSITION)
     public void stubSetPosition(@ParameterId(PARAM_X_COORDINATE) int x,
-            @ParameterId(PARAM_Y_COORDINATE) int y) {
+                                @ParameterId(PARAM_Y_COORDINATE) int y) {
     }
 
     @MethodId(METHOD_SET_WIDTH)
@@ -250,27 +248,26 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     }
 
     protected static class EventNameFactory implements NameResolverFactory {
-
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case EVENT_CLICKED:
-                    return R.string.event_clicked;
+                    return context.getString(R.string.event_clicked);
                 case EVENT_FINGER_DOWN:
-                    return R.string.event_finger_down;
+                    return context.getString(R.string.event_finger_down);
                 case EVENT_FINGER_DRAG_RELEASED:
-                    return R.string.event_finger_drag_released;
+                    return context.getString(R.string.event_finger_drag_released);
                 case EVENT_FINGER_DRAG_STARTED:
-                    return R.string.event_finger_drag_started;
+                    return context.getString(R.string.event_finger_drag_started);
                 case EVENT_FINGER_MOTION:
-                    return R.string.event_finger_motion;
+                    return context.getString(R.string.event_finger_motion);
                 case EVENT_FINGER_UP:
-                    return R.string.event_finger_up;
+                    return context.getString(R.string.event_finger_up);
                 case EVENT_LONG_CLICKED:
-                    return R.string.event_long_clicked;
+                    return context.getString(R.string.event_long_clicked);
 
                 default:
-                    return R.string.event_missing_string;
+                    return context.getString(R.string.event_missing_string);
             }
         }
     }
@@ -278,55 +275,54 @@ public abstract class Prop extends ExperimentObject implements Parcelable {
     protected static class MethodNameFactory implements NameResolverFactory {
 
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_GET_HEIGHT:
-                    return R.string.method_get_height;
+                    return context.getString(R.string.method_get_height);
                 case METHOD_GET_OPACITY:
-                    return R.string.method_get_opacity;
+                    return context.getString(R.string.method_get_opacity);
                 case METHOD_GET_WIDTH:
-                    return R.string.method_get_width;
+                    return context.getString(R.string.method_get_width);
                 case METHOD_GET_X_POSITION:
-                    return R.string.method_get_x_position;
+                    return context.getString(R.string.method_get_x_position);
                 case METHOD_GET_Y_POSITION:
-                    return R.string.method_get_y_position;
+                    return context.getString(R.string.method_get_y_position);
                 case METHOD_HIDE:
-                    return R.string.method_hide;
+                    return context.getString(R.string.method_hide);
                 case METHOD_SET_HEIGHT:
-                    return R.string.method_set_height;
+                    return context.getString(R.string.method_set_height);
                 case METHOD_SET_OPACITY:
-                    return R.string.method_set_opacity;
+                    return context.getString(R.string.method_set_opacity);
                 case METHOD_SET_POSITION:
-                    return R.string.method_set_position;
+                    return context.getString(R.string.method_set_position);
                 case METHOD_SET_WIDTH:
-                    return R.string.method_set_width;
+                    return context.getString(R.string.method_set_width);
                 case METHOD_SHOW:
-                    return R.string.method_show;
+                    return context.getString(R.string.method_show);
 
                 default:
-                    return R.string.method_missing_string;
+                    return context.getString(R.string.method_missing_string);
             }
         }
     }
 
     protected static class ParameterNameFactory implements NameResolverFactory {
-
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case PARAM_HEIGHT:
-                    return R.string.parameter_height;
+                    return context.getString(R.string.parameter_height);
                 case PARAM_OPACITY:
-                    return R.string.parameter_opacity;
+                    return context.getString(R.string.parameter_opacity);
                 case PARAM_WIDTH:
-                    return R.string.parameter_width;
+                    return context.getString(R.string.parameter_width);
                 case PARAM_X_COORDINATE:
-                    return R.string.parameter_x;
+                    return context.getString(R.string.parameter_x);
                 case PARAM_Y_COORDINATE:
-                    return R.string.parameter_y;
+                    return context.getString(R.string.parameter_y);
 
                 default:
-                    return R.string.parameter_missing_string;
+                    return context.getString(R.string.parameter_missing_string);
             }
         }
     }

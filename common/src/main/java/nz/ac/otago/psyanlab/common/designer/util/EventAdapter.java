@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.designer.util;
 
 import nz.ac.otago.psyanlab.common.model.util.EventData;
@@ -26,10 +25,10 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
     private NameResolverFactory mNameFactory;
 
     public EventAdapter(Context context, SortedSet<EventData> events,
-            NameResolverFactory nameFactory) {
+                        NameResolverFactory nameFactory) {
         mContext = context;
         mNameFactory = nameFactory;
-        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mEvents = new EventData[events.size()];
         int i = 0;
@@ -55,14 +54,13 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
         if (convertView == null) {
             convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+            holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
-            holder = (TextViewHolder)convertView.getTag();
+            holder = (TextViewHolder) convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mEvents[position]
-                .id())));
+        holder.textViews[0].setText(mNameFactory.getName(mContext, mEvents[position].id()));
 
         return convertView;
     }
@@ -83,14 +81,13 @@ public class EventAdapter extends BaseAdapter implements SpinnerAdapter, ListAda
         if (convertView == null) {
             convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             holder = new TextViewHolder(1);
-            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
+            holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
             convertView.setTag(holder);
         } else {
-            holder = (TextViewHolder)convertView.getTag();
+            holder = (TextViewHolder) convertView.getTag();
         }
 
-        holder.textViews[0].setText(mContext.getString(mNameFactory.getResId(mEvents[position]
-                .id())));
+        holder.textViews[0].setText(mNameFactory.getName(mContext, mEvents[position].id()));
 
         return convertView;
     }

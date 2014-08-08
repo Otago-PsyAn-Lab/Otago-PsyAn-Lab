@@ -88,16 +88,17 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
     public static class MethodNameFactory extends ExperimentObject.MethodNameFactory {
 
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context,int lookup) {
             switch (lookup) {
                 case METHOD_GET:
-                    return R.string.method_variable_get_value;
+                    return context.getString(R.string.method_variable_get_value);
+
                 case METHOD_SET:
-                    return R.string.method_variable_set_value;
+                    return context.getString(R.string.method_variable_set_value);
                 case METHOD_SET_AND_USE:
-                    return R.string.method_variable_set_and_use_value;
+                    return context.getString(R.string.method_variable_set_and_use_value);
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }
@@ -105,12 +106,12 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
     public static class ParameterNameFactory extends ExperimentObject.ParameterNameFactory {
 
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context,int lookup) {
             switch (lookup) {
                 case PARAM_VALUE:
-                    return R.string.parameter_variable_value;
+                    return context.getString(R.string.parameter_variable_value);
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }

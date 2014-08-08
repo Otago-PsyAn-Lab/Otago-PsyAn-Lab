@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.model.generator;
 
+import android.content.Context;
+
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
@@ -15,10 +17,10 @@ public class Shuffle extends Generator {
 
     protected static class MethodNameFactory extends Generator.MethodNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }

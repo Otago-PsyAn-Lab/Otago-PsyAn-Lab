@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model.prop;
 
 import nz.ac.otago.psyanlab.common.R;
@@ -18,16 +17,16 @@ public class Image extends Prop {
 
     protected static final int PARAM_IMAGE = 0x01 + Prop.IMAGE_NS_OFFSET;
 
-    public static NameResolverFactory getEventNameFactory() {
-        return new EventNameFactory();
-    }
-
     public Image(Context context, Prop prop) {
         super(context, prop);
     }
 
     public Image(Parcel in) {
         super(in);
+    }
+
+    public static NameResolverFactory getEventNameFactory() {
+        return new EventNameFactory();
     }
 
     @Override
@@ -51,36 +50,36 @@ public class Image extends Prop {
 
     protected static class EventNameFactory extends Prop.EventNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }
 
     protected static class MethodNameFactory extends Prop.MethodNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_GET_IMAGE:
-                    return R.string.method_get_image;
+                    return context.getString(R.string.method_get_image);
                 case METHOD_SET_IMAGE:
-                    return R.string.method_set_image;
+                    return context.getString(R.string.method_set_image);
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }
 
     protected static class ParameterNameFactory extends Prop.ParameterNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case PARAM_IMAGE:
-                    return R.string.parameter_image;
+                    return context.getString(R.string.parameter_image);
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }

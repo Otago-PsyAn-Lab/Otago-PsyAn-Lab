@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
@@ -82,19 +81,19 @@ public class Loop extends ExperimentObject {
 
     protected static class MethodNameFactory implements NameResolverFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_FINISH_LOOP:
-                    return R.string.method_finish_loop;
+                    return context.getString(R.string.method_finish_loop);
                 case METHOD_GET_SELECTED_ROW:
-                    return R.string.method_get_selected_row;
+                    return context.getString(R.string.method_get_selected_row);
                 case METHOD_GET_STEP:
-                    return R.string.method_get_step;
+                    return context.getString(R.string.method_get_step);
                 case METHOD_GET_TOTAL_ITERATIONS:
-                    return R.string.method_get_total_iterations;
+                    return context.getString(R.string.method_get_total_iterations);
 
                 default:
-                    return R.string.method_missing_string;
+                    return context.getString(R.string.method_missing_string);
             }
         }
     }

@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
@@ -42,12 +41,12 @@ public abstract class Generator extends ExperimentObject {
 
     protected static class MethodNameFactory implements NameResolverFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_GENERATE_NUMBER:
-                    return R.string.method_generator_generate_number;
+                    return context.getString(R.string.method_generator_generate_number);
                 default:
-                    return R.string.method_missing_string;
+                    return context.getString(R.string.method_missing_string);
             }
         }
     }

@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
@@ -15,9 +14,8 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 
 /**
- * A DataChannel is the description of a record type the user wants to collect
- * from the execution of the experiment. DataChannels are analogous to a table
- * type data structure.
+ * A DataChannel is the description of a record type the user wants to collect from the execution of
+ * the experiment. DataChannels are analogous to a table type data structure.
  */
 public class DataChannel extends ExperimentObject implements Comparable<DataChannel> {
     protected static final int METHOD_WRITE = 0x01;
@@ -79,10 +77,10 @@ public class DataChannel extends ExperimentObject implements Comparable<DataChan
     }
 
     @Override
-    public void loadInMatchingMethods(int returnType, SortedSet<MethodData> out) {
+    public void loadInMatchingMethods(Context context, int returnType, SortedSet<MethodData> out) {
         MethodData methodData = new MethodData();
         methodData.id = METHOD_WRITE;
-        methodData.nameResId = R.string.method_data_channel_write;
+        methodData.name = context.getString(R.string.method_data_channel_write);
         methodData.returnType = Type.TYPE_VOID;
         out.add(methodData);
     }
@@ -92,19 +90,6 @@ public class DataChannel extends ExperimentObject implements Comparable<DataChan
         return filter == HAS_SETTERS;
     }
 
-    protected static class MethodNameFactory implements NameResolverFactory {
-        @Override
-        public int getResId(int lookup) {
-            switch (lookup) {
-                case METHOD_WRITE:
-                    return R.string.method_data_channel_write;
-
-                default:
-                    return R.string.method_missing_string;
-            }
-        }
-    }
-
     @Override
     public int compareTo(DataChannel another) {
         if (name == null || another.name == null) {
@@ -112,5 +97,18 @@ public class DataChannel extends ExperimentObject implements Comparable<DataChan
         }
 
         return name.compareToIgnoreCase(another.name);
+    }
+
+    protected static class MethodNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            switch (lookup) {
+                case METHOD_WRITE:
+                    return context.getString(R.string.method_data_channel_write);
+
+                default:
+                    return context.getString(R.string.method_missing_string);
+            }
+        }
     }
 }

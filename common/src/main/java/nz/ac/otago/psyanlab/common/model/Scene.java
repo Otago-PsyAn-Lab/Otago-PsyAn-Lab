@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
@@ -25,10 +24,6 @@ public class Scene extends ExperimentObject {
 
     protected static final int METHOD_FINISH_SCENE = 0x01;
 
-    public static NameResolverFactory getEventNameFactory() {
-        return new EventNameFactory();
-    }
-
     @Expose
     public String name;
 
@@ -50,6 +45,10 @@ public class Scene extends ExperimentObject {
     public Scene() {
         props = new ArrayList<Long>();
         rules = new ArrayList<Long>();
+    }
+
+    public static NameResolverFactory getEventNameFactory() {
+        return new EventNameFactory();
     }
 
     @EventData(id = EVENT_SCENE_FINGER_MOTION, type = EventData.EVENT_TOUCH_MOTION)
@@ -85,28 +84,28 @@ public class Scene extends ExperimentObject {
 
     protected static class EventNameFactory implements NameResolverFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case EVENT_SCENE_FINISH:
-                    return R.string.event_scene_finish;
+                    return context.getString(R.string.event_scene_finish);
                 case EVENT_SCENE_START:
-                    return R.string.event_scene_start;
+                    return context.getString(R.string.event_scene_start);
                 case EVENT_SCENE_FINGER_MOTION:
-                    return R.string.event_finger_motion;
+                    return context.getString(R.string.event_finger_motion);
                 default:
-                    return R.string.event_missing_string;
+                    return context.getString(R.string.event_missing_string);
             }
         }
     }
 
     protected static class MethodNameFactory implements NameResolverFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_FINISH_SCENE:
-                    return R.string.method_finish_scene;
+                    return context.getString(R.string.method_finish_scene);
                 default:
-                    return R.string.method_missing_string;
+                    return context.getString(R.string.method_missing_string);
             }
         }
     }

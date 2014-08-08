@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.model.util;
 
+import android.content.Context;
+
 public interface NameResolverFactory {
-    int getResId(int lookup);
+    String getName(Context context, int lookup);
 }

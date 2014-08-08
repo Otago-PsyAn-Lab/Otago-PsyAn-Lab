@@ -1,5 +1,6 @@
-
 package nz.ac.otago.psyanlab.common.model.asset;
+
+import android.content.Context;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Asset;
@@ -27,12 +28,12 @@ public class Font extends Asset {
 
     protected static class MethodNameFactory extends Asset.MethodNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_GET_FONT:
-                    return R.string.method_get_font;
+                    return context.getString(R.string.method_get_font);
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }

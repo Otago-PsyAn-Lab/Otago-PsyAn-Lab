@@ -35,6 +35,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.SortedSet;
 
 public class Source extends ExperimentObject implements Comparable<Source> {
 
@@ -133,7 +134,16 @@ public class Source extends ExperimentObject implements Comparable<Source> {
 
     @Override
     public int kind() {
-        return ExperimentObject.KIND_ASSET;
+        return ExperimentObject.KIND_SOURCE;
+    }
+
+    @Override
+    public void loadInMatchingMethods(Context context, int returnType, SortedSet<MethodData> out) {
+        for (Field column : columns) {
+            MethodData data = new MethodData();
+            data.id = column.id;
+            // TODO:
+        }
     }
 
     @Override
@@ -155,12 +165,11 @@ public class Source extends ExperimentObject implements Comparable<Source> {
     }
 
     protected static class MethodNameFactory extends Asset.MethodNameFactory {
-
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }

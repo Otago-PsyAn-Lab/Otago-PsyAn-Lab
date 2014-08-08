@@ -1,6 +1,8 @@
 
 package nz.ac.otago.psyanlab.common.model.prop;
 
+import android.content.Context;
+
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
@@ -21,30 +23,30 @@ public class Seekbar extends Prop {
 
     protected static class EventNameFactory extends Prop.EventNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }
 
     protected static class MethodNameFactory extends Prop.MethodNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }
 
     protected static class ParameterNameFactory extends Prop.ParameterNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }

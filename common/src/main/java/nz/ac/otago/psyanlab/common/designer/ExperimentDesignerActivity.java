@@ -639,8 +639,9 @@ public class ExperimentDesignerActivity extends FragmentActivity
     @Override
     public ListAdapter getDataChannelsAdapter() {
         if (mDataChannelAdapter == null) {
-            mDataChannelAdapter = new ExperimentObjectAdapter(this, mExperiment.dataChannels,
-                                                              mDataChannelViewBinder);
+            mDataChannelAdapter =
+                    new ExperimentObjectAdapter<DataChannel>(this, mExperiment.dataChannels,
+                                                             mDataChannelViewBinder);
         }
 
         return mDataChannelAdapter;
@@ -669,8 +670,9 @@ public class ExperimentDesignerActivity extends FragmentActivity
             @Override
             public int compare(EventData lhs, EventData rhs) {
                 Collator collator = getCollater();
-                return collator.compare(getString(nameFactory.getResId(lhs.id())),
-                                        getString(nameFactory.getResId(rhs.id())));
+                return collator
+                        .compare(nameFactory.getName(ExperimentDesignerActivity.this, lhs.id()),
+                                 nameFactory.getName(ExperimentDesignerActivity.this, rhs.id()));
             }
         });
 
@@ -777,11 +779,11 @@ public class ExperimentDesignerActivity extends FragmentActivity
                     @Override
                     public int compare(MethodData lhs, MethodData rhs) {
                         Collator collator = getCollater();
-                        return collator.compare(getString(lhs.nameResId), getString(rhs.nameResId));
+                        return collator.compare(lhs.name, rhs.name);
                     }
                 });
 
-        object.loadInMatchingMethods(returnTypes, filteredMethods);
+        object.loadInMatchingMethods(ExperimentDesignerActivity.this, returnTypes, filteredMethods);
 
         return new MethodAdapter(this, filteredMethods);
     }
@@ -1919,6 +1921,13 @@ public class ExperimentDesignerActivity extends FragmentActivity
                     objects.add(new Pair<ExperimentObject, Long>(variable, entry.getKey()));
                 }
             }
+
+            for (Entry<Long, Source> entry : mExperiment.sources.entrySet()) {
+                Source source = entry.getValue();
+                if (source.satisfiesFilter(filter)) {
+                    objects.add(new Pair<ExperimentObject, Long>(source, entry.getKey()));
+                }
+            }
         }
         return objects;
     }
@@ -2479,12 +2488,11 @@ public class ExperimentDesignerActivity extends FragmentActivity
                         @Override
                         public int compare(MethodData lhs, MethodData rhs) {
                             Collator collator = getCollater();
-                            return collator
-                                    .compare(getString(lhs.nameResId), getString(rhs.nameResId));
+                            return collator.compare(lhs.name, rhs.name);
                         }
                     });
 
-            prop.loadInMatchingMethods(call.type, filteredMethods);
+            prop.loadInMatchingMethods(this, call.type, filteredMethods);
 
             boolean foundMethod = false;
             for (MethodData methodData : filteredMethods) {

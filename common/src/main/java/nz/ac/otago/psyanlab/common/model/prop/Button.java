@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model.prop;
 
 import nz.ac.otago.psyanlab.common.R;
@@ -17,16 +16,16 @@ public class Button extends Text {
 
     protected static final int METHOD_SET_COLOUR_TINT_RGB = 0x03 + Prop.BUTTON_NS_OFFSET;
 
-    public static NameResolverFactory getEventNameFactory() {
-        return new EventNameFactory();
-    }
-
     public Button(Context context, Prop prop) {
         super(context, prop);
     }
 
     public Button(Parcel in) {
         super(in);
+    }
+
+    public static NameResolverFactory getEventNameFactory() {
+        return new EventNameFactory();
     }
 
     @Override
@@ -40,35 +39,32 @@ public class Button extends Text {
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT)
-    public void stubSetColourTint(@ParameterId(PARAM_COLOUR)
-    int colour) {
+    public void stubSetColourTint(@ParameterId(PARAM_COLOUR) int colour) {
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT_HTML)
-    public void stubSetColourTintHTML(@ParameterId(PARAM_COLOUR_HTML)
-    String htmlColourCode) {
+    public void stubSetColourTintHTML(@ParameterId(PARAM_COLOUR_HTML) String htmlColourCode) {
     }
 
     @MethodId(METHOD_SET_COLOUR_TINT_RGB)
-    public void stubSetColourTintRGB(@ParameterId(PARAM_RED)
-    int red, @ParameterId(PARAM_GREEN)
-    int green, @ParameterId(PARAM_BLUE)
-    int blue) {
+    public void stubSetColourTintRGB(@ParameterId(PARAM_RED) int red,
+                                     @ParameterId(PARAM_GREEN) int green,
+                                     @ParameterId(PARAM_BLUE) int blue) {
     }
 
     protected static class MethodNameFactory extends Text.MethodNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_SET_COLOUR_TINT_HTML:
-                    return R.string.method_set_colour_tint_html;
+                    return context.getString(R.string.method_set_colour_tint_html);
                 case METHOD_SET_COLOUR_TINT_RGB:
-                    return R.string.method_set_colour_tint_rgb;
+                    return context.getString(R.string.method_set_colour_tint_rgb);
                 case METHOD_SET_COLOUR_TINT:
-                    return R.string.method_set_colour_tint;
+                    return context.getString(R.string.method_set_colour_tint);
 
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }
@@ -76,10 +72,10 @@ public class Button extends Text {
     protected static class ParameterNameFactory extends Text.ParameterNameFactory {
 
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }

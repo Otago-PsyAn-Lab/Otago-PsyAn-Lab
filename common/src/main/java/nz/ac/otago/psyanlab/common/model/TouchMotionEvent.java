@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model;
 
 import nz.ac.otago.psyanlab.common.R;
@@ -38,14 +37,13 @@ public class TouchMotionEvent extends TouchEvent {
 
     protected static class MethodNameFactory extends TouchEvent.MethodNameFactory {
         @Override
-        public int getResId(int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_GET_MOTION_TYPE:
-                    return R.string.method_get_motion_type;
+                    return context.getString(R.string.method_get_motion_type);
                 default:
-                    return super.getResId(lookup);
+                    return super.getName(context, lookup);
             }
         }
     }
-
 }

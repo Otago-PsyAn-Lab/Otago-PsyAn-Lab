@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.designer.util;
 
 import nz.ac.otago.psyanlab.common.R;
@@ -27,39 +26,42 @@ final public class OperandListItemViewBinder extends AbsViewBinder implements Vi
     public View bind(Operand operand, View convertView, ViewGroup parent) {
         TextViewHolder holder;
         if (convertView == null) {
-            convertView = mActivity.getLayoutInflater().inflate(R.layout.list_item_operand, parent,
-                    false);
+            convertView = mActivity.getLayoutInflater()
+                                   .inflate(R.layout.list_item_operand, parent, false);
             holder = new TextViewHolder(3);
-            holder.textViews[0] = (TextView)convertView.findViewById(android.R.id.text1);
-            holder.textViews[1] = (TextView)convertView.findViewById(android.R.id.text2);
-            holder.textViews[2] = (TextView)convertView.findViewById(R.id.type);
+            holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
+            holder.textViews[1] = (TextView) convertView.findViewById(android.R.id.text2);
+            holder.textViews[2] = (TextView) convertView.findViewById(R.id.type);
             convertView.setTag(holder);
         } else {
-            holder = (TextViewHolder)convertView.getTag();
+            holder = (TextViewHolder) convertView.getTag();
         }
 
         if (operand instanceof CallOperand) {
-            CallOperand callOperand = (CallOperand)operand;
-            ExperimentObject experimentObject = mCallbacks.getExperimentObject(callOperand
-                    .getObject());
+            CallOperand callOperand = (CallOperand) operand;
+            ExperimentObject experimentObject =
+                    mCallbacks.getExperimentObject(callOperand.getObject());
             final NameResolverFactory nameFactory = experimentObject.getMethodNameFactory();
 
             holder.textViews[1].setVisibility(View.VISIBLE);
             holder.textViews[1].setText(mActivity.getString(R.string.format_call_operand_value,
-                    experimentObject.getExperimentObjectName(mActivity),
-                    mActivity.getString(nameFactory.getResId(callOperand.getMethod()))));
+                                                            experimentObject
+                                                                    .getExperimentObjectName(
+                                                                            mActivity), nameFactory
+                                                                    .getName(mActivity, callOperand
+                                                                            .getMethod())));
             holder.textViews[0].setText(operand.getName());
         } else {
             holder.textViews[0].setText(operand.getName());
             if (operand instanceof LiteralOperand) {
-                holder.textViews[1].setText(((LiteralOperand)operand).getValue());
+                holder.textViews[1].setText(((LiteralOperand) operand).getValue());
                 holder.textViews[1].setVisibility(View.VISIBLE);
             } else {
                 holder.textViews[1].setVisibility(View.GONE);
             }
         }
-        holder.textViews[2].setText(TextUtils.join("\n",
-                Type.typeToStringArray(mActivity, operand.getType())));
+        holder.textViews[2].setText(
+                TextUtils.join("\n", Type.typeToStringArray(mActivity, operand.getType())));
         return convertView;
     }
 }

@@ -44,6 +44,7 @@
     <string name="format_property_label">%s</string>
     <string name="format_scene_class_name">%1$s</string>
     <string name="format_screen_dimensions">%1$d×%2$d</string>
+    <string name="format_source_method_name">Get %1$s</string>
     <string name="format_stage_detail">%1$d×%2$d (%3$s) %4$d props</string>
     <string name="generator_kind_random">random</string>
     <string name="generator_kind_shuffle">shuffle</string>
@@ -121,5 +122,6 @@
     <string name="title_new_column_name">New Column Name</string>
     <string name="hint_column_name">Column Name</string>
     <string name="title_edit_string">Edit String</string>
+    <string name="label_parameter_row">Row</string>
 
 </resources>

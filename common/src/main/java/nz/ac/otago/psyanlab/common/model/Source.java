@@ -22,13 +22,17 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
+import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.chansrc.Field;
+import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
 import au.com.bytecode.opencsv.CSVReader;
+import nz.ac.otago.psyanlab.common.model.util.Type;
 
 import java.io.File;
 import java.io.FileReader;
@@ -117,7 +121,7 @@ public class Source extends ExperimentObject implements Comparable<Source> {
 
     @Override
     public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
+        return new MethodNameFactory(this);
     }
 
     public int getTotalCols() {
@@ -140,9 +144,13 @@ public class Source extends ExperimentObject implements Comparable<Source> {
     @Override
     public void loadInMatchingMethods(Context context, int returnType, SortedSet<MethodData> out) {
         for (Field column : columns) {
-            MethodData data = new MethodData();
-            data.id = column.id;
-            // TODO:
+            if ((returnType & column.type) != 0) {
+                MethodData data = new MethodData();
+                data.id = column.id;
+                data.name = context.getString(R.string.format_source_method_name, column.name);
+                data.returnType = column.type;
+                out.add(data);
+            }
         }
     }
 
@@ -164,13 +172,37 @@ public class Source extends ExperimentObject implements Comparable<Source> {
         mIsExternal = true;
     }
 
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        throw new RuntimeException("Unsupported method");
+    }
+
+    @Override
+    public ParameterData[] getParameters(Activity activity, int methodId) {
+        ParameterData[] parameters = new ParameterData[1];
+        ParameterData data = new ParameterData();
+        data.id = 0;
+        data.type = Type.TYPE_INTEGER;
+        data.name = activity.getString(R.string.label_parameter_row);
+        parameters[0] = data;
+        return parameters;
+    }
+
     protected static class MethodNameFactory extends Asset.MethodNameFactory {
+        private final Source mSource;
+
+        public MethodNameFactory(Source source) {
+            mSource = source;
+        }
+
         @Override
         public String getName(Context context, int lookup) {
-            switch (lookup) {
-                default:
-                    return super.getName(context, lookup);
+            if (lookup >= mSource.columns.size()) {
+                return super.getName(context, lookup);
             }
+
+            return context.getString(R.string.format_source_method_name,
+                                     mSource.columns.get(lookup).name);
         }
     }
 }

@@ -9,6 +9,7 @@
     <string name="default_condition_name">Condition</string>
     <string name="default_image_prop_name">Image Prop</string>
     <string name="default_name_data_channel_field">Field %1$s</string>
+    <string name="default_name_new_source_column">Column %1$s</string>
     <string name="default_name_new_action">Action %1$d</string>
     <string name="default_name_new_channel">Channel %1$d</string>
     <string name="default_name_new_csv">Data Sources %1$d</string>
@@ -120,6 +121,5 @@
     <string name="title_new_column_name">New Column Name</string>
     <string name="hint_column_name">Column Name</string>
     <string name="title_edit_string">Edit String</string>
-    <string name="default_new_column">New Column</string>
 
 </resources>

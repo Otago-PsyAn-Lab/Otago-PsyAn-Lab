@@ -25,8 +25,7 @@ import com.mobeta.android.dslv.DragSortListView.DragSortListener;
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SourceDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.util.DialogueRequestCodes;
-import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar
-        .DialogueResultListener;
+import nz.ac.otago.psyanlab.common.designer.util.DialogueResultListenerRegistrar.DialogueResultListener;
 
 import nz.ac.otago.psyanlab.common.designer.util.EditDataColumnDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.util.EditIndexedStringDialogueFragment;
@@ -71,11 +70,11 @@ public class SourceDetailFragment extends Fragment {
         public void onClick(View v) {
             Field field = new Field();
             field.id = getNewParamId();
-            field.name = getString(R.string.default_new_column);
+            field.name = getString(R.string.default_name_new_source_column, field.id + 1);
             field.type = Type.TYPE_STRING;
-            EditDataColumnDialogueFragment dialogue = EditDataColumnDialogueFragment.init(new
-                            EditDataColumnDialogueFragment(),
-                    DialogueRequestCodes.SOURCE_NEW_COLUMN_NAME, field);
+            EditDataColumnDialogueFragment dialogue = EditDataColumnDialogueFragment
+                    .init(new EditDataColumnDialogueFragment(),
+                          DialogueRequestCodes.SOURCE_NEW_COLUMN_NAME, field);
             dialogue.show(getChildFragmentManager(), DIALOG_EDIT_COL_NAME);
         }
     };
@@ -83,13 +82,12 @@ public class SourceDetailFragment extends Fragment {
     protected OnItemClickListener mOnColumnNameItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            String item = (String) parent.getItemAtPosition(position);
+            Field item = (Field) parent.getItemAtPosition(position);
             int index = (int) parent.getItemIdAtPosition(position);
 
-            EditStringDialogueFragment dialog = EditIndexedStringDialogueFragment.init(new
-                            EditIndexedStringDialogueFragment(), R.string.title_new_column_name,
-                    item,
-                    R.string.hint_column_name, DialogueRequestCodes.SOURCE_COLUMN_NAME, index);
+            EditDataColumnDialogueFragment dialog = EditDataColumnDialogueFragment
+                    .init(new EditDataColumnDialogueFragment(),
+                          DialogueRequestCodes.SOURCE_COLUMN_NAME, item, index);
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_COL_NAME);
         }
     };
@@ -101,10 +99,10 @@ public class SourceDetailFragment extends Fragment {
     private OnClickListener mColStartClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(R.string
-                            .title_set_start_column, ExperimentUtils.zeroBasedToUserValue(mSource
-                            .colStart), 1, mSource.getTotalCols(),
-                    DialogueRequestCodes.SOURCE_START_COLUMN);
+            NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment
+                    .newDialog(R.string.title_set_start_column,
+                               ExperimentUtils.zeroBasedToUserValue(mSource.colStart), 1,
+                               mSource.getTotalCols(), DialogueRequestCodes.SOURCE_START_COLUMN);
             dialog.showRange(true);
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_COL_START);
         }
@@ -115,10 +113,10 @@ public class SourceDetailFragment extends Fragment {
     private OnClickListener mNumRowsClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(R.string
-                            .title_set_number_of_rows, mSource.numRows, 1,
-                    mSource.getTotalRows() - mSource.rowStart,
-                    DialogueRequestCodes.SOURCE_NUM_ROWS);
+            NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment
+                    .newDialog(R.string.title_set_number_of_rows, mSource.numRows, 1,
+                               mSource.getTotalRows() - mSource.rowStart,
+                               DialogueRequestCodes.SOURCE_NUM_ROWS);
             dialog.showRange(true);
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_NUM_ROWS);
         }
@@ -129,10 +127,10 @@ public class SourceDetailFragment extends Fragment {
     private OnClickListener mRowStartClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment.newDialog(R.string
-                            .title_set_start_row,
-                    ExperimentUtils.zeroBasedToUserValue(mSource.rowStart),
-                    1, mSource.getTotalRows(), DialogueRequestCodes.SOURCE_START_ROW);
+            NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment
+                    .newDialog(R.string.title_set_start_row,
+                               ExperimentUtils.zeroBasedToUserValue(mSource.rowStart), 1,
+                               mSource.getTotalRows(), DialogueRequestCodes.SOURCE_START_ROW);
             dialog.showRange(true);
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_ROW_START);
         }
@@ -243,10 +241,10 @@ public class SourceDetailFragment extends Fragment {
     private DialogueResultListener mOnStartColumnPickedListener = new DialogueResultListener() {
         @Override
         public void onResult(Bundle data) {
-            mSource.colStart = ExperimentUtils.userValueToZeroBased(data.getInt
-                    (NumberPickerDialogueFragment.RESULT_PICKED_NUMBER));
-            mViews.mColStart.setText(String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource
-                    .colStart)));
+            mSource.colStart = ExperimentUtils.userValueToZeroBased(
+                    data.getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER));
+            mViews.mColStart.setText(
+                    String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource.colStart)));
             mCallbacks.putSource(mSourceId, mSource);
         }
 
@@ -262,13 +260,13 @@ public class SourceDetailFragment extends Fragment {
     private DialogueResultListener mOnStartRowPickedListener = new DialogueResultListener() {
         @Override
         public void onResult(Bundle data) {
-            mSource.rowStart = ExperimentUtils.userValueToZeroBased(data.getInt
-                    (NumberPickerDialogueFragment.RESULT_PICKED_NUMBER));
+            mSource.rowStart = ExperimentUtils.userValueToZeroBased(
+                    data.getInt(NumberPickerDialogueFragment.RESULT_PICKED_NUMBER));
             if (mSource.rowStart + mSource.numRows > mSource.getTotalRows()) {
                 mSource.numRows = mSource.getTotalRows() - mSource.rowStart;
             }
-            mViews.mRowStart.setText(String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource
-                    .rowStart)));
+            mViews.mRowStart.setText(
+                    String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource.rowStart)));
             mViews.mNumRows.setText(String.valueOf(mSource.numRows));
             mCallbacks.putSource(mSourceId, mSource);
         }
@@ -282,8 +280,8 @@ public class SourceDetailFragment extends Fragment {
         }
     };
 
-    private ColumnNameAdapter.SourceChangedListener mSourceChangedListener = new
-            ColumnNameAdapter.SourceChangedListener() {
+    private ColumnNameAdapter.SourceChangedListener mSourceChangedListener =
+            new ColumnNameAdapter.SourceChangedListener() {
                 @Override
                 public void onSourceChange() {
                     mCallbacks.putSource(mSourceId, mSource);
@@ -349,7 +347,7 @@ public class SourceDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_designer_source_detail, container, false);
         ListView list = (ListView) view.findViewById(R.id.columns);
         list.addHeaderView(inflater.inflate(R.layout.header_source_detail, list, false));
@@ -396,15 +394,15 @@ public class SourceDetailFragment extends Fragment {
         mViews.initViews();
 
         mCallbacks.registerDialogueResultListener(DialogueRequestCodes.SOURCE_START_COLUMN,
-                mOnStartColumnPickedListener);
+                                                  mOnStartColumnPickedListener);
         mCallbacks.registerDialogueResultListener(DialogueRequestCodes.SOURCE_START_ROW,
-                mOnStartRowPickedListener);
+                                                  mOnStartRowPickedListener);
         mCallbacks.registerDialogueResultListener(DialogueRequestCodes.SOURCE_NUM_ROWS,
-                mOnNumRowsPickedListener);
+                                                  mOnNumRowsPickedListener);
         mCallbacks.registerDialogueResultListener(DialogueRequestCodes.SOURCE_NEW_COLUMN_NAME,
-                mOnNewColumnNameListener);
+                                                  mOnNewColumnNameListener);
         mCallbacks.registerDialogueResultListener(DialogueRequestCodes.SOURCE_COLUMN_NAME,
-                mOnColumnNameEditListener);
+                                                  mOnColumnNameEditListener);
     }
 
     public void setOnSourceDeletedListener(OnSourceDeletedListener listener) {
@@ -427,7 +425,7 @@ public class SourceDetailFragment extends Fragment {
         private SourceChangedListener mSourceChangedListener;
 
         public ColumnNameAdapter(Context context, Source source,
-                SourceChangedListener sourceChangedListener) {
+                                 SourceChangedListener sourceChangedListener) {
             mContext = context;
             mSource = source;
             mSourceChangedListener = sourceChangedListener;
@@ -574,10 +572,10 @@ public class SourceDetailFragment extends Fragment {
             mFilename.setText(source.filename);
             mFilesize.setText(FileUtils.formatBytes(source.filesize));
 
-            mColStart.setText(String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource
-                    .colStart)));
-            mRowStart.setText(String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource
-                    .rowStart)));
+            mColStart.setText(
+                    String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource.colStart)));
+            mRowStart.setText(
+                    String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource.rowStart)));
             mNumRows.setText(String.valueOf(mSource.numRows));
         }
 

@@ -711,9 +711,9 @@ public class ExperimentDesignerActivity extends FragmentActivity
             case ExperimentObject.KIND_CHANNEL:
                 return mExperiment.dataChannels.get(object.id);
             case ExperimentObject.KIND_VARIABLE:
-                // return mExperiment.variables.get(object.id);
+                return mExperiment.variables.get(object.id);
             case ExperimentObject.KIND_SOURCE:
-                // return mExperiment.sources.get(object.id);
+                return mExperiment.sources.get(object.id);
 
             case ExperimentObject.KIND_EXPERIMENT:
             default:
@@ -1556,6 +1556,12 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 }
             }
 
+            for (Entry<Long, Variable> entry : mExperiment.variables.entrySet()) {
+                if (entry.getValue().satisfiesFilter(filter)) {
+                    return true;
+                }
+            }
+
             return false;
         } else {
             // No scope, or unknown scope.
@@ -1912,6 +1918,13 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 Generator generator = entry.getValue();
                 if (generator.satisfiesFilter(filter)) {
                     objects.add(new Pair<ExperimentObject, Long>(generator, entry.getKey()));
+                }
+            }
+
+            for (Entry<Long, Variable> entry : mExperiment.variables.entrySet()) {
+                Variable variable = entry.getValue();
+                if (variable.satisfiesFilter(filter)) {
+                    objects.add(new Pair<ExperimentObject, Long>(variable, entry.getKey()));
                 }
             }
         }

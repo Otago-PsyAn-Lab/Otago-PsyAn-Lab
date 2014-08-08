@@ -18,11 +18,12 @@
     <string name="default_name_new_rule">Rule %1$d</string>
     <string name="default_name_new_scene">Scene %1$d</string>
     <string name="default_name_prop">New Prop</string>
-    <string name="designer_tab_assets">Assets</string>
+    <string name="designer_tab_assets">Media</string>
     <string name="designer_tab_data_channels">Data Channels</string>
+    <string name="designer_tab_data_sources">Data Sources</string>
+    <string name="designer_tab_generators">Generators</string>i
     <string name="designer_tab_program">Program</string>
     <string name="designer_tab_properties">Properties</string>
-    <string name="designer_tab_sources">Data Sources</string>
     <string name="designer_tab_subject">Landing Page</string>
     <string name="designer_tab_variables">Variables</string>
     <string name="drawer_close">Close navigation drawer</string>

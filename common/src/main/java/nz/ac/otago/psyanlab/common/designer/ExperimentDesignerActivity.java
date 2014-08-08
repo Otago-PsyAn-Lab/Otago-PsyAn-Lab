@@ -2326,7 +2326,7 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 updateReferencesToProp(id);
                 break;
             case ExperimentObject.KIND_SOURCE:
-                // updateReferencesToSource(id);
+                updateReferencesToSource(id);
                 break;
             case ExperimentObject.KIND_VARIABLE:
                 updateReferencesToVariable(id);
@@ -2335,6 +2335,50 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 // Generators always have the same interface.
             default:
                 break;
+        }
+    }
+
+    private void updateReferencesToSource(long id) {
+        Source source = mExperiment.sources.get(id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_SOURCE, id);
+
+        for (Long callId : calls) {
+            CallValue call = (CallValue) mExperiment.operands.get(callId);
+
+            if (call == null) {
+                // It is possible we might be trying to update a call we have
+                // already obliterated due to removing a parent operand, so we
+                // just skip the missing operand and continue processing the
+                // list.
+                continue;
+            }
+
+            if (source == null) {
+                // The prop was actually deleted so we just need to remove the
+                // reference.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId);
+                putOperand(callId, replacement);
+                continue;
+            }
+
+            // Check to see if the call matches a column.
+            boolean found = false;
+            for (Field column : source.columns) {
+                if (call.method == column.id && (call.getType() & column.type) != 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId);
+                putOperand(callId, replacement);
+            }
         }
     }
 

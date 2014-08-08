@@ -156,6 +156,10 @@ public class Source extends ExperimentObject implements Comparable<Source> {
 
     @Override
     public boolean satisfiesFilter(int filter) {
+        if (filter == EMITS_EVENTS || filter == HAS_SETTERS) {
+            return false;
+        }
+
         for (Field column : columns) {
             if ((filter & column.type) != 0) {
                 return true;

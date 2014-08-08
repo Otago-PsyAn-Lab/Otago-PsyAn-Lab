@@ -17,6 +17,7 @@ import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Question;
 import nz.ac.otago.psyanlab.common.model.TouchEvent;
 import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
+import nz.ac.otago.psyanlab.common.model.Variable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,6 +50,8 @@ public class ModelUtils {
                     AbsModelGsonAdapter.NS_MODEL_PROP));
             gson.registerTypeAdapter(Asset.class, new AbsModelGsonAdapter<Asset>(
                     AbsModelGsonAdapter.NS_MODEL_ASSET));
+            gson.registerTypeAdapter(Variable.class, new AbsModelGsonAdapter<Variable>(
+                    AbsModelGsonAdapter.NS_MODEL_VARIABLE));
             if (BuildConfig.DEBUG) {
                 gson.setPrettyPrinting();
             }

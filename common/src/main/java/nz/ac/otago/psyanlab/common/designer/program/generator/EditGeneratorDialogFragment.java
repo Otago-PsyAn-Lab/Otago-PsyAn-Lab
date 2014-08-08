@@ -7,6 +7,7 @@ import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.generator.Random;
 import nz.ac.otago.psyanlab.common.model.generator.Shuffle;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -23,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class EditGeneratorDialogFragment extends DialogFragment {
+
     private static final String ARG_ID = "arg_id";
 
     private static final long INVALID_ID = -1;
@@ -34,14 +36,6 @@ public class EditGeneratorDialogFragment extends DialogFragment {
     private static final int POS_RANDOM = 0x00;
 
     private static final int POS_SHUFFLE = 0x01;
-
-    public static EditGeneratorDialogFragment newDialog(long id) {
-        EditGeneratorDialogFragment f = new EditGeneratorDialogFragment();
-        Bundle args = new Bundle();
-        args.putLong(ARG_ID, id);
-        f.setArguments(args);
-        return f;
-    }
 
     private ProgramCallbacks mCallbacks;
 
@@ -55,13 +49,21 @@ public class EditGeneratorDialogFragment extends DialogFragment {
 
     private ViewHolder mViews;
 
+    public static EditGeneratorDialogFragment newDialog(long id) {
+        EditGeneratorDialogFragment f = new EditGeneratorDialogFragment();
+        Bundle args = new Bundle();
+        args.putLong(ARG_ID, id);
+        f.setArguments(args);
+        return f;
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (!(activity instanceof ProgramCallbacks)) {
             throw new RuntimeException("Activity must implement fragment callbacks.");
         }
-        mCallbacks = (ProgramCallbacks)activity;
+        mCallbacks = (ProgramCallbacks) activity;
     }
 
     @Override
@@ -90,7 +92,7 @@ public class EditGeneratorDialogFragment extends DialogFragment {
         // Build dialogue.
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(
-                (Integer)((mMode == MODE_NEW) ? R.string.title_new_generator
+                (Integer) ((mMode == MODE_NEW) ? R.string.title_new_generator
                         : R.string.title_edit_generator))
                 .setView(view)
                 .setPositiveButton(
@@ -136,13 +138,13 @@ public class EditGeneratorDialogFragment extends DialogFragment {
                                 }
                             }
                         }).setNegativeButton(R.string.action_discard, new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (mMode == MODE_NEW) {
-                            mCallbacks.deleteGenerator(mId);
-                        }
-                        getDialog().cancel();
-                    }
-                });
+            public void onClick(DialogInterface dialog, int id) {
+                if (mMode == MODE_NEW) {
+                    mCallbacks.deleteGenerator(mId);
+                }
+                getDialog().cancel();
+            }
+        });
 
         // Create the AlertDialog object and return it
         return builder.create();
@@ -152,7 +154,13 @@ public class EditGeneratorDialogFragment extends DialogFragment {
         mOnGeneratorCreatedListener = onGeneratorActionListener;
     }
 
+    public interface OnGeneratorCreatedListener {
+
+        void onGeneratorCreated(long id);
+    }
+
     public class GeneratorType {
+
         public static final long TYPE_RANDOM = 0x02;
 
         public static final long TYPE_SHUFFLE = 0x01;
@@ -180,11 +188,8 @@ public class EditGeneratorDialogFragment extends DialogFragment {
         }
     }
 
-    public interface OnGeneratorCreatedListener {
-        void onGeneratorCreated(long id);
-    }
-
     public class ViewHolder {
+
         public EditText end;
 
         public TextView name;
@@ -194,10 +199,10 @@ public class EditGeneratorDialogFragment extends DialogFragment {
         public Spinner type;
 
         public ViewHolder(View view) {
-            name = (EditText)view.findViewById(R.id.name);
-            type = (Spinner)view.findViewById(R.id.type);
-            start = (EditText)view.findViewById(R.id.start);
-            end = (EditText)view.findViewById(R.id.end);
+            name = (EditText) view.findViewById(R.id.name);
+            type = (Spinner) view.findViewById(R.id.type);
+            start = (EditText) view.findViewById(R.id.start);
+            end = (EditText) view.findViewById(R.id.end);
         }
 
         public void initViews() {
@@ -206,8 +211,8 @@ public class EditGeneratorDialogFragment extends DialogFragment {
             types[POS_SHUFFLE] = new GeneratorType(GeneratorType.TYPE_SHUFFLE,
                     R.string.label_shuffle);
 
-            ArrayAdapter<GeneratorType> typeAdapter = new ArrayAdapter<GeneratorType>(
-                    getActivity(), android.R.layout.simple_list_item_1, types);
+            ArrayAdapter<GeneratorType> typeAdapter = new ArrayAdapter<GeneratorType>(getActivity(),
+                    android.R.layout.simple_list_item_1, types);
             typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mViews.type.setAdapter(typeAdapter);
         }
@@ -226,8 +231,8 @@ public class EditGeneratorDialogFragment extends DialogFragment {
             } else if (generator instanceof Shuffle) {
                 mViews.type.setSelection(POS_SHUFFLE);
             } else {
-                throw new RuntimeException("Unknown generator kind "
-                        + generator.getClass().getName());
+                throw new RuntimeException(
+                        "Unknown generator kind " + generator.getClass().getName());
             }
         }
 

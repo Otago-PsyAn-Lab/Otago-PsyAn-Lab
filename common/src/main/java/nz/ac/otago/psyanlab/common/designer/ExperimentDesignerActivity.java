@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2012, 2013 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+ Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
 
  Otago PsyAn Lab is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@ import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
+import nz.ac.otago.psyanlab.common.designer.variable.VariableCallbacks;
+import nz.ac.otago.psyanlab.common.designer.variable.VariableFragment;
 import nz.ac.otago.psyanlab.common.designer.source.ImportSourceActivity;
 import nz.ac.otago.psyanlab.common.designer.source.SourceCallbacks;
 import nz.ac.otago.psyanlab.common.designer.source.SourceFragment;
@@ -75,6 +77,7 @@ import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.model.Source;
 import nz.ac.otago.psyanlab.common.model.TouchEvent;
 import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
+import nz.ac.otago.psyanlab.common.model.Variable;
 import nz.ac.otago.psyanlab.common.model.chansrc.Field;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.ExpressionValue;
@@ -137,10 +140,9 @@ import java.util.TreeSet;
  * Provides an interface to the fragments implementing the UI whereby they can manipulate the
  * experiment data.
  */
-public class ExperimentDesignerActivity extends FragmentActivity implements DetailsCallbacks,
-        SubjectFragment.Callbacks, AssetCallbacks, ProgramCallbacks, ChannelCallbacks,
-        SourceCallbacks, DialogueResultCallbacks {
-
+public class ExperimentDesignerActivity extends FragmentActivity
+        implements DetailsCallbacks, SubjectFragment.Callbacks, AssetCallbacks, ProgramCallbacks,
+                   ChannelCallbacks, SourceCallbacks, DialogueResultCallbacks, VariableCallbacks {
     private static final String ADAPTER_STATE = "adapter_state";
 
     private static final int REQUEST_ASSET_IMPORT = 0x02;
@@ -182,7 +184,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     private ViewBinder<DataChannel> mDataChannelViewBinder = new ViewBinder<DataChannel>() {
         @Override
         public View bind(LayoutInflater inflater, DataChannel item, int pos, View convertView,
-                ViewGroup parent) {
+                         ViewGroup parent) {
             TextViewHolder holder;
 
             if (convertView == null) {
@@ -213,8 +215,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     };
 
-    private ArrayList<DrawerListener> mDrawerListeners = new ArrayList<DrawerLayout
-            .DrawerListener>();
+    private ArrayList<DrawerListener> mDrawerListeners =
+            new ArrayList<DrawerLayout.DrawerListener>();
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -232,8 +234,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     private ArrayList<LoopDataChangeListener> mLoopDataChangeListeners;
 
-    private LongSparseArray<ProgramComponentAdapter<Operand>> mOperandAdapters = new
-            LongSparseArray<ProgramComponentAdapter<Operand>>();
+    private LongSparseArray<ProgramComponentAdapter<Operand>> mOperandAdapters =
+            new LongSparseArray<ProgramComponentAdapter<Operand>>();
 
     private ArrayList<OperandDataChangeListener> mOperandDataChangeListeners;
 
@@ -251,10 +253,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     private ArrayList<SourceDataChangeListener> mSourceDataChangeListeners;
 
+    private ArrayList<VariableDataChangeListener> mVariableDataChangeListeners;
+
     private ViewBinder<Source> mSourceViewBinder = new ViewBinder<Source>() {
         @Override
         public View bind(LayoutInflater inflater, Source item, int pos, View convertView,
-                ViewGroup parent) {
+                         ViewGroup parent) {
             TextViewHolder holder;
 
             if (convertView == null) {
@@ -273,6 +277,28 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     };
 
     private CharSequence mTitle;
+
+    private ExperimentObjectAdapter<Variable> mVariableAdapter;
+
+    private ViewBinder<Variable> mVariableViewBinder = new ViewBinder<Variable>() {
+        @Override
+        public View bind(LayoutInflater inflater, Variable item, int pos, View convertView,
+                         ViewGroup parent) {
+            TextViewHolder holder;
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.list_item_variable, parent, false);
+                holder = new TextViewHolder(1);
+                holder.textViews[0] = (TextView) convertView.findViewById(android.R.id.text1);
+                convertView.setTag(holder);
+            } else {
+                holder = (TextViewHolder) convertView.getTag();
+            }
+
+            holder.textViews[0].setText(item.name);
+
+            return convertView;
+        }
+    };
 
     @Override
     public long addAction(Action action) {
@@ -435,11 +461,27 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mSceneDataChangeListeners.add(listener);
     }
 
+    @Override
+    public long addVariable(Variable variable) {
+        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.variables);
+        mExperiment.variables.put(unusedKey, variable);
+        notifyVariableDataChange();
+        return unusedKey;
+    }
+
     public long addSource(Source source) {
         Long unusedKey = ModelUtils.findUnusedKey(mExperiment.sources);
         mExperiment.sources.put(unusedKey, source);
         notifySourceDataChange();
         return unusedKey;
+    }
+
+    @Override
+    public void addVariableDataChangeListener(VariableDataChangeListener listener) {
+        if (mVariableDataChangeListeners == null) {
+            mVariableDataChangeListeners = new ArrayList<VariableDataChangeListener>();
+        }
+        mVariableDataChangeListeners.add(listener);
     }
 
     @Override
@@ -520,6 +562,16 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public void deleteVariable(long id) {
+        Variable variable = mExperiment.variables.remove(id);
+
+        deleteVariableData(variable);
+        removeReferencesTo(ExperimentObject.KIND_SOURCE, id);
+
+        notifyVariableDataChange();
+    }
+
+    @Override
     public void deleteSource(long id) {
         Source source = mExperiment.sources.remove(id);
 
@@ -552,9 +604,10 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             return mCurrentActionAdapter.second;
         }
 
-        ProgramComponentAdapter<Action> adapter = new ProgramComponentAdapter<Action>(mExperiment
-                .actions, mExperiment.rules.get(ruleId).actions, new ActionListItemViewBinder
-                (this, this));
+        ProgramComponentAdapter<Action> adapter =
+                new ProgramComponentAdapter<Action>(mExperiment.actions,
+                                                    mExperiment.rules.get(ruleId).actions,
+                                                    new ActionListItemViewBinder(this, this));
         mCurrentActionAdapter = new Pair<Long, ProgramComponentAdapter<Action>>(ruleId, adapter);
 
         return adapter;
@@ -589,7 +642,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     public ListAdapter getDataChannelsAdapter() {
         if (mDataChannelAdapter == null) {
             mDataChannelAdapter = new ExperimentObjectAdapter(this, mExperiment.dataChannels,
-                    mDataChannelViewBinder);
+                                                              mDataChannelViewBinder);
         }
 
         return mDataChannelAdapter;
@@ -619,7 +672,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             public int compare(EventData lhs, EventData rhs) {
                 Collator collator = getCollater();
                 return collator.compare(getString(nameFactory.getResId(lhs.id())),
-                        getString(nameFactory.getResId(rhs.id())));
+                                        getString(nameFactory.getResId(rhs.id())));
             }
         });
 
@@ -679,11 +732,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             return mCurrentGeneratorAdapter.second;
         }
 
-        ProgramComponentAdapter<Generator> adapter = new ProgramComponentAdapter<Generator>
-                (mExperiment.generators, mExperiment.loops.get(loopId).generators,
-                        new GeneratorListItemViewBinder(this, this));
-        mCurrentGeneratorAdapter = new Pair<Long, ProgramComponentAdapter<Generator>>(loopId,
-                adapter);
+        ProgramComponentAdapter<Generator> adapter =
+                new ProgramComponentAdapter<Generator>(mExperiment.generators,
+                                                       mExperiment.loops.get(loopId).generators,
+                                                       new GeneratorListItemViewBinder(this, this));
+        mCurrentGeneratorAdapter =
+                new Pair<Long, ProgramComponentAdapter<Generator>>(loopId, adapter);
 
         return adapter;
     }
@@ -704,8 +758,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             return mLoopAdapter;
         }
 
-        mLoopAdapter = new ProgramComponentAdapter<Loop>(mExperiment.loops,
-                mExperiment.program.loops, new LoopListItemViewBinder(this, this));
+        mLoopAdapter =
+                new ProgramComponentAdapter<Loop>(mExperiment.loops, mExperiment.program.loops,
+                                                  new LoopListItemViewBinder(this, this));
 
         return mLoopAdapter;
     }
@@ -713,14 +768,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     /**
      * Get an adapter for all methods in given class hierarchy which return a given type.
      *
-     * @param clazz      Class to fetch methods from.
-     * @param returnType Type to select methods by.
+     * @param object      Object to fetch methods from.
+     * @param returnTypes Type to select methods by.
      */
     @Override
     public SpinnerAdapter getMethodsAdapter(ExperimentObject object, int returnTypes) {
         // Obtain the name factory to pull the internationalised event names.
-        SortedSet<MethodData> filteredMethods = new TreeSet<MethodData>(
-                new Comparator<MethodData>() {
+        SortedSet<MethodData> filteredMethods =
+                new TreeSet<MethodData>(new Comparator<MethodData>() {
                     @Override
                     public int compare(MethodData lhs, MethodData rhs) {
                         Collator collator = getCollater();
@@ -743,17 +798,15 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      *
      * @param fm              Fragment manager for adapter.
      * @param callerKind      The kind of calling component. Use ExperimentObject.KIND_*.
-     * @param componentId     Id of the calling component.
+     * @param callerId        Id of the calling component.
      * @param filter          Filter to match experiment objects by.
      * @param fragmentFactory Factory to produce page fragments.
      * @return Adapter for pages of objects
      */
     @Override
     public FragmentPagerAdapter getObjectBrowserPagerAdapter(FragmentManager fm, int callerKind,
-            long callerId, int filter,
-            ArrayFragmentMapAdapter
-                    .FragmentFactory
-                    fragmentFactory) {
+                                                             long callerId, int filter,
+                                                             ArrayFragmentMapAdapter.FragmentFactory fragmentFactory) {
 
         // Work out the base scope level from our caller.
         int scopeLevel;
@@ -811,13 +864,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public ExperimentObjectReferenceAdapter getObjectSectionListAdapter(int callerKind,
-            long callerId,
-            int relativeScope,
-            int filter) {
+                                                                        long callerId,
+                                                                        int relativeScope,
+                                                                        int filter) {
         // final int effectiveScope = getEffectiveScopeLevel(callerKind,
         // relativeScope);
-        List<Pair<ExperimentObject, Long>> objects = getObjectsMatching(relativeScope,
-                callerKind, callerId, filter);
+        List<Pair<ExperimentObject, Long>> objects =
+                getObjectsMatching(relativeScope, callerKind, callerId, filter);
         return new ExperimentObjectReferenceAdapter(this, objects);
     }
 
@@ -842,7 +895,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         OperandHolder operandHolder = (OperandHolder) mExperiment.operands.get(parentId);
 
         adapter = new ProgramComponentAdapter<Operand>(mExperiment.operands,
-                operandHolder.getOperands(), new OperandListItemViewBinder(this, this));
+                                                       operandHolder.getOperands(),
+                                                       new OperandListItemViewBinder(this, this));
         mOperandAdapters.put(parentId, adapter);
 
         return adapter;
@@ -879,7 +933,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
 
         mQuestionAdapter = new ProgramComponentAdapter<Question>(mExperiment.questions,
-                mExperiment.landingPage.questions, new QuestionListItemViewBinder(this, this));
+                                                                 mExperiment.landingPage.questions,
+                                                                 new QuestionListItemViewBinder(
+                                                                         this, this));
         mQuestionAdapter.setOnlySingleGrabbable(false);
 
         return mQuestionAdapter;
@@ -896,9 +952,12 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             return mCurrentRuleAdapter.second;
         }
 
-        ProgramComponentAdapter<Rule> adapter = new ProgramComponentAdapter<Rule>(mExperiment
-                .rules, mExperiment.scenes.get(sceneId).rules, new RuleListItemViewBinder(this,
-                this));
+        ProgramComponentAdapter<Rule> adapter = new ProgramComponentAdapter<Rule>(mExperiment.rules,
+                                                                                  mExperiment.scenes
+                                                                                          .get(sceneId).rules,
+                                                                                  new RuleListItemViewBinder(
+                                                                                          this,
+                                                                                          this));
 
         mCurrentRuleAdapter = new Pair<Long, ProgramComponentAdapter<Rule>>(sceneId, adapter);
 
@@ -916,12 +975,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             return mCurrentSceneAdapter.second;
         }
 
-        ProgramComponentAdapter<Scene> adapter = new ProgramComponentAdapter<Scene>(mExperiment
-                .scenes, mExperiment.loops.get(loopId).scenes, new SceneListItemViewBinder(this,
-                this));
+        ProgramComponentAdapter<Scene> adapter =
+                new ProgramComponentAdapter<Scene>(mExperiment.scenes,
+                                                   mExperiment.loops.get(loopId).scenes,
+                                                   new SceneListItemViewBinder(this, this));
         mCurrentSceneAdapter = new Pair<Long, ProgramComponentAdapter<Scene>>(loopId, adapter);
 
         return adapter;
+    }
+
+    @Override
+    public Variable getVariable(long id) {
+        return mExperiment.variables.get(id);
     }
 
     @Override
@@ -930,10 +995,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public ListAdapter getVariablesAdapter() {
+        if (mVariableAdapter == null) {
+            mVariableAdapter = new ExperimentObjectAdapter<Variable>(this, mExperiment.variables,
+                                                                     mVariableViewBinder);
+        }
+
+        return mVariableAdapter;
+    }
+
+    @Override
     public ListAdapter getSourcesAdapter() {
         if (mSourceAdapter == null) {
             mSourceAdapter = new ExperimentObjectAdapter<Source>(this, mExperiment.sources,
-                    mSourceViewBinder);
+                                                                 mSourceViewBinder);
         }
 
         return mSourceAdapter;
@@ -950,14 +1025,14 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             case REQUEST_EDIT_STAGE: {
                 switch (resultCode) {
                     case RESULT_OK:
-                        ArrayList<PropIdPair> props = data.getParcelableArrayListExtra(Args
-                                .EXPERIMENT_PROPS);
+                        ArrayList<PropIdPair> props =
+                                data.getParcelableArrayListExtra(Args.EXPERIMENT_PROPS);
                         long sceneId = data.getLongExtra(Args.SCENE_ID, -1);
 
                         int height = data.getIntExtra(Args.STAGE_HEIGHT, -1);
                         int width = data.getIntExtra(Args.STAGE_WIDTH, -1);
                         int orientation = data.getIntExtra(Args.STAGE_ORIENTATION,
-                                Scene.ORIENTATION_LANDSCAPE);
+                                                           Scene.ORIENTATION_LANDSCAPE);
 
                         updateStageInScene(sceneId, props, orientation, width, height);
                         break;
@@ -974,7 +1049,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                         Time t = new Time();
                         t.setToNow();
                         mExperiment.assets.put(ModelUtils.findUnusedKey(mExperiment.assets),
-                                Asset.getFactory().newAsset(paths[0]));
+                                               Asset.getFactory().newAsset(paths[0]));
                         mAssetAdapter.notifyDataSetChanged();
                         break;
                     default:
@@ -990,8 +1065,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                         t.setToNow();
                         Source newSource = new Source();
                         newSource.setExternalFile(new File(paths[0]));
-                        mExperiment.sources.put(ModelUtils.findUnusedKey(mExperiment.sources),
-                                newSource);
+                        mExperiment.sources
+                                .put(ModelUtils.findUnusedKey(mExperiment.sources), newSource);
                         mSourceAdapter.notifyDataSetChanged();
                         break;
                     default:
@@ -1005,21 +1080,22 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public void onBackPressed() {
-        DialogFragment dialog = ConfirmDialogFragment.newInstance(R.string.title_exit_designer,
-                R.string.message_exit_designer, R.string.action_save_exit,
-                R.string.action_cancel, new ConfirmDialogFragment.OnClickListener() {
-                    @Override
-                    public void onClick(Dialog dialog) {
-                        doSaveAction();
-                        finish();
-                        dialog.dismiss();
-                    }
-                }, new ConfirmDialogFragment.OnClickListener() {
-                    @Override
-                    public void onClick(Dialog dialog) {
-                        dialog.dismiss();
-                    }
-                });
+        DialogFragment dialog = ConfirmDialogFragment
+                .newInstance(R.string.title_exit_designer, R.string.message_exit_designer,
+                             R.string.action_save_exit, R.string.action_cancel,
+                             new ConfirmDialogFragment.OnClickListener() {
+                                 @Override
+                                 public void onClick(Dialog dialog) {
+                                     doSaveAction();
+                                     finish();
+                                     dialog.dismiss();
+                                 }
+                             }, new ConfirmDialogFragment.OnClickListener() {
+                            @Override
+                            public void onClick(Dialog dialog) {
+                                dialog.dismiss();
+                            }
+                        });
         dialog.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
     }
 
@@ -1039,20 +1115,20 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        mSectionManager = new EditorSectionManager(this, R.id.content_frame,
-                getSupportFragmentManager());
+        mSectionManager =
+                new EditorSectionManager(this, R.id.content_frame, getSupportFragmentManager());
 
         mSectionManager.addSection(R.string.designer_tab_properties, MetaFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_subject, SubjectFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_assets, AssetsFragment.class, null);
-        mSectionManager.addSection(R.string.designer_tab_sources, SourceFragment.class, null);
-        mSectionManager.addSection(R.string.designer_tab_variables, AssetsFragment.class, null);
-        mSectionManager.addSection(R.string.designer_tab_data_channels, ChannelFragment.class,
-                null);
+        mSectionManager.addSection(R.string.designer_tab_data_sources, SourceFragment.class, null);
+        mSectionManager.addSection(R.string.designer_tab_variables, VariableFragment.class, null);
+        mSectionManager
+                .addSection(R.string.designer_tab_data_channels, ChannelFragment.class, null);
         mSectionManager.addSection(R.string.designer_tab_program, ProgramFragment.class, null);
 
-        ArrayAdapter<EditorSectionItem> adapter = new SectionAdapter(this,
-                R.layout.list_item_drawer, mSectionManager.getItems());
+        ArrayAdapter<EditorSectionItem> adapter =
+                new SectionAdapter(this, R.layout.list_item_drawer, mSectionManager.getItems());
 
         mDrawerList.setAdapter(adapter);
         mDrawerList.setOnItemClickListener(mOnDrawerListItemClickListener);
@@ -1074,8 +1150,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         setTitle(mExperiment.name);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerToggle = new DrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
-                R.string.drawer_open, R.string.drawer_close);
+        mDrawerToggle =
+                new DrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open,
+                                 R.string.drawer_close);
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -1139,8 +1216,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public void pickExperimentObject(int callerKind, long callerId, int filter, int requestCode) {
-        DialogFragment dialog = PickObjectDialogueFragment.newDialog(callerKind, callerId,
-                filter, requestCode);
+        DialogFragment dialog =
+                PickObjectDialogueFragment.newDialog(callerKind, callerId, filter, requestCode);
         dialog.show(getSupportFragmentManager(), PickObjectDialogueFragment.TAG);
     }
 
@@ -1242,6 +1319,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     @Override
+    public void putVariable(long id, Variable variable) {
+        mExperiment.variables.put(id, variable);
+        updateReferencesTo(ExperimentObject.KIND_VARIABLE, id);
+        notifyVariableDataChange();
+    }
+
+    @Override
     public void putSource(long id, Source source) {
         mExperiment.sources.put(id, source);
         updateReferencesTo(ExperimentObject.KIND_SOURCE, id);
@@ -1265,7 +1349,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
     @Override
     public void removeAssetDataChangeListener(AssetDataChangeListener listener) {
-        if (mAssetDataChangeListeners!= null) {
+        if (mAssetDataChangeListeners != null) {
             mAssetDataChangeListeners.remove(listener);
         }
     }
@@ -1330,6 +1414,13 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     public void removeSceneDataChangeListener(SceneDataChangeListener listener) {
         if (mSceneDataChangeListeners != null) {
             mSceneDataChangeListeners.remove(listener);
+        }
+    }
+
+    @Override
+    public void removeVariableDataChangeListener(VariableDataChangeListener listener) {
+        if (mVariableDataChangeListeners != null) {
+            mVariableDataChangeListeners.remove(listener);
         }
     }
 
@@ -1406,7 +1497,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      * Look through all the experiment object containers to see if there are any matches.
      */
     private boolean anyObjectsMatching(final int scopeLevel, final int callerKind,
-            final long callerId, final int filter) {
+                                       final long callerId, final int filter) {
         // We only need to know if a single object satisfies the filter so we
         // use early returns.
         if (scopeLevel == SCOPE_RULE) {
@@ -1579,6 +1670,9 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         }
     }
 
+    private void deleteVariableData(Variable variable) {
+    }
+
     private void deleteSourceData(Source source) {
     }
 
@@ -1614,8 +1708,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             Operand value = entry.getValue();
             if (value instanceof CallValue) {
                 CallValue call = (CallValue) value;
-                if (call.getObject() != null && call.getObject().kind == kind && call.getObject()
-                        .id == id) {
+                if (call.getObject() != null && call.getObject().kind == kind &&
+                    call.getObject().id == id) {
                     affectedCallIds.add(entry.getKey());
                 }
             }
@@ -1636,8 +1730,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 return componentId;
 
             default:
-                throw new RuntimeException("Trying to call in loop scope from a component that is" +
-                        " not in scope.");
+                throw new RuntimeException(
+                        "Trying to call in loop scope from a component that is" + " not in scope.");
         }
 
         for (Entry<Long, Loop> loopEntry : mExperiment.loops.entrySet()) {
@@ -1663,8 +1757,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 return callerId;
 
             default:
-                throw new RuntimeException("Trying to call in rule scope from a component that is" +
-                        " not in scope.");
+                throw new RuntimeException(
+                        "Trying to call in rule scope from a component that is" + " not in scope.");
         }
 
         for (Entry<Long, Rule> ruleEntry : mExperiment.rules.entrySet()) {
@@ -1692,7 +1786,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
             default:
                 throw new RuntimeException("Trying to call in scene scope from a component that " +
-                        "is not in scope.");
+                                           "is not in scope.");
         }
 
         for (Entry<Long, Scene> sceneEntry : mExperiment.scenes.entrySet()) {
@@ -1727,7 +1821,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
             default:
                 throw new RuntimeException("Invalid object kind for object browsing.");
-
         }
 
         // Convert the desired caller scope into static value scope level.
@@ -1762,7 +1855,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     private List<Pair<ExperimentObject, Long>> getObjectsMatching(int scopeLevel, int callerKind,
-            long callerId, int filter) {
+                                                                  long callerId, int filter) {
 
         List<Pair<ExperimentObject, Long>> objects = new ArrayList<Pair<ExperimentObject, Long>>();
 
@@ -1945,8 +2038,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     private void notifyOperandAdapters(long id) {
         for (int j = 0; j < mOperandAdapters.size(); j++) {
             // Check adapters currently existing for operand parents.
-            ProgramComponentAdapter<Operand> adapter = mOperandAdapters.get(mOperandAdapters
-                    .keyAt(j));
+            ProgramComponentAdapter<Operand> adapter =
+                    mOperandAdapters.get(mOperandAdapters.keyAt(j));
 
             for (Long operandId : adapter.getKeys()) {
                 if (operandId == id) {
@@ -2010,6 +2103,18 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
 
         for (SceneDataChangeListener l : mSceneDataChangeListeners) {
             l.onSceneDataChange();
+        }
+    }
+
+    private void notifyVariableDataChange() {
+        if (mVariableAdapter != null) {
+            mVariableAdapter.notifyDataSetChanged();
+        }
+
+        if (mVariableDataChangeListeners != null) {
+            for (VariableDataChangeListener listener : mVariableDataChangeListeners) {
+                listener.onVariableDataChange();
+            }
         }
     }
 
@@ -2102,8 +2207,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      */
     private ExperimentHolderFragment restoreExperimentHolder() {
         FragmentManager fm = getSupportFragmentManager();
-        ExperimentHolderFragment holder = (ExperimentHolderFragment) fm.findFragmentByTag
-                ("experiment_holder");
+        ExperimentHolderFragment holder =
+                (ExperimentHolderFragment) fm.findFragmentByTag("experiment_holder");
 
         // Create the experiment holder if it wasn't already persisted.
         if (holder == null) {
@@ -2118,8 +2223,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
      *
      * @return Restored, or newly created, experiment.
      */
-    private Experiment restoreOrCreateExperiment(ExperimentHolderFragment
-            experimentHolderFragment) {
+    private Experiment restoreOrCreateExperiment(
+            ExperimentHolderFragment experimentHolderFragment) {
         Experiment experiment = experimentHolderFragment.getExperiment();
         if (experiment == null) {
             // We are therefore entering the activity and either creating a new
@@ -2212,7 +2317,6 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
             default:
                 break;
         }
-
     }
 
     private void updateReferencesToAsset(long id) {
@@ -2333,8 +2437,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 continue;
             }
 
-            SortedSet<MethodData> filteredMethods = new TreeSet<MethodData>(
-                    new Comparator<MethodData>() {
+            SortedSet<MethodData> filteredMethods =
+                    new TreeSet<MethodData>(new Comparator<MethodData>() {
                         @Override
                         public int compare(MethodData lhs, MethodData rhs) {
                             Collator collator = getCollater();
@@ -2478,8 +2582,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         for (Entry<Long, Rule> entry : mExperiment.rules.entrySet()) {
             long ruleId = entry.getKey();
             Rule rule = entry.getValue();
-            if (rule.triggerObject != null && rule.triggerObject.kind == kind && rule
-                    .triggerObject.id == id) {
+            if (rule.triggerObject != null && rule.triggerObject.kind == kind &&
+                rule.triggerObject.id == id) {
 
                 EventData eventData = null;
                 for (int i = 0; i < methods.length; i++) {
@@ -2508,7 +2612,7 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     }
 
     private void updateStageInScene(long sceneId, ArrayList<PropIdPair> props, int orientation,
-            int width, int height) {
+                                    int width, int height) {
         Scene scene = mExperiment.scenes.get(sceneId);
 
         // Load prop/id pairs into a map for easy processing.
@@ -2561,8 +2665,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        mSectionManager.restoreState(savedInstanceState.getParcelable(ADAPTER_STATE),
-                getClassLoader());
+        mSectionManager
+                .restoreState(savedInstanceState.getParcelable(ADAPTER_STATE), getClassLoader());
 
         selectSection(mSectionManager.getCurrentPosition());
     }
@@ -2649,12 +2753,17 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
         void onSourceDataChange();
     }
 
+    public interface VariableDataChangeListener {
+
+        void onVariableDataChange();
+    }
+
     final class DrawerToggle extends ActionBarDrawerToggle {
 
         private DrawerToggle(Activity activity, DrawerLayout drawerLayout, int drawerImageRes,
-                int openDrawerContentDescRes, int closeDrawerContentDescRes) {
+                             int openDrawerContentDescRes, int closeDrawerContentDescRes) {
             super(activity, drawerLayout, drawerImageRes, openDrawerContentDescRes,
-                    closeDrawerContentDescRes);
+                  closeDrawerContentDescRes);
         }
 
         /**
@@ -2667,8 +2776,8 @@ public class ExperimentDesignerActivity extends FragmentActivity implements Deta
                 listener.onDrawerClosed(view);
             }
 
-            getActionBar().setSubtitle(mSectionManager.getTitle(mSectionManager
-                    .getCurrentPosition()));
+            getActionBar()
+                    .setSubtitle(mSectionManager.getTitle(mSectionManager.getCurrentPosition()));
             invalidateOptionsMenu(); // creates call to
             // onPrepareOptionsMenu()
         }

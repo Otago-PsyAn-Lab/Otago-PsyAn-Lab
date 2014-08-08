@@ -17,6 +17,7 @@
     <string name="default_name_new_question">Question %1$d</string>
     <string name="default_name_new_rule">Rule %1$d</string>
     <string name="default_name_new_scene">Scene %1$d</string>
+    <string name="default_name_new_variable">Variable %1$d</string>
     <string name="default_name_prop">New Prop</string>
     <string name="designer_tab_assets">Media</string>
     <string name="designer_tab_data_channels">Data Channels</string>

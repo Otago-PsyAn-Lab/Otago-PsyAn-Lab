@@ -14,6 +14,15 @@ public class IntegerVariable extends Variable {
     public IntegerVariable() {
     }
 
+    public IntegerVariable(IntegerVariable variable) {
+        super(variable);
+        value = variable.value;
+    }
+
+    public IntegerVariable(Variable variable) {
+        super(variable);
+    }
+
     @MethodId(METHOD_SET_AND_USE)
     public int chainSetVariableValue(@ParameterId(PARAM_VALUE) int value) {
         return value;

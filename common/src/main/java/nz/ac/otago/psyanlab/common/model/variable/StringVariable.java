@@ -1,4 +1,3 @@
-
 package nz.ac.otago.psyanlab.common.model.variable;
 
 import com.google.gson.annotations.Expose;
@@ -12,6 +11,15 @@ public class StringVariable extends Variable {
     String value;
 
     public StringVariable() {
+    }
+
+    public StringVariable(StringVariable variable) {
+        super(variable);
+        value = variable.value;
+    }
+
+    public StringVariable(Variable variable) {
+        super(variable);
     }
 
     @MethodId(METHOD_SET_AND_USE)

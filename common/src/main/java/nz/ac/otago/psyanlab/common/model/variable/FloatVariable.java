@@ -14,6 +14,15 @@ public class FloatVariable extends Variable {
     public FloatVariable() {
     }
 
+    public FloatVariable(FloatVariable variable) {
+        super(variable);
+        value = variable.value;
+    }
+
+    public FloatVariable(Variable variable) {
+        super(variable);
+    }
+
     @MethodId(METHOD_SET_AND_USE)
     public float chainSetVariableValue(@ParameterId(PARAM_VALUE) float value) {
         return value;

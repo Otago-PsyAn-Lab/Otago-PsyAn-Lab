@@ -25,6 +25,8 @@ public class AbsModelGsonAdapter<T> implements JsonSerializer<T>, JsonDeserializ
 
     public static final String NS_MODEL_GENERATOR = "nz.ac.otago.psyanlab.common.model.generator.";
 
+    public static final String NS_MODEL_VARIABLE = "nz.ac.otago.psyanlab.common.model.variable.";
+
     private String mNamespace;
 
     public AbsModelGsonAdapter(String namespace) {

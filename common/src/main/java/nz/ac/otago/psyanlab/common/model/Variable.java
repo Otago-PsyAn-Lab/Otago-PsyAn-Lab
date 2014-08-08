@@ -24,12 +24,12 @@ import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
+import nz.ac.otago.psyanlab.common.model.variable.FloatVariable;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
 public abstract class Variable extends ExperimentObject implements Comparable<Variable> {
-
     protected static final int METHOD_GET = 0x03;
 
     protected static final int METHOD_SET = 0x02;
@@ -39,7 +39,16 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
     protected static final int PARAM_VALUE = 0x01;
 
     @Expose
-    String name;
+    public String name;
+
+    @Expose
+    public String description;
+
+    public Variable() {}
+
+    public Variable(Variable variable) {
+        name = variable.name;
+    }
 
     @Override
     public String getExperimentObjectName(Context context) {

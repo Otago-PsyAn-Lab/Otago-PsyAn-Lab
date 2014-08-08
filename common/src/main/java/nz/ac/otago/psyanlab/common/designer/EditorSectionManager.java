@@ -1,3 +1,22 @@
+/*
+ Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+
+ Otago PsyAn Lab is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+ In accordance with Section 7(b) of the GNU General Public License version 3,
+ all legal notices and author attributions must be preserved.
+ */
 
 package nz.ac.otago.psyanlab.common.designer;
 
@@ -14,13 +33,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class that manages adding and removing editor section fragments and
- * maintains their state.
+ * Helper class that manages adding and removing editor section fragments and maintains their
+ * state.
  */
 public class EditorSectionManager {
-    private int mContainerResId;
-
     private final FragmentActivity mContext;
+
+    private int mContainerResId;
 
     private Fragment mCurrentFragment;
 
@@ -33,7 +52,7 @@ public class EditorSectionManager {
     private SparseArrayCompat<SavedState> mSavedState = new SparseArrayCompat<SavedState>();
 
     public EditorSectionManager(FragmentActivity activity, int containerResId,
-            FragmentManager fragmentManager) {
+                                FragmentManager fragmentManager) {
         mContext = activity;
         mItems = new ArrayList<EditorSectionItem>();
         mContainerResId = containerResId;
@@ -65,14 +84,14 @@ public class EditorSectionManager {
     public void restoreState(Parcelable state, ClassLoader loader) {
         if (state != null) {
             // Store fragment saved states.
-            Bundle bundle = (Bundle)state;
+            Bundle bundle = (Bundle) state;
             bundle.setClassLoader(loader);
             Parcelable[] fragmentSavedStates = bundle.getParcelableArray("states");
             int[] stateKeys = bundle.getIntArray("state_keys");
             mSavedState.clear();
             if (fragmentSavedStates != null) {
                 for (int i = 0; i < fragmentSavedStates.length; i++) {
-                    mSavedState.put(stateKeys[i], (Fragment.SavedState)fragmentSavedStates[i]);
+                    mSavedState.put(stateKeys[i], (Fragment.SavedState) fragmentSavedStates[i]);
                 }
             }
 
@@ -123,7 +142,7 @@ public class EditorSectionManager {
     private void saveCurrentFragmentState() {
         if (mCurrentFragment != null) {
             mSavedState.put(mCurrentPosition,
-                    mFragmentManager.saveFragmentInstanceState(mCurrentFragment));
+                            mFragmentManager.saveFragmentInstanceState(mCurrentFragment));
         }
     }
 

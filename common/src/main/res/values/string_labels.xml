@@ -99,5 +99,8 @@
     <string name="label_no_data_sources">No Data Sources</string>
     <string name="label_variable">Variable</string>
     <string name="label_variable_kind">Type</string>
+    <string name="label_integer">Integer</string>
+    <string name="label_float">Float</string>
+    <string name="label_string">String</string>
 
 </resources>

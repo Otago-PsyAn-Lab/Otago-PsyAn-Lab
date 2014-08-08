@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2014 Tonic Artos <tonic.artos@gmail.com>
+
+  Otago PsyAn Lab is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+  In accordance with Section 7(b) of the GNU General Public License version 3,
+  all legal notices and author attributions must be preserved.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/card_background"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/title_spacer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dip"
+            android:showDividers="none">
+
+            <TextView
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/title_spacer"
+            android:layout_alignTop="@+id/title_spacer"
+            android:columnCount="2">
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_gravity="fill_horizontal|center_vertical"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/hint_variable_name"
+                android:imeOptions="actionNext"
+                android:inputType="text|textNoSuggestions|textCapSentences"
+                android:nextFocusDown="@+id/description"
+                android:nextFocusForward="@+id/description"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <FrameLayout
+                android:id="@+id/button_delete"
+                android:layout_gravity="fill_vertical"
+                android:background="@drawable/card_item_background_holo_light"
+                android:padding="16dip">
+
+                <TextView
+                    android:id="@+id/text_delete"
+                    style="@style/header_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/action_remove" />
+            </FrameLayout>
+        </GridLayout>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="?android:attr/listDivider" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="16dip">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_columnSpan="2"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/title_experiment_object_description"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <EditText
+                android:id="@+id/description"
+                android:layout_columnSpan="2"
+                android:layout_gravity="fill_horizontal"
+                android:layout_marginTop="8dip"
+                android:hint="@string/hint_experiment_object_description"
+                android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+                android:nextFocusUp="@+id/name"
+                android:singleLine="false"
+                android:textSize="14sp" />
+
+            <Space
+                android:layout_height="16dip"
+                android:layout_columnSpan="2" />
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_variable_kind"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/kind"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal"
+                android:minHeight="48dip" />
+        </GridLayout>
+    </ScrollView>
+</LinearLayout>

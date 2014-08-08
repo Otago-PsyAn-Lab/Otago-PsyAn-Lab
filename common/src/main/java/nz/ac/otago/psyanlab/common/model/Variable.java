@@ -24,7 +24,6 @@ import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
-import nz.ac.otago.psyanlab.common.model.variable.FloatVariable;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -94,7 +93,7 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
                 case METHOD_SET:
                     return R.string.method_variable_set_value;
                 case METHOD_SET_AND_USE:
-                    return R.string.method_variable_get_and_use_value;
+                    return R.string.method_variable_set_and_use_value;
                 default:
                     return super.getResId(lookup);
             }

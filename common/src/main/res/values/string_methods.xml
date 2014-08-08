@@ -52,7 +52,7 @@
     <string name="method_set_text_size">Set Text Size</string>
     <string name="method_set_width">Set Width</string>
     <string name="method_show">Show</string>
-    <string name="method_variable_get_and_use_value">Get and Use Value</string>
+    <string name="method_variable_set_and_use_value">Set and Use Value</string>
     <string name="method_variable_get_value">Get Value</string>
     <string name="method_variable_set_value">Set Value</string>
 

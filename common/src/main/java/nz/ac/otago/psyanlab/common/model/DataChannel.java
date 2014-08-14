@@ -14,17 +14,11 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 
 /**
- * A DataChannel is the description of a record type the user wants to collect from the execution of
+ * A DataChannel is the note of a record type the user wants to collect from the execution of
  * the experiment. DataChannels are analogous to a table type data structure.
  */
 public class DataChannel extends ExperimentObject implements Comparable<DataChannel> {
     protected static final int METHOD_WRITE = 0x01;
-
-    /**
-     * User notes or description of the data channel.
-     */
-    @Expose
-    public String description;
 
     /**
      * Columns in the table that the DataChannel represents. Index is important.

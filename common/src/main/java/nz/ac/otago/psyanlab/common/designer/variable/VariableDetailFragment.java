@@ -102,8 +102,8 @@ public class VariableDetailFragment extends Fragment {
         @Override
         public void afterTextChanged(Editable s) {
             String newDescription = s.toString();
-            if (!TextUtils.equals(mVariable.description, newDescription)) {
-                mVariable.description = newDescription;
+            if (!TextUtils.equals(mVariable.note, newDescription)) {
+                mVariable.note = newDescription;
                 mCallbacks.putVariable(mVariableId, mVariable);
             }
         }
@@ -257,14 +257,14 @@ public class VariableDetailFragment extends Fragment {
         }
 
         public void setViewValues(Variable variable) {
-            mDescription.setText(variable.description);
+            mDescription.setText(variable.note);
             mName.setText(variable.name);
             setKind(variable);
         }
 
         public void updateViews(Variable newVariable, Variable oldVariable) {
-            if (!TextUtils.equals(newVariable.description, oldVariable.description)) {
-                mDescription.setText(newVariable.description);
+            if (!TextUtils.equals(newVariable.note, oldVariable.note)) {
+                mDescription.setText(newVariable.note);
             }
             if (!TextUtils.equals(newVariable.name, oldVariable.name)) {
                 mName.setText(newVariable.name);

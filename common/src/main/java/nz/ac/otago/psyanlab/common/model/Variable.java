@@ -40,9 +40,6 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
     @Expose
     public String name;
 
-    @Expose
-    public String description;
-
     public Variable() {}
 
     public Variable(Variable variable) {

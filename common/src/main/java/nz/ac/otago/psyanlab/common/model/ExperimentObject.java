@@ -96,6 +96,9 @@ public abstract class ExperimentObject {
     public static final int KIND_VARIABLE = 0x0d;
 
     @Expose
+    public String note;
+
+    @Expose
     public int tag;
 
     public static NameResolverFactory getEventNameFactory() {

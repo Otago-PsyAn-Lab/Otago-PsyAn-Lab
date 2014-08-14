@@ -167,7 +167,7 @@ public class ChannelDetailFragment extends Fragment {
     protected TextWatcher mDescriptionChangedListener = new TextWatcher() {
         @Override
         public void afterTextChanged(Editable s) {
-            mDataChannel.description = s.toString();
+            mDataChannel.note = s.toString();
             mCallbacks.putDataChannel(mDataChannelId, mDataChannel);
         }
 
@@ -316,7 +316,7 @@ public class ChannelDetailFragment extends Fragment {
 
         public void setViewValues(Context context, DataChannel dc) {
             name.setText(dc.name);
-            description.setText(dc.description);
+            description.setText(dc.note);
             mAdapter = new DataChannelAdapter(context, dc, mDataChannelChangedListener);
             fields.setAdapter(mAdapter);
         }
@@ -325,8 +325,8 @@ public class ChannelDetailFragment extends Fragment {
             if (!TextUtils.equals(newDataChannel.name, oldDataChannel.name)) {
                 name.setText(newDataChannel.name);
             }
-            if (!TextUtils.equals(newDataChannel.description, oldDataChannel.description)) {
-                description.setText(newDataChannel.description);
+            if (!TextUtils.equals(newDataChannel.note, oldDataChannel.note)) {
+                description.setText(newDataChannel.note);
             }
             mAdapter.setDataChannel(newDataChannel);
         }

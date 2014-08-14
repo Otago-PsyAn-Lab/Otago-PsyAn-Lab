@@ -29,3 +29,4 @@ proguard/
 .idea/workspace.xml
 .idea/dictionaries
 .idea/copyright
+*.iml

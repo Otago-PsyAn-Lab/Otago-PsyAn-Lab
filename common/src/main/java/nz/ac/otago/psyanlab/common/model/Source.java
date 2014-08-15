@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 
 public class Source extends ExperimentObject implements Comparable<Source> {
-
     public static final String FILE_ENDINGS = ".*\\.csv";
 
     @Expose

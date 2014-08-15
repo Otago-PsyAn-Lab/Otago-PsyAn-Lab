@@ -1,3 +1,22 @@
+/*
+ Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+
+ Otago PsyAn Lab is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+ In accordance with Section 7(b) of the GNU General Public License version 3,
+ all legal notices and author attributions must be preserved.
+ */
 
 package nz.ac.otago.psyanlab.common.designer.program;
 
@@ -11,7 +30,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 public abstract class BaseProgramFragment extends TonicFragment {
-
     private static final String ARG_BACKGROUND = "arg_background";
 
     protected int mBackgroundResource;
@@ -47,8 +65,8 @@ public abstract class BaseProgramFragment extends TonicFragment {
         }
 
         if (mObjectId == INVALID_ID) {
-            throw new RuntimeException("Invalid object id for fragment "
-                    + this.getClass().getName());
+            throw new RuntimeException(
+                    "Invalid object id for fragment " + this.getClass().getName());
         }
     }
 
@@ -97,8 +115,6 @@ public abstract class BaseProgramFragment extends TonicFragment {
 
     /**
      * Ask the manager to hide the next fragment after this one.
-     *
-     * @param f Fragment to be next in the scroller.
      */
     protected void hideNextFragment() {
         mScrollerManager.hideNextFragment(this);
@@ -140,7 +156,6 @@ public abstract class BaseProgramFragment extends TonicFragment {
     }
 
     public interface ScrollerManager {
-
         void hideNextFragment(BaseProgramFragment baseProgramFragment);
 
         void removeFragment(BaseProgramFragment f);
@@ -151,7 +166,6 @@ public abstract class BaseProgramFragment extends TonicFragment {
     }
 
     public abstract class ViewHolder<T> extends TonicFragment.ViewHolder<T> {
-
         public View background;
 
         public ViewHolder(View view) {

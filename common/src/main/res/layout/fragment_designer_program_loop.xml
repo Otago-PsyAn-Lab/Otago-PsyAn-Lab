@@ -117,7 +117,10 @@
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"
         android:listSelector="@drawable/loop_list_selector_holo_light"
-        android:padding="16dip"
+        android:paddingBottom="16dip"
+        android:paddingLeft="16dip"
+        android:paddingRight="8dip"
+        android:paddingTop="16dip"
         android:scrollbarStyle="outsideOverlay">
 
         <GridLayout
@@ -129,7 +132,14 @@
             android:useDefaultMargins="true">
 
             <TextView
-                android:layout_gravity="left|center_vertical"
+                android:layout_columnSpan="2"
+                android:layout_gravity="center_vertical"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/title_loop_properties"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:layout_gravity="start|center_vertical"
                 android:fontFamily="sans-serif-light"
                 android:text="@string/label_linked_data_source"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -145,7 +155,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:layout_gravity="left|center_vertical"
+                android:layout_gravity="start|center_vertical"
                 android:fontFamily="sans-serif-light"
                 android:text="@string/label_loop_cycles"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -156,6 +166,7 @@
                 android:layout_gravity="fill_horizontal"
                 android:paddingBottom="20dip"
                 android:paddingLeft="12dip"
+                android:paddingStart="12dip"
                 android:paddingTop="20dip"
                 android:text="@string/default_text_iterations"
                 android:textSize="18sp" />

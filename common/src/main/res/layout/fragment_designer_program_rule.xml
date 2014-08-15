@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
 
   Otago PsyAn Lab is free software: you can redistribute it and/or modify
@@ -36,6 +35,7 @@
         android:layout_height="8dip"
         android:layout_columnSpan="2"
         android:layout_gravity="fill_horizontal"
+        android:layout_marginEnd="1dip"
         android:layout_marginRight="1dip"
         android:background="@color/rule_accent" />
 
@@ -60,7 +60,9 @@
 
     <FrameLayout
         android:id="@+id/new_action_container"
-        android:paddingRight="1dip">
+        android:paddingEnd="1dip"
+        android:paddingRight="1dip"
+        tools:ignore="RtlSymmetry">
 
         <LinearLayout
             android:id="@+id/new_action"
@@ -101,10 +103,10 @@
 
     <ScrollView
         android:id="@+id/column"
-        style="@style/column"
         android:layout_height="match_parent"
         android:layout_gravity="fill_horizontal"
         android:clipToPadding="false"
+        android:paddingBottom="16dip"
         android:paddingTop="16dip"
         android:scrollbarStyle="outsideOverlay">
 
@@ -114,24 +116,24 @@
             android:orientation="vertical">
 
             <GridLayout
-                style="@style/card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:useDefaultMargins="false">
+                android:orientation="horizontal"
+                android:paddingLeft="16dip"
+                android:paddingRight="8dip"
+                android:useDefaultMargins="true">
 
                 <TextView
                     android:layout_columnSpan="2"
-                    android:layout_gravity="center_vertical"
+                    android:layout_gravity="center_vertical|fill_horizontal"
                     android:fontFamily="sans-serif-light"
                     android:text="@string/label_trigger"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <TextView
                     android:layout_gravity="center_vertical|start"
-                    android:layout_marginTop="8dip"
                     android:fontFamily="sans-serif-light"
-                    android:paddingRight="8dip"
                     android:text="@string/label_trigger_object"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -140,18 +142,19 @@
                     style="?android:attr/spinnerStyle"
                     android:layout_gravity="fill_horizontal"
                     android:layout_marginTop="8dip"
-                    android:gravity="center_vertical|left"
+                    android:gravity="center_vertical|start"
                     android:minHeight="48dip"
                     android:paddingBottom="20dip"
-                    android:paddingLeft="12dp"
+                    android:paddingEnd="12dip"
+                    android:paddingLeft="12dip"
+                    android:paddingRight="12dip"
+                    android:paddingStart="12dip"
                     android:paddingTop="20dip"
                     android:textSize="18sp" />
 
                 <TextView
                     android:layout_gravity="center_vertical|start"
-                    android:layout_marginTop="8dip"
                     android:fontFamily="sans-serif-light"
-                    android:paddingRight="8dip"
                     android:text="@string/label_trigger_event"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -166,16 +169,15 @@
                 android:id="@+id/edit_condition"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="0dip"
                 android:layout_marginTop="16dip"
                 android:background="@drawable/rule_button"
                 android:orientation="vertical"
-                android:padding="16dip"
-                android:useDefaultMargins="true">
+                android:padding="16dip">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="fill_horizontal"
                     android:orientation="horizontal"
                     android:showDividers="none">
 
@@ -183,9 +185,10 @@
                         android:layout_width="0dip"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="16dip"
+                        android:layout_marginRight="16dip"
                         android:layout_weight="1"
                         android:fontFamily="sans-serif-light"
-                        android:paddingRight="8dip"
                         android:text="@string/label_condition"
                         android:textAppearance="?android:attr/textAppearanceLarge" />
 

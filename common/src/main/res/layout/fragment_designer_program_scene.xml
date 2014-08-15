@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
 
   Otago PsyAn Lab is free software: you can redistribute it and/or modify
@@ -109,18 +108,20 @@
     <ScrollView
         android:id="@+id/column"
         android:layout_height="match_parent"
-        android:layout_gravity="fill_horizontal">
+        android:layout_gravity="fill_horizontal"
+        android:paddingBottom="16dip">
 
-        <LinearLayout
+        <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dip">
+            android:columnCount="2"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/edit_stage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
                 android:background="@drawable/scene_button"
                 android:orientation="vertical"
                 android:padding="16dip">
@@ -174,7 +175,7 @@
                     android:fontFamily="sans-serif-light"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
-        </LinearLayout>
+        </GridLayout>
     </ScrollView>
 
     <FrameLayout

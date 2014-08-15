@@ -26,6 +26,12 @@ public class Loop extends ExperimentObject {
     public int iterations = 1;
 
     @Expose
+    public long linkedSource;
+
+    @Expose
+    public int iterationBehaviour;
+
+    @Expose
     public String name;
 
     @Expose

@@ -188,7 +188,7 @@
             android:id="@+id/rules"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="@drawable/divider_inset"
+            android:divider="@null"
             android:drawSelectorOnTop="false"
             android:listSelector="@drawable/scene_list_selector_holo_light"
             app:drag_enabled="true"

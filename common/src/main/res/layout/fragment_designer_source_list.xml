@@ -63,7 +63,7 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="@drawable/divider_inset"
+        android:divider="@null"
         android:drawSelectorOnTop="true"
         android:listSelector="@drawable/loop_list_selector_holo_light" />
 

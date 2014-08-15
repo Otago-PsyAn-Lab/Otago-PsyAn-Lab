@@ -30,7 +30,7 @@
         android:id="@+id/records"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@drawable/divider_inset"
+        android:divider="@null"
         android:headerDividersEnabled="false" />
 
     <fragment

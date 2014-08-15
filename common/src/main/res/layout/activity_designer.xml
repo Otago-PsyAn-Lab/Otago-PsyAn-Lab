@@ -43,7 +43,7 @@
             android:layout_gravity="start"
             android:background="@color/card_background"
             android:choiceMode="singleChoice"
-            android:divider="@drawable/divider_inset"
+            android:divider="@null"
             android:listSelector="@drawable/loop_list_selector_holo_light" />
     </android.support.v4.widget.DrawerLayout>
 

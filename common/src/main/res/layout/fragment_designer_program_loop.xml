@@ -93,6 +93,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="fill"
         android:clipToPadding="false"
+        android:padding="16dip"
         android:divider="@drawable/divider_inset"
         android:drawSelectorOnTop="true"
         android:footerDividersEnabled="false"
@@ -105,6 +106,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="2"
+            android:useDefaultMargins="true"
             android:orientation="horizontal">
 
             <TextView
@@ -117,6 +119,7 @@
                 android:id="@+id/link_source"
                 style="?android:attr/spinnerStyle"
                 android:layout_gravity="fill_horizontal"
+                android:text="@string/default_text_unlinked_data_source"
                 android:paddingBottom="20dip"
                 android:paddingTop="20dip" />
 
@@ -127,7 +130,8 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Button
-                android:id="@+id/"
+                android:text="@string/default_text_iterations"
+                android:id="@+id/iterations"
                 style="?android:attr/spinnerStyle"
                 android:layout_gravity="fill_horizontal"
                 android:paddingBottom="20dip"
@@ -140,8 +144,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Spinner
-                android:id="@+id/iterations"
-                style="?android:attr/spinnerStyle"
+                android:id="@+id/stepping_kind"
                 android:layout_gravity="fill_horizontal"
                 android:paddingBottom="20dip"
                 android:paddingTop="20dip" />

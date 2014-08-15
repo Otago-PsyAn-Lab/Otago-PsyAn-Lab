@@ -124,5 +124,7 @@
     <string name="title_edit_string">Edit String</string>
     <string name="label_parameter_row">Row</string>
     <string name="label_linked_data_source">Data Source</string>
+    <string name="default_text_iterations">1</string>
+    <string name="default_text_unlinked_data_source">Unlinked</string>
 
 </resources>

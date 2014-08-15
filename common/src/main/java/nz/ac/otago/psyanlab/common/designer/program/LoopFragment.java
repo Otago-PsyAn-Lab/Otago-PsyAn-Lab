@@ -223,13 +223,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    private OnClickListener mNewGeneratorClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            showNewGeneratorDialogue();
-        }
-    };
-
     private OnClickListener mNewSceneClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -372,8 +365,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         public EditText name;
 
-        public View newGenerator;
-
         public View newScene;
 
         public DragSortListView scenesList;
@@ -409,8 +400,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             iterations.setOnClickListener(mIterationsClickListener);
 
             name.addTextChangedListener(mNameWatcher);
-
-            newGenerator.setOnClickListener(mNewGeneratorClickListener);
 
             newScene.setOnClickListener(mNewSceneClickListener);
 

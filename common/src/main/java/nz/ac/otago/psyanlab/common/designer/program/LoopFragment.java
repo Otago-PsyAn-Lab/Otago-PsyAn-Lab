@@ -154,64 +154,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
         }
     };
 
-    protected MultiChoiceModeListener mGeneratorMultiChoiceModeCallbacks
-            = new MultiChoiceModeListener() {
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            int itemId = item.getItemId();
-            boolean loopIsDirty = false;
-            if (itemId == R.id.menu_delete) {
-                long[] checkedItemIds = mViews.generatorsList.getCheckedItemIds();
-                for (long checkedItemId : checkedItemIds) {
-                    mCallbacks.deleteGenerator(checkedItemId);
-                    mLoop.generators.remove(checkedItemId);
-                    loopIsDirty = true;
-                }
-            }
-            if (loopIsDirty) {
-                mCallbacks.putLoop(mObjectId, mLoop);
-            }
-            return true;
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            MenuInflater inflater = getActivity().getMenuInflater();
-            inflater.inflate(R.menu.context_program_component, menu);
-            mode.setTitle(R.string.title_select_generators);
-            return true;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            mActionMode = null;
-        }
-
-        @Override
-        public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
-                boolean checked) {
-            final int checkedCount = mViews.generatorsList.getCheckedItemCount();
-            switch (checkedCount) {
-                case 0:
-                    mode.setSubtitle(null);
-                    break;
-                case 1:
-                    mode.setSubtitle(R.string.subtitle_one_item_selected);
-                    break;
-                default:
-                    mode.setSubtitle(String.format(
-                            getResources().getString(R.string.subtitle_fmt_num_items_selected),
-                            checkedCount));
-                    break;
-            }
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return true;
-        }
-    };
-
     protected MultiChoiceModeListener mSceneMultiChoiceModeCallbacks
             = new MultiChoiceModeListener() {
         @Override
@@ -304,10 +246,7 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
-        ListView list = (ListView) v.findViewById(R.id.generators);
-        list.addHeaderView(inflater.inflate(R.layout.header_loop_content, list, false));
-        return v;
+        return inflater.inflate(R.layout.fragment_designer_program_loop, container, false);
     }
 
     @Override
@@ -427,10 +366,9 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
     }
 
     public class ViewHolder extends BaseProgramFragment.ViewHolder<Loop> {
-
-        public ListView generatorsList;
-
         public Button iterations;
+        public Button linkSource;
+        public Button iterationBehaviour;
 
         public EditText name;
 
@@ -444,22 +382,22 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
 
         public ViewHolder(View view) {
             super(view);
-            generatorsList = (ListView) view.findViewById(R.id.generators);
             mEmptyScenes = view.findViewById(android.R.id.empty);
 
             iterations = (Button) view.findViewById(R.id.iterations);
             name = (EditText) view.findViewById(R.id.name);
-            newGenerator = view.findViewById(R.id.new_generator);
+            linkSource = (Button) view.findViewById(R.id.link_source);
             newScene = view.findViewById(R.id.new_scene);
             scenesList = (DragSortListView) view.findViewById(R.id.scenes);
 
             @SuppressLint("WrongViewCast")
             final GridLayout gridLayout = (GridLayout) view.findViewById(R.id.background);
+            final View loopContentContainer = view.findViewById(R.id.column);
             final View scenesListContainer = view.findViewById(R.id.scenes_list_container);
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
-                    fixGridLayoutOverflow(gridLayout, generatorsList);
+                    fixGridLayoutOverflow(gridLayout, loopContentContainer);
                     fixGridLayoutOverflow(gridLayout, scenesListContainer);
                 }
             });
@@ -486,11 +424,6 @@ public class LoopFragment extends BaseProgramFragment implements LoopDataChangeL
             scenesList.setOnItemClickListener(mSceneItemClickListener);
             scenesList.setOnItemLongClickListener(mSceneItemLongClickListener);
             scenesList.setEmptyView(mEmptyScenes);
-
-            generatorsList.setAdapter(mGeneratorAdapter);
-            generatorsList.setOnItemClickListener(mGeneratorItemClickListener);
-            generatorsList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-            generatorsList.setMultiChoiceModeListener(mGeneratorMultiChoiceModeCallbacks);
         }
 
         @Override

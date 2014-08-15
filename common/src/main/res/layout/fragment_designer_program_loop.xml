@@ -87,8 +87,8 @@
         android:layout_gravity="fill_horizontal"
         android:background="?android:attr/listDivider" />
 
-    <ListView
-        android:id="@+id/generators"
+    <ScrollView
+        android:id="@+id/column"
         style="@style/column"
         android:layout_height="match_parent"
         android:layout_gravity="fill"
@@ -98,7 +98,55 @@
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"
         android:listSelector="@drawable/loop_list_selector_holo_light"
-        android:scrollbarStyle="outsideOverlay" />
+        android:scrollbarStyle="outsideOverlay">
+
+        <GridLayout
+            android:id="@+id/iterations_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_gravity="left|center_vertical"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_linked_data_source"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/link_source"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal"
+                android:paddingBottom="20dip"
+                android:paddingTop="20dip" />
+
+            <TextView
+                android:layout_gravity="left|center_vertical"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_loop_cycles"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal"
+                android:paddingBottom="20dip"
+                android:paddingTop="20dip" />
+
+            <TextView
+                android:layout_gravity="left|center_vertical"
+                android:fontFamily="sans-serif-light"
+                android:text="Stepping kind"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/iterations"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal"
+                android:paddingBottom="20dip"
+                android:paddingTop="20dip" />
+        </GridLayout>
+    </ScrollView>
 
     <FrameLayout
         android:id="@+id/scenes_list_container"

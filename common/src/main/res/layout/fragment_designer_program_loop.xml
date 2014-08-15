@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
 
   Otago PsyAn Lab is free software: you can redistribute it and/or modify
@@ -113,12 +112,12 @@
         android:layout_height="match_parent"
         android:layout_gravity="fill"
         android:clipToPadding="false"
-        android:padding="16dip"
         android:divider="@drawable/divider_inset"
         android:drawSelectorOnTop="true"
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"
         android:listSelector="@drawable/loop_list_selector_holo_light"
+        android:padding="16dip"
         android:scrollbarStyle="outsideOverlay">
 
         <GridLayout
@@ -126,8 +125,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="2"
-            android:useDefaultMargins="true"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:useDefaultMargins="true">
 
             <TextView
                 android:layout_gravity="left|center_vertical"
@@ -139,9 +138,10 @@
                 android:id="@+id/link_source"
                 style="?android:attr/spinnerStyle"
                 android:layout_gravity="fill_horizontal"
-                android:text="@string/default_text_unlinked_data_source"
                 android:paddingBottom="20dip"
-                android:paddingTop="20dip" />
+                android:paddingLeft="12dip"
+                android:paddingTop="20dip"
+                android:text="@string/default_text_unlinked_data_source" />
 
             <TextView
                 android:layout_gravity="left|center_vertical"
@@ -150,24 +150,25 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Button
-                android:text="@string/default_text_iterations"
                 android:id="@+id/iterations"
                 style="?android:attr/spinnerStyle"
                 android:layout_gravity="fill_horizontal"
                 android:paddingBottom="20dip"
-                android:paddingTop="20dip" />
+                android:paddingLeft="12dip"
+                android:paddingTop="20dip"
+                android:text="@string/default_text_iterations" />
 
             <TextView
                 android:layout_gravity="left|center_vertical"
                 android:fontFamily="sans-serif-light"
-                android:text="Stepping kind"
+                android:text="@string/label_loop_stepping_kind"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Spinner
                 android:id="@+id/stepping_kind"
                 android:layout_gravity="fill_horizontal"
-                android:paddingBottom="20dip"
-                android:paddingTop="20dip" />
+                android:layout_marginTop="8dip"
+                android:minHeight="48dip" />
         </GridLayout>
     </ScrollView>
 

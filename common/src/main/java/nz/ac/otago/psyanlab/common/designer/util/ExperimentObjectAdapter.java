@@ -1,3 +1,22 @@
+/*
+ Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+
+ Otago PsyAn Lab is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+ In accordance with Section 7(b) of the GNU General Public License version 3,
+ all legal notices and author attributions must be preserved.
+ */
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
@@ -13,16 +32,16 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 
-public class ExperimentObjectAdapter<T extends Comparable<T>> extends BaseAdapter implements
-        ListAdapter {
+public class ExperimentObjectAdapter<T extends Comparable<T>> extends BaseAdapter
+        implements ListAdapter {
+    private final LayoutInflater mInflater;
+
     private Comparator<Long> mComparator = new Comparator<Long>() {
         @Override
         public int compare(Long lhs, Long rhs) {
             return mItems.get(lhs).compareTo(mItems.get(rhs));
         }
     };
-
-    private final LayoutInflater mInflater;
 
     private HashMap<Long, T> mItems;
 
@@ -33,8 +52,9 @@ public class ExperimentObjectAdapter<T extends Comparable<T>> extends BaseAdapte
 
     private ViewBinder<T> mViewBinder;
 
-    public ExperimentObjectAdapter(Context context, HashMap<Long, T> items, ViewBinder<T> viewBinder) {
-        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public ExperimentObjectAdapter(Context context, HashMap<Long, T> items,
+                                   ViewBinder<T> viewBinder) {
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mItems = items;
         mViewBinder = viewBinder;
         sortKeys(mItems);

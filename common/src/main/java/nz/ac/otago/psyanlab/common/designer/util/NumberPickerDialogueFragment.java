@@ -1,3 +1,22 @@
+/*
+ Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+
+ Otago PsyAn Lab is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+ In accordance with Section 7(b) of the GNU General Public License version 3,
+ all legal notices and author attributions must be preserved.
+ */
 
 package nz.ac.otago.psyanlab.common.designer.util;
 
@@ -33,15 +52,8 @@ public class NumberPickerDialogueFragment extends DialogFragment {
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
     public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
-            int minValue, int requestCode) {
-        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
-    }
-
-    /**
-     * Create a new dialogue to edit the number of iterations a loop undergoes.
-     */
-    public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
-            int minValue, int maxValue, int requestCode) {
+                                                         int minValue, int maxValue,
+                                                         int requestCode) {
         NumberPickerDialogueFragment f = new NumberPickerDialogueFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_TITLE, titleResId);
@@ -53,11 +65,31 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         return f;
     }
 
+    /**
+     * Create a new dialogue to edit the number of iterations a loop undergoes.
+     */
+    public static NumberPickerDialogueFragment newDialogue(int titleResId, int defaultValue,
+                                                           int minValue, int requestCode) {
+        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
+    }
+
     private DialogueResultCallbacks mCallbacks;
 
     private OnClickListener mNegativeListener = new OnClickListener() {
         public void onClick(DialogInterface dialog, int id) {
             getDialog().cancel();
+        }
+    };
+
+    private int mRequestCode;
+
+    private OnClickListener mNeutralListener = new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+            Bundle data = new Bundle();
+            data.putInt(RESULT_PICKED_NUMBER, -1);
+            mCallbacks.onDialogueResult(mRequestCode, data);
+            dismiss();
         }
     };
 
@@ -70,8 +102,6 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         }
     };
 
-    private int mRequestCode;
-
     private boolean mShowRange = false;
 
     private ViewHolder mViews;
@@ -82,7 +112,7 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         if (!(activity instanceof DialogueResultCallbacks)) {
             throw new RuntimeException("Activity must implement dialogue result callbacks.");
         }
-        mCallbacks = (DialogueResultCallbacks)activity;
+        mCallbacks = (DialogueResultCallbacks) activity;
     }
 
     @Override
@@ -111,13 +141,14 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         // Build dialogue.
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(title).setView(view)
-                .setPositiveButton(R.string.action_confirm, mPositiveListener)
-                .setNegativeButton(R.string.action_discard, mNegativeListener);
+               .setPositiveButton(R.string.action_confirm, mPositiveListener)
+               .setNeutralButton("Infinite", mNeutralListener)
+               .setNegativeButton(R.string.action_discard, mNegativeListener);
 
         // Create the AlertDialog object and return it
         Dialog dialog = builder.create();
-        dialog.getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        dialog.getWindow()
+              .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         return dialog;
     }
 
@@ -134,8 +165,8 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         public TextView range;
 
         public ViewHolder(View view) {
-            numberPicker = (NumberPicker)view.findViewById(R.id.iterations);
-            range = (TextView)view.findViewById(R.id.range);
+            numberPicker = (NumberPicker) view.findViewById(R.id.picker);
+            range = (TextView) view.findViewById(R.id.range);
         }
 
         public void initViews(int min, int max) {

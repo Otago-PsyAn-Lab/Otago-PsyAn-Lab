@@ -1,4 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?><!--
+  Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+
+  Otago PsyAn Lab is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+  In accordance with Section 7(b) of the GNU General Public License version 3,
+  all legal notices and author attributions must be preserved.
+  -->
+
 <resources>
 
     <string name="app_name">Otago PsyAn Lab</string>
@@ -126,5 +145,14 @@
     <string name="label_linked_data_source">Data Source</string>
     <string name="default_text_iterations">1</string>
     <string name="default_text_unlinked_data_source">Unlinked</string>
+    <string name="format_title_link_loop_data_source">Link Data Source for %1$s</string>
+    <string name="option_no_link_loop_data_source">No linked data source</string>
+    <string name="label_stepping_kind_shuffle">Shuffle</string>
+    <string name="label_stepping_kind_sequential">Sequential</string>
+    <string name="label_stepping_kind_random">Random</string>
+
+    <string name="text_loop_iterations_infinite">until escaped</string>
+    <string name="text_no_linked_loop_data_source">no linked data source</string>
+    <string name="label_loop_stepping_kind">Stepping kind</string>
 
 </resources>

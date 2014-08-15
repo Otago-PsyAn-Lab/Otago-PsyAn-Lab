@@ -806,7 +806,9 @@ public class ExperimentDesignerActivity extends FragmentActivity
     @Override
     public FragmentPagerAdapter getObjectBrowserPagerAdapter(FragmentManager fm, int callerKind,
                                                              long callerId, int filter,
-                                                             ArrayFragmentMapAdapter.FragmentFactory fragmentFactory) {
+                                                             ArrayFragmentMapAdapter
+                                                                     .FragmentFactory
+                                                                     fragmentFactory) {
 
         // Work out the base scope level from our caller.
         int scopeLevel;
@@ -2157,6 +2159,15 @@ public class ExperimentDesignerActivity extends FragmentActivity
             // TODO: Something different.
         }
 
+        if (kind == ExperimentObject.KIND_SOURCE) {
+            for (Entry<Long, Loop> entry : mExperiment.loops.entrySet()) {
+                if (entry.getValue().linkedSource == id) {
+                    entry.getValue().linkedSource = -1;
+                    notifyLoopDataChangeListeners();
+                }
+            }
+        }
+
         ArrayList<Long> affectedCallIds = findAffectedCallIds(kind, id);
 
         for (Long key : affectedCallIds) {
@@ -2378,6 +2389,15 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 replacement.tag = call.tag;
                 deleteOperand(callId);
                 putOperand(callId, replacement);
+            }
+        }
+
+        // Notify loop data change listeners that a linked source may have changed. But only do
+        // it if we find a loop with a change.
+        for (Entry<Long, Loop> entry : mExperiment.loops.entrySet()) {
+            if (entry.getValue().linkedSource == id) {
+                notifyLoopDataChangeListeners();
+                break;
             }
         }
     }

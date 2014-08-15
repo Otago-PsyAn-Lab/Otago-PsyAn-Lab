@@ -141,7 +141,8 @@
                 android:paddingBottom="20dip"
                 android:paddingLeft="12dip"
                 android:paddingTop="20dip"
-                android:text="@string/default_text_unlinked_data_source" />
+                android:text="@string/default_text_unlinked_data_source"
+                android:textSize="18sp" />
 
             <TextView
                 android:layout_gravity="left|center_vertical"
@@ -156,7 +157,8 @@
                 android:paddingBottom="20dip"
                 android:paddingLeft="12dip"
                 android:paddingTop="20dip"
-                android:text="@string/default_text_iterations" />
+                android:text="@string/default_text_iterations"
+                android:textSize="18sp" />
 
             <TextView
                 android:layout_gravity="left|center_vertical"

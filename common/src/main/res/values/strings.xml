@@ -151,8 +151,8 @@
     <string name="label_stepping_kind_sequential">Sequential</string>
     <string name="label_stepping_kind_random">Random</string>
 
-    <string name="text_loop_iterations_infinite">until escaped</string>
-    <string name="text_no_linked_loop_data_source">no linked data source</string>
+    <string name="text_loop_iterations_infinite">Until Escaped</string>
+    <string name="text_no_linked_loop_data_source">None Linked</string>
     <string name="label_loop_stepping_kind">Stepping kind</string>
 
 </resources>

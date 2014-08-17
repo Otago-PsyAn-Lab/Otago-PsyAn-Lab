@@ -40,6 +40,19 @@ import java.util.SortedSet;
 public class DataChannel extends ExperimentObject implements Comparable<DataChannel> {
     protected static final int METHOD_WRITE = 0x01;
 
+    protected static class MethodNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            switch (lookup) {
+                case METHOD_WRITE:
+                    return context.getString(R.string.method_data_channel_write);
+
+                default:
+                    return context.getString(R.string.method_missing_string);
+            }
+        }
+    }
+
     /**
      * Columns in the table that the DataChannel represents. Index is important.
      */
@@ -57,8 +70,22 @@ public class DataChannel extends ExperimentObject implements Comparable<DataChan
     }
 
     @Override
+    public int compareTo(DataChannel another) {
+        if (name == null || another.name == null) {
+            return 0;
+        }
+
+        return name.compareToIgnoreCase(another.name);
+    }
+
+    @Override
     public String getExperimentObjectName(Context context) {
         return name;
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_data_channel;
     }
 
     @Override
@@ -102,27 +129,5 @@ public class DataChannel extends ExperimentObject implements Comparable<DataChan
     @Override
     public boolean satisfiesFilter(int filter) {
         return filter == HAS_SETTERS;
-    }
-
-    @Override
-    public int compareTo(DataChannel another) {
-        if (name == null || another.name == null) {
-            return 0;
-        }
-
-        return name.compareToIgnoreCase(another.name);
-    }
-
-    protected static class MethodNameFactory implements NameResolverFactory {
-        @Override
-        public String getName(Context context, int lookup) {
-            switch (lookup) {
-                case METHOD_WRITE:
-                    return context.getString(R.string.method_data_channel_write);
-
-                default:
-                    return context.getString(R.string.method_missing_string);
-            }
-        }
     }
 }

@@ -23,18 +23,11 @@ package nz.ac.otago.psyanlab.common.model.generator;
 
 import android.content.Context;
 
+import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 public class Shuffle extends Generator {
-    @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
-    public Shuffle() {
-    }
-
     protected static class MethodNameFactory extends Generator.MethodNameFactory {
         @Override
         public String getName(Context context, int lookup) {
@@ -43,5 +36,18 @@ public class Shuffle extends Generator {
                     return super.getName(context, lookup);
             }
         }
+    }
+
+    public Shuffle() {
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_generator_shuffle;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+ Copyright (C) 2014 Tonic Artos <tonic.artos@gmail.com>
 
  Otago PsyAn Lab is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,21 +22,25 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
+import android.content.Context;
+
 import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
-import android.content.Context;
+public abstract class Timer extends ExperimentObject {
+    private static final int METHOD_START = 0x01;
 
-public abstract class Generator extends ExperimentObject {
-    private static final int METHOD_GENERATE_NUMBER = 0x01;
+    private static final int METHOD_STOP = 0x02;
 
     protected static class MethodNameFactory implements NameResolverFactory {
         @Override
         public String getName(Context context, int lookup) {
             switch (lookup) {
-                case METHOD_GENERATE_NUMBER:
-                    return context.getString(R.string.method_generator_generate_number);
+                case METHOD_START:
+                    return context.getString(R.string.method_timer_start);
+                case METHOD_STOP:
+                    return context.getString(R.string.method_timer_stop);
                 default:
                     return context.getString(R.string.method_missing_string);
             }
@@ -44,35 +48,30 @@ public abstract class Generator extends ExperimentObject {
     }
 
     @Expose
-    public int end;
-
-    @Expose
     public String name;
 
     @Expose
-    public int start;
-
-    public Generator() {
-        name = "New Generator";
-    }
-
-    @MethodId(METHOD_GENERATE_NUMBER)
-    public int generateNumber() {
-        return 0;
-    }
+    public long waitValue;
 
     @Override
     public String getExperimentObjectName(Context context) {
-        return context.getString(R.string.format_generator_class_name, name);
+        return name;
     }
 
     @Override
     public int getKindResId() {
-        return R.string.label_generator;
+        return R.string.label_timer;
     }
 
     @Override
     public int kind() {
-        return ExperimentObject.KIND_GENERATOR;
+        return ExperimentObject.KIND_TIMER;
     }
+
+    @MethodId(METHOD_START)
+    public void start() {}
+
+    @MethodId(METHOD_STOP)
+    public void stop() {}
 }
+

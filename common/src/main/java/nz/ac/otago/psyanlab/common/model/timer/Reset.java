@@ -1,6 +1,5 @@
-
 /*
- Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+ Copyright (C) 2014 Tonic Artos <tonic.artos@gmail.com>
 
  Otago PsyAn Lab is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,35 +18,29 @@
  all legal notices and author attributions must be preserved.
  */
 
-package nz.ac.otago.psyanlab.common.model.generator;
+package nz.ac.otago.psyanlab.common.model.timer;
 
 import android.content.Context;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.model.Generator;
+import nz.ac.otago.psyanlab.common.model.Timer;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
-public class Random extends Generator {
-    protected static class MethodNameFactory extends Generator.MethodNameFactory {
+public class Reset extends Timer {
+    protected static class MethodNameFactory extends Timer.MethodNameFactory {
         @Override
         public String getName(Context context, int lookup) {
-            switch (lookup) {
-                default:
-                    return super.getName(context, lookup);
-            }
+            return super.getName(context, lookup);
         }
     }
 
-    public Random() {
-    }
+    public Reset() {}
 
     @Override
     public int getKindResId() {
-        return R.string.label_generator_random;
+        return R.string.label_timer_reset;
     }
 
     @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
+    public NameResolverFactory getMethodNameFactory() { return super.getMethodNameFactory(); }
 }

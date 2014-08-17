@@ -44,6 +44,45 @@ import java.util.SortedSet;
 public class Source extends ExperimentObject implements Comparable<Source> {
     public static final String FILE_ENDINGS = ".*\\.csv";
 
+    public static void countRowsAndCols(Source csv, File file) throws IOException {
+        CSVReader reader = new CSVReader(new FileReader(file), ',', '\"', 0);
+        LineNumberReader lineCounter = new LineNumberReader(new FileReader(file));
+
+        // Read number of columns.
+        csv.mTotalCols = reader.readNext().length;
+
+        // Read number of rows.
+        while (true) {
+            if (lineCounter.readLine() == null) {
+                break;
+            }
+        }
+        csv.mTotalRows = lineCounter.getLineNumber();
+
+        lineCounter.close();
+        reader.close();
+
+        csv.mFileCounted = true;
+    }
+
+    protected static class MethodNameFactory extends Asset.MethodNameFactory {
+        private final Source mSource;
+
+        public MethodNameFactory(Source source) {
+            mSource = source;
+        }
+
+        @Override
+        public String getName(Context context, int lookup) {
+            if (lookup >= mSource.columns.size()) {
+                return super.getName(context, lookup);
+            }
+
+            return context.getString(R.string.format_source_method_name,
+                                     mSource.columns.get(lookup).name);
+        }
+    }
+
     @Expose
     public int colStart = 0;
 
@@ -80,27 +119,6 @@ public class Source extends ExperimentObject implements Comparable<Source> {
         columns = new ArrayList<Field>();
     }
 
-    public static void countRowsAndCols(Source csv, File file) throws IOException {
-        CSVReader reader = new CSVReader(new FileReader(file), ',', '\"', 0);
-        LineNumberReader lineCounter = new LineNumberReader(new FileReader(file));
-
-        // Read number of columns.
-        csv.mTotalCols = reader.readNext().length;
-
-        // Read number of rows.
-        while (true) {
-            if (lineCounter.readLine() == null) {
-                break;
-            }
-        }
-        csv.mTotalRows = lineCounter.getLineNumber();
-
-        lineCounter.close();
-        reader.close();
-
-        csv.mFileCounted = true;
-    }
-
     @Override
     public int compareTo(@NonNull Source another) {
         if (name != null) {
@@ -119,8 +137,29 @@ public class Source extends ExperimentObject implements Comparable<Source> {
     }
 
     @Override
+    public int getKindResId() {
+        return R.string.label_data_source;
+    }
+
+    @Override
     public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory(this);
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        throw new RuntimeException("Unsupported method");
+    }
+
+    @Override
+    public ParameterData[] getParameters(Activity activity, int methodId) {
+        ParameterData[] parameters = new ParameterData[1];
+        ParameterData data = new ParameterData();
+        data.id = 0;
+        data.type = Type.TYPE_INTEGER;
+        data.name = activity.getString(R.string.label_parameter_row);
+        parameters[0] = data;
+        return parameters;
     }
 
     public int getTotalCols() {
@@ -173,39 +212,5 @@ public class Source extends ExperimentObject implements Comparable<Source> {
         filename = file.getName();
         name = file.getName();
         mIsExternal = true;
-    }
-
-    @Override
-    public NameResolverFactory getParameterNameFactory() {
-        throw new RuntimeException("Unsupported method");
-    }
-
-    @Override
-    public ParameterData[] getParameters(Activity activity, int methodId) {
-        ParameterData[] parameters = new ParameterData[1];
-        ParameterData data = new ParameterData();
-        data.id = 0;
-        data.type = Type.TYPE_INTEGER;
-        data.name = activity.getString(R.string.label_parameter_row);
-        parameters[0] = data;
-        return parameters;
-    }
-
-    protected static class MethodNameFactory extends Asset.MethodNameFactory {
-        private final Source mSource;
-
-        public MethodNameFactory(Source source) {
-            mSource = source;
-        }
-
-        @Override
-        public String getName(Context context, int lookup) {
-            if (lookup >= mSource.columns.size()) {
-                return super.getName(context, lookup);
-            }
-
-            return context.getString(R.string.format_source_method_name,
-                                     mSource.columns.get(lookup).name);
-        }
     }
 }

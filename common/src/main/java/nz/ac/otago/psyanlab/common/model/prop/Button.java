@@ -21,6 +21,7 @@
 package nz.ac.otago.psyanlab.common.model.prop;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
@@ -36,40 +37,8 @@ public class Button extends Text {
 
     protected static final int METHOD_SET_COLOUR_TINT_RGB = 0x03 + Prop.BUTTON_NS_OFFSET;
 
-    public Button(Context context, Prop prop) {
-        super(context, prop);
-    }
-
-    public Button(Parcel in) {
-        super(in);
-    }
-
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
-    }
-
-    @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
-    @Override
-    public NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
-    @MethodId(METHOD_SET_COLOUR_TINT)
-    public void stubSetColourTint(@ParameterId(PARAM_COLOUR) int colour) {
-    }
-
-    @MethodId(METHOD_SET_COLOUR_TINT_HTML)
-    public void stubSetColourTintHTML(@ParameterId(PARAM_COLOUR_HTML) String htmlColourCode) {
-    }
-
-    @MethodId(METHOD_SET_COLOUR_TINT_RGB)
-    public void stubSetColourTintRGB(@ParameterId(PARAM_RED) int red,
-                                     @ParameterId(PARAM_GREEN) int green,
-                                     @ParameterId(PARAM_BLUE) int blue) {
     }
 
     protected static class MethodNameFactory extends Text.MethodNameFactory {
@@ -98,5 +67,42 @@ public class Button extends Text {
                     return super.getName(context, lookup);
             }
         }
+    }
+
+    public Button(Context context, Prop prop) {
+        super(context, prop);
+    }
+
+    public Button(Parcel in) {
+        super(in);
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_prop_button;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
+    }
+
+    @MethodId(METHOD_SET_COLOUR_TINT)
+    public void stubSetColourTint(@ParameterId(PARAM_COLOUR) int colour) {
+    }
+
+    @MethodId(METHOD_SET_COLOUR_TINT_HTML)
+    public void stubSetColourTintHTML(@ParameterId(PARAM_COLOUR_HTML) String htmlColourCode) {
+    }
+
+    @MethodId(METHOD_SET_COLOUR_TINT_RGB)
+    public void stubSetColourTintRGB(@ParameterId(PARAM_RED) int red,
+                                     @ParameterId(PARAM_GREEN) int green,
+                                     @ParameterId(PARAM_BLUE) int blue) {
     }
 }

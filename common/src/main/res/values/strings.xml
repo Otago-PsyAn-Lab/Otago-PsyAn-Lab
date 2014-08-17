@@ -155,5 +155,19 @@
     <string name="text_no_linked_loop_data_source">None Linked</string>
     <string name="label_loop_stepping_kind">Stepping Kind</string>
     <string name="title_loop_properties">Properties</string>
+    <string name="title_timers">Timers</string>
+    <string name="method_timer_start">Start</string>
+    <string name="method_timer_stop">Stop</string>
+    <string name="default_name_new_timer">Timer %1$s</string>
+    <string name="label_prop_text">Text Prop</string>
+    <string name="label_prop_image">Image Prop</string>
+    <string name="label_prop_video">Video Prop</string>
+    <string name="label_prop_button">Button Prop</string>
+    <string name="label_prop_seekbar">Seekbar Prop</string>
+    <string name="label_timer">Timer</string>
+    <string name="label_timer_reset">Reset Timer</string>
+    <string name="label_timer_periodic">Periodic Timer</string>
+    <string name="label_generator_random">Random</string>
+    <string name="label_generator_shuffle">Shuffle</string>
 
 </resources>

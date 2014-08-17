@@ -22,6 +22,8 @@ package nz.ac.otago.psyanlab.common.model;
 
 import com.google.gson.annotations.Expose;
 
+import android.annotation.SuppressLint;
+
 import java.io.File;
 import java.util.HashMap;
 
@@ -92,8 +94,12 @@ public class Experiment {
     @Expose
     public HashMap<Long, Variable> variables;
 
+    @Expose
+    public HashMap<Long, Timer> timers;
+
     private File workingDirectory;
 
+    @SuppressLint("UseSparseArrays")
     public Experiment() {
         // Using HashMap instead of LongSparseArray for compatibility with Gson.
         actions = new HashMap<Long, Action>();
@@ -108,6 +114,7 @@ public class Experiment {
         questions = new HashMap<Long, Question>();
         sources = new HashMap<Long, Source>();
         variables = new HashMap<Long, Variable>();
+        timers = new HashMap<Long, Timer>();
 
         landingPage = new LandingPage();
         program = new Program();

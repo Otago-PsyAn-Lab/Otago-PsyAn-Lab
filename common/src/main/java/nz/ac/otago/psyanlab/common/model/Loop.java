@@ -102,6 +102,11 @@ public class Loop extends ExperimentObject {
     }
 
     @Override
+    public int getKindResId() {
+        return R.string.label_loop;
+    }
+
+    @Override
     public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
     }

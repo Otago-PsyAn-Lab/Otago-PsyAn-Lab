@@ -44,62 +44,8 @@ public class Scene extends ExperimentObject {
 
     protected static final int METHOD_FINISH_SCENE = 0x01;
 
-    @Expose
-    public String name;
-
-    @Expose
-    public int orientation = -1;
-
-    @Expose
-    public ArrayList<Long> props;
-
-    @Expose
-    public ArrayList<Long> rules;
-
-    @Expose
-    public int stageHeight = -1;
-
-    @Expose
-    public int stageWidth = -1;
-
-    public Scene() {
-        props = new ArrayList<Long>();
-        rules = new ArrayList<Long>();
-    }
-
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
-    }
-
-    @EventData(id = EVENT_SCENE_FINGER_MOTION, type = EventData.EVENT_TOUCH_MOTION)
-    public void eventSceneFingerMotion() {
-    }
-
-    @EventData(id = EVENT_SCENE_FINISH, type = EventData.EVENT_SCENE_FINISH)
-    public void eventSceneFinish() {
-    }
-
-    @EventData(id = EVENT_SCENE_START, type = EventData.EVENT_SCENE_START)
-    public void eventSceneStart() {
-    }
-
-    @Override
-    public String getExperimentObjectName(Context context) {
-        return context.getString(R.string.format_scene_class_name, name);
-    }
-
-    @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
-    @Override
-    public int kind() {
-        return ExperimentObject.KIND_SCENE;
-    }
-
-    @MethodId(METHOD_FINISH_SCENE)
-    public void stubFinishScene() {
     }
 
     protected static class EventNameFactory implements NameResolverFactory {
@@ -128,5 +74,68 @@ public class Scene extends ExperimentObject {
                     return context.getString(R.string.method_missing_string);
             }
         }
+    }
+
+    @Expose
+    public String name;
+
+    @Expose
+    public int orientation = -1;
+
+    @Expose
+    public ArrayList<Long> props;
+
+    @Expose
+    public ArrayList<Long> rules;
+
+    @Expose
+    public int stageHeight = -1;
+
+    @Expose
+    public int stageWidth = -1;
+
+    @Expose
+    public ArrayList<Long> timers;
+
+    public Scene() {
+        props = new ArrayList<Long>();
+        rules = new ArrayList<Long>();
+        timers = new ArrayList<Long>();
+    }
+
+    @EventData(id = EVENT_SCENE_FINGER_MOTION, type = EventData.EVENT_TOUCH_MOTION)
+    public void eventSceneFingerMotion() {
+    }
+
+    @EventData(id = EVENT_SCENE_FINISH, type = EventData.EVENT_SCENE_FINISH)
+    public void eventSceneFinish() {
+    }
+
+    @EventData(id = EVENT_SCENE_START, type = EventData.EVENT_SCENE_START)
+    public void eventSceneStart() {
+    }
+
+    @Override
+    public String getExperimentObjectName(Context context) {
+        return context.getString(R.string.format_scene_class_name, name);
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_scene;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObject.KIND_SCENE;
+    }
+
+    @MethodId(METHOD_FINISH_SCENE)
+    public void stubFinishScene() {
     }
 }

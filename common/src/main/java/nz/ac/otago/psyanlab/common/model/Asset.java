@@ -46,63 +46,6 @@ public abstract class Asset extends ExperimentObject implements Comparable<Asset
         return mFactory;
     }
 
-    @Expose
-    public String filename;
-
-    @Expose
-    public long filesize;
-
-    @Expose
-    public String name;
-
-    @Expose
-    public String path;
-
-    private boolean mIsExternal = false;
-
-    protected int mHeaderResId;
-
-    protected long mTypeId = 0x00;
-
-    @Override
-    public int compareTo(Asset another) {
-        int cmpr = getClass().getName().compareToIgnoreCase(another.getClass().getName());
-        if (cmpr == 0 && name != null && another != null) {
-            return name.compareToIgnoreCase(another.name);
-        }
-        return cmpr;
-    }
-
-    @Override
-    public String getExperimentObjectName(Context context) {
-        return context.getString(R.string.format_asset_class_name, name);
-    }
-
-    public int getHeaderResId() {
-        return mHeaderResId;
-    }
-
-    public long getTypeId() {
-        return mTypeId;
-    }
-
-    public boolean isExternal() {
-        return mIsExternal;
-    }
-
-    @Override
-    public int kind() {
-        return ExperimentObject.KIND_ASSET;
-    }
-
-    public void setExternalFile(File file) {
-        filesize = file.length();
-        path = file.getPath();
-        filename = file.getName();
-        name = file.getName();
-        mIsExternal = true;
-    }
-
     public static final class AssetFactory {
         public Asset newAsset(String filePath) {
             File file = new File(filePath);
@@ -137,5 +80,67 @@ public abstract class Asset extends ExperimentObject implements Comparable<Asset
             }
             return cmpr;
         }
+    }
+
+    @Expose
+    public String filename;
+
+    @Expose
+    public long filesize;
+
+    @Expose
+    public String name;
+
+    @Expose
+    public String path;
+
+    protected int mHeaderResId;
+
+    protected long mTypeId = 0x00;
+
+    private boolean mIsExternal = false;
+
+    @Override
+    public int compareTo(Asset another) {
+        int cmpr = getClass().getName().compareToIgnoreCase(another.getClass().getName());
+        if (cmpr == 0 && name != null && another != null) {
+            return name.compareToIgnoreCase(another.name);
+        }
+        return cmpr;
+    }
+
+    @Override
+    public String getExperimentObjectName(Context context) {
+        return context.getString(R.string.format_asset_class_name, name);
+    }
+
+    public int getHeaderResId() {
+        return mHeaderResId;
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_asset;
+    }
+
+    public long getTypeId() {
+        return mTypeId;
+    }
+
+    public boolean isExternal() {
+        return mIsExternal;
+    }
+
+    @Override
+    public int kind() {
+        return ExperimentObject.KIND_ASSET;
+    }
+
+    public void setExternalFile(File file) {
+        filesize = file.length();
+        path = file.getPath();
+        filename = file.getName();
+        name = file.getName();
+        mIsExternal = true;
     }
 }

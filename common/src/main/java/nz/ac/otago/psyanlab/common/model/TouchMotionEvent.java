@@ -30,14 +30,26 @@ import android.content.Context;
 public class TouchMotionEvent extends TouchEvent {
     private static final int METHOD_GET_MOTION_TYPE = 0x10;
 
-    @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
+    protected static class MethodNameFactory extends TouchEvent.MethodNameFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            switch (lookup) {
+                case METHOD_GET_MOTION_TYPE:
+                    return context.getString(R.string.method_get_motion_type);
+                default:
+                    return super.getName(context, lookup);
+            }
+        }
     }
 
     @Override
     public String getExperimentObjectName(Context context) {
         return context.getString(R.string.label_touch_event);
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     @Override
@@ -53,17 +65,5 @@ public class TouchMotionEvent extends TouchEvent {
     @MethodId(METHOD_GET_MOTION_TYPE)
     public String stubGetMotionType() {
         return null;
-    }
-
-    protected static class MethodNameFactory extends TouchEvent.MethodNameFactory {
-        @Override
-        public String getName(Context context, int lookup) {
-            switch (lookup) {
-                case METHOD_GET_MOTION_TYPE:
-                    return context.getString(R.string.method_get_motion_type);
-                default:
-                    return super.getName(context, lookup);
-            }
-        }
     }
 }

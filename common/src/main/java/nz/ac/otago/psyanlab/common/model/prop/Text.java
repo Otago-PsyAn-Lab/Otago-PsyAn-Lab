@@ -23,6 +23,7 @@ package nz.ac.otago.psyanlab.common.model.prop;
 import com.google.gson.annotations.Expose;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
@@ -88,6 +89,97 @@ public class Text extends Prop {
 
     protected static final int PARAM_TEXT_SIZE = 0x07 + Prop.TEXT_NS_OFFSET;
 
+    public static NameResolverFactory getEventNameFactory() {
+        return new EventNameFactory();
+    }
+
+    protected static class EventNameFactory extends Prop.EventNameFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            switch (lookup) {
+                default:
+                    return super.getName(context, lookup);
+            }
+        }
+    }
+
+    protected static class MethodNameFactory extends Prop.MethodNameFactory {
+
+        @Override
+        public String getName(Context context, int lookup) {
+            switch (lookup) {
+                case METHOD_SET_TEXT:
+                    return context.getString(R.string.method_set_text);
+                case METHOD_GET_TEXT:
+                    return context.getString(R.string.method_get_text);
+                case METHOD_SET_TEXT_SIZE:
+                    return context.getString(R.string.method_set_text_size);
+                case METHOD_GET_TEXT_SIZE:
+                    return context.getString(R.string.method_get_text_size);
+                case METHOD_SET_FONT:
+                    return context.getString(R.string.method_set_font);
+                case METHOD_SET_FONT_COLOUR_HTML:
+                    return context.getString(R.string.method_set_colour_font_html);
+                case METHOD_SET_FONT_COLOUR_RGB:
+                    return context.getString(R.string.method_set_font_colour_rgb);
+                case METHOD_SET_FONT_COLOUR:
+                    return context.getString(R.string.method_set_font_colour);
+                case METHOD_IS_POSITION_ABOVE_TEXT:
+                    return context.getString(R.string.method_is_position_above_text);
+                case METHOD_IS_POSITION_BELOW_TEXT:
+                    return context.getString(R.string.method_is_position_below_text);
+                case METHOD_IS_POSITION_TO_LEFT_OF_TEXT:
+                    return context.getString(R.string.method_is_position_to_left_of_text);
+                case METHOD_IS_POSITION_TO_RIGHT_OF_TEXT:
+                    return context.getString(R.string.method_is_position_to_right_of_text);
+                case METHOD_GET_CHARACTER_AT_POSITION:
+                    return context.getString(R.string.method_get_character_at_position);
+                case METHOD_GET_CHARACTER_AT_X_POSITION:
+                    return context.getString(R.string.method_get_character_at_x_position);
+                case METHOD_GET_CHARACTER_INDEX_AT_POSITION:
+                    return context.getString(R.string.method_get_character_index_at_position);
+                case METHOD_GET_CHARACTER_INDEX_AT_X_POSITION:
+                    return context.getString(R.string.method_get_character_index_at_x_position);
+                case METHOD_GET_WORD_AT_POSITION:
+                    return context.getString(R.string.method_get_word_at_position);
+                case METHOD_GET_WORD_AT_X_POSITION:
+                    return context.getString(R.string.method_get_word_at_x_position);
+                case METHOD_GET_WORD_INDEX_AT_POSITION:
+                    return context.getString(R.string.method_get_word_index_at_position);
+                case METHOD_GET_WORD_INDEX_AT_X_POSITION:
+                    return context.getString(R.string.method_get_word_index_at_x_position);
+
+                default:
+                    return super.getName(context, lookup);
+            }
+        }
+    }
+
+    protected static class ParameterNameFactory extends Prop.ParameterNameFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            switch (lookup) {
+                case PARAM_COLOUR_HTML:
+                    return context.getString(R.string.parameter_html_colour_code);
+                case PARAM_TEXT:
+                    return context.getString(R.string.parameter_text);
+                case PARAM_RED:
+                    return context.getString(R.string.parameter_red);
+                case PARAM_GREEN:
+                    return context.getString(R.string.parameter_green);
+                case PARAM_BLUE:
+                    return context.getString(R.string.parameter_blue);
+                case PARAM_COLOUR:
+                    return context.getString(R.string.paramter_colour);
+                case PARAM_TEXT_SIZE:
+                    return context.getString(R.string.parameter_size);
+
+                default:
+                    return super.getName(context, lookup);
+            }
+        }
+    }
+
     @Expose
     @PALEPropProperty(value = "Font Size")
     public int fontSize = -1;
@@ -119,8 +211,9 @@ public class Text extends Prop {
         fontSize = in.readInt();
     }
 
-    public static NameResolverFactory getEventNameFactory() {
-        return new EventNameFactory();
+    @Override
+    public int getKindResId() {
+        return R.string.label_prop_text;
     }
 
     @Override
@@ -247,92 +340,5 @@ public class Text extends Prop {
 
         dest.writeString(text);
         dest.writeInt(fontSize);
-    }
-
-    protected static class EventNameFactory extends Prop.EventNameFactory {
-        @Override
-        public String getName(Context context, int lookup) {
-            switch (lookup) {
-                default:
-                    return super.getName(context, lookup);
-            }
-        }
-    }
-
-    protected static class MethodNameFactory extends Prop.MethodNameFactory {
-
-        @Override
-        public String getName(Context context, int lookup) {
-            switch (lookup) {
-                case METHOD_SET_TEXT:
-                    return context.getString(R.string.method_set_text);
-                case METHOD_GET_TEXT:
-                    return context.getString(R.string.method_get_text);
-                case METHOD_SET_TEXT_SIZE:
-                    return context.getString(R.string.method_set_text_size);
-                case METHOD_GET_TEXT_SIZE:
-                    return context.getString(R.string.method_get_text_size);
-                case METHOD_SET_FONT:
-                    return context.getString(R.string.method_set_font);
-                case METHOD_SET_FONT_COLOUR_HTML:
-                    return context.getString(R.string.method_set_colour_font_html);
-                case METHOD_SET_FONT_COLOUR_RGB:
-                    return context.getString(R.string.method_set_font_colour_rgb);
-                case METHOD_SET_FONT_COLOUR:
-                    return context.getString(R.string.method_set_font_colour);
-                case METHOD_IS_POSITION_ABOVE_TEXT:
-                    return context.getString(R.string.method_is_position_above_text);
-                case METHOD_IS_POSITION_BELOW_TEXT:
-                    return context.getString(R.string.method_is_position_below_text);
-                case METHOD_IS_POSITION_TO_LEFT_OF_TEXT:
-                    return context.getString(R.string.method_is_position_to_left_of_text);
-                case METHOD_IS_POSITION_TO_RIGHT_OF_TEXT:
-                    return context.getString(R.string.method_is_position_to_right_of_text);
-                case METHOD_GET_CHARACTER_AT_POSITION:
-                    return context.getString(R.string.method_get_character_at_position);
-                case METHOD_GET_CHARACTER_AT_X_POSITION:
-                    return context.getString(R.string.method_get_character_at_x_position);
-                case METHOD_GET_CHARACTER_INDEX_AT_POSITION:
-                    return context.getString(R.string.method_get_character_index_at_position);
-                case METHOD_GET_CHARACTER_INDEX_AT_X_POSITION:
-                    return context.getString(R.string.method_get_character_index_at_x_position);
-                case METHOD_GET_WORD_AT_POSITION:
-                    return context.getString(R.string.method_get_word_at_position);
-                case METHOD_GET_WORD_AT_X_POSITION:
-                    return context.getString(R.string.method_get_word_at_x_position);
-                case METHOD_GET_WORD_INDEX_AT_POSITION:
-                    return context.getString(R.string.method_get_word_index_at_position);
-                case METHOD_GET_WORD_INDEX_AT_X_POSITION:
-                    return context.getString(R.string.method_get_word_index_at_x_position);
-
-                default:
-                    return super.getName(context, lookup);
-            }
-        }
-    }
-
-    protected static class ParameterNameFactory extends Prop.ParameterNameFactory {
-        @Override
-        public String getName(Context context, int lookup) {
-            switch (lookup) {
-                case PARAM_COLOUR_HTML:
-                    return context.getString(R.string.parameter_html_colour_code);
-                case PARAM_TEXT:
-                    return context.getString(R.string.parameter_text);
-                case PARAM_RED:
-                    return context.getString(R.string.parameter_red);
-                case PARAM_GREEN:
-                    return context.getString(R.string.parameter_green);
-                case PARAM_BLUE:
-                    return context.getString(R.string.parameter_blue);
-                case PARAM_COLOUR:
-                    return context.getString(R.string.paramter_colour);
-                case PARAM_TEXT_SIZE:
-                    return context.getString(R.string.parameter_size);
-
-                default:
-                    return super.getName(context, lookup);
-            }
-        }
     }
 }

@@ -37,55 +37,10 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
 
     protected static final int PARAM_VALUE = 0x01;
 
-    @Expose
-    public String name;
-
-    public Variable() {}
-
-    public Variable(Variable variable) {
-        name = variable.name;
-    }
-
-    @Override
-    public String getExperimentObjectName(Context context) {
-        return name;
-    }
-
-    @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
-    abstract public String getValue();
-
-    @Override
-    public int kind() {
-        return ExperimentObject.KIND_VARIABLE;
-    }
-
-    @Override
-    public int compareTo(@NonNull Variable another) {
-        if (name != null) {
-            return name.compareToIgnoreCase(another.name);
-        }
-        return 0;
-    }
-
-    public abstract int getType();
-
     public static class MethodNameFactory extends ExperimentObject.MethodNameFactory {
 
         @Override
-        public String getName(Context context,int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case METHOD_GET:
                     return context.getString(R.string.method_variable_get_value);
@@ -103,7 +58,7 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
     public static class ParameterNameFactory extends ExperimentObject.ParameterNameFactory {
 
         @Override
-        public String getName(Context context,int lookup) {
+        public String getName(Context context, int lookup) {
             switch (lookup) {
                 case PARAM_VALUE:
                     return context.getString(R.string.parameter_variable_value);
@@ -111,5 +66,55 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
                     return super.getName(context, lookup);
             }
         }
+    }
+
+    @Expose
+    public String name;
+
+    public Variable() {}
+
+    public Variable(Variable variable) {
+        name = variable.name;
+    }
+
+    @Override
+    public int compareTo(@NonNull Variable another) {
+        if (name != null) {
+            return name.compareToIgnoreCase(another.name);
+        }
+        return 0;
+    }
+
+    @Override
+    public String getExperimentObjectName(Context context) {
+        return name;
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_variable;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
+    }
+
+    public abstract int getType();
+
+    abstract public String getValue();
+
+    @Override
+    public int kind() {
+        return ExperimentObject.KIND_VARIABLE;
     }
 }

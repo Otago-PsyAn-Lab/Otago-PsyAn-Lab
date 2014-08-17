@@ -21,6 +21,7 @@
 package nz.ac.otago.psyanlab.common.model.prop;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.typestub.ImageStub;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
@@ -37,35 +38,8 @@ public class Image extends Prop {
 
     protected static final int PARAM_IMAGE = 0x01 + Prop.IMAGE_NS_OFFSET;
 
-    public Image(Context context, Prop prop) {
-        super(context, prop);
-    }
-
-    public Image(Parcel in) {
-        super(in);
-    }
-
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
-    }
-
-    @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
-    @Override
-    public NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
-    }
-
-    @MethodId(METHOD_GET_IMAGE)
-    public ImageStub stubGetImage() {
-        return null;
-    }
-
-    @MethodId(METHOD_SET_IMAGE)
-    public void stubSetImage(@ParameterId(PARAM_IMAGE) ImageStub image) {
     }
 
     protected static class EventNameFactory extends Prop.EventNameFactory {
@@ -102,5 +76,37 @@ public class Image extends Prop {
                     return super.getName(context, lookup);
             }
         }
+    }
+
+    public Image(Context context, Prop prop) {
+        super(context, prop);
+    }
+
+    public Image(Parcel in) {
+        super(in);
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_prop_image;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
+    }
+
+    @MethodId(METHOD_GET_IMAGE)
+    public ImageStub stubGetImage() {
+        return null;
+    }
+
+    @MethodId(METHOD_SET_IMAGE)
+    public void stubSetImage(@ParameterId(PARAM_IMAGE) ImageStub image) {
     }
 }

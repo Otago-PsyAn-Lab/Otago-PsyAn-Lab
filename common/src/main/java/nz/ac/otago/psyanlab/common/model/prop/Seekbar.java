@@ -23,22 +23,14 @@ package nz.ac.otago.psyanlab.common.model.prop;
 
 import android.content.Context;
 
+import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 public class Seekbar extends Prop {
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
-    }
-
-    @Override
-    public NameResolverFactory getMethodNameFactory() {
-        return new MethodNameFactory();
-    }
-
-    @Override
-    public NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
     }
 
     protected static class EventNameFactory extends Prop.EventNameFactory {
@@ -69,5 +61,20 @@ public class Seekbar extends Prop {
                     return super.getName(context, lookup);
             }
         }
+    }
+
+    @Override
+    public int getKindResId() {
+        return R.string.label_prop_seekbar;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
+    }
+
+    @Override
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
     }
 }

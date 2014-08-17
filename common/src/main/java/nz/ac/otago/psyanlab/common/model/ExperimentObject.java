@@ -111,15 +111,14 @@ public abstract class ExperimentObject {
     public static final int KIND_SOURCE = 0x0c;
 
     /**
-     * An object which is a kind of a global variable.
+     * An object which is a kind of timer.
+     */
+    public static final int KIND_TIMER = 0x0e;
+
+    /**
+     * An object which is Kind of a global variable.
      */
     public static final int KIND_VARIABLE = 0x0d;
-
-    @Expose
-    public String note;
-
-    @Expose
-    public int tag;
 
     public static NameResolverFactory getEventNameFactory() {
         return new EventNameFactory();
@@ -159,9 +158,55 @@ public abstract class ExperimentObject {
         }
     }
 
-    public NameResolverFactory getParameterNameFactory() {
-        return new ParameterNameFactory();
+    public static class EventNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            return context.getString(R.string.event_missing_string);
+        }
     }
+
+    public static class MethodData {
+        public int id;
+
+        public String name;
+
+        public int returnType;
+    }
+
+    public static class MethodNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            return context.getString(R.string.method_missing_string);
+        }
+    }
+
+    public static class ParameterData {
+        public int id;
+
+        public String name;
+
+        public int type;
+    }
+
+    public static class ParameterNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            return context.getString(R.string.parameter_missing_string);
+        }
+    }
+
+    @Expose
+    public String note;
+
+    @Expose
+    public int tag;
+
+    /**
+     * The general kind of object this experiment object is.
+     *
+     * @return The kind of object.
+     */
+    abstract public int kind();
 
     /**
      * A formatted, readable name for the object.
@@ -171,20 +216,68 @@ public abstract class ExperimentObject {
      */
     abstract public String getExperimentObjectName(Context context);
 
+    public abstract int getKindResId();
+
     public NameResolverFactory getMethodNameFactory() {
         return new MethodNameFactory();
+    }
+
+    public NameResolverFactory getParameterNameFactory() {
+        return new ParameterNameFactory();
+    }
+
+    public ParameterData[] getParameters(Activity activity, int methodId) {
+        final Method method = getMethod(methodId);
+
+        // Get name factory to generate localised parameter names later.
+        final NameResolverFactory nameFactory = getParameterNameFactory();
+
+        final Class<?>[] parameterReflections = method.getParameterTypes();
+        final ParameterData[] parameters = new ParameterData[parameterReflections.length];
+
+        // Load in all parameters.
+        for (int i = 0; i < parameterReflections.length; i++) {
+            // Expect annotation is present for parameter.
+            final ParameterId paramAnnotation = ModelUtils.getParameterIdAnnotation(i, method);
+            if (paramAnnotation == null) {
+                throw new RuntimeException(
+                        "Missing annotation for parameter " + i + " of method " + methodId +
+                        " on class " + getClass().getName());
+            }
+
+            ParameterData parameter = new ParameterData();
+            parameter.id = paramAnnotation.value();
+            parameter.name = nameFactory.getName(activity, parameter.id);
+
+            Class<?> parameterReflection = parameterReflections[i];
+            if (parameterReflection.isAssignableFrom(float.class)) {
+                parameter.type = Type.TYPE_FLOAT;
+            } else if (parameterReflection.isAssignableFrom(int.class)) {
+                parameter.type = Type.TYPE_INTEGER;
+            } else if (parameterReflection.isAssignableFrom(String.class)) {
+                parameter.type = Type.TYPE_STRING;
+            } else if (parameterReflection.isAssignableFrom(boolean.class)) {
+                parameter.type = Type.TYPE_BOOLEAN;
+            } else if (parameterReflection.isAssignableFrom(ImageStub.class)) {
+                parameter.type = Type.TYPE_IMAGE;
+            } else if (parameterReflection.isAssignableFrom(SoundStub.class)) {
+                parameter.type = Type.TYPE_SOUND;
+            } else if (parameterReflection.isAssignableFrom(VideoStub.class)) {
+                parameter.type = Type.TYPE_VIDEO;
+            } else {
+                throw new RuntimeException(
+                        "Unknown type for parameter " + parameter.id + " on method " + methodId +
+                        " for class " + getClass().getName());
+            }
+
+            parameters[i] = parameter;
+        }
+        return parameters;
     }
 
     public int getTag() {
         return tag;
     }
-
-    /**
-     * The kind of object this experiment object is.
-     *
-     * @return The kind of object.
-     */
-    abstract public int kind();
 
     public void loadInMatchingMethods(Context context, int returnType, SortedSet<MethodData> out) {
         Class<? extends ExperimentObject> clazz = getClass();
@@ -280,55 +373,6 @@ public abstract class ExperimentObject {
         }
     }
 
-    public ParameterData[] getParameters(Activity activity, int methodId) {
-        final Method method = getMethod(methodId);
-
-        // Get name factory to generate localised parameter names later.
-        final NameResolverFactory nameFactory = getParameterNameFactory();
-
-        final Class<?>[] parameterReflections = method.getParameterTypes();
-        final ParameterData[] parameters = new ParameterData[parameterReflections.length];
-
-        // Load in all parameters.
-        for (int i = 0; i < parameterReflections.length; i++) {
-            // Expect annotation is present for parameter.
-            final ParameterId paramAnnotation = ModelUtils.getParameterIdAnnotation(i, method);
-            if (paramAnnotation == null) {
-                throw new RuntimeException(
-                        "Missing annotation for parameter " + i + " of method " + methodId +
-                        " on class " + getClass().getName());
-            }
-
-            ParameterData parameter = new ParameterData();
-            parameter.id = paramAnnotation.value();
-            parameter.name = nameFactory.getName(activity, parameter.id);
-
-            Class<?> parameterReflection = parameterReflections[i];
-            if (parameterReflection.isAssignableFrom(float.class)) {
-                parameter.type = Type.TYPE_FLOAT;
-            } else if (parameterReflection.isAssignableFrom(int.class)) {
-                parameter.type = Type.TYPE_INTEGER;
-            } else if (parameterReflection.isAssignableFrom(String.class)) {
-                parameter.type = Type.TYPE_STRING;
-            } else if (parameterReflection.isAssignableFrom(boolean.class)) {
-                parameter.type = Type.TYPE_BOOLEAN;
-            } else if (parameterReflection.isAssignableFrom(ImageStub.class)) {
-                parameter.type = Type.TYPE_IMAGE;
-            } else if (parameterReflection.isAssignableFrom(SoundStub.class)) {
-                parameter.type = Type.TYPE_SOUND;
-            } else if (parameterReflection.isAssignableFrom(VideoStub.class)) {
-                parameter.type = Type.TYPE_VIDEO;
-            } else {
-                throw new RuntimeException(
-                        "Unknown type for parameter " + parameter.id + " on method " + methodId +
-                        " for class " + getClass().getName());
-            }
-
-            parameters[i] = parameter;
-        }
-        return parameters;
-    }
-
     private Method getMethod(int methodId) {
         Method method = null;
 
@@ -345,42 +389,5 @@ public abstract class ExperimentObject {
             throw new RuntimeException("Unknown method id " + methodId);
         }
         return method;
-    }
-
-    public static class EventNameFactory implements NameResolverFactory {
-        @Override
-        public String getName(Context context, int lookup) {
-            return context.getString(R.string.event_missing_string);
-        }
-    }
-
-    public static class MethodNameFactory implements NameResolverFactory {
-        @Override
-        public String getName(Context context, int lookup) {
-            return context.getString(R.string.method_missing_string);
-        }
-    }
-
-    public static class ParameterNameFactory implements NameResolverFactory {
-        @Override
-        public String getName(Context context, int lookup) {
-            return context.getString(R.string.parameter_missing_string);
-        }
-    }
-
-    public static class MethodData {
-        public int id;
-
-        public int returnType;
-
-        public String name;
-    }
-
-    public static class ParameterData {
-        public int id;
-
-        public int type;
-
-        public String name;
     }
 }

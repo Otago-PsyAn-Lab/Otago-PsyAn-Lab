@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
 
   Otago PsyAn Lab is free software: you can redistribute it and/or modify
@@ -24,12 +23,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeightLarge"
-    android:background="@drawable/action_button" >
+    android:background="@drawable/scene_button">
 
     <TextView
-        android:id="@+id/type"
+        android:id="@+id/timer_iterations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="16dip"
+        android:layout_marginStart="16dip"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_vertical"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/timer_type"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_above="@+id/iterations"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginLeft="16dip"
@@ -66,6 +79,4 @@
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-
 </RelativeLayout>

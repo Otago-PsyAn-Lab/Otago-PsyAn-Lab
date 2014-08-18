@@ -25,7 +25,6 @@ import com.google.gson.annotations.Expose;
 import android.content.Context;
 
 import nz.ac.otago.psyanlab.common.R;
-import nz.ac.otago.psyanlab.common.model.ExperimentObject;
 import nz.ac.otago.psyanlab.common.model.Timer;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
@@ -49,4 +48,16 @@ public class Periodic extends Timer {
 
     @Override
     public NameResolverFactory getMethodNameFactory() { return super.getMethodNameFactory(); }
+
+    @Override
+    public String getStringFor(Context context, int resId) {
+        if (resId == R.id.timer_iterations) {
+            if (iterations == -1) {
+                return context.getString(R.string.text_timer_infinite);
+            }
+            return context.getString(R.string.format_timer_iterations, iterations);
+        }
+
+        return super.getStringFor(context, resId);
+    }
 }

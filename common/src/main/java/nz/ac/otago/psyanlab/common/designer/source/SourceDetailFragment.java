@@ -102,7 +102,8 @@ public class SourceDetailFragment extends Fragment {
             NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment
                     .newDialog(R.string.title_set_start_column,
                                ExperimentUtils.zeroBasedToUserValue(mSource.colStart), 1,
-                               mSource.getTotalCols(), DialogueRequestCodes.SOURCE_START_COLUMN);
+                               mSource.getTotalCols(), DialogueRequestCodes.SOURCE_START_COLUMN,
+                               false);
             dialog.showRange(true);
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_COL_START);
         }
@@ -116,7 +117,7 @@ public class SourceDetailFragment extends Fragment {
             NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment
                     .newDialog(R.string.title_set_number_of_rows, mSource.numRows, 1,
                                mSource.getTotalRows() - mSource.rowStart,
-                               DialogueRequestCodes.SOURCE_NUM_ROWS);
+                               DialogueRequestCodes.SOURCE_NUM_ROWS, false);
             dialog.showRange(true);
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_NUM_ROWS);
         }
@@ -130,7 +131,8 @@ public class SourceDetailFragment extends Fragment {
             NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment
                     .newDialog(R.string.title_set_start_row,
                                ExperimentUtils.zeroBasedToUserValue(mSource.rowStart), 1,
-                               mSource.getTotalRows(), DialogueRequestCodes.SOURCE_START_ROW);
+                               mSource.getTotalRows(), DialogueRequestCodes.SOURCE_START_ROW,
+                               false);
             dialog.showRange(true);
             dialog.show(getChildFragmentManager(), DIALOG_EDIT_ROW_START);
         }
@@ -143,6 +145,114 @@ public class SourceDetailFragment extends Fragment {
     };
 
     private OnSourceDeletedListener mOnSourceDeletedListener = mDeletedDummy;
+
+    public static SourceDetailFragment newInstance(long id) {
+        SourceDetailFragment f = new SourceDetailFragment();
+        Bundle args = new Bundle();
+        args.putLong(ARG_SOURCE_ID, id);
+        f.setArguments(args);
+        return f;
+    }
+
+    protected static class ListItemViewHolder {
+
+        /**
+         * Name of the field.
+         */
+        protected TextView mName;
+
+        /**
+         * Type of the field.
+         */
+        protected TextView mType;
+
+        public ListItemViewHolder(View view) {
+            mName = (TextView) view.findViewById(R.id.name);
+            mType = (TextView) view.findViewById(R.id.type);
+        }
+
+        public void setViewValues(Context context, Field field) {
+            mName.setText(field.name);
+            mType.setText(Type.getTypeString(context, field.type));
+        }
+    }
+
+    private static class ColumnNameAdapter extends BaseAdapter implements DragSortListener {
+
+        private Context mContext;
+
+        private LayoutInflater mInflater;
+
+        private Source mSource;
+
+        private SourceChangedListener mSourceChangedListener;
+
+        public ColumnNameAdapter(Context context, Source source,
+                                 SourceChangedListener sourceChangedListener) {
+            mContext = context;
+            mSource = source;
+            mSourceChangedListener = sourceChangedListener;
+            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public void drag(int from, int to) {
+        }
+
+        @Override
+        public void drop(int from, int to) {
+            Field field = mSource.columns.remove(from);
+            mSource.columns.add(to, field);
+            notifyDataSetChanged();
+            mSourceChangedListener.onSourceChange();
+        }
+
+        @Override
+        public int getCount() {
+            return mSource.columns.size();
+        }
+
+        @Override
+        public Field getItem(int position) {
+            return mSource.columns.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, View view, ViewGroup parent) {
+            final ListItemViewHolder holder;
+            if (view == null) {
+                view = mInflater.inflate(R.layout.list_item_data_channel_field, parent, false);
+                holder = new ListItemViewHolder(view);
+                view.setTag(holder);
+            } else {
+                holder = (ListItemViewHolder) view.getTag();
+            }
+
+            holder.setViewValues(mContext, getItem(position));
+            return view;
+        }
+
+        @Override
+        public void remove(int which) {
+            mSource.columns.remove(which);
+            notifyDataSetChanged();
+            mSourceChangedListener.onSourceChange();
+        }
+
+        public void setSource(Source source) {
+            mSource = source;
+        }
+
+        public interface SourceChangedListener {
+
+            void onSourceChange();
+        }
+    }
 
     public ColumnNameAdapter mAdapter;
 
@@ -191,15 +301,15 @@ public class SourceDetailFragment extends Fragment {
         }
 
         @Override
+        public void onResultCancel() {
+        }
+
+        @Override
         public void onResultDelete(Bundle data) {
             int position = data.getInt(EditDataColumnDialogueFragment.RESULT_POSITION);
             mSource.columns.remove(position);
             mAdapter.notifyDataSetChanged();
             mCallbacks.putSource(mSourceId, mSource);
-        }
-
-        @Override
-        public void onResultCancel() {
         }
     };
 
@@ -213,11 +323,11 @@ public class SourceDetailFragment extends Fragment {
         }
 
         @Override
-        public void onResultDelete(Bundle data) {
+        public void onResultCancel() {
         }
 
         @Override
-        public void onResultCancel() {
+        public void onResultDelete(Bundle data) {
         }
     };
 
@@ -230,11 +340,11 @@ public class SourceDetailFragment extends Fragment {
         }
 
         @Override
-        public void onResultDelete(Bundle data) {
+        public void onResultCancel() {
         }
 
         @Override
-        public void onResultCancel() {
+        public void onResultDelete(Bundle data) {
         }
     };
 
@@ -249,11 +359,11 @@ public class SourceDetailFragment extends Fragment {
         }
 
         @Override
-        public void onResultDelete(Bundle data) {
+        public void onResultCancel() {
         }
 
         @Override
-        public void onResultCancel() {
+        public void onResultDelete(Bundle data) {
         }
     };
 
@@ -272,11 +382,11 @@ public class SourceDetailFragment extends Fragment {
         }
 
         @Override
-        public void onResultDelete(Bundle data) {
+        public void onResultCancel() {
         }
 
         @Override
-        public void onResultCancel() {
+        public void onResultDelete(Bundle data) {
         }
     };
 
@@ -305,36 +415,6 @@ public class SourceDetailFragment extends Fragment {
     };
 
     private ViewHolder mViews;
-
-    public static SourceDetailFragment newInstance(long id) {
-        SourceDetailFragment f = new SourceDetailFragment();
-        Bundle args = new Bundle();
-        args.putLong(ARG_SOURCE_ID, id);
-        f.setArguments(args);
-        return f;
-    }
-
-    /**
-     * Look through existing fields until we find an index that hasn't yet been used.
-     *
-     * @return New unused id for a field within this data channel.
-     */
-    protected int getNewParamId() {
-        int i;
-        for (i = 0; i < mSource.columns.size(); i++) {
-            boolean found = false;
-            for (Field f : mSource.columns) {
-                if (i == f.id) {
-                    found = true;
-                }
-            }
-            if (!found) {
-                return i;
-            }
-        }
-
-        return i;
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -409,109 +489,31 @@ public class SourceDetailFragment extends Fragment {
         mOnSourceDeletedListener = listener;
     }
 
+    /**
+     * Look through existing fields until we find an index that hasn't yet been used.
+     *
+     * @return New unused id for a field within this data channel.
+     */
+    protected int getNewParamId() {
+        int i;
+        for (i = 0; i < mSource.columns.size(); i++) {
+            boolean found = false;
+            for (Field f : mSource.columns) {
+                if (i == f.id) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                return i;
+            }
+        }
+
+        return i;
+    }
+
     public interface OnSourceDeletedListener {
 
         void onSourceDeleted(long id);
-    }
-
-    private static class ColumnNameAdapter extends BaseAdapter implements DragSortListener {
-
-        private Context mContext;
-
-        private LayoutInflater mInflater;
-
-        private Source mSource;
-
-        private SourceChangedListener mSourceChangedListener;
-
-        public ColumnNameAdapter(Context context, Source source,
-                                 SourceChangedListener sourceChangedListener) {
-            mContext = context;
-            mSource = source;
-            mSourceChangedListener = sourceChangedListener;
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
-        @Override
-        public void drag(int from, int to) {
-        }
-
-        @Override
-        public void drop(int from, int to) {
-            Field field = mSource.columns.remove(from);
-            mSource.columns.add(to, field);
-            notifyDataSetChanged();
-            mSourceChangedListener.onSourceChange();
-        }
-
-        @Override
-        public int getCount() {
-            return mSource.columns.size();
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(final int position, View view, ViewGroup parent) {
-            final ListItemViewHolder holder;
-            if (view == null) {
-                view = mInflater.inflate(R.layout.list_item_data_channel_field, parent, false);
-                holder = new ListItemViewHolder(view);
-                view.setTag(holder);
-            } else {
-                holder = (ListItemViewHolder) view.getTag();
-            }
-
-            holder.setViewValues(mContext, getItem(position));
-            return view;
-        }
-
-        @Override
-        public Field getItem(int position) {
-            return mSource.columns.get(position);
-        }
-
-        @Override
-        public void remove(int which) {
-            mSource.columns.remove(which);
-            notifyDataSetChanged();
-            mSourceChangedListener.onSourceChange();
-        }
-
-        public void setSource(Source source) {
-            mSource = source;
-        }
-
-        public interface SourceChangedListener {
-
-            void onSourceChange();
-        }
-    }
-
-    protected static class ListItemViewHolder {
-
-        /**
-         * Name of the field.
-         */
-        protected TextView mName;
-
-        /**
-         * Type of the field.
-         */
-        protected TextView mType;
-
-        public ListItemViewHolder(View view) {
-            mName = (TextView) view.findViewById(R.id.name);
-            mType = (TextView) view.findViewById(R.id.type);
-        }
-
-        public void setViewValues(Context context, Field field) {
-            mName.setText(field.name);
-            mType.setText(Type.getTypeString(context, field.type));
-        }
     }
 
     private class ViewHolder {
@@ -568,6 +570,14 @@ public class SourceDetailFragment extends Fragment {
             setContentValues(source);
         }
 
+        public void updateViewValues(Source newSource, Source oldSource) {
+            if (!TextUtils.equals(newSource.name, oldSource.name)) {
+                mName.setText(newSource.name);
+            }
+            mAdapter.setSource(newSource);
+            setContentValues(newSource);
+        }
+
         private void setContentValues(Source source) {
             mFilename.setText(source.filename);
             mFilesize.setText(FileUtils.formatBytes(source.filesize));
@@ -577,14 +587,6 @@ public class SourceDetailFragment extends Fragment {
             mRowStart.setText(
                     String.valueOf(ExperimentUtils.zeroBasedToUserValue(mSource.rowStart)));
             mNumRows.setText(String.valueOf(mSource.numRows));
-        }
-
-        public void updateViewValues(Source newSource, Source oldSource) {
-            if (!TextUtils.equals(newSource.name, oldSource.name)) {
-                mName.setText(newSource.name);
-            }
-            mAdapter.setSource(newSource);
-            setContentValues(newSource);
         }
     }
 }

@@ -233,8 +233,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
     private OnItemClickListener mTimerItemClickListener = new OnItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            showEditTimerDialogue(l);
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            showEditTimerDialogue(id);
         }
     };
 
@@ -342,8 +342,9 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         setNextFragment(RuleFragment.newInstance(id, mObjectId));
     }
 
-    protected void showEditTimerDialogue(long l) {
-        // TODO:
+    protected void showEditTimerDialogue(long id) {
+        EditTimerDialogueFragment dialogue = EditTimerDialogueFragment.newDialogue(id, false);
+        dialogue.show(getChildFragmentManager(), "dialogue_edit_timer");
     }
 
     private void saveChanges() {
@@ -387,12 +388,11 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             @SuppressLint("WrongViewCast")
             final GridLayout gridLayout = (GridLayout) view.findViewById(R.id.background);
             final View rulesListContainer = view.findViewById(R.id.rules_list_container);
-            final View column = view.findViewById(R.id.column);
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
                     fixGridLayoutOverflow(gridLayout, rulesListContainer);
-                    fixGridLayoutOverflow(gridLayout, column);
+                    fixGridLayoutOverflow(gridLayout, timersList);
                 }
             });
         }
@@ -451,13 +451,10 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             } else {
                 stageDetail
                         .setText(getResources()
-                                .getString(
-                                        R.string.format_stage_detail,
-                                        mScene.stageWidth,
-                                        mScene.stageHeight,
-                                        getResources().getStringArray(
+                                .getString(R.string.format_stage_detail, mScene.stageWidth,
+                                           mScene.stageHeight, getResources().getStringArray(
                                                 R.array.orientation_options)[scene.orientation],
-                                        mScene.props.size()));
+                                           mScene.props.size()));
             }
             stageThumb.setNativeWidth(mScene.stageWidth);
             stageThumb.setNativeHeight(mScene.stageHeight);

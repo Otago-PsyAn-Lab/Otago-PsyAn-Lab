@@ -1,6 +1,5 @@
-
 /*
- Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
+ Copyright (C) 2014 Tonic Artos <tonic.artos@gmail.com>
 
  Otago PsyAn Lab is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,27 +18,25 @@
  all legal notices and author attributions must be preserved.
  */
 
-package nz.ac.otago.psyanlab.common.designer.util;
+package nz.ac.otago.psyanlab.common.designer.program.util;
 
 import android.widget.ListAdapter;
 
-import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
-import nz.ac.otago.psyanlab.common.model.Scene;
+import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity;
+import nz.ac.otago.psyanlab.common.model.Timer;
 
-public interface SceneCallbacks {
-    long addScene(Scene scene);
+public interface TimerCallbacks {
+    void addTimerDataChangeListener(ExperimentDesignerActivity.TimerDataChangeListener listener);
 
-    void addSceneDataChangeListener(SceneDataChangeListener listener);
+    long addTimer(Timer timer);
 
-    void deleteScene(long id);
+    void deleteTimer(long id);
 
-    Scene getScene(long sceneId);
+    Timer getTimer(long id);
 
-    ProgramComponentAdapter<Scene> getScenesAdapter(long loopId);
+    ListAdapter getTimersAdapter(long objectId);
 
-    void putScene(long id, Scene scene);
+    void putTimer(long id, Timer timer);
 
-    void removeSceneDataChangeListener(SceneDataChangeListener listener);
-
-    void startEditStage(long id);
+    void removeTimerDataChangeListener(ExperimentDesignerActivity.TimerDataChangeListener listener);
 }

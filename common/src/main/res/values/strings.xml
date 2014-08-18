@@ -169,5 +169,19 @@
     <string name="label_timer_periodic">Periodic Timer</string>
     <string name="label_generator_random">Random</string>
     <string name="label_generator_shuffle">Shuffle</string>
+    <string name="format_timer_wait_value">%1$dms</string>
+    <string name="format_timer_iterations">%1$d times</string>
+    <string name="title_dialogue_edit_timer">Edit Timer</string>
+    <string name="title_dialogue_new_timer">New Timer</string>
+    <string name="label_timer_name">Name</string>
+    <string name="hint_timer_name">Timer name</string>
+    <string name="label_timer_kind">Kind</string>
+    <string name="label_timer_wait_value">Wait</string>
+    <string name="hint_timer_wait_value">Milliseconds</string>
+    <string name="label_timer_iterations">Iterations</string>
+    <string name="hint_timer_iterations">Times to repeat</string>
+    <string name="text_timer_infinite">Until Stopped</string>
+    <string name="label_timer_kind_periodic">Periodic</string>
+    <string name="label_timer_kind_reset">Reset</string>
 
 </resources>

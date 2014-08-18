@@ -63,7 +63,7 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         args.putInt(ARG_MIN, minValue);
         args.putInt(ARG_MAX, maxValue);
         args.putInt(ARG_REQUEST_CODE, requestCode);
-        args.putBoolean(ARG_REQUEST_CODE, canBeInfinite);
+        args.putBoolean(ARG_INFINITE, canBeInfinite);
         f.setArguments(args);
         return f;
     }
@@ -134,11 +134,11 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         if (args == null) {
             throw new RuntimeException("Expect arguments for number picker dialogue.");
         }
-            defaultValue = args.getInt(ARG_DEFAULT_VALUE, 0);
-            min = args.getInt(ARG_MIN, 0);
-            max = args.getInt(ARG_MAX, Integer.MAX_VALUE);
-            title = args.getInt(ARG_TITLE, R.string.title_pick_number);
-            mRequestCode = args.getInt(ARG_REQUEST_CODE);
+        defaultValue = args.getInt(ARG_DEFAULT_VALUE, 0);
+        min = args.getInt(ARG_MIN, 0);
+        max = args.getInt(ARG_MAX, Integer.MAX_VALUE);
+        title = args.getInt(ARG_TITLE, R.string.title_pick_number);
+        mRequestCode = args.getInt(ARG_REQUEST_CODE);
         canBeInfinite = args.getBoolean(ARG_INFINITE);
 
         View view = inflater.inflate(R.layout.dialogue_number_picker, null);

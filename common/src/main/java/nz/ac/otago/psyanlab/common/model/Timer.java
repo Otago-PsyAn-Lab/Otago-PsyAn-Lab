@@ -29,6 +29,10 @@ import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 public abstract class Timer extends ExperimentObject {
+    public static final long TIMER_KIND_RESET = 0x02;
+
+    public static final long TIMER_KIND_PERIODIC = 0x01;
+
     private static final int METHOD_START = 0x01;
 
     private static final int METHOD_STOP = 0x02;
@@ -61,6 +65,18 @@ public abstract class Timer extends ExperimentObject {
     @Override
     public int getKindResId() {
         return R.string.label_timer;
+    }
+
+    public String getStringFor(Context context, int resId) {
+        if (resId == android.R.id.text1) {
+            return name;
+        } else if (resId == android.R.id.text2) {
+            return context.getString(R.string.format_timer_wait_value, waitValue);
+        } else if (resId == R.id.timer_type) {
+            return context.getString(getKindResId());
+        }
+
+        return null;
     }
 
     @Override

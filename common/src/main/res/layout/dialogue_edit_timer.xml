@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2014 Tonic Artos <tonic.artos@gmail.com>
+
+  Otago PsyAn Lab is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+  In accordance with Section 7(b) of the GNU General Public License version 3,
+  all legal notices and author attributions must be preserved.
+  -->
+
+<LinearLayout
+    style="?android:attr/buttonBarStyle"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dip"
+        android:scrollbarStyle="outsideOverlay">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:useDefaultMargins="true">
+
+            <TextView
+                android:layout_gravity="center_vertical|start"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_timer_name"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_gravity="fill_horizontal"
+                android:hint="@string/hint_timer_name"
+                android:imeOptions="actionNext"
+                android:inputType="textNoSuggestions"
+                android:minHeight="48dip"
+                android:selectAllOnFocus="true"
+                android:singleLine="true" />
+
+            <TextView
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginTop="8dip"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_timer_kind"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/kind"
+                android:layout_gravity="fill_horizontal"
+                android:layout_marginTop="8dip"
+                android:entries="@array/prop_types"
+                android:minHeight="48dip" />
+
+            <TextView
+                android:layout_gravity="center_vertical|start"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_timer_wait_value"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/wait_value"
+                android:layout_gravity="fill_horizontal"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:minHeight="48dip"
+                android:singleLine="true"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/iterations_label"
+                android:layout_gravity="center_vertical|start"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_timer_iterations"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/iterations"
+                style="?android:attr/spinnerStyle"
+                android:layout_gravity="fill_horizontal"
+                android:paddingBottom="20dip"
+                android:paddingLeft="12dip"
+                android:paddingStart="12dip"
+                android:paddingTop="20dip"
+                android:textSize="18sp" />
+
+        </GridLayout>
+    </ScrollView>
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/discard"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_discard" />
+
+        <Button
+            android:id="@+id/delete"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_delete" />
+
+        <Button
+            android:id="@+id/confirm"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_confirm" />
+    </LinearLayout>
+</LinearLayout>

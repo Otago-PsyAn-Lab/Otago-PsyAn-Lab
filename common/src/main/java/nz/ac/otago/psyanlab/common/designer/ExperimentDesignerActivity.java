@@ -35,6 +35,7 @@ import nz.ac.otago.psyanlab.common.designer.program.ProgramFragment;
 import nz.ac.otago.psyanlab.common.designer.program.object.PickObjectDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageActivity;
 import nz.ac.otago.psyanlab.common.designer.program.util.ProgramCallbacks;
+import nz.ac.otago.psyanlab.common.designer.util.TimerListItemViewBinder;
 import nz.ac.otago.psyanlab.common.designer.variable.VariableCallbacks;
 import nz.ac.otago.psyanlab.common.designer.variable.VariableFragment;
 import nz.ac.otago.psyanlab.common.designer.source.ImportSourceActivity;
@@ -75,6 +76,7 @@ import nz.ac.otago.psyanlab.common.model.Question;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
 import nz.ac.otago.psyanlab.common.model.Source;
+import nz.ac.otago.psyanlab.common.model.Timer;
 import nz.ac.otago.psyanlab.common.model.TouchEvent;
 import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
 import nz.ac.otago.psyanlab.common.model.Variable;
@@ -177,6 +179,8 @@ public class ExperimentDesignerActivity extends FragmentActivity
 
     private Pair<Long, ProgramComponentAdapter<Scene>> mCurrentSceneAdapter;
 
+    private Pair<Long, ProgramComponentAdapter<Timer>> mCurrentTimerAdapter;
+
     private ExperimentObjectAdapter<DataChannel> mDataChannelAdapter;
 
     private ArrayList<DataChannelDataChangeListener> mDataChannelDataChangeListeners;
@@ -253,8 +257,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
 
     private ArrayList<SourceDataChangeListener> mSourceDataChangeListeners;
 
-    private ArrayList<VariableDataChangeListener> mVariableDataChangeListeners;
-
     private ViewBinder<Source> mSourceViewBinder = new ViewBinder<Source>() {
         @Override
         public View bind(LayoutInflater inflater, Source item, int pos, View convertView,
@@ -276,9 +278,13 @@ public class ExperimentDesignerActivity extends FragmentActivity
         }
     };
 
+    private ArrayList<TimerDataChangeListener> mTimerDataChangeListeners;
+
     private CharSequence mTitle;
 
     private ExperimentObjectAdapter<Variable> mVariableAdapter;
+
+    private ArrayList<VariableDataChangeListener> mVariableDataChangeListeners;
 
     private ViewBinder<Variable> mVariableViewBinder = new ViewBinder<Variable>() {
         @Override
@@ -461,18 +467,43 @@ public class ExperimentDesignerActivity extends FragmentActivity
         mSceneDataChangeListeners.add(listener);
     }
 
+    public long addSource(Source source) {
+        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.sources);
+        mExperiment.sources.put(unusedKey, source);
+        notifySourceDataChange();
+        return unusedKey;
+    }
+
+    @Override
+    public void addSourceDataChangeListener(SourceDataChangeListener listener) {
+        if (mSourceDataChangeListeners == null) {
+            mSourceDataChangeListeners = new ArrayList<SourceDataChangeListener>();
+        }
+        mSourceDataChangeListeners.add(listener);
+    }
+
+    @Override
+    public long addTimer(Timer timer) {
+        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.timers);
+        mExperiment.timers.put(unusedKey, timer);
+        notifyTimerAdapter();
+        notifyTimerDataChangeListeners();
+        return unusedKey;
+    }
+
+    @Override
+    public void addTimerDataChangeListener(TimerDataChangeListener listener) {
+        if (mTimerDataChangeListeners == null) {
+            mTimerDataChangeListeners = new ArrayList<TimerDataChangeListener>();
+        }
+        mTimerDataChangeListeners.add(listener);
+    }
+
     @Override
     public long addVariable(Variable variable) {
         Long unusedKey = ModelUtils.findUnusedKey(mExperiment.variables);
         mExperiment.variables.put(unusedKey, variable);
         notifyVariableDataChange();
-        return unusedKey;
-    }
-
-    public long addSource(Source source) {
-        Long unusedKey = ModelUtils.findUnusedKey(mExperiment.sources);
-        mExperiment.sources.put(unusedKey, source);
-        notifySourceDataChange();
         return unusedKey;
     }
 
@@ -482,14 +513,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
             mVariableDataChangeListeners = new ArrayList<VariableDataChangeListener>();
         }
         mVariableDataChangeListeners.add(listener);
-    }
-
-    @Override
-    public void addSourceDataChangeListener(SourceDataChangeListener listener) {
-        if (mSourceDataChangeListeners == null) {
-            mSourceDataChangeListeners = new ArrayList<SourceDataChangeListener>();
-        }
-        mSourceDataChangeListeners.add(listener);
     }
 
     @Override
@@ -562,21 +585,30 @@ public class ExperimentDesignerActivity extends FragmentActivity
     }
 
     @Override
-    public void deleteVariable(long id) {
-        Variable variable = mExperiment.variables.remove(id);
-
-        removeReferencesTo(ExperimentObject.KIND_VARIABLE, id);
-
-        notifyVariableDataChange();
-    }
-
-    @Override
     public void deleteSource(long id) {
         Source source = mExperiment.sources.remove(id);
 
         removeReferencesTo(ExperimentObject.KIND_SOURCE, id);
 
         notifySourceDataChange();
+    }
+
+    @Override
+    public void deleteTimer(long id) {
+        mExperiment.timers.remove(id);
+
+        deleteTimerData(id);
+        notifyTimerAdapter();
+        notifyTimerDataChangeListeners();
+    }
+
+    @Override
+    public void deleteVariable(long id) {
+        Variable variable = mExperiment.variables.remove(id);
+
+        removeReferencesTo(ExperimentObject.KIND_VARIABLE, id);
+
+        notifyVariableDataChange();
     }
 
     @Override
@@ -806,8 +838,7 @@ public class ExperimentDesignerActivity extends FragmentActivity
     @Override
     public FragmentPagerAdapter getObjectBrowserPagerAdapter(FragmentManager fm, int callerKind,
                                                              long callerId, int filter,
-                                                             ArrayFragmentMapAdapter
-                                                                     .FragmentFactory
+                                                             ArrayFragmentMapAdapter.FragmentFactory
                                                                      fragmentFactory) {
 
         // Work out the base scope level from our caller.
@@ -987,23 +1018,8 @@ public class ExperimentDesignerActivity extends FragmentActivity
     }
 
     @Override
-    public Variable getVariable(long id) {
-        return mExperiment.variables.get(id);
-    }
-
-    @Override
     public Source getSource(long id) {
         return mExperiment.sources.get(id);
-    }
-
-    @Override
-    public ListAdapter getVariablesAdapter() {
-        if (mVariableAdapter == null) {
-            mVariableAdapter = new ExperimentObjectAdapter<Variable>(this, mExperiment.variables,
-                                                                     mVariableViewBinder);
-        }
-
-        return mVariableAdapter;
     }
 
     @Override
@@ -1014,6 +1030,41 @@ public class ExperimentDesignerActivity extends FragmentActivity
         }
 
         return mSourceAdapter;
+    }
+
+    @Override
+    public Timer getTimer(long id) {
+        return mExperiment.timers.get(id);
+    }
+
+    @Override
+    public ListAdapter getTimersAdapter(long sceneId) {
+        if (mCurrentTimerAdapter != null && mCurrentTimerAdapter.first == sceneId) {
+            return mCurrentTimerAdapter.second;
+        }
+
+        ProgramComponentAdapter<Timer> adapter =
+                new ProgramComponentAdapter<Timer>(mExperiment.timers,
+                                                   mExperiment.scenes.get(sceneId).timers,
+                                                   new TimerListItemViewBinder(this, this));
+        mCurrentTimerAdapter = new Pair<Long, ProgramComponentAdapter<Timer>>(sceneId, adapter);
+
+        return adapter;
+    }
+
+    @Override
+    public Variable getVariable(long id) {
+        return mExperiment.variables.get(id);
+    }
+
+    @Override
+    public ListAdapter getVariablesAdapter() {
+        if (mVariableAdapter == null) {
+            mVariableAdapter = new ExperimentObjectAdapter<Variable>(this, mExperiment.variables,
+                                                                     mVariableViewBinder);
+        }
+
+        return mVariableAdapter;
     }
 
     @Override
@@ -1107,8 +1158,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    ;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1167,6 +1216,8 @@ public class ExperimentDesignerActivity extends FragmentActivity
             selectSection(0);
         }
     }
+
+    ;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -1321,17 +1372,26 @@ public class ExperimentDesignerActivity extends FragmentActivity
     }
 
     @Override
-    public void putVariable(long id, Variable variable) {
-        mExperiment.variables.put(id, variable);
-        updateReferencesTo(ExperimentObject.KIND_VARIABLE, id);
-        notifyVariableDataChange();
-    }
-
-    @Override
     public void putSource(long id, Source source) {
         mExperiment.sources.put(id, source);
         updateReferencesTo(ExperimentObject.KIND_SOURCE, id);
         notifySourceDataChange();
+    }
+
+    @Override
+    public void putTimer(long id, Timer timer) {
+        mExperiment.timers.put(id, timer);
+
+        updateReferencesTo(ExperimentObject.KIND_TIMER, id);
+        notifyTimerDataChangeListeners();
+        notifyTimerAdapter();
+    }
+
+    @Override
+    public void putVariable(long id, Variable variable) {
+        mExperiment.variables.put(id, variable);
+        updateReferencesTo(ExperimentObject.KIND_VARIABLE, id);
+        notifyVariableDataChange();
     }
 
     @Override
@@ -1420,16 +1480,21 @@ public class ExperimentDesignerActivity extends FragmentActivity
     }
 
     @Override
-    public void removeVariableDataChangeListener(VariableDataChangeListener listener) {
-        if (mVariableDataChangeListeners != null) {
-            mVariableDataChangeListeners.remove(listener);
+    public void removeSourceDataChangeListener(SourceDataChangeListener listener) {
+        if (mSourceDataChangeListeners != null) {
+            mSourceDataChangeListeners.remove(listener);
         }
     }
 
     @Override
-    public void removeSourceDataChangeListener(SourceDataChangeListener listener) {
-        if (mSourceDataChangeListeners != null) {
-            mSourceDataChangeListeners.remove(listener);
+    public void removeTimerDataChangeListener(TimerDataChangeListener listener) {
+        mTimerDataChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void removeVariableDataChangeListener(VariableDataChangeListener listener) {
+        if (mVariableDataChangeListeners != null) {
+            mVariableDataChangeListeners.remove(listener);
         }
     }
 
@@ -1493,6 +1558,50 @@ public class ExperimentDesignerActivity extends FragmentActivity
     @Override
     public void updateVersion(int version) {
         mExperiment.version = version;
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        mSectionManager
+                .restoreState(savedInstanceState.getParcelable(ADAPTER_STATE), getClassLoader());
+
+        selectSection(mSectionManager.getCurrentPosition());
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable(ADAPTER_STATE, mSectionManager.saveState());
+    }
+
+    StickyGridHeadersSimpleAdapter getAssetsAdapter(int filter) {
+        HashMap<Long, Asset> filteredAssets = new HashMap<Long, Asset>();
+        for (Entry<Long, Asset> entry : filteredAssets.entrySet()) {
+            long key = entry.getKey();
+            Asset asset = mExperiment.assets.get(key);
+            if (asset.satisfiesFilter(filter)) {
+                filteredAssets.put(key, asset);
+            }
+        }
+
+        return new AssetsAdapter(this, filteredAssets);
+    }
+
+    Collator getCollater() {
+        Locale locale = Locale.getDefault();
+        Collator collator = Collator.getInstance(locale);
+        collator.setStrength(Collator.SECONDARY);
+        return collator;
     }
 
     /**
@@ -1575,6 +1684,8 @@ public class ExperimentDesignerActivity extends FragmentActivity
         mExperiment.actions.remove(id);
     }
 
+    ;
+
     private void deleteAssetData(long id) {
         mExperiment.assets.remove(id);
 
@@ -1612,8 +1723,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
             mCurrentSceneAdapter = null;
         }
     }
-
-    ;
 
     private void deleteOperand(long id, boolean notify) {
         if (!mExperiment.operands.containsKey(id)) {
@@ -1676,6 +1785,10 @@ public class ExperimentDesignerActivity extends FragmentActivity
         if (mCurrentRuleAdapter != null && mCurrentRuleAdapter.first == id) {
             mCurrentRuleAdapter = null;
         }
+    }
+
+    private void deleteTimerData(long id) {
+        removeReferencesTo(ExperimentObject.KIND_TIMER, id);
     }
 
     private boolean doDiscardAction() {
@@ -2122,18 +2235,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
         }
     }
 
-    private void notifyVariableDataChange() {
-        if (mVariableAdapter != null) {
-            mVariableAdapter.notifyDataSetChanged();
-        }
-
-        if (mVariableDataChangeListeners != null) {
-            for (VariableDataChangeListener listener : mVariableDataChangeListeners) {
-                listener.onVariableDataChange();
-            }
-        }
-    }
-
     private void notifySourceDataChange() {
         if (mSourceAdapter != null) {
             mSourceAdapter.notifyDataSetChanged();
@@ -2142,6 +2243,36 @@ public class ExperimentDesignerActivity extends FragmentActivity
         if (mSourceDataChangeListeners != null) {
             for (SourceDataChangeListener listener : mSourceDataChangeListeners) {
                 listener.onSourceDataChange();
+            }
+        }
+    }
+
+    private void notifyTimerAdapter() {
+        if (mCurrentTimerAdapter == null) {
+            return;
+        }
+
+        mCurrentTimerAdapter.second.notifyDataSetChanged();
+    }
+
+    private void notifyTimerDataChangeListeners() {
+        if (mTimerDataChangeListeners == null) {
+            return;
+        }
+
+        for (TimerDataChangeListener l : mTimerDataChangeListeners) {
+            l.onTimerDataChange();
+        }
+    }
+
+    private void notifyVariableDataChange() {
+        if (mVariableAdapter != null) {
+            mVariableAdapter.notifyDataSetChanged();
+        }
+
+        if (mVariableDataChangeListeners != null) {
+            for (VariableDataChangeListener listener : mVariableDataChangeListeners) {
+                listener.onVariableDataChange();
             }
         }
     }
@@ -2342,90 +2473,11 @@ public class ExperimentDesignerActivity extends FragmentActivity
             case ExperimentObject.KIND_VARIABLE:
                 updateReferencesToVariable(id);
                 break;
+            case ExperimentObject.KIND_TIMER:
             case ExperimentObject.KIND_GENERATOR:
-                // Generators always have the same interface.
+                // Objects of these kinds have no API differences between subtypes.
             default:
                 break;
-        }
-    }
-
-    private void updateReferencesToSource(long id) {
-        Source source = mExperiment.sources.get(id);
-        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_SOURCE, id);
-
-        for (Long callId : calls) {
-            CallValue call = (CallValue) mExperiment.operands.get(callId);
-
-            if (call == null) {
-                // It is possible we might be trying to update a call we have
-                // already obliterated due to removing a parent operand, so we
-                // just skip the missing operand and continue processing the
-                // list.
-                continue;
-            }
-
-            if (source == null) {
-                // The prop was actually deleted so we just need to remove the
-                // reference.
-                StubOperand replacement = new StubOperand(call.getName());
-                replacement.type = call.type;
-                replacement.tag = call.tag;
-                deleteOperand(callId);
-                putOperand(callId, replacement);
-                continue;
-            }
-
-            // Check to see if the call matches a column.
-            boolean found = false;
-            for (Field column : source.columns) {
-                if (call.method == column.id && (call.getType() & column.type) != 0) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                StubOperand replacement = new StubOperand(call.getName());
-                replacement.type = call.type;
-                replacement.tag = call.tag;
-                deleteOperand(callId);
-                putOperand(callId, replacement);
-            }
-        }
-
-        // Notify loop data change listeners that a linked source may have changed. But only do
-        // it if we find a loop with a change.
-        for (Entry<Long, Loop> entry : mExperiment.loops.entrySet()) {
-            if (entry.getValue().linkedSource == id) {
-                notifyLoopDataChangeListeners();
-                break;
-            }
-        }
-    }
-
-    private void updateReferencesToVariable(long id) {
-        Variable variable = mExperiment.variables.get(id);
-        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_VARIABLE, id);
-
-        for (Long callId : calls) {
-            CallValue call = (CallValue) mExperiment.operands.get(callId);
-
-            if (call == null) {
-                // It is possible we might be trying to update a call we have
-                // already obliterated due to removing a parent operand, so we
-                // just skip the missing operand and continue processing the
-                // list.
-                continue;
-            }
-
-            if (variable == null || (call.getType() & variable.getType()) == 0) {
-                // The prop was actually deleted so we just need to remove the
-                // reference.
-                StubOperand replacement = new StubOperand(call.getName());
-                replacement.type = call.type;
-                replacement.tag = call.tag;
-                deleteOperand(callId);
-                putOperand(callId, replacement);
-            }
         }
     }
 
@@ -2582,6 +2634,59 @@ public class ExperimentDesignerActivity extends FragmentActivity
         }
     }
 
+    private void updateReferencesToSource(long id) {
+        Source source = mExperiment.sources.get(id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_SOURCE, id);
+
+        for (Long callId : calls) {
+            CallValue call = (CallValue) mExperiment.operands.get(callId);
+
+            if (call == null) {
+                // It is possible we might be trying to update a call we have
+                // already obliterated due to removing a parent operand, so we
+                // just skip the missing operand and continue processing the
+                // list.
+                continue;
+            }
+
+            if (source == null) {
+                // The prop was actually deleted so we just need to remove the
+                // reference.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId);
+                putOperand(callId, replacement);
+                continue;
+            }
+
+            // Check to see if the call matches a column.
+            boolean found = false;
+            for (Field column : source.columns) {
+                if (call.method == column.id && (call.getType() & column.type) != 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId);
+                putOperand(callId, replacement);
+            }
+        }
+
+        // Notify loop data change listeners that a linked source may have changed. But only do
+        // it if we find a loop with a change.
+        for (Entry<Long, Loop> entry : mExperiment.loops.entrySet()) {
+            if (entry.getValue().linkedSource == id) {
+                notifyLoopDataChangeListeners();
+                break;
+            }
+        }
+    }
+
     /**
      * If the trigger event kind is of the same type as what was there before, we can leave it
      * alone. Otherwise, it'll have to be removed.
@@ -2669,6 +2774,33 @@ public class ExperimentDesignerActivity extends FragmentActivity
 
         for (long actionId : rule.actions) {
             updateReferencesToTriggerEvent(mExperiment.actions.get(actionId).operandId, event);
+        }
+    }
+
+    private void updateReferencesToVariable(long id) {
+        Variable variable = mExperiment.variables.get(id);
+        ArrayList<Long> calls = findAffectedCallIds(ExperimentObject.KIND_VARIABLE, id);
+
+        for (Long callId : calls) {
+            CallValue call = (CallValue) mExperiment.operands.get(callId);
+
+            if (call == null) {
+                // It is possible we might be trying to update a call we have
+                // already obliterated due to removing a parent operand, so we
+                // just skip the missing operand and continue processing the
+                // list.
+                continue;
+            }
+
+            if (variable == null || (call.getType() & variable.getType()) == 0) {
+                // The prop was actually deleted so we just need to remove the
+                // reference.
+                StubOperand replacement = new StubOperand(call.getName());
+                replacement.type = call.type;
+                replacement.tag = call.tag;
+                deleteOperand(callId);
+                putOperand(callId, replacement);
+            }
         }
     }
 
@@ -2763,50 +2895,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
         notifySceneDataChangeListeners();
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        mSectionManager
-                .restoreState(savedInstanceState.getParcelable(ADAPTER_STATE), getClassLoader());
-
-        selectSection(mSectionManager.getCurrentPosition());
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelable(ADAPTER_STATE, mSectionManager.saveState());
-    }
-
-    StickyGridHeadersSimpleAdapter getAssetsAdapter(int filter) {
-        HashMap<Long, Asset> filteredAssets = new HashMap<Long, Asset>();
-        for (Entry<Long, Asset> entry : filteredAssets.entrySet()) {
-            long key = entry.getKey();
-            Asset asset = mExperiment.assets.get(key);
-            if (asset.satisfiesFilter(filter)) {
-                filteredAssets.put(key, asset);
-            }
-        }
-
-        return new AssetsAdapter(this, filteredAssets);
-    }
-
-    Collator getCollater() {
-        Locale locale = Locale.getDefault();
-        Collator collator = Collator.getInstance(locale);
-        collator.setStrength(Collator.SECONDARY);
-        return collator;
-    }
-
     public interface ActionDataChangeListener {
 
         void onActionDataChange();
@@ -2860,6 +2948,10 @@ public class ExperimentDesignerActivity extends FragmentActivity
     public interface SourceDataChangeListener {
 
         void onSourceDataChange();
+    }
+
+    public interface TimerDataChangeListener {
+        void onTimerDataChange();
     }
 
     public interface VariableDataChangeListener {

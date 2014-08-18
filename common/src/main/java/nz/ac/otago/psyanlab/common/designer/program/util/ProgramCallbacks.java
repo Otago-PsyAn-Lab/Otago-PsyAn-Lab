@@ -40,4 +40,5 @@ import nz.ac.otago.psyanlab.common.designer.util.SceneCallbacks;
 public interface ProgramCallbacks
         extends DialogueResultListenerRegistrar, OperandCallbacks, ActionCallbacks,
                 GeneratorCallbacks, LoopCallbacks, RuleCallbacks, SceneCallbacks, PropCallbacks,
-                ExperimentObjectBrowserCallbacks, ChannelCallbacks, SourceCallbacks {}
+                ExperimentObjectBrowserCallbacks, ChannelCallbacks, SourceCallbacks,
+                TimerCallbacks {}

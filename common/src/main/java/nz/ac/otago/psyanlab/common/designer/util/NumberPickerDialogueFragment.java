@@ -48,12 +48,14 @@ public class NumberPickerDialogueFragment extends DialogFragment {
 
     private static final String ARG_TITLE = "arg_title";
 
+    private static final java.lang.String ARG_INFINITE = "arg_infinite";
+
     /**
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
     public static NumberPickerDialogueFragment newDialog(int titleResId, int defaultValue,
                                                          int minValue, int maxValue,
-                                                         int requestCode) {
+                                                         int requestCode, boolean canBeInfinite) {
         NumberPickerDialogueFragment f = new NumberPickerDialogueFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_TITLE, titleResId);
@@ -61,6 +63,7 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         args.putInt(ARG_MIN, minValue);
         args.putInt(ARG_MAX, maxValue);
         args.putInt(ARG_REQUEST_CODE, requestCode);
+        args.putBoolean(ARG_REQUEST_CODE, canBeInfinite);
         f.setArguments(args);
         return f;
     }
@@ -69,8 +72,10 @@ public class NumberPickerDialogueFragment extends DialogFragment {
      * Create a new dialogue to edit the number of iterations a loop undergoes.
      */
     public static NumberPickerDialogueFragment newDialogue(int titleResId, int defaultValue,
-                                                           int minValue, int requestCode) {
-        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode);
+                                                           int minValue, int requestCode,
+                                                           boolean canBeInfinite) {
+        return newDialog(titleResId, defaultValue, minValue, Integer.MAX_VALUE, requestCode,
+                         canBeInfinite);
     }
 
     private DialogueResultCallbacks mCallbacks;
@@ -123,15 +128,18 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         int defaultValue = 0;
         int max = Integer.MAX_VALUE;
         int title = R.string.title_pick_number;
+        boolean canBeInfinite = false;
 
         Bundle args = getArguments();
-        if (args != null) {
+        if (args == null) {
+            throw new RuntimeException("Expect arguments for number picker dialogue.");
+        }
             defaultValue = args.getInt(ARG_DEFAULT_VALUE, 0);
             min = args.getInt(ARG_MIN, 0);
             max = args.getInt(ARG_MAX, Integer.MAX_VALUE);
             title = args.getInt(ARG_TITLE, R.string.title_pick_number);
             mRequestCode = args.getInt(ARG_REQUEST_CODE);
-        }
+        canBeInfinite = args.getBoolean(ARG_INFINITE);
 
         View view = inflater.inflate(R.layout.dialogue_number_picker, null);
         mViews = new ViewHolder(view);
@@ -142,8 +150,11 @@ public class NumberPickerDialogueFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(title).setView(view)
                .setPositiveButton(R.string.action_confirm, mPositiveListener)
-               .setNeutralButton("Infinite", mNeutralListener)
                .setNegativeButton(R.string.action_discard, mNegativeListener);
+
+        if (canBeInfinite) {
+            builder.setNeutralButton("Infinite", mNeutralListener);
+        }
 
         // Create the AlertDialog object and return it
         Dialog dialog = builder.create();

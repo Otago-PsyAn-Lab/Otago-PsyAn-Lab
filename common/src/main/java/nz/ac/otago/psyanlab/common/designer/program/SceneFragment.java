@@ -1,4 +1,3 @@
-
 /*
  Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
 
@@ -28,10 +27,13 @@ import nz.ac.otago.psyanlab.common.R;
 import nz.ac.otago.psyanlab.common.designer.ExperimentDesignerActivity.SceneDataChangeListener;
 import nz.ac.otago.psyanlab.common.designer.program.stage.PropAdapter;
 import nz.ac.otago.psyanlab.common.designer.program.stage.StageView;
+import nz.ac.otago.psyanlab.common.designer.program.util.EditTimerDialogueFragment;
 import nz.ac.otago.psyanlab.common.designer.util.ProgramComponentAdapter;
 import nz.ac.otago.psyanlab.common.model.Rule;
 import nz.ac.otago.psyanlab.common.model.Scene;
+import nz.ac.otago.psyanlab.common.model.Timer;
 import nz.ac.otago.psyanlab.common.model.operand.BooleanValue;
+import nz.ac.otago.psyanlab.common.model.timer.Reset;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -59,6 +61,10 @@ import android.widget.TextView;
 
 public class SceneFragment extends BaseProgramFragment implements SceneDataChangeListener {
 
+    public static BaseProgramFragment newInstance(long id) {
+        return init(new SceneFragment(), id);
+    }
+
     protected final OnClickListener mEditStageClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -82,8 +88,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
                 onRuleClick(id);
 
                 View handle = mViews.rulesList.getChildAt(
-                        position - mViews.rulesList.getFirstVisiblePosition()
-                                + mViews.rulesList.getHeaderViewsCount()).findViewById(R.id.handle);
+                        position - mViews.rulesList.getFirstVisiblePosition() +
+                        mViews.rulesList.getHeaderViewsCount()).findViewById(R.id.handle);
                 if (handle != null) {
                     handle.setEnabled(true);
                     handle.setVisibility(View.VISIBLE);
@@ -94,31 +100,32 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
     protected ActionMode mActionMode;
 
-    protected final OnItemLongClickListener mRuleItemLongClickListener
-            = new OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
-            if (mActionMode != null) {
-                return false;
-            }
-            mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-            mViews.rulesList.setItemChecked(position, true);
-            mRulesAdapter.fixItemBackground(R.drawable.scene_activated_background);
-            setNextFragment(null);
+    protected final OnItemLongClickListener mRuleItemLongClickListener =
+            new OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> arg0, View view, int position,
+                                               long id) {
+                    if (mActionMode != null) {
+                        return false;
+                    }
+                    mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+                    mViews.rulesList.setItemChecked(position, true);
+                    mRulesAdapter.fixItemBackground(R.drawable.scene_activated_background);
+                    setNextFragment(null);
 
-            for (int i = 0; i < mViews.rulesList.getChildCount(); i++) {
-                View handle = mViews.rulesList.getChildAt(i).findViewById(R.id.handle);
-                if (handle != null) {
-                    handle.setEnabled(false);
-                    handle.setVisibility(View.GONE);
+                    for (int i = 0; i < mViews.rulesList.getChildCount(); i++) {
+                        View handle = mViews.rulesList.getChildAt(i).findViewById(R.id.handle);
+                        if (handle != null) {
+                            handle.setEnabled(false);
+                            handle.setVisibility(View.GONE);
+                        }
+                    }
+
+                    mViews.rulesList.setDragEnabled(false);
+
+                    return true;
                 }
-            }
-
-            mViews.rulesList.setDragEnabled(false);
-
-            return true;
-        }
-    };
+            };
 
     protected PropAdapter mPropAdapter;
 
@@ -126,8 +133,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
     protected Scene mScene;
 
-    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks
-            = new MultiChoiceModeListener() {
+    protected final MultiChoiceModeListener mMultiChoiceModeCallbacks =
+            new MultiChoiceModeListener() {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int itemId = item.getItemId();
@@ -158,41 +165,41 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             return true;
         }
 
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            mActionMode = null;
-            mViews.rulesList.post(new Runnable() {
                 @Override
-                public void run() {
-                    mRulesAdapter.fixItemBackground(R.drawable.scene_activated_background_arrow);
-                    mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-                    mViews.rulesList.setDragEnabled(true);
+                public void onDestroyActionMode(ActionMode mode) {
+                    mActionMode = null;
+                    mViews.rulesList.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mRulesAdapter
+                                    .fixItemBackground(R.drawable.scene_activated_background_arrow);
+                            mViews.rulesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                            mViews.rulesList.setDragEnabled(true);
+                        }
+                    });
                 }
-            });
-        }
 
-        @Override
-        public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
-                boolean checked) {
-            final int checkedCount = mViews.rulesList.getCheckedItemCount();
-            switch (checkedCount) {
-                case 0:
-                    mode.setSubtitle(null);
-                    break;
-                case 1:
-                    mode.setSubtitle(R.string.subtitle_one_item_selected);
-                    break;
-                default:
-                    mode.setSubtitle(String.format(
-                            getResources().getString(R.string.subtitle_fmt_num_items_selected),
-                            checkedCount));
-                    break;
-            }
-        }
+                @Override
+                public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
+                                                      boolean checked) {
+                    final int checkedCount = mViews.rulesList.getCheckedItemCount();
+                    switch (checkedCount) {
+                        case 0:
+                            mode.setSubtitle(null);
+                            break;
+                        case 1:
+                            mode.setSubtitle(R.string.subtitle_one_item_selected);
+                            break;
+                        default:
+                            mode.setSubtitle(String.format(getResources().getString(
+                                    R.string.subtitle_fmt_num_items_selected), checkedCount));
+                            break;
+                    }
+                }
 
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return true;
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return true;
         }
     };
 
@@ -217,14 +224,30 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
 
     protected ViewHolder mViews;
 
-    public static BaseProgramFragment newInstance(long id) {
-        return init(new SceneFragment(), id);
-    }
+    private OnClickListener mNewTimerClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            onNewTimer();
+        }
+    };
+
+    private OnItemClickListener mTimerItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            showEditTimerDialogue(l);
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_designer_program_scene, container, false);
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_designer_program_scene, container, false);
+        ListView timersList = (ListView) view.findViewById(R.id.timers);
+        timersList
+                .addHeaderView(inflater.inflate(R.layout.header_scene_content, timersList, false));
+        timersList
+                .addFooterView(inflater.inflate(R.layout.footer_scene_content, timersList, false));
+        return view;
     }
 
     @Override
@@ -266,10 +289,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         mViews.initViews();
     }
 
-    private void saveChanges() {
-        mCallbacks.putScene(mObjectId, mScene);
-    }
-
     @Override
     protected int getFavouredBackground() {
         return R.drawable.background_designer_program_scene;
@@ -283,7 +302,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
     protected void onNewRule() {
         Rule rule = new Rule();
         final long newRuleId = mCallbacks.addRule(rule);
-        rule.name = "Rule " + (newRuleId + 1);
+        rule.name = getString(R.string.default_name_new_rule, newRuleId + 1);
 
         BooleanValue defaultCondition = new BooleanValue();
         defaultCondition.name = getString(R.string.default_condition_name);
@@ -307,11 +326,32 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         }
     }
 
+    protected void onNewTimer() {
+        Timer timer = new Reset();
+        final long newTimerId = mCallbacks.addTimer(timer);
+        timer.name = getString(R.string.default_name_new_timer, newTimerId + 1);
+
+        mScene.timers.add(newTimerId);
+        mCallbacks.putScene(mObjectId, mScene);
+
+        EditTimerDialogueFragment dialogue = EditTimerDialogueFragment.newDialogue(newTimerId, true);
+        dialogue.show(getChildFragmentManager(), "dialogue_edit_timer");
+    }
+
     protected void onRuleClick(long id) {
         setNextFragment(RuleFragment.newInstance(id, mObjectId));
     }
 
+    protected void showEditTimerDialogue(long l) {
+        // TODO:
+    }
+
+    private void saveChanges() {
+        mCallbacks.putScene(mObjectId, mScene);
+    }
+
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Scene> {
+        public final ListView timersList;
 
         public View editStage;
 
@@ -320,6 +360,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         public EditText name;
 
         public View newRule;
+
+        public View newTimer;
 
         public DragSortListView rulesList;
 
@@ -339,6 +381,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             stageThumb = (StageView) view.findViewById(R.id.stage);
             stageDetail = (TextView) view.findViewById(R.id.stage_detail);
             editStagePsuedoButton = (TextView) view.findViewById(R.id.edit_stage_psudeo_button);
+            timersList = (ListView) view.findViewById(R.id.timers);
+            newTimer = view.findViewById(R.id.new_timer);
 
             @SuppressLint("WrongViewCast")
             final GridLayout gridLayout = (GridLayout) view.findViewById(R.id.background);
@@ -373,6 +417,10 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
             rulesList.setOnItemClickListener(mRuleItemClickListener);
             rulesList.setOnItemLongClickListener(mRuleItemLongClickListener);
             rulesList.setEmptyView(mEmpty);
+
+            timersList.setAdapter(mCallbacks.getTimersAdapter(mObjectId));
+            timersList.setOnItemClickListener(mTimerItemClickListener);
+            newTimer.setOnClickListener(mNewTimerClickListener);
         }
 
         @Override

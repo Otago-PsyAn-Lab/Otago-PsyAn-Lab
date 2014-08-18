@@ -478,7 +478,7 @@ public class LoopFragment extends BaseProgramFragment
 
         NumberPickerDialogueFragment dialog = NumberPickerDialogueFragment
                 .newDialogue(R.string.title_edit_iterations, mLoop.iterations, 1,
-                             DialogueRequestCodes.ITERATION_NUMBER);
+                             DialogueRequestCodes.ITERATION_NUMBER, true);
         dialog.show(getChildFragmentManager(), "dialog_edit_iteration");
     }
 

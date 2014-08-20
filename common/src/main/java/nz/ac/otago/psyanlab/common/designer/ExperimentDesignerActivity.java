@@ -595,8 +595,6 @@ public class ExperimentDesignerActivity extends FragmentActivity
 
     @Override
     public void deleteTimer(long id) {
-        mExperiment.timers.remove(id);
-
         deleteTimerData(id);
         notifyTimerAdapter();
         notifyTimerDataChangeListeners();
@@ -746,6 +744,8 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 return mExperiment.variables.get(object.id);
             case ExperimentObject.KIND_SOURCE:
                 return mExperiment.sources.get(object.id);
+            case ExperimentObject.KIND_TIMER:
+                return mExperiment.timers.get(object.id);
 
             case ExperimentObject.KIND_EXPERIMENT:
             default:
@@ -1632,6 +1632,13 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 }
             }
 
+            for (Long timerId : scene.timers) {
+                Timer timer = mExperiment.timers.get(timerId);
+                if (timer.satisfiesFilter(filter)) {
+                    return true;
+                }
+            }
+
             return false;
         } else if (scopeLevel == SCOPE_LOOP) {
             final long loopId = findLoopIdForDescendant(callerKind, callerId);
@@ -1788,6 +1795,9 @@ public class ExperimentDesignerActivity extends FragmentActivity
     }
 
     private void deleteTimerData(long id) {
+        mExperiment.timers.remove(id);
+
+        updateRuleReferencesToObject(id, ExperimentObject.KIND_TIMER, null);
         removeReferencesTo(ExperimentObject.KIND_TIMER, id);
     }
 
@@ -1999,6 +2009,13 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 Prop prop = mExperiment.props.get(propId);
                 if (prop.satisfiesFilter(filter)) {
                     objects.add(new Pair<ExperimentObject, Long>(prop, propId));
+                }
+            }
+
+            for (Long timerId : scene.timers) {
+                Timer timer = mExperiment.timers.get(timerId);
+                if (timer.satisfiesFilter(filter)) {
+                    objects.add(new Pair<ExperimentObject, Long>(timer, timerId));
                 }
             }
         } else if (scopeLevel == SCOPE_LOOP) {

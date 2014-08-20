@@ -183,5 +183,6 @@
     <string name="text_timer_infinite">Until Stopped</string>
     <string name="label_timer_kind_periodic">Periodic</string>
     <string name="label_timer_kind_reset">Reset</string>
+    <string name="event_trigger">On Trigger</string>
 
 </resources>

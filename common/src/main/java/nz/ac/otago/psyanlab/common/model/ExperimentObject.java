@@ -152,6 +152,8 @@ public abstract class ExperimentObject {
                 return R.string.label_data_source;
             case KIND_EVENT:
                 return R.string.label_event;
+            case KIND_TIMER:
+                return R.string.label_timer;
 
             default:
                 throw new RuntimeException("Unknown experiment object kind " + kind);

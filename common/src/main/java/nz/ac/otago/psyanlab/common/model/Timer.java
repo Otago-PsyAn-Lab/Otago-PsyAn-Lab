@@ -25,6 +25,7 @@ import com.google.gson.annotations.Expose;
 import android.content.Context;
 
 import nz.ac.otago.psyanlab.common.R;
+import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
@@ -33,9 +34,24 @@ public abstract class Timer extends ExperimentObject {
 
     public static final long TIMER_KIND_PERIODIC = 0x01;
 
+    protected static final int EVENT_TRIGGER = 0x01;
+
     private static final int METHOD_START = 0x01;
 
     private static final int METHOD_STOP = 0x02;
+
+    public static class EventNameFactory implements NameResolverFactory {
+        @Override
+        public String getName(Context context, int lookup) {
+            switch (lookup) {
+                case EVENT_TRIGGER:
+                    return context.getString(R.string.event_trigger);
+
+                default:
+                    return context.getString(R.string.event_missing_string);
+            }
+        }
+    }
 
     protected static class MethodNameFactory implements NameResolverFactory {
         @Override
@@ -57,6 +73,9 @@ public abstract class Timer extends ExperimentObject {
     @Expose
     public long waitValue;
 
+    @EventData(id = EVENT_TRIGGER, type = EventData.EVENT_NO_OBJECT)
+    public void eventTrigger() {}
+
     @Override
     public String getExperimentObjectName(Context context) {
         return name;
@@ -65,6 +84,11 @@ public abstract class Timer extends ExperimentObject {
     @Override
     public int getKindResId() {
         return R.string.label_timer;
+    }
+
+    @Override
+    public NameResolverFactory getMethodNameFactory() {
+        return new MethodNameFactory();
     }
 
     public String getStringFor(Context context, int resId) {

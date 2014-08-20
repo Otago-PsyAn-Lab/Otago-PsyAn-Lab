@@ -65,39 +65,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         return init(new SceneFragment(), id);
     }
 
-    protected final OnClickListener mEditStageClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            mCallbacks.startEditStage(mObjectId);
-        }
-    };
-
-    protected final OnClickListener mNewRuleClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            onNewRule();
-        }
-    };
-
-    protected final OnItemClickListener mRuleItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
-                mViews.rulesList.setItemChecked(position, true);
-            } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
-                onRuleClick(id);
-
-                View handle = mViews.rulesList.getChildAt(
-                        position - mViews.rulesList.getFirstVisiblePosition() +
-                        mViews.rulesList.getHeaderViewsCount()).findViewById(R.id.handle);
-                if (handle != null) {
-                    handle.setEnabled(true);
-                    handle.setVisibility(View.VISIBLE);
-                }
-            }
-        }
-    };
-
     protected ActionMode mActionMode;
 
     protected final OnItemLongClickListener mRuleItemLongClickListener =
@@ -127,7 +94,40 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
                 }
             };
 
+    protected final OnClickListener mEditStageClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mCallbacks.startEditStage(mObjectId);
+        }
+    };
+
+    protected final OnClickListener mNewRuleClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onNewRule();
+        }
+    };
+
     protected PropAdapter mPropAdapter;
+
+    protected final OnItemClickListener mRuleItemClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
+                mViews.rulesList.setItemChecked(position, true);
+            } else if (mViews.rulesList.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
+                onRuleClick(id);
+
+                View handle = mViews.rulesList.getChildAt(
+                        position - mViews.rulesList.getFirstVisiblePosition() +
+                        mViews.rulesList.getHeaderViewsCount()).findViewById(R.id.handle);
+                if (handle != null) {
+                    handle.setEnabled(true);
+                    handle.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    };
 
     protected ProgramComponentAdapter<Rule> mRulesAdapter;
 
@@ -331,10 +331,9 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         final long newTimerId = mCallbacks.addTimer(timer);
         timer.name = getString(R.string.default_name_new_timer, newTimerId + 1);
 
-        mScene.timers.add(newTimerId);
         mCallbacks.putScene(mObjectId, mScene);
 
-        EditTimerDialogueFragment dialogue = EditTimerDialogueFragment.newDialogue(newTimerId, true);
+        EditTimerDialogueFragment dialogue = EditTimerDialogueFragment.newDialogue(mObjectId, newTimerId, true);
         dialogue.show(getChildFragmentManager(), "dialogue_edit_timer");
     }
 
@@ -343,7 +342,7 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
     }
 
     protected void showEditTimerDialogue(long id) {
-        EditTimerDialogueFragment dialogue = EditTimerDialogueFragment.newDialogue(id, false);
+        EditTimerDialogueFragment dialogue = EditTimerDialogueFragment.newDialogue(mObjectId, id, false);
         dialogue.show(getChildFragmentManager(), "dialogue_edit_timer");
     }
 
@@ -352,8 +351,6 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
     }
 
     private class ViewHolder extends BaseProgramFragment.ViewHolder<Scene> {
-        public final ListView timersList;
-
         public View editStage;
 
         public TextView editStagePsuedoButton;
@@ -369,6 +366,8 @@ public class SceneFragment extends BaseProgramFragment implements SceneDataChang
         public TextView stageDetail;
 
         public StageView stageThumb;
+
+        public final ListView timersList;
 
         private View mEmpty;
 

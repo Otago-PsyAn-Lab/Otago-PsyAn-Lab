@@ -29,6 +29,10 @@ import nz.ac.otago.psyanlab.common.model.Timer;
 import nz.ac.otago.psyanlab.common.model.util.NameResolverFactory;
 
 public class Periodic extends Timer {
+    public static NameResolverFactory getEventNameFactory() {
+        return new EventNameFactory();
+    }
+
     protected static class MethodNameFactory extends Timer.MethodNameFactory {
         @Override
         public String getName(Context context, int lookup) {

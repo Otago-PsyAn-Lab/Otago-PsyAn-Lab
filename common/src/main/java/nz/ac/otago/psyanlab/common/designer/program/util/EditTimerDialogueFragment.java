@@ -50,11 +50,14 @@ import nz.ac.otago.psyanlab.common.util.TextViewHolder;
 public class EditTimerDialogueFragment extends DialogFragment {
     private static final String ARG_IS_NEW = "arg_is_new";
 
+    private static final String ARG_SCENE_ID = "arg_scene_id";
+
     private static final String ARG_ID = "arg_id";
 
-    public static EditTimerDialogueFragment newDialogue(long timerId, boolean isNew) {
+    public static EditTimerDialogueFragment newDialogue(long sceneId, long timerId, boolean isNew) {
         EditTimerDialogueFragment f = new EditTimerDialogueFragment();
         Bundle args = new Bundle();
+        args.putLong(ARG_SCENE_ID, sceneId);
         args.putLong(ARG_ID, timerId);
         args.putBoolean(ARG_IS_NEW, isNew);
         f.setArguments(args);
@@ -213,18 +216,10 @@ public class EditTimerDialogueFragment extends DialogFragment {
 
     protected long mTimerId;
 
-    protected View.OnClickListener mConfirmClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            mTimer = mViews.getViewValues(mTimer);
-            mCallbacks.putTimer(mTimerId, mTimer);
-            dismiss();
-        }
-    };
-
     protected View.OnClickListener mDeleteClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            mCallbacks.getScene(mSceneId).timers.remove(mTimerId);
             mCallbacks.deleteTimer(mTimerId);
             dismiss();
         }
@@ -250,6 +245,19 @@ public class EditTimerDialogueFragment extends DialogFragment {
 
     private boolean mIsNew;
 
+    protected View.OnClickListener mConfirmClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mTimer = mViews.getViewValues(mTimer);
+
+            if (mIsNew) {
+                mCallbacks.getScene(mSceneId).timers.add(mTimerId);
+            }
+            mCallbacks.putTimer(mTimerId, mTimer);
+            dismiss();
+        }
+    };
+
     protected View.OnClickListener mDiscardClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -259,6 +267,8 @@ public class EditTimerDialogueFragment extends DialogFragment {
             dismiss();
         }
     };
+
+    private long mSceneId;
 
     @Override
     public void onAttach(Activity activity) {
@@ -293,6 +303,7 @@ public class EditTimerDialogueFragment extends DialogFragment {
 
         mTimerId = args.getLong(ARG_ID);
         mIsNew = args.getBoolean(ARG_IS_NEW);
+        mSceneId = args.getLong(ARG_SCENE_ID);
 
         mTimer = mCallbacks.getTimer(mTimerId);
 
@@ -363,7 +374,7 @@ public class EditTimerDialogueFragment extends DialogFragment {
             if (timer == null) {
                 return;
             }
-            
+
             mName.setText(timer.name);
             mWaitValue.setText(String.valueOf(timer.waitValue));
 

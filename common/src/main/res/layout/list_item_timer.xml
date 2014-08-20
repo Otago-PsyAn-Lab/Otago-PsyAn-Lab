@@ -18,35 +18,24 @@
   all legal notices and author attributions must be preserved.
   -->
 
-<RelativeLayout
+<GridLayout
     style="@style/card"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeightLarge"
-    android:background="@drawable/scene_button">
+    android:layout_height="wrap_content"
+    android:background="@drawable/scene_button"
+    android:columnCount="2"
+    android:useDefaultMargins="true">
 
     <TextView
-        android:id="@+id/timer_iterations"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="16dip"
-        android:layout_marginStart="16dip"
+        android:id="@android:id/text1"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/timer_type"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/iterations"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="16dip"
-        android:layout_marginStart="16dip"
+        android:layout_gravity="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:textAllCaps="true"
@@ -54,29 +43,13 @@
 
     <TextView
         android:id="@android:id/text2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_toLeftOf="@+id/type"
-        android:layout_toStartOf="@+id/type"
         android:fontFamily="sans-serif-light"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
-        android:id="@android:id/text1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@android:id/text2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_toLeftOf="@+id/type"
-        android:layout_toStartOf="@+id/type"
+        android:id="@+id/timer_iterations"
+        android:layout_gravity="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-</RelativeLayout>
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+</GridLayout>

@@ -1,4 +1,3 @@
-
 /*
  Copyright (C) 2012, 2013, 2014 University of Otago, Tonic Artos <tonic.artos@gmail.com>
 
@@ -47,6 +46,8 @@ public class AbsModelGsonAdapter<T> implements JsonSerializer<T>, JsonDeserializ
 
     public static final String NS_MODEL_VARIABLE = "nz.ac.otago.psyanlab.common.model.variable.";
 
+    public static final String NS_MODEL_TIMER = "nz.ac.otago.psyanlab.common.model.timer.";
+
     private String mNamespace;
 
     public AbsModelGsonAdapter(String namespace) {
@@ -62,11 +63,9 @@ public class AbsModelGsonAdapter<T> implements JsonSerializer<T>, JsonDeserializ
 
         try {
             return jctx.deserialize(element, Class.forName(mNamespace + type));
-
         } catch (ClassNotFoundException e) {
             throw new JsonParseException("Unknown element type: " + type, e);
         }
-
     }
 
     @Override

@@ -35,6 +35,7 @@ import nz.ac.otago.psyanlab.common.model.Generator;
 import nz.ac.otago.psyanlab.common.model.Operand;
 import nz.ac.otago.psyanlab.common.model.Prop;
 import nz.ac.otago.psyanlab.common.model.Question;
+import nz.ac.otago.psyanlab.common.model.Timer;
 import nz.ac.otago.psyanlab.common.model.TouchEvent;
 import nz.ac.otago.psyanlab.common.model.TouchMotionEvent;
 import nz.ac.otago.psyanlab.common.model.Variable;
@@ -72,6 +73,8 @@ public class ModelUtils {
                     AbsModelGsonAdapter.NS_MODEL_ASSET));
             gson.registerTypeAdapter(Variable.class, new AbsModelGsonAdapter<Variable>(
                     AbsModelGsonAdapter.NS_MODEL_VARIABLE));
+            gson.registerTypeAdapter(Timer.class, new AbsModelGsonAdapter<Timer>(
+                    AbsModelGsonAdapter.NS_MODEL_TIMER));
             if (BuildConfig.DEBUG) {
                 gson.setPrettyPrinting();
             }

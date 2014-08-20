@@ -84,6 +84,7 @@ import nz.ac.otago.psyanlab.common.model.chansrc.Field;
 import nz.ac.otago.psyanlab.common.model.operand.CallValue;
 import nz.ac.otago.psyanlab.common.model.operand.ExpressionValue;
 import nz.ac.otago.psyanlab.common.model.operand.StubOperand;
+import nz.ac.otago.psyanlab.common.model.operand.kind.CallOperand;
 import nz.ac.otago.psyanlab.common.model.util.EventData;
 import nz.ac.otago.psyanlab.common.model.util.MethodId;
 import nz.ac.otago.psyanlab.common.model.util.ModelUtils;
@@ -2491,10 +2492,33 @@ public class ExperimentDesignerActivity extends FragmentActivity
                 updateReferencesToVariable(id);
                 break;
             case ExperimentObject.KIND_TIMER:
+                updateReferencesToTimer(id);
             case ExperimentObject.KIND_GENERATOR:
                 // Objects of these kinds have no API differences between subtypes.
             default:
                 break;
+        }
+    }
+
+    private void updateReferencesToTimer(long id) {
+        for (Entry<Long, Rule> entry : mExperiment.rules.entrySet()) {
+            Rule rule = entry.getValue();
+            if (rule.triggerObject.kind == ExperimentObject.KIND_TIMER && rule.triggerObject.id == id) {
+                notifyRuleDataChangeListeners();
+                break;
+            }
+        }
+
+        for (Entry<Long, Operand> entry : mExperiment.operands.entrySet()) {
+            Operand operand = entry.getValue();
+            if (operand instanceof CallOperand) {
+                CallOperand call = (CallOperand) operand;
+                ExperimentObjectReference ref = call.getObject();
+                if (ref.kind == ExperimentObject.KIND_TIMER && ref.id == id) {
+                    notifyOperandDataChangeListeners();
+                    notifyOperandAdapters(entry.getKey());
+                }
+            }
         }
     }
 

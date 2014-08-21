@@ -69,7 +69,7 @@ public abstract class Variable extends ExperimentObject implements Comparable<Va
     }
 
     @Expose
-    public String name;
+    public String name = "";
 
     public Variable() {}
 
